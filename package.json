@@ -3,8 +3,13 @@
   "version": "0.1.0",
   "private": true,
   "description": "Cameroon Housing Marketplace - Making home rental simple, transparent & trustworthy",
-  "workspaces": ["web", "mobile"],
-  "trustedDependencies": ["@biomejs/biome"],
+  "workspaces": [
+    "web",
+    "mobile"
+  ],
+  "trustedDependencies": [
+    "@biomejs/biome"
+  ],
   "scripts": {
     "dev": "bun run dev:web",
     "dev:all": "concurrently \"bun run dev:web\" \"bun run dev:convex\"",
