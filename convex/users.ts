@@ -154,6 +154,59 @@ export const getUserById = query({
 // Mutations requiring authentication
 // ============================================================================
 
+// Ensure current user exists (fallback for webhook race condition)
+export const ensureCurrentUser = mutation({
+    args: {
+        email: v.string(),
+        firstName: v.optional(v.string()),
+        lastName: v.optional(v.string()),
+        profileImageUrl: v.optional(v.string()),
+        phone: v.optional(v.string()),
+        role: v.union(v.literal('renter'), v.literal('landlord')),
+    },
+    handler: async (ctx, args) => {
+        const identity = await ctx.auth.getUserIdentity();
+        if (!identity) {
+            throw new Error('Not authenticated');
+        }
+
+        const clerkId = identity.subject;
+
+        // Check if user already exists
+        const existingUser = await ctx.db
+            .query('users')
+            .withIndex('by_clerk_id', (q) => q.eq('clerkId', clerkId))
+            .unique();
+
+        if (existingUser) {
+            // Update last login
+            await ctx.db.patch(existingUser._id, { lastLogin: Date.now() });
+            return existingUser._id;
+        }
+
+        // Create new user
+        const userId = await ctx.db.insert('users', {
+            clerkId,
+            email: args.email,
+            phone: args.phone,
+            role: args.role,
+            firstName: args.firstName,
+            lastName: args.lastName,
+            profileImageUrl: args.profileImageUrl,
+            languagePreference: 'fr',
+            emailVerified: true,
+            phoneVerified: false,
+            idVerified: false,
+            isActive: true,
+            onboardingCompleted: false,
+            lastLogin: Date.now(),
+        });
+
+        console.log(`Created user ${userId} via ensureCurrentUser`);
+        return userId;
+    },
+});
+
 // Update user profile
 export const updateProfile = mutation({
     args: {
