@@ -2,7 +2,7 @@ import { ClerkLoaded, ClerkProvider, useAuth } from '@clerk/clerk-expo';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ConvexReactClient, ConvexProvider } from 'convex/react';
 import { ConvexProviderWithClerk } from 'convex/react-clerk';
-import { Stack } from 'expo-router';
+import { Slot } from 'expo-router';
 import * as SecureStore from 'expo-secure-store';
 import { StatusBar } from 'expo-status-bar';
 import { useEffect } from 'react';
@@ -80,22 +80,7 @@ function AppContent() {
       <SafeAreaProvider>
         <DataProviders>
           <QueryClientProvider client={queryClient}>
-            <Stack
-              screenOptions={{
-                headerShown: false,
-              }}
-            >
-              <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-              <Stack.Screen name="(auth)" options={{ headerShown: false }} />
-              <Stack.Screen
-                name="property/[id]"
-                options={{
-                  headerShown: true,
-                  headerTitle: '',
-                  headerBackTitle: 'Back',
-                }}
-              />
-            </Stack>
+            <Slot />
             <StatusBar style="auto" />
           </QueryClientProvider>
         </DataProviders>

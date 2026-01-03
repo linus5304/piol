@@ -1,4 +1,4 @@
-import { Redirect, Stack } from 'expo-router';
+import { Redirect, Slot } from 'expo-router';
 
 // Check if Clerk is configured
 const isClerkConfigured = !!process.env.EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY && 
@@ -25,16 +25,5 @@ export default function AuthLayout() {
     return <Redirect href="/(tabs)" />;
   }
 
-  return (
-    <Stack
-      screenOptions={{
-        headerShown: false,
-        animation: 'slide_from_right',
-      }}
-    >
-      <Stack.Screen name="welcome" />
-      <Stack.Screen name="sign-in" />
-      <Stack.Screen name="sign-up" />
-    </Stack>
-  );
+  return <Slot />;
 }
