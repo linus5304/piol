@@ -1,0 +1,36 @@
+{
+  "name": "piol",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Cameroon Housing Marketplace - Making home rental simple, transparent & trustworthy",
+  "workspaces": ["web", "mobile"],
+  "trustedDependencies": ["@biomejs/biome"],
+  "scripts": {
+    "dev": "bun run dev:web",
+    "dev:all": "concurrently \"bun run dev:web\" \"bun run dev:convex\"",
+    "dev:web": "bun run --cwd web dev",
+    "dev:mobile": "bun run --cwd mobile start",
+    "dev:convex": "bunx convex dev",
+    "convex:init": "bunx convex dev --once",
+    "build": "bun run --cwd web build",
+    "lint": "biome check .",
+    "lint:fix": "biome check --write .",
+    "format": "biome format --write .",
+    "prepare": "husky",
+    "test": "bun run --cwd web test",
+    "test:mobile": "bun run --cwd mobile test"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "1.9.4",
+    "concurrently": "^9.1.0",
+    "husky": "^9.1.7",
+    "lint-staged": "^15.2.10",
+    "typescript": "^5.7.2"
+  },
+  "dependencies": {
+    "convex": "^1.17.4"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  }
+}
