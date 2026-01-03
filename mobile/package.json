@@ -54,5 +54,14 @@
     "ts-jest": "^29.4.6",
     "typescript": "~5.9.2"
   },
+  "overrides": {
+    "react": "19.1.0",
+    "@clerk/clerk-react": {
+      "react": "19.1.0"
+    },
+    "@clerk/clerk-expo": {
+      "react": "19.1.0"
+    }
+  },
   "private": true
 }
