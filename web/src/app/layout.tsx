@@ -1,4 +1,4 @@
-import type { Metadata } from 'next';
+import type { Metadata, Viewport } from 'next';
 import { ClerkProvider } from '@clerk/nextjs';
 import { frFR, enUS } from '@clerk/localizations';
 import { NextIntlClientProvider } from 'next-intl';
@@ -26,7 +26,6 @@ export const metadata: Metadata = {
   keywords: ['rental', 'housing', 'cameroon', 'douala', 'yaoundé', 'apartment', 'property'],
   authors: [{ name: 'Piol' }],
   manifest: '/manifest.json',
-  themeColor: '#FF385C',
   appleWebApp: {
     capable: true,
     statusBarStyle: 'default',
@@ -50,6 +49,14 @@ export const metadata: Metadata = {
   },
 };
 
+export const viewport: Viewport = {
+  themeColor: '#FF385C',
+};
+
+// Check if Clerk is properly configured
+const clerkKey = process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY;
+const isClerkConfigured = clerkKey && !clerkKey.includes('REPLACE_WITH');
+
 export default async function RootLayout({
   children,
 }: Readonly<{
@@ -60,6 +67,24 @@ export default async function RootLayout({
 
   // Select Clerk localization based on locale
   const clerkLocalization = locale === 'en' ? enUS : frFR;
+
+  const content = (
+    <html lang={locale} suppressHydrationWarning>
+      <body className={`${spaceGrotesk.variable} ${jetbrainsMono.variable} font-sans antialiased`}>
+        <NextIntlClientProvider messages={messages}>
+          <ConnectionStatus />
+          <Providers>{children}</Providers>
+        </NextIntlClientProvider>
+        <Toaster position="top-right" richColors />
+      </body>
+    </html>
+  );
+
+  // If Clerk is not configured, render without ClerkProvider
+  if (!isClerkConfigured) {
+    console.warn('⚠️ Clerk not configured - running in demo mode without authentication');
+    return content;
+  }
 
   return (
     <ClerkProvider
@@ -80,15 +105,7 @@ export default async function RootLayout({
         },
       }}
     >
-      <html lang={locale} suppressHydrationWarning>
-        <body className={`${spaceGrotesk.variable} ${jetbrainsMono.variable} font-sans antialiased`}>
-          <NextIntlClientProvider messages={messages}>
-            <ConnectionStatus />
-            <Providers>{children}</Providers>
-          </NextIntlClientProvider>
-          <Toaster position="top-right" richColors />
-        </body>
-      </html>
+      {content}
     </ClerkProvider>
   );
 }
