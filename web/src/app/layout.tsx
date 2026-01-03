@@ -1,6 +1,8 @@
 import type { Metadata } from 'next';
 import { ClerkProvider } from '@clerk/nextjs';
 import { frFR, enUS } from '@clerk/localizations';
+import { NextIntlClientProvider } from 'next-intl';
+import { getMessages, getLocale } from 'next-intl/server';
 import { JetBrains_Mono, Space_Grotesk } from 'next/font/google';
 import './globals.css';
 import { Toaster } from '@/components/ui/sonner';
@@ -31,14 +33,20 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const locale = await getLocale();
+  const messages = await getMessages();
+
+  // Select Clerk localization based on locale
+  const clerkLocalization = locale === 'en' ? enUS : frFR;
+
   return (
     <ClerkProvider
-      localization={frFR}
+      localization={clerkLocalization}
       appearance={{
         variables: {
           colorPrimary: '#FF385C',
@@ -55,9 +63,11 @@ export default function RootLayout({
         },
       }}
     >
-      <html lang="fr" suppressHydrationWarning>
+      <html lang={locale} suppressHydrationWarning>
         <body className={`${spaceGrotesk.variable} ${jetbrainsMono.variable} font-sans antialiased`}>
-          <Providers>{children}</Providers>
+          <NextIntlClientProvider messages={messages}>
+            <Providers>{children}</Providers>
+          </NextIntlClientProvider>
           <Toaster position="top-right" richColors />
         </body>
       </html>
