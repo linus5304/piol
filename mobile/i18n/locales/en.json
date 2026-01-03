@@ -13,7 +13,8 @@
     "done": "Done",
     "search": "Search",
     "filter": "Filter",
-    "sort": "Sort"
+    "sort": "Sort",
+    "and": "and"
   },
   "tabs": {
     "home": "Home",
@@ -43,10 +44,29 @@
     "forgotPassword": "Forgot password?",
     "noAccount": "No account?",
     "hasAccount": "Already have an account?",
+    "alreadyHaveAccount": "Already have an account?",
     "createAccount": "Create account",
+    "createAccountSubtitle": "Join thousands of users in Cameroon",
     "selectRole": "I am a...",
     "renter": "Renter",
-    "landlord": "Landlord"
+    "landlord": "Landlord",
+    "signIn": "Sign In",
+    "signUp": "Sign Up",
+    "signInSubtitle": "Welcome back! Enter your credentials",
+    "invalidCredentials": "Invalid email or password",
+    "signUpError": "Unable to create account",
+    "iAmRenter": "I'm looking for a home",
+    "iAmLandlord": "I'm renting properties",
+    "passwordRequirements": "Minimum 8 characters",
+    "bySigningUp": "By signing up, you agree to our",
+    "termsOfService": "Terms of Service",
+    "privacyPolicy": "Privacy Policy",
+    "verifyEmail": "Verify your email",
+    "verifyEmailSubtitle": "We sent a code to your email",
+    "verificationCode": "Verification code",
+    "verify": "Verify",
+    "verificationError": "Invalid verification code",
+    "continueWithGoogle": "Continue with Google"
   },
   "home": {
     "title": "Home",
@@ -95,6 +115,7 @@
   "messages": {
     "title": "Messages",
     "you": "You",
+    "noConversations": "No conversations yet",
     "emptyTitle": "No messages",
     "emptyDescription": "Contact a landlord to start a conversation",
     "typeMessage": "Type a message...",

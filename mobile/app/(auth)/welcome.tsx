@@ -1,21 +1,48 @@
+import { useOAuth, useAuth } from '@clerk/clerk-expo';
 import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
-import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
+import { Pressable, StyleSheet, Text, View, ActivityIndicator } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import * as WebBrowser from 'expo-web-browser';
+import { useEffect } from 'react';
+
+WebBrowser.maybeCompleteAuthSession();
 
 export default function WelcomeScreen() {
   const { t, i18n } = useTranslation();
   const router = useRouter();
+  const { isSignedIn } = useAuth();
+  const { startOAuthFlow: startGoogleOAuth } = useOAuth({ strategy: 'oauth_google' });
+
+  useEffect(() => {
+    if (isSignedIn) {
+      router.replace('/(tabs)');
+    }
+  }, [isSignedIn, router]);
 
   const toggleLanguage = () => {
     const newLang = i18n.language === 'fr' ? 'en' : 'fr';
     i18n.changeLanguage(newLang);
   };
 
+  const handleGoogleSignIn = async () => {
+    try {
+      const { createdSessionId, setActive } = await startGoogleOAuth();
+      if (createdSessionId && setActive) {
+        await setActive({ session: createdSessionId });
+        router.replace('/(tabs)');
+      }
+    } catch (err) {
+      console.error('OAuth error:', err);
+    }
+  };
+
   return (
     <SafeAreaView style={styles.container}>
       <Pressable style={styles.languageToggle} onPress={toggleLanguage}>
-        <Text style={styles.languageToggleText}>{i18n.language === 'fr' ? '🇬🇧 EN' : '🇫🇷 FR'}</Text>
+        <Text style={styles.languageToggleText}>
+          {i18n.language === 'fr' ? '🇬🇧 EN' : '🇫🇷 FR'}
+        </Text>
       </Pressable>
 
       <View style={styles.content}>
@@ -44,11 +71,15 @@ export default function WelcomeScreen() {
       </View>
 
       <View style={styles.buttons}>
-        <Pressable style={styles.primaryButton} onPress={() => router.push('/(auth)/register')}>
+        <Pressable style={styles.primaryButton} onPress={() => router.push('/(auth)/sign-up')}>
           <Text style={styles.primaryButtonText}>{t('welcome.getStarted')}</Text>
         </Pressable>
 
-        <Pressable style={styles.secondaryButton} onPress={() => router.push('/(auth)/login')}>
+        <Pressable style={styles.googleButton} onPress={handleGoogleSignIn}>
+          <Text style={styles.googleButtonText}>🔵 {t('auth.continueWithGoogle')}</Text>
+        </Pressable>
+
+        <Pressable style={styles.secondaryButton} onPress={() => router.push('/(auth)/sign-in')}>
           <Text style={styles.secondaryButtonText}>{t('welcome.alreadyHaveAccount')}</Text>
         </Pressable>
       </View>
@@ -90,7 +121,7 @@ const styles = StyleSheet.create({
   appName: {
     fontSize: 32,
     fontWeight: '700',
-    color: '#2563eb',
+    color: '#FF385C',
   },
   title: {
     fontSize: 28,
@@ -128,7 +159,7 @@ const styles = StyleSheet.create({
     gap: 12,
   },
   primaryButton: {
-    backgroundColor: '#2563eb',
+    backgroundColor: '#FF385C',
     paddingVertical: 16,
     borderRadius: 12,
     alignItems: 'center',
@@ -138,13 +169,26 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     color: '#fff',
   },
+  googleButton: {
+    backgroundColor: '#fff',
+    paddingVertical: 16,
+    borderRadius: 12,
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: '#e5e7eb',
+  },
+  googleButtonText: {
+    fontSize: 16,
+    fontWeight: '500',
+    color: '#374151',
+  },
   secondaryButton: {
     paddingVertical: 16,
     alignItems: 'center',
   },
   secondaryButtonText: {
     fontSize: 16,
-    color: '#2563eb',
+    color: '#FF385C',
     fontWeight: '500',
   },
 });

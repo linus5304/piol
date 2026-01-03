@@ -1,7 +1,7 @@
 {
   "common": {
     "loading": "Chargement...",
-    "error": "Une erreur s'est produite",
+    "error": "Une erreur est survenue",
     "retry": "Réessayer",
     "cancel": "Annuler",
     "save": "Enregistrer",
@@ -13,7 +13,8 @@
     "done": "Terminé",
     "search": "Rechercher",
     "filter": "Filtrer",
-    "sort": "Trier"
+    "sort": "Trier",
+    "and": "et"
   },
   "tabs": {
     "home": "Accueil",
@@ -24,7 +25,7 @@
   },
   "welcome": {
     "title": "Trouvez votre maison idéale",
-    "subtitle": "La plateforme de location immobilière la plus fiable au Cameroun",
+    "subtitle": "La plateforme de location la plus fiable au Cameroun",
     "feature1": "Propriétés vérifiées",
     "feature2": "Paiement Mobile Money sécurisé",
     "feature3": "Support bilingue FR/EN",
@@ -42,15 +43,34 @@
     "lastName": "Nom",
     "forgotPassword": "Mot de passe oublié?",
     "noAccount": "Pas de compte?",
-    "hasAccount": "Déjà un compte?",
+    "hasAccount": "Vous avez déjà un compte?",
+    "alreadyHaveAccount": "Vous avez déjà un compte?",
     "createAccount": "Créer un compte",
-    "selectRole": "Je suis un...",
+    "createAccountSubtitle": "Rejoignez des milliers d'utilisateurs au Cameroun",
+    "selectRole": "Je suis...",
     "renter": "Locataire",
-    "landlord": "Propriétaire"
+    "landlord": "Propriétaire",
+    "signIn": "Se connecter",
+    "signUp": "S'inscrire",
+    "signInSubtitle": "Bienvenue! Entrez vos identifiants",
+    "invalidCredentials": "Email ou mot de passe invalide",
+    "signUpError": "Impossible de créer le compte",
+    "iAmRenter": "Je cherche un logement",
+    "iAmLandlord": "Je loue des propriétés",
+    "passwordRequirements": "Minimum 8 caractères",
+    "bySigningUp": "En vous inscrivant, vous acceptez nos",
+    "termsOfService": "Conditions d'utilisation",
+    "privacyPolicy": "Politique de confidentialité",
+    "verifyEmail": "Vérifiez votre email",
+    "verifyEmailSubtitle": "Nous avons envoyé un code à votre email",
+    "verificationCode": "Code de vérification",
+    "verify": "Vérifier",
+    "verificationError": "Code de vérification invalide",
+    "continueWithGoogle": "Continuer avec Google"
   },
   "home": {
     "title": "Accueil",
-    "subtitle": "Trouvez votre prochaine maison",
+    "subtitle": "Trouvez votre prochain logement",
     "featured": "À la une",
     "recent": "Récentes",
     "noProperties": "Aucune propriété disponible"
@@ -64,7 +84,7 @@
   "filters": {
     "all": "Tous",
     "verified": "Vérifiées",
-    "nearMe": "Près de moi",
+    "nearMe": "Proche de moi",
     "allCities": "Toutes les villes",
     "priceRange": "Fourchette de prix",
     "propertyType": "Type de propriété",
@@ -77,7 +97,7 @@
     "amenities": "Équipements",
     "location": "Localisation",
     "contact": "Contacter le propriétaire",
-    "save": "Enregistrer",
+    "save": "Sauvegarder",
     "share": "Partager",
     "report": "Signaler",
     "rentPerMonth": "/mois",
@@ -89,14 +109,15 @@
   "saved": {
     "title": "Favoris",
     "properties": "propriétés",
-    "emptyTitle": "Aucun favori",
-    "emptyDescription": "Enregistrez des propriétés pour les retrouver ici"
+    "emptyTitle": "Aucune propriété sauvegardée",
+    "emptyDescription": "Sauvegardez des propriétés pour les retrouver ici"
   },
   "messages": {
     "title": "Messages",
     "you": "Vous",
+    "noConversations": "Aucune conversation",
     "emptyTitle": "Aucun message",
-    "emptyDescription": "Contactez un propriétaire pour commencer une conversation",
+    "emptyDescription": "Contactez un propriétaire pour démarrer une conversation",
     "typeMessage": "Écrivez un message...",
     "send": "Envoyer"
   },
@@ -104,7 +125,7 @@
     "title": "Profil",
     "account": "Compte",
     "settings": "Paramètres",
-    "support": "Aide",
+    "support": "Support",
     "editProfile": "Modifier le profil",
     "myProperties": "Mes propriétés",
     "transactions": "Transactions",
@@ -117,7 +138,7 @@
   "roles": {
     "renter": "Locataire",
     "landlord": "Propriétaire",
-    "admin": "Administrateur",
+    "admin": "Admin",
     "verifier": "Vérificateur"
   },
   "propertyTypes": {
