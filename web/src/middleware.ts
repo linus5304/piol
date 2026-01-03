@@ -27,10 +27,10 @@ function passthroughMiddleware(_request: NextRequest) {
 // Export the appropriate middleware based on configuration
 export default isClerkConfigured
     ? clerkMiddleware(async (auth, request) => {
-          if (!isPublicRoute(request)) {
-              await auth.protect();
-          }
-      })
+        if (!isPublicRoute(request)) {
+            await auth.protect();
+        }
+    })
     : passthroughMiddleware;
 
 export const config = {
