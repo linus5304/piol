@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import Image from 'next/image';
 import { useState, useCallback } from 'react';
 import { cn } from '@/lib/utils';
 import { Heart, MapPin, Bed, Bath, Wifi, Car, Wind, Shield, ImageOff } from 'lucide-react';
@@ -153,14 +154,15 @@ export function PropertyCard({
               <ImageOff className="w-8 h-8 text-neutral-400" />
             </div>
           ) : (
-            <img
+            <Image
               src={imageUrl}
               alt={property.title}
-              loading="lazy"
+              fill
+              sizes="(max-width: 768px) 100vw, 192px"
               onLoad={() => setImageLoaded(true)}
               onError={handleImageError}
               className={cn(
-                'w-full h-full object-cover transition-transform duration-300 group-hover:scale-105',
+                'object-cover transition-transform duration-300 group-hover:scale-105',
                 !imageLoaded && 'opacity-0'
               )}
             />
@@ -248,14 +250,16 @@ export function PropertyCard({
             <ImageOff className="w-12 h-12 text-neutral-400" />
           </div>
         ) : (
-          <img
+          <Image
             src={imageUrl}
             alt={property.title}
-            loading="lazy"
+            fill
+            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+            priority={false}
             onLoad={() => setImageLoaded(true)}
             onError={handleImageError}
             className={cn(
-              'w-full h-full object-cover transition-transform duration-300 group-hover:scale-105',
+              'object-cover transition-transform duration-300 group-hover:scale-105',
               !imageLoaded && 'opacity-0'
             )}
           />

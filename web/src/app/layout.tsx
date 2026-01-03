@@ -25,12 +25,28 @@ export const metadata: Metadata = {
     'Find your perfect home in Cameroon. Verified properties, secure payments, and trusted landlords.',
   keywords: ['rental', 'housing', 'cameroon', 'douala', 'yaoundé', 'apartment', 'property'],
   authors: [{ name: 'Piol' }],
+  manifest: '/manifest.json',
+  themeColor: '#FF385C',
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: 'default',
+    title: 'Piol',
+  },
+  formatDetection: {
+    telephone: true,
+  },
   openGraph: {
     title: 'Piol - Cameroon Housing Marketplace',
     description: 'Find your perfect home in Cameroon',
     type: 'website',
     locale: 'fr_CM',
     alternateLocale: 'en_CM',
+    siteName: 'Piol',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Piol - Cameroon Housing Marketplace',
+    description: 'Find your perfect home in Cameroon',
   },
 };
 
