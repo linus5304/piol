@@ -29,13 +29,14 @@ import { useTranslations } from 'next-intl';
 
 const cities = ['Douala', 'Yaoundé', 'Bafoussam', 'Buea', 'Kribi', 'Limbé', 'Bamenda', 'Garoua'];
 
+// Category keys - labels will come from i18n
 const propertyCategories = [
-  { value: 'all', label: 'Tous', icon: Grid3X3 },
-  { value: 'studio', label: 'Studios', icon: Hotel },
-  { value: 'apartment', label: 'Appartements', icon: Building2 },
-  { value: 'house', label: 'Maisons', icon: Home },
-  { value: 'villa', label: 'Villas', icon: Castle },
-  { value: 'commercial', label: 'Commerces', icon: Warehouse },
+  { value: 'all', labelKey: 'categories.all', icon: Grid3X3 },
+  { value: 'studio', labelKey: 'categories.studios', icon: Hotel },
+  { value: 'apartment', labelKey: 'categories.apartments', icon: Building2 },
+  { value: 'house', labelKey: 'categories.houses', icon: Home },
+  { value: 'villa', labelKey: 'categories.villas', icon: Castle },
+  { value: 'commercial', labelKey: 'categories.commercial', icon: Warehouse },
 ];
 
 const priceRanges = [
@@ -341,14 +342,14 @@ export default function PropertiesPage() {
                     <button
                       key={category.value}
                       onClick={() => setSelectedCategory(category.value)}
-                      className={`flex flex-col items-center gap-1 px-4 py-2 rounded-lg whitespace-nowrap transition-all ${
+                      className={`flex flex-col items-center gap-1 px-4 py-3 rounded-lg whitespace-nowrap transition-all min-w-[72px] touch-target ${
                         isActive
                           ? 'bg-neutral-100 text-neutral-900'
                           : 'text-neutral-600 hover:bg-neutral-50 hover:text-neutral-900'
                       }`}
                     >
                       <Icon className={`w-5 h-5 ${isActive ? 'text-primary' : ''}`} />
-                      <span className="text-xs font-medium">{category.label}</span>
+                      <span className="text-xs font-medium">{t(category.labelKey)}</span>
                     </button>
                   );
                 })}
@@ -470,9 +471,9 @@ export default function PropertiesPage() {
                 </span>
               )}
               {selectedCategory !== 'all' && (
-                <span className="inline-flex items-center gap-1 px-3 py-1 bg-neutral-100 rounded-full text-sm">
-                  {propertyCategories.find((c) => c.value === selectedCategory)?.label}
-                  <button onClick={() => setSelectedCategory('all')}>
+                <span className="inline-flex items-center gap-1 px-3 py-1.5 bg-neutral-100 rounded-full text-sm touch-target">
+                  {t(propertyCategories.find((c) => c.value === selectedCategory)?.labelKey || '')}
+                  <button onClick={() => setSelectedCategory('all')} className="p-1 -mr-1">
                     <X className="w-3 h-3" />
                   </button>
                 </span>

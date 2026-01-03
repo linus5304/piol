@@ -17,7 +17,10 @@
     "viewAll": "Voir tout",
     "seeMore": "Voir plus",
     "noResults": "Aucun résultat",
-    "loadMore": "Voir plus"
+    "loadMore": "Voir plus",
+    "noConnection": "Pas de connexion internet",
+    "connectionRestored": "Connexion rétablie",
+    "slowConnection": "Connexion lente détectée"
   },
   "nav": {
     "home": "Accueil",
@@ -100,6 +103,14 @@
     "mapComingSoon": "Carte interactive bientôt disponible",
     "showMap": "Afficher la carte",
     "showList": "Afficher la liste"
+  },
+  "categories": {
+    "all": "Tous",
+    "studios": "Studios",
+    "apartments": "Appartements",
+    "houses": "Maisons",
+    "villas": "Villas",
+    "commercial": "Commerces"
   },
   "propertyTypes": {
     "studio": "Studio",

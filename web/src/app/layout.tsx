@@ -7,6 +7,7 @@ import { JetBrains_Mono, Space_Grotesk } from 'next/font/google';
 import './globals.css';
 import { Toaster } from '@/components/ui/sonner';
 import { Providers } from './providers';
+import { ConnectionStatus } from '@/components/connection-status';
 
 const spaceGrotesk = Space_Grotesk({
   variable: '--font-sans',
@@ -66,6 +67,7 @@ export default async function RootLayout({
       <html lang={locale} suppressHydrationWarning>
         <body className={`${spaceGrotesk.variable} ${jetbrainsMono.variable} font-sans antialiased`}>
           <NextIntlClientProvider messages={messages}>
+            <ConnectionStatus />
             <Providers>{children}</Providers>
           </NextIntlClientProvider>
           <Toaster position="top-right" richColors />

@@ -1,9 +1,10 @@
 'use client';
 
 import Link from 'next/link';
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import { cn } from '@/lib/utils';
-import { Heart, MapPin, Bed, Bath, Wifi, Car, Wind, Shield } from 'lucide-react';
+import { Heart, MapPin, Bed, Bath, Wifi, Car, Wind, Shield, ImageOff } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 
 interface PropertyCardProps {
   property: {
@@ -43,16 +44,20 @@ interface PropertyCardProps {
   variant?: 'vertical' | 'horizontal';
 }
 
-const propertyTypeLabels: Record<string, string> = {
-  studio: 'Studio',
-  '1br': '1 Chambre',
-  '2br': '2 Chambres',
-  '3br': '3 Chambres',
-  '4br': '4+ Chambres',
-  house: 'Maison',
-  apartment: 'Appartement',
-  villa: 'Villa',
+// Property type keys for i18n lookup
+const propertyTypeKeys: Record<string, string> = {
+  studio: 'studio',
+  '1br': '1br',
+  '2br': '2br',
+  '3br': '3br',
+  '4br': '4br',
+  house: 'house',
+  apartment: 'apartment',
+  villa: 'villa',
 };
+
+// Fallback placeholder for when images fail to load
+const FALLBACK_IMAGE = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="400" height="300" viewBox="0 0 400 300"%3E%3Crect fill="%23f5f5f5" width="400" height="300"/%3E%3Ctext x="50%25" y="50%25" dominant-baseline="middle" text-anchor="middle" fill="%23999" font-family="system-ui" font-size="16"%3EImage non disponible%3C/text%3E%3C/svg%3E';
 
 // Curated list of beautiful property images from Unsplash
 const propertyImages = [
@@ -82,11 +87,30 @@ export function PropertyCard({
   className,
   variant = 'vertical',
 }: PropertyCardProps) {
+  const t = useTranslations();
   const [isSaved, setIsSaved] = useState(false);
   const [imageLoaded, setImageLoaded] = useState(false);
+  const [imageError, setImageError] = useState(false);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
   const imageUrl = property.images?.[0]?.url || getConsistentImage(property._id);
+  
+  // Handle image load error
+  const handleImageError = useCallback(() => {
+    setImageError(true);
+    setImageLoaded(true);
+  }, []);
+
+  // Get localized property type label
+  const getPropertyTypeLabel = (type: string) => {
+    const key = propertyTypeKeys[type];
+    return key ? t(`propertyTypes.${key}`) : type;
+  };
+
+  // Get localized amenity label
+  const getAmenityLabel = (amenityKey: string) => {
+    return t(`amenities.${amenityKey}`);
+  };
   const landlordName =
     property.landlordName ||
     (property.landlord ? `${property.landlord.firstName} ${property.landlord.lastName}` : '');
@@ -122,17 +146,25 @@ export function PropertyCard({
         )}
       >
         {/* Image */}
-        <div className="relative w-48 h-32 flex-shrink-0 rounded-xl overflow-hidden">
+        <div className="relative w-48 h-32 flex-shrink-0 rounded-xl overflow-hidden bg-neutral-100">
           {!imageLoaded && <div className="absolute inset-0 bg-neutral-200 animate-pulse" />}
-          <img
-            src={imageUrl}
-            alt={property.title}
-            onLoad={() => setImageLoaded(true)}
-            className={cn(
-              'w-full h-full object-cover transition-transform duration-300 group-hover:scale-105',
-              !imageLoaded && 'opacity-0'
-            )}
-          />
+          {imageError ? (
+            <div className="absolute inset-0 flex items-center justify-center bg-neutral-100">
+              <ImageOff className="w-8 h-8 text-neutral-400" />
+            </div>
+          ) : (
+            <img
+              src={imageUrl}
+              alt={property.title}
+              loading="lazy"
+              onLoad={() => setImageLoaded(true)}
+              onError={handleImageError}
+              className={cn(
+                'w-full h-full object-cover transition-transform duration-300 group-hover:scale-105',
+                !imageLoaded && 'opacity-0'
+              )}
+            />
+          )}
           {isVerified && (
             <div className="absolute top-2 left-2 px-2 py-0.5 bg-verified text-white rounded-full text-xs font-medium flex items-center gap-1">
               <span>✓</span>
@@ -172,7 +204,7 @@ export function PropertyCard({
           </div>
 
           <p className="text-sm text-neutral-500 mt-1">
-            {propertyTypeLabels[property.propertyType] || property.propertyType}
+            {getPropertyTypeLabel(property.propertyType)}
             {property.bedrooms && ` • ${property.bedrooms} ch.`}
             {property.bathrooms && ` • ${property.bathrooms} sdb.`}
           </p>
@@ -207,19 +239,27 @@ export function PropertyCard({
       className={cn('group block rounded-xl overflow-hidden bg-white card-hover', className)}
     >
       {/* Image Container */}
-      <div className="relative aspect-[4/3] overflow-hidden rounded-xl">
+      <div className="relative aspect-[4/3] overflow-hidden rounded-xl bg-neutral-100">
         {/* Placeholder while loading */}
         {!imageLoaded && <div className="absolute inset-0 bg-neutral-200 animate-pulse" />}
 
-        <img
-          src={imageUrl}
-          alt={property.title}
-          onLoad={() => setImageLoaded(true)}
-          className={cn(
-            'w-full h-full object-cover transition-transform duration-300 group-hover:scale-105',
-            !imageLoaded && 'opacity-0'
-          )}
-        />
+        {imageError ? (
+          <div className="absolute inset-0 flex items-center justify-center bg-neutral-100">
+            <ImageOff className="w-12 h-12 text-neutral-400" />
+          </div>
+        ) : (
+          <img
+            src={imageUrl}
+            alt={property.title}
+            loading="lazy"
+            onLoad={() => setImageLoaded(true)}
+            onError={handleImageError}
+            className={cn(
+              'w-full h-full object-cover transition-transform duration-300 group-hover:scale-105',
+              !imageLoaded && 'opacity-0'
+            )}
+          />
+        )}
 
         {/* Gradient overlay */}
         <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
@@ -291,7 +331,7 @@ export function PropertyCard({
 
         {/* Type & Features */}
         <div className="flex items-center gap-3 text-sm text-neutral-500 mt-1">
-          <span>{propertyTypeLabels[property.propertyType] || property.propertyType}</span>
+          <span>{getPropertyTypeLabel(property.propertyType)}</span>
           {property.bedrooms && (
             <span className="flex items-center gap-1">
               <Bed className="w-3.5 h-3.5" />
@@ -308,15 +348,15 @@ export function PropertyCard({
 
         {/* Amenities */}
         {activeAmenities.length > 0 && (
-          <div className="flex items-center gap-2 mt-2">
-            {activeAmenities.slice(0, 4).map(({ key, icon: Icon, label }) => (
+          <div className="flex items-center gap-2 mt-2 flex-wrap">
+            {activeAmenities.slice(0, 4).map(({ key, icon: Icon }) => (
               <div
                 key={key}
-                className="flex items-center gap-1 text-xs text-neutral-500 bg-neutral-100 px-2 py-0.5 rounded-full"
-                title={label}
+                className="flex items-center gap-1 text-xs text-neutral-500 bg-neutral-100 px-2 py-1 rounded-full touch-target"
+                title={getAmenityLabel(key)}
               >
                 <Icon className="w-3 h-3" />
-                <span>{label}</span>
+                <span>{getAmenityLabel(key)}</span>
               </div>
             ))}
           </div>

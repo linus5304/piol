@@ -210,9 +210,48 @@
     color: #059669;
   }
   
+  .bg-verified {
+    background-color: var(--piol-secondary);
+  }
+  
   .badge-new {
     background-color: #FEF3C7;
     color: #D97706;
+  }
+  
+  /* Minimum touch target for mobile accessibility */
+  .touch-target {
+    min-height: 44px;
+    min-width: 44px;
+  }
+  
+  /* Low bandwidth image placeholder */
+  .img-placeholder {
+    background: linear-gradient(135deg, #f5f5f5 0%, #e0e0e0 100%);
+  }
+  
+  /* Offline indicator */
+  .offline-banner {
+    background-color: #FEF3C7;
+    color: #92400E;
+    padding: 8px 16px;
+    text-align: center;
+    font-size: 14px;
+  }
+  
+  /* Loading spinner */
+  .spinner {
+    border: 2px solid #f3f3f3;
+    border-top: 2px solid var(--piol-primary);
+    border-radius: 50%;
+    width: 20px;
+    height: 20px;
+    animation: spin 0.8s linear infinite;
+  }
+  
+  @keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
   }
   
   /* Hide scrollbar but keep functionality */

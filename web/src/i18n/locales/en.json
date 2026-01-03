@@ -17,7 +17,10 @@
     "viewAll": "View all",
     "seeMore": "See more",
     "noResults": "No results",
-    "loadMore": "Load more"
+    "loadMore": "Load more",
+    "noConnection": "No internet connection",
+    "connectionRestored": "Connection restored",
+    "slowConnection": "Slow connection detected"
   },
   "nav": {
     "home": "Home",
@@ -100,6 +103,14 @@
     "mapComingSoon": "Interactive map coming soon",
     "showMap": "Show map",
     "showList": "Show list"
+  },
+  "categories": {
+    "all": "All",
+    "studios": "Studios",
+    "apartments": "Apartments",
+    "houses": "Houses",
+    "villas": "Villas",
+    "commercial": "Commercial"
   },
   "propertyTypes": {
     "studio": "Studio",
