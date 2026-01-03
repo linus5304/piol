@@ -208,8 +208,7 @@ export default defineSchema({
         .index('by_conversation', ['conversationId'])
         .index('by_sender', ['senderId'])
         .index('by_recipient', ['recipientId'])
-        .index('by_property', ['propertyId'])
-        .index('by_conversation_time', ['conversationId']),
+        .index('by_property', ['propertyId']),
 
     // Conversations table (for listing conversations)
     conversations: defineTable({
