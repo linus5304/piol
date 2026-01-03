@@ -4,9 +4,10 @@ import { v } from 'convex/values';
 export default defineSchema({
   // Users table
   users: defineTable({
+    // Clerk integration
+    clerkId: v.string(),
     email: v.string(),
-    phone: v.string(),
-    passwordHash: v.optional(v.string()), // Optional if using OAuth
+    phone: v.optional(v.string()),
     role: v.union(
       v.literal('renter'),
       v.literal('landlord'),
@@ -19,16 +20,17 @@ export default defineSchema({
     emailVerified: v.boolean(),
     phoneVerified: v.boolean(),
     idVerified: v.boolean(),
+    profileImageUrl: v.optional(v.string()),
     profileImageId: v.optional(v.id('_storage')),
     lastLogin: v.optional(v.number()),
     isActive: v.boolean(),
-    // Convex Auth fields
-    tokenIdentifier: v.optional(v.string()),
+    // Onboarding status
+    onboardingCompleted: v.optional(v.boolean()),
   })
+    .index('by_clerk_id', ['clerkId'])
     .index('by_email', ['email'])
     .index('by_phone', ['phone'])
-    .index('by_role', ['role'])
-    .index('by_token', ['tokenIdentifier']),
+    .index('by_role', ['role']),
 
   // Properties table
   properties: defineTable({

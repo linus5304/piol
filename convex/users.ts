@@ -1,7 +1,113 @@
 import { v } from 'convex/values';
-import { mutation, query } from './_generated/server';
+import { internalMutation, mutation, query } from './_generated/server';
 
-// Get current user profile
+// ============================================================================
+// Internal mutations for Clerk webhook
+// ============================================================================
+
+export const createUserFromClerk = internalMutation({
+  args: {
+    clerkId: v.string(),
+    email: v.string(),
+    firstName: v.optional(v.string()),
+    lastName: v.optional(v.string()),
+    profileImageUrl: v.optional(v.string()),
+    phone: v.optional(v.string()),
+    role: v.union(v.literal('renter'), v.literal('landlord')),
+  },
+  handler: async (ctx, args) => {
+    // Check if user already exists
+    const existingUser = await ctx.db
+      .query('users')
+      .withIndex('by_clerk_id', (q) => q.eq('clerkId', args.clerkId))
+      .unique();
+
+    if (existingUser) {
+      console.log(`User with clerkId ${args.clerkId} already exists`);
+      return existingUser._id;
+    }
+
+    const userId = await ctx.db.insert('users', {
+      clerkId: args.clerkId,
+      email: args.email,
+      phone: args.phone,
+      role: args.role,
+      firstName: args.firstName,
+      lastName: args.lastName,
+      profileImageUrl: args.profileImageUrl,
+      languagePreference: 'fr',
+      emailVerified: true, // Clerk handles email verification
+      phoneVerified: false,
+      idVerified: false,
+      isActive: true,
+      onboardingCompleted: false,
+      lastLogin: Date.now(),
+    });
+
+    console.log(`Created user ${userId} for clerkId ${args.clerkId}`);
+    return userId;
+  },
+});
+
+export const updateUserFromClerk = internalMutation({
+  args: {
+    clerkId: v.string(),
+    email: v.optional(v.string()),
+    firstName: v.optional(v.string()),
+    lastName: v.optional(v.string()),
+    profileImageUrl: v.optional(v.string()),
+    phone: v.optional(v.string()),
+  },
+  handler: async (ctx, args) => {
+    const user = await ctx.db
+      .query('users')
+      .withIndex('by_clerk_id', (q) => q.eq('clerkId', args.clerkId))
+      .unique();
+
+    if (!user) {
+      console.log(`User with clerkId ${args.clerkId} not found for update`);
+      return null;
+    }
+
+    await ctx.db.patch(user._id, {
+      ...(args.email && { email: args.email }),
+      ...(args.firstName !== undefined && { firstName: args.firstName }),
+      ...(args.lastName !== undefined && { lastName: args.lastName }),
+      ...(args.profileImageUrl !== undefined && { profileImageUrl: args.profileImageUrl }),
+      ...(args.phone !== undefined && { phone: args.phone }),
+    });
+
+    console.log(`Updated user ${user._id} from Clerk`);
+    return user._id;
+  },
+});
+
+export const deleteUserByClerkId = internalMutation({
+  args: {
+    clerkId: v.string(),
+  },
+  handler: async (ctx, args) => {
+    const user = await ctx.db
+      .query('users')
+      .withIndex('by_clerk_id', (q) => q.eq('clerkId', args.clerkId))
+      .unique();
+
+    if (!user) {
+      console.log(`User with clerkId ${args.clerkId} not found for deletion`);
+      return;
+    }
+
+    // Soft delete - mark as inactive
+    await ctx.db.patch(user._id, { isActive: false });
+    console.log(`Deactivated user ${user._id}`);
+  },
+});
+
+// ============================================================================
+// Public queries
+// ============================================================================
+
+// Get current user profile from Clerk token
 export const getCurrentUser = query({
   args: {},
   handler: async (ctx) => {
@@ -10,21 +116,24 @@ export const getCurrentUser = query({
       return null;
     }
 
+    // Clerk subject is the user ID
+    const clerkId = identity.subject;
+
     const user = await ctx.db
       .query('users')
-      .withIndex('by_token', (q) => q.eq('tokenIdentifier', identity.tokenIdentifier))
+      .withIndex('by_clerk_id', (q) => q.eq('clerkId', clerkId))
       .unique();
 
     return user;
   },
 });
 
-// Get user by ID
+// Get user by ID (public profile)
 export const getUserById = query({
   args: { userId: v.id('users') },
   handler: async (ctx, args) => {
     const user = await ctx.db.get(args.userId);
-    if (!user) {
+    if (!user || !user.isActive) {
       return null;
     }
 
@@ -34,76 +143,23 @@ export const getUserById = query({
       firstName: user.firstName,
       lastName: user.lastName,
       role: user.role,
-      profileImageId: user.profileImageId,
+      profileImageUrl: user.profileImageUrl,
       idVerified: user.idVerified,
       _creationTime: user._creationTime,
     };
   },
 });
 
-// Create or update user profile
-export const upsertUser = mutation({
-  args: {
-    email: v.string(),
-    phone: v.string(),
-    role: v.union(
-      v.literal('renter'),
-      v.literal('landlord'),
-      v.literal('admin'),
-      v.literal('verifier')
-    ),
-    firstName: v.optional(v.string()),
-    lastName: v.optional(v.string()),
-    languagePreference: v.optional(v.union(v.literal('fr'), v.literal('en'))),
-  },
-  handler: async (ctx, args) => {
-    const identity = await ctx.auth.getUserIdentity();
-    if (!identity) {
-      throw new Error('Not authenticated');
-    }
-
-    // Check if user exists
-    const existingUser = await ctx.db
-      .query('users')
-      .withIndex('by_token', (q) => q.eq('tokenIdentifier', identity.tokenIdentifier))
-      .unique();
-
-    if (existingUser) {
-      // Update existing user
-      await ctx.db.patch(existingUser._id, {
-        firstName: args.firstName,
-        lastName: args.lastName,
-        languagePreference: args.languagePreference ?? existingUser.languagePreference,
-        lastLogin: Date.now(),
-      });
-      return existingUser._id;
-    }
-
-    // Create new user
-    const userId = await ctx.db.insert('users', {
-      email: args.email,
-      phone: args.phone,
-      role: args.role,
-      firstName: args.firstName,
-      lastName: args.lastName,
-      languagePreference: args.languagePreference ?? 'fr',
-      emailVerified: false,
-      phoneVerified: false,
-      idVerified: false,
-      isActive: true,
-      tokenIdentifier: identity.tokenIdentifier,
-      lastLogin: Date.now(),
-    });
-
-    return userId;
-  },
-});
+// ============================================================================
+// Mutations requiring authentication
+// ============================================================================
 
 // Update user profile
 export const updateProfile = mutation({
   args: {
     firstName: v.optional(v.string()),
     lastName: v.optional(v.string()),
+    phone: v.optional(v.string()),
     languagePreference: v.optional(v.union(v.literal('fr'), v.literal('en'))),
     profileImageId: v.optional(v.id('_storage')),
   },
@@ -115,7 +171,7 @@ export const updateProfile = mutation({
 
     const user = await ctx.db
       .query('users')
-      .withIndex('by_token', (q) => q.eq('tokenIdentifier', identity.tokenIdentifier))
+      .withIndex('by_clerk_id', (q) => q.eq('clerkId', identity.subject))
       .unique();
 
     if (!user) {
@@ -125,8 +181,42 @@ export const updateProfile = mutation({
     await ctx.db.patch(user._id, {
       ...(args.firstName !== undefined && { firstName: args.firstName }),
       ...(args.lastName !== undefined && { lastName: args.lastName }),
+      ...(args.phone !== undefined && { phone: args.phone }),
       ...(args.languagePreference !== undefined && { languagePreference: args.languagePreference }),
       ...(args.profileImageId !== undefined && { profileImageId: args.profileImageId }),
+    });
+
+    return user._id;
+  },
+});
+
+// Complete onboarding
+export const completeOnboarding = mutation({
+  args: {
+    role: v.union(v.literal('renter'), v.literal('landlord')),
+    phone: v.optional(v.string()),
+    languagePreference: v.union(v.literal('fr'), v.literal('en')),
+  },
+  handler: async (ctx, args) => {
+    const identity = await ctx.auth.getUserIdentity();
+    if (!identity) {
+      throw new Error('Not authenticated');
+    }
+
+    const user = await ctx.db
+      .query('users')
+      .withIndex('by_clerk_id', (q) => q.eq('clerkId', identity.subject))
+      .unique();
+
+    if (!user) {
+      throw new Error('User not found');
+    }
+
+    await ctx.db.patch(user._id, {
+      role: args.role,
+      phone: args.phone,
+      languagePreference: args.languagePreference,
+      onboardingCompleted: true,
     });
 
     return user._id;
@@ -150,10 +240,9 @@ export const updateUserRole = mutation({
       throw new Error('Not authenticated');
     }
 
-    // Check if current user is admin
     const currentUser = await ctx.db
       .query('users')
-      .withIndex('by_token', (q) => q.eq('tokenIdentifier', identity.tokenIdentifier))
+      .withIndex('by_clerk_id', (q) => q.eq('clerkId', identity.subject))
       .unique();
 
     if (!currentUser || currentUser.role !== 'admin') {
@@ -177,10 +266,9 @@ export const verifyUserId = mutation({
       throw new Error('Not authenticated');
     }
 
-    // Check if current user is admin or verifier
     const currentUser = await ctx.db
       .query('users')
-      .withIndex('by_token', (q) => q.eq('tokenIdentifier', identity.tokenIdentifier))
+      .withIndex('by_clerk_id', (q) => q.eq('clerkId', identity.subject))
       .unique();
 
     if (!currentUser || (currentUser.role !== 'admin' && currentUser.role !== 'verifier')) {
@@ -201,6 +289,7 @@ export const getUsersByRole = query({
       v.literal('admin'),
       v.literal('verifier')
     ),
+    limit: v.optional(v.number()),
   },
   handler: async (ctx, args) => {
     const identity = await ctx.auth.getUserIdentity();
@@ -210,7 +299,7 @@ export const getUsersByRole = query({
 
     const currentUser = await ctx.db
       .query('users')
-      .withIndex('by_token', (q) => q.eq('tokenIdentifier', identity.tokenIdentifier))
+      .withIndex('by_clerk_id', (q) => q.eq('clerkId', identity.subject))
       .unique();
 
     if (!currentUser || currentUser.role !== 'admin') {
@@ -220,7 +309,7 @@ export const getUsersByRole = query({
     const users = await ctx.db
       .query('users')
       .withIndex('by_role', (q) => q.eq('role', args.role))
-      .collect();
+      .take(args.limit ?? 100);
 
     // Return without sensitive data
     return users.map((user) => ({
