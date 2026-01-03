@@ -16,7 +16,8 @@
     "sort": "Trier",
     "viewAll": "Voir tout",
     "seeMore": "Voir plus",
-    "noResults": "Aucun résultat"
+    "noResults": "Aucun résultat",
+    "loadMore": "Voir plus"
   },
   "nav": {
     "home": "Accueil",
@@ -26,7 +27,10 @@
     "dashboard": "Tableau de bord",
     "signIn": "Connexion",
     "signUp": "S'inscrire",
-    "logout": "Déconnexion"
+    "logout": "Déconnexion",
+    "login": "Connexion",
+    "register": "S'inscrire",
+    "becomeHost": "Devenir propriétaire"
   },
   "home": {
     "heroTitle": "Trouvez votre",
@@ -49,9 +53,27 @@
     "ctaSubtitle": "Rejoignez des milliers de locataires et propriétaires qui font confiance à Piol.",
     "createFreeAccount": "Créer un compte gratuit"
   },
+  "search": {
+    "placeholder": "Rechercher une ville, un quartier ou un type de propriété...",
+    "allCities": "Toutes les villes"
+  },
+  "filters": {
+    "title": "Filtres",
+    "priceRange": "Fourchette de prix",
+    "sortBy": "Trier par",
+    "newest": "Plus récent",
+    "priceAsc": "Prix croissant",
+    "priceDesc": "Prix décroissant",
+    "clearAll": "Effacer tout",
+    "showResults": "Afficher {count} résultats"
+  },
   "properties": {
     "title": "Propriétés disponibles",
+    "inCity": "Propriétés à {city}",
+    "resultsCount": "{count} propriété(s) trouvée(s)",
     "found": "propriété(s) trouvée(s)",
+    "noResults": "Aucune propriété trouvée",
+    "noResultsDescription": "Essayez de modifier vos filtres ou revenez plus tard.",
     "noProperties": "Aucune propriété trouvée",
     "tryDifferentFilters": "Essayez de modifier vos filtres ou revenez plus tard.",
     "allCities": "Toutes les villes",
@@ -74,7 +96,10 @@
     "safetyTips": "Conseils de sécurité",
     "safetyTip1": "Visitez toujours la propriété avant de payer",
     "safetyTip2": "Utilisez Piol pour vos paiements sécurisés",
-    "safetyTip3": "Ne partagez jamais vos informations bancaires"
+    "safetyTip3": "Ne partagez jamais vos informations bancaires",
+    "mapComingSoon": "Carte interactive bientôt disponible",
+    "showMap": "Afficher la carte",
+    "showList": "Afficher la liste"
   },
   "propertyTypes": {
     "studio": "Studio",
@@ -228,4 +253,3 @@
     "en": "English"
   }
 }
-

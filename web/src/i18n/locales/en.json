@@ -16,7 +16,8 @@
     "sort": "Sort",
     "viewAll": "View all",
     "seeMore": "See more",
-    "noResults": "No results"
+    "noResults": "No results",
+    "loadMore": "Load more"
   },
   "nav": {
     "home": "Home",
@@ -26,7 +27,10 @@
     "dashboard": "Dashboard",
     "signIn": "Sign In",
     "signUp": "Sign Up",
-    "logout": "Logout"
+    "logout": "Logout",
+    "login": "Sign In",
+    "register": "Sign Up",
+    "becomeHost": "Become a Host"
   },
   "home": {
     "heroTitle": "Find your",
@@ -49,9 +53,27 @@
     "ctaSubtitle": "Join thousands of renters and landlords who trust Piol.",
     "createFreeAccount": "Create a free account"
   },
+  "search": {
+    "placeholder": "Search a city, neighborhood, or property type...",
+    "allCities": "All cities"
+  },
+  "filters": {
+    "title": "Filters",
+    "priceRange": "Price range",
+    "sortBy": "Sort by",
+    "newest": "Newest",
+    "priceAsc": "Price: Low to High",
+    "priceDesc": "Price: High to Low",
+    "clearAll": "Clear all",
+    "showResults": "Show {count} results"
+  },
   "properties": {
     "title": "Available properties",
+    "inCity": "Properties in {city}",
+    "resultsCount": "{count} property(ies) found",
     "found": "property(ies) found",
+    "noResults": "No properties found",
+    "noResultsDescription": "Try adjusting your filters or check back later.",
     "noProperties": "No properties found",
     "tryDifferentFilters": "Try adjusting your filters or check back later.",
     "allCities": "All cities",
@@ -74,7 +96,10 @@
     "safetyTips": "Safety tips",
     "safetyTip1": "Always visit the property before paying",
     "safetyTip2": "Use Piol for secure payments",
-    "safetyTip3": "Never share your banking information"
+    "safetyTip3": "Never share your banking information",
+    "mapComingSoon": "Interactive map coming soon",
+    "showMap": "Show map",
+    "showList": "Show list"
   },
   "propertyTypes": {
     "studio": "Studio",
@@ -228,4 +253,3 @@
     "en": "English"
   }
 }
-
