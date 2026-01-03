@@ -1,17 +1,28 @@
 import { FlashList } from '@shopify/flash-list';
-import { useQuery } from 'convex/react';
 import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { PropertyCard } from '../../components/PropertyCard';
-import { api } from '../../convex/_generated/api';
+
+// Conditionally import Convex
+let api: any = null;
+let useQuery: any = () => undefined;
+
+try {
+  api = require('../../convex/_generated/api').api;
+  const convex = require('convex/react');
+  useQuery = convex.useQuery;
+} catch (e) {
+  console.warn('Convex not available');
+}
 
 export default function SavedScreen() {
   const { t } = useTranslation();
   const router = useRouter();
 
-  const savedProperties = useQuery(api.savedProperties.getSavedProperties);
+  // Use Convex if available, returns empty array in demo mode
+  const savedProperties = api ? useQuery(api.savedProperties.getSavedProperties) : [];
 
   const handlePropertyPress = (propertyId: string) => {
     router.push(`/property/${propertyId}`);

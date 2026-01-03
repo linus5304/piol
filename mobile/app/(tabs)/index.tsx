@@ -1,21 +1,79 @@
 import { FlashList } from '@shopify/flash-list';
-import { useQuery } from 'convex/react';
 import { useRouter } from 'expo-router';
 import { useCallback, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Pressable, RefreshControl, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { PropertyCard } from '../../components/PropertyCard';
-import { api } from '../../convex/_generated/api';
+
+// Conditionally import Convex
+let api: any = null;
+let useQuery: any = () => undefined;
+
+try {
+  api = require('../../convex/_generated/api').api;
+  const convex = require('convex/react');
+  useQuery = convex.useQuery;
+} catch (e) {
+  console.warn('Convex not available');
+}
+
+// Mock data for demo mode
+const mockProperties = [
+  {
+    _id: '1',
+    title: 'Beautiful Studio in Bonapriso',
+    propertyType: 'studio',
+    rentAmount: 75000,
+    currency: 'XAF',
+    city: 'Douala',
+    neighborhood: 'Bonapriso',
+    verificationStatus: 'approved',
+    landlord: { _id: 'l1', firstName: 'Jean', lastName: 'Kamga', idVerified: true },
+  },
+  {
+    _id: '2',
+    title: 'Modern 2BR Apartment Bastos',
+    propertyType: '2br',
+    rentAmount: 150000,
+    currency: 'XAF',
+    city: 'Yaoundé',
+    neighborhood: 'Bastos',
+    verificationStatus: 'approved',
+    landlord: { _id: 'l2', firstName: 'Marie', lastName: 'Fotso', idVerified: true },
+  },
+  {
+    _id: '3',
+    title: 'Cozy House in Buea',
+    propertyType: 'house',
+    rentAmount: 120000,
+    currency: 'XAF',
+    city: 'Buea',
+    neighborhood: 'Mile 17',
+    verificationStatus: 'approved',
+    landlord: { _id: 'l3', firstName: 'Peter', lastName: 'Tabi', idVerified: false },
+  },
+  {
+    _id: '4',
+    title: 'Luxury Villa with Pool',
+    propertyType: 'villa',
+    rentAmount: 500000,
+    currency: 'XAF',
+    city: 'Douala',
+    neighborhood: 'Bonanjo',
+    verificationStatus: 'approved',
+    landlord: { _id: 'l4', firstName: 'Alice', lastName: 'Ngo', idVerified: true },
+  },
+];
 
 export default function HomeScreen() {
   const { t } = useTranslation();
   const router = useRouter();
   const [refreshing, setRefreshing] = useState(false);
 
-  const propertiesResult = useQuery(api.properties.listProperties, {
-    limit: 20,
-  });
+  // Use Convex query if available, otherwise use mock data
+  const convexResult = api ? useQuery(api.properties.listProperties, { limit: 20 }) : undefined;
+  const propertiesResult = convexResult ?? { properties: mockProperties };
 
   const onRefresh = useCallback(() => {
     setRefreshing(true);

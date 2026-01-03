@@ -1,13 +1,49 @@
 import { FlashList } from '@shopify/flash-list';
-import { useQuery } from 'convex/react';
 import { useRouter } from 'expo-router';
-import { useCallback, useState } from 'react';
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { PropertyCard } from '../../components/PropertyCard';
-import { api } from '../../convex/_generated/api';
 import { useDebounce } from '../../hooks/useDebounce';
+
+// Conditionally import Convex
+let api: any = null;
+let useQuery: any = () => undefined;
+
+try {
+  api = require('../../convex/_generated/api').api;
+  const convex = require('convex/react');
+  useQuery = convex.useQuery;
+} catch (e) {
+  console.warn('Convex not available');
+}
+
+// Mock data for demo mode
+const mockSearchResults = [
+  {
+    _id: '1',
+    title: 'Beautiful Studio in Bonapriso',
+    propertyType: 'studio',
+    rentAmount: 75000,
+    currency: 'XAF',
+    city: 'Douala',
+    neighborhood: 'Bonapriso',
+    verificationStatus: 'approved',
+    landlord: { _id: 'l1', firstName: 'Jean', lastName: 'Kamga', idVerified: true },
+  },
+  {
+    _id: '2',
+    title: 'Modern 2BR Apartment Bastos',
+    propertyType: '2br',
+    rentAmount: 150000,
+    currency: 'XAF',
+    city: 'Yaoundé',
+    neighborhood: 'Bastos',
+    verificationStatus: 'approved',
+    landlord: { _id: 'l2', firstName: 'Marie', lastName: 'Fotso', idVerified: true },
+  },
+];
 
 export default function SearchScreen() {
   const { t } = useTranslation();
@@ -17,12 +53,25 @@ export default function SearchScreen() {
 
   const debouncedQuery = useDebounce(searchQuery, 300);
 
-  const searchResults = useQuery(
-    api.properties.searchProperties,
-    debouncedQuery.length >= 2
-      ? { searchQuery: debouncedQuery, city: selectedCity, limit: 30 }
-      : 'skip'
-  );
+  // Use Convex if available
+  const convexResults = api && debouncedQuery.length >= 2
+    ? useQuery(api.properties.searchProperties, { 
+        searchQuery: debouncedQuery, 
+        city: selectedCity, 
+        limit: 30 
+      })
+    : undefined;
+
+  // For demo mode, filter mock data based on search query
+  const demoResults = debouncedQuery.length >= 2 
+    ? mockSearchResults.filter(p => 
+        p.title.toLowerCase().includes(debouncedQuery.toLowerCase()) ||
+        p.city.toLowerCase().includes(debouncedQuery.toLowerCase()) ||
+        p.neighborhood?.toLowerCase().includes(debouncedQuery.toLowerCase())
+      )
+    : [];
+
+  const searchResults = api ? convexResults : demoResults;
 
   const cities = ['Douala', 'Yaoundé', 'Bafoussam', 'Buea', 'Kribi'];
 
@@ -136,8 +185,8 @@ const styles = StyleSheet.create({
     borderColor: '#e5e7eb',
   },
   cityChipActive: {
-    backgroundColor: '#2563eb',
-    borderColor: '#2563eb',
+    backgroundColor: '#FF385C',
+    borderColor: '#FF385C',
   },
   cityChipText: {
     fontSize: 14,

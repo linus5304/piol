@@ -1,6 +1,6 @@
 import { Tabs } from 'expo-router';
 import { useTranslation } from 'react-i18next';
-import { Platform } from 'react-native';
+import { Platform, Text } from 'react-native';
 
 export default function TabsLayout() {
   const { t } = useTranslation();
@@ -61,5 +61,5 @@ export default function TabsLayout() {
 
 // Simple tab icon component - replace with proper icon library
 function TabIcon({ name, color }: { name: string; color: string }) {
-  return <span style={{ fontSize: 24, color }}>{name}</span>;
+  return <Text style={{ fontSize: 24 }}>{name}</Text>;
 }

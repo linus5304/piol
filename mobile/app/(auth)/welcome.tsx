@@ -1,18 +1,34 @@
-import { useOAuth, useAuth } from '@clerk/clerk-expo';
 import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
-import { Pressable, StyleSheet, Text, View, ActivityIndicator } from 'react-native';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import * as WebBrowser from 'expo-web-browser';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 
 WebBrowser.maybeCompleteAuthSession();
+
+// Conditionally import Clerk
+let useAuth: any = () => ({ isSignedIn: false });
+let useOAuth: any = () => ({ startOAuthFlow: async () => ({}) });
+
+try {
+  const clerk = require('@clerk/clerk-expo');
+  useAuth = clerk.useAuth;
+  useOAuth = clerk.useOAuth;
+} catch (e) {
+  console.warn('Clerk not available - running in demo mode');
+}
+
+const isClerkConfigured = !!process.env.EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY && 
+  !process.env.EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY.includes('REPLACE_WITH');
 
 export default function WelcomeScreen() {
   const { t, i18n } = useTranslation();
   const router = useRouter();
-  const { isSignedIn } = useAuth();
-  const { startOAuthFlow: startGoogleOAuth } = useOAuth({ strategy: 'oauth_google' });
+  const { isSignedIn } = isClerkConfigured ? useAuth() : { isSignedIn: false };
+  const { startOAuthFlow: startGoogleOAuth } = isClerkConfigured 
+    ? useOAuth({ strategy: 'oauth_google' }) 
+    : { startOAuthFlow: async () => ({}) };
 
   useEffect(() => {
     if (isSignedIn) {
@@ -26,6 +42,12 @@ export default function WelcomeScreen() {
   };
 
   const handleGoogleSignIn = async () => {
+    if (!isClerkConfigured) {
+      // Demo mode - just go to tabs
+      router.replace('/(tabs)');
+      return;
+    }
+    
     try {
       const { createdSessionId, setActive } = await startGoogleOAuth();
       if (createdSessionId && setActive) {
@@ -34,6 +56,24 @@ export default function WelcomeScreen() {
       }
     } catch (err) {
       console.error('OAuth error:', err);
+    }
+  };
+
+  const handleGetStarted = () => {
+    if (!isClerkConfigured) {
+      // Demo mode - skip auth, go to tabs
+      router.replace('/(tabs)');
+    } else {
+      router.push('/(auth)/sign-up');
+    }
+  };
+
+  const handleSignIn = () => {
+    if (!isClerkConfigured) {
+      // Demo mode - skip auth, go to tabs
+      router.replace('/(tabs)');
+    } else {
+      router.push('/(auth)/sign-in');
     }
   };
 
@@ -68,18 +108,26 @@ export default function WelcomeScreen() {
             <Text style={styles.featureText}>{t('welcome.feature3')}</Text>
           </View>
         </View>
+
+        {!isClerkConfigured && (
+          <View style={styles.demoMode}>
+            <Text style={styles.demoModeText}>🔧 Demo Mode</Text>
+          </View>
+        )}
       </View>
 
       <View style={styles.buttons}>
-        <Pressable style={styles.primaryButton} onPress={() => router.push('/(auth)/sign-up')}>
+        <Pressable style={styles.primaryButton} onPress={handleGetStarted}>
           <Text style={styles.primaryButtonText}>{t('welcome.getStarted')}</Text>
         </Pressable>
 
-        <Pressable style={styles.googleButton} onPress={handleGoogleSignIn}>
-          <Text style={styles.googleButtonText}>🔵 {t('auth.continueWithGoogle')}</Text>
-        </Pressable>
+        {isClerkConfigured && (
+          <Pressable style={styles.googleButton} onPress={handleGoogleSignIn}>
+            <Text style={styles.googleButtonText}>🔵 {t('auth.continueWithGoogle')}</Text>
+          </Pressable>
+        )}
 
-        <Pressable style={styles.secondaryButton} onPress={() => router.push('/(auth)/sign-in')}>
+        <Pressable style={styles.secondaryButton} onPress={handleSignIn}>
           <Text style={styles.secondaryButtonText}>{t('welcome.alreadyHaveAccount')}</Text>
         </Pressable>
       </View>
@@ -154,6 +202,17 @@ const styles = StyleSheet.create({
   featureText: {
     fontSize: 16,
     color: '#374151',
+  },
+  demoMode: {
+    marginTop: 24,
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    backgroundColor: '#fef3c7',
+    borderRadius: 8,
+  },
+  demoModeText: {
+    fontSize: 14,
+    color: '#92400e',
   },
   buttons: {
     gap: 12,

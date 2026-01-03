@@ -1,30 +1,77 @@
-import { useMutation, useQuery } from 'convex/react';
 import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { Pressable, ScrollView, StyleSheet, Switch, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { api } from '../../convex/_generated/api';
-import { useAuthStore } from '../../stores/authStore';
+
+// Conditionally import Convex
+let api: any = null;
+let useQuery: any = () => null;
+let useMutation: any = () => async () => {};
+
+try {
+  api = require('../../convex/_generated/api').api;
+  const convex = require('convex/react');
+  useQuery = convex.useQuery;
+  useMutation = convex.useMutation;
+} catch (e) {
+  console.warn('Convex not available');
+}
+
+// Check if Clerk is configured
+const isClerkConfigured = !!process.env.EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY && 
+  !process.env.EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY.includes('REPLACE_WITH');
+
+// Conditionally import Clerk
+let useClerkAuth: any = null;
+if (isClerkConfigured) {
+  try {
+    const clerk = require('@clerk/clerk-expo');
+    useClerkAuth = clerk.useAuth;
+  } catch (e) {
+    console.warn('Clerk not available');
+  }
+}
 
 export default function ProfileScreen() {
   const { t, i18n } = useTranslation();
   const router = useRouter();
-  const { logout } = useAuthStore();
 
-  const currentUser = useQuery(api.users.getCurrentUser);
-  const updateProfile = useMutation(api.users.updateProfile);
+  // Use Clerk signOut if available
+  const clerkAuth = useClerkAuth ? useClerkAuth() : { signOut: null };
+  
+  // Use Convex if available
+  const currentUser = api ? useQuery(api.users.getCurrentUser) : null;
+  const updateProfile = api ? useMutation(api.users.updateProfile) : async () => {};
 
   const toggleLanguage = async () => {
     const newLang = i18n.language === 'fr' ? 'en' : 'fr';
     await i18n.changeLanguage(newLang);
-    if (currentUser) {
-      await updateProfile({ languagePreference: newLang as 'fr' | 'en' });
+    if (currentUser && api) {
+      try {
+        await updateProfile({ languagePreference: newLang as 'fr' | 'en' });
+      } catch (e) {
+        console.warn('Failed to update language preference');
+      }
     }
   };
 
-  const handleLogout = () => {
-    logout();
+  const handleLogout = async () => {
+    if (clerkAuth.signOut) {
+      try {
+        await clerkAuth.signOut();
+      } catch (e) {
+        console.warn('Clerk signOut failed');
+      }
+    }
     router.replace('/(auth)/welcome');
+  };
+
+  // Demo user for when Convex is not available
+  const displayUser = currentUser ?? {
+    firstName: 'Demo',
+    lastName: 'User',
+    email: 'demo@piol.app',
+    role: 'renter',
   };
 
   return (
@@ -37,16 +84,16 @@ export default function ProfileScreen() {
         {/* Profile Info */}
         <View style={styles.profileCard}>
           <View style={styles.avatar}>
-            <Text style={styles.avatarText}>{currentUser?.firstName?.[0] ?? '?'}</Text>
+            <Text style={styles.avatarText}>{displayUser.firstName?.[0] ?? '?'}</Text>
           </View>
           <View style={styles.profileInfo}>
             <Text style={styles.profileName}>
-              {currentUser?.firstName} {currentUser?.lastName}
+              {displayUser.firstName} {displayUser.lastName}
             </Text>
-            <Text style={styles.profileEmail}>{currentUser?.email}</Text>
+            <Text style={styles.profileEmail}>{displayUser.email}</Text>
             <View style={styles.roleBadge}>
               <Text style={styles.roleBadgeText}>
-                {t(`roles.${currentUser?.role ?? 'renter'}`)}
+                {t(`roles.${displayUser.role ?? 'renter'}`)}
               </Text>
             </View>
           </View>
@@ -56,22 +103,22 @@ export default function ProfileScreen() {
         <View style={styles.menuSection}>
           <Text style={styles.menuSectionTitle}>{t('profile.account')}</Text>
 
-          <Pressable style={styles.menuItem} onPress={() => router.push('/profile/edit')}>
+          <Pressable style={styles.menuItem} onPress={() => router.push('/profile/edit' as any)}>
             <Text style={styles.menuItemText}>{t('profile.editProfile')}</Text>
             <Text style={styles.menuItemArrow}>›</Text>
           </Pressable>
 
-          {currentUser?.role === 'landlord' && (
+          {displayUser.role === 'landlord' && (
             <Pressable
               style={styles.menuItem}
-              onPress={() => router.push('/profile/my-properties')}
+              onPress={() => router.push('/profile/my-properties' as any)}
             >
               <Text style={styles.menuItemText}>{t('profile.myProperties')}</Text>
               <Text style={styles.menuItemArrow}>›</Text>
             </Pressable>
           )}
 
-          <Pressable style={styles.menuItem} onPress={() => router.push('/profile/transactions')}>
+          <Pressable style={styles.menuItem} onPress={() => router.push('/profile/transactions' as any)}>
             <Text style={styles.menuItemText}>{t('profile.transactions')}</Text>
             <Text style={styles.menuItemArrow}>›</Text>
           </Pressable>
@@ -87,12 +134,12 @@ export default function ProfileScreen() {
               <Switch
                 value={i18n.language === 'en'}
                 onValueChange={toggleLanguage}
-                trackColor={{ false: '#e5e7eb', true: '#2563eb' }}
+                trackColor={{ false: '#e5e7eb', true: '#FF385C' }}
               />
             </View>
           </View>
 
-          <Pressable style={styles.menuItem} onPress={() => router.push('/profile/notifications')}>
+          <Pressable style={styles.menuItem} onPress={() => router.push('/profile/notifications' as any)}>
             <Text style={styles.menuItemText}>{t('profile.notifications')}</Text>
             <Text style={styles.menuItemArrow}>›</Text>
           </Pressable>
@@ -101,12 +148,12 @@ export default function ProfileScreen() {
         <View style={styles.menuSection}>
           <Text style={styles.menuSectionTitle}>{t('profile.support')}</Text>
 
-          <Pressable style={styles.menuItem} onPress={() => router.push('/profile/help')}>
+          <Pressable style={styles.menuItem} onPress={() => router.push('/profile/help' as any)}>
             <Text style={styles.menuItemText}>{t('profile.help')}</Text>
             <Text style={styles.menuItemArrow}>›</Text>
           </Pressable>
 
-          <Pressable style={styles.menuItem} onPress={() => router.push('/profile/about')}>
+          <Pressable style={styles.menuItem} onPress={() => router.push('/profile/about' as any)}>
             <Text style={styles.menuItemText}>{t('profile.about')}</Text>
             <Text style={styles.menuItemArrow}>›</Text>
           </Pressable>
@@ -149,7 +196,7 @@ const styles = StyleSheet.create({
     width: 64,
     height: 64,
     borderRadius: 32,
-    backgroundColor: '#2563eb',
+    backgroundColor: '#FF385C',
     justifyContent: 'center',
     alignItems: 'center',
     marginRight: 16,
@@ -173,7 +220,7 @@ const styles = StyleSheet.create({
     marginTop: 2,
   },
   roleBadge: {
-    backgroundColor: '#dbeafe',
+    backgroundColor: '#fce7f3',
     paddingHorizontal: 10,
     paddingVertical: 4,
     borderRadius: 12,
@@ -183,7 +230,7 @@ const styles = StyleSheet.create({
   roleBadgeText: {
     fontSize: 12,
     fontWeight: '500',
-    color: '#2563eb',
+    color: '#FF385C',
   },
   menuSection: {
     marginBottom: 24,

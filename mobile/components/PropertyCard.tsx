@@ -1,7 +1,15 @@
 import { useMutation, useQuery } from 'convex/react';
 import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
-import { api } from '../convex/_generated/api';
+import { useState } from 'react';
 import { formatCurrency } from '../lib/utils';
+
+// Only import api if convex is available
+let api: any = null;
+try {
+  api = require('../convex/_generated/api').api;
+} catch (e) {
+  console.warn('Convex API not available');
+}
 
 interface Property {
   _id: string;
@@ -11,9 +19,9 @@ interface Property {
   currency: string;
   city: string;
   neighborhood?: string;
-  images?: Array<{ storageId: string; order: number }>;
-  status: string;
-  verificationStatus: string;
+  images?: Array<{ storageId: string; url?: string; order: number }>;
+  status?: string;
+  verificationStatus?: string;
   landlord?: {
     _id: string;
     firstName?: string;
@@ -29,16 +37,28 @@ interface PropertyCardProps {
 }
 
 export function PropertyCard({ property, onPress, showSaveButton = true }: PropertyCardProps) {
-  const isSaved = useQuery(api.savedProperties.isPropertySaved, {
+  // Local state for optimistic updates when Convex is unavailable
+  const [localSaved, setLocalSaved] = useState(false);
+  
+  // Only use Convex hooks if api is available
+  const isSavedQuery = api ? useQuery(api.savedProperties.isPropertySaved, {
     propertyId: property._id as any,
-  });
-  const toggleSave = useMutation(api.savedProperties.toggleSaveProperty);
+  }) : undefined;
+  
+  const toggleSaveMutation = api ? useMutation(api.savedProperties.toggleSaveProperty) : null;
+  
+  const isSaved = isSavedQuery ?? localSaved;
 
   const handleSavePress = async () => {
-    try {
-      await toggleSave({ propertyId: property._id as any });
-    } catch (error) {
-      console.error('Failed to toggle save:', error);
+    if (toggleSaveMutation) {
+      try {
+        await toggleSaveMutation({ propertyId: property._id as any });
+      } catch (error) {
+        console.error('Failed to toggle save:', error);
+      }
+    } else {
+      // Fallback for demo mode
+      setLocalSaved(!localSaved);
     }
   };
 
@@ -56,9 +76,9 @@ export function PropertyCard({ property, onPress, showSaveButton = true }: Prope
   return (
     <Pressable style={styles.container} onPress={onPress}>
       <View style={styles.imageContainer}>
-        {property.images && property.images.length > 0 ? (
+        {property.images && property.images.length > 0 && property.images[0].url ? (
           <Image
-            source={{ uri: `/api/storage/${property.images[0].storageId}` }}
+            source={{ uri: property.images[0].url }}
             style={styles.image}
             resizeMode="cover"
           />
