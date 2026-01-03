@@ -14,7 +14,7 @@ export const getPendingVerifications = query({
 
     const user = await ctx.db
       .query('users')
-      .withIndex('by_token', (q) => q.eq('tokenIdentifier', identity.tokenIdentifier))
+      .withIndex('by_clerk_id', (q) => q.eq('clerkId', identity.subject))
       .unique();
 
     if (!user || (user.role !== 'verifier' && user.role !== 'admin')) {
@@ -88,7 +88,7 @@ export const getMyVerifications = query({
 
     const user = await ctx.db
       .query('users')
-      .withIndex('by_token', (q) => q.eq('tokenIdentifier', identity.tokenIdentifier))
+      .withIndex('by_clerk_id', (q) => q.eq('clerkId', identity.subject))
       .unique();
 
     if (!user || (user.role !== 'verifier' && user.role !== 'admin')) {
@@ -148,7 +148,7 @@ export const getVerification = query({
 
     const user = await ctx.db
       .query('users')
-      .withIndex('by_token', (q) => q.eq('tokenIdentifier', identity.tokenIdentifier))
+      .withIndex('by_clerk_id', (q) => q.eq('clerkId', identity.subject))
       .unique();
 
     if (!user) {
@@ -218,7 +218,7 @@ export const claimVerification = mutation({
 
     const user = await ctx.db
       .query('users')
-      .withIndex('by_token', (q) => q.eq('tokenIdentifier', identity.tokenIdentifier))
+      .withIndex('by_clerk_id', (q) => q.eq('clerkId', identity.subject))
       .unique();
 
     if (!user || (user.role !== 'verifier' && user.role !== 'admin')) {
@@ -303,7 +303,7 @@ export const updateVerification = mutation({
 
     const user = await ctx.db
       .query('users')
-      .withIndex('by_token', (q) => q.eq('tokenIdentifier', identity.tokenIdentifier))
+      .withIndex('by_clerk_id', (q) => q.eq('clerkId', identity.subject))
       .unique();
 
     if (!user || (user.role !== 'verifier' && user.role !== 'admin')) {
@@ -355,7 +355,7 @@ export const completeVerification = mutation({
 
     const user = await ctx.db
       .query('users')
-      .withIndex('by_token', (q) => q.eq('tokenIdentifier', identity.tokenIdentifier))
+      .withIndex('by_clerk_id', (q) => q.eq('clerkId', identity.subject))
       .unique();
 
     if (!user || (user.role !== 'verifier' && user.role !== 'admin')) {
@@ -431,7 +431,7 @@ export const getVerificationStats = query({
 
     const user = await ctx.db
       .query('users')
-      .withIndex('by_token', (q) => q.eq('tokenIdentifier', identity.tokenIdentifier))
+      .withIndex('by_clerk_id', (q) => q.eq('clerkId', identity.subject))
       .unique();
 
     if (!user || user.role !== 'admin') {

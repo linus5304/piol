@@ -27,13 +27,24 @@ const amenitiesValidator = v.optional(
   })
 );
 
-// List active properties with filters
+// List active properties with advanced filters
 export const listProperties = query({
   args: {
     city: v.optional(v.string()),
+    neighborhood: v.optional(v.string()),
     propertyType: v.optional(propertyTypeValidator),
     minPrice: v.optional(v.number()),
     maxPrice: v.optional(v.number()),
+    amenities: v.optional(v.array(v.string())),
+    verifiedOnly: v.optional(v.boolean()),
+    sortBy: v.optional(
+      v.union(
+        v.literal('price_asc'),
+        v.literal('price_desc'),
+        v.literal('newest'),
+        v.literal('oldest')
+      )
+    ),
     limit: v.optional(v.number()),
     cursor: v.optional(v.string()),
   },
@@ -57,15 +68,47 @@ export const listProperties = query({
     if (args.propertyType) {
       properties = properties.filter((p) => p.propertyType === args.propertyType);
     }
+    if (args.neighborhood) {
+      properties = properties.filter((p) => 
+        p.neighborhood?.toLowerCase().includes(args.neighborhood!.toLowerCase())
+      );
+    }
     if (args.minPrice !== undefined) {
       properties = properties.filter((p) => p.rentAmount >= args.minPrice!);
     }
     if (args.maxPrice !== undefined) {
       properties = properties.filter((p) => p.rentAmount <= args.maxPrice!);
     }
+    if (args.verifiedOnly) {
+      properties = properties.filter((p) => p.verificationStatus === 'approved');
+    }
 
-    // Sort by creation time (newest first)
-    properties.sort((a, b) => b._creationTime - a._creationTime);
+    // Filter by amenities
+    if (args.amenities && args.amenities.length > 0) {
+      properties = properties.filter((p) => {
+        if (!p.amenities) return false;
+        const propAmenities = p.amenities as Record<string, boolean>;
+        return args.amenities!.every((amenity) => propAmenities[amenity] === true);
+      });
+    }
+
+    // Apply sorting
+    const sortBy = args.sortBy ?? 'newest';
+    switch (sortBy) {
+      case 'price_asc':
+        properties.sort((a, b) => a.rentAmount - b.rentAmount);
+        break;
+      case 'price_desc':
+        properties.sort((a, b) => b.rentAmount - a.rentAmount);
+        break;
+      case 'oldest':
+        properties.sort((a, b) => a._creationTime - b._creationTime);
+        break;
+      case 'newest':
+      default:
+        properties.sort((a, b) => b._creationTime - a._creationTime);
+        break;
+    }
 
     // Pagination
     const startIndex = args.cursor ? Number.parseInt(args.cursor, 10) : 0;
@@ -93,6 +136,121 @@ export const listProperties = query({
       properties: propertiesWithLandlord,
       nextCursor: startIndex + limit < properties.length ? String(startIndex + limit) : null,
       total: properties.length,
+    };
+  },
+});
+
+// Get search suggestions (cities and neighborhoods)
+export const getSearchSuggestions = query({
+  args: {
+    query: v.string(),
+    limit: v.optional(v.number()),
+  },
+  handler: async (ctx, args) => {
+    if (args.query.length < 2) {
+      return { cities: [], neighborhoods: [] };
+    }
+
+    const limit = args.limit ?? 5;
+    const queryLower = args.query.toLowerCase();
+
+    // Get all active properties
+    const properties = await ctx.db
+      .query('properties')
+      .withIndex('by_status', (q) => q.eq('status', 'active'))
+      .collect();
+
+    // Extract unique cities and neighborhoods
+    const cityCounts = new Map<string, number>();
+    const neighborhoodCounts = new Map<string, { city: string; count: number }>();
+
+    for (const property of properties) {
+      // Count cities
+      const city = property.city;
+      if (city.toLowerCase().includes(queryLower)) {
+        cityCounts.set(city, (cityCounts.get(city) ?? 0) + 1);
+      }
+
+      // Count neighborhoods
+      if (property.neighborhood) {
+        const neighborhood = property.neighborhood;
+        if (neighborhood.toLowerCase().includes(queryLower)) {
+          const existing = neighborhoodCounts.get(neighborhood);
+          neighborhoodCounts.set(neighborhood, {
+            city: property.city,
+            count: (existing?.count ?? 0) + 1,
+          });
+        }
+      }
+    }
+
+    // Convert to arrays and sort by count
+    const cities = Array.from(cityCounts.entries())
+      .map(([name, count]) => ({ name, count }))
+      .sort((a, b) => b.count - a.count)
+      .slice(0, limit);
+
+    const neighborhoods = Array.from(neighborhoodCounts.entries())
+      .map(([name, data]) => ({ name, city: data.city, count: data.count }))
+      .sort((a, b) => b.count - a.count)
+      .slice(0, limit);
+
+    return { cities, neighborhoods };
+  },
+});
+
+// Get available filter options based on current properties
+export const getFilterOptions = query({
+  args: {
+    city: v.optional(v.string()),
+  },
+  handler: async (ctx, args) => {
+    let propertiesQuery = ctx.db.query('properties');
+
+    if (args.city) {
+      propertiesQuery = propertiesQuery.withIndex('by_city_status', (q) =>
+        q.eq('city', args.city).eq('status', 'active')
+      );
+    } else {
+      propertiesQuery = propertiesQuery.withIndex('by_status', (q) => q.eq('status', 'active'));
+    }
+
+    const properties = await propertiesQuery.collect();
+
+    // Extract unique values
+    const cities = [...new Set(properties.map((p) => p.city))].sort();
+    const neighborhoods = [...new Set(properties.filter((p) => p.neighborhood).map((p) => p.neighborhood!))].sort();
+    const propertyTypes = [...new Set(properties.map((p) => p.propertyType))];
+
+    // Get price range
+    const prices = properties.map((p) => p.rentAmount);
+    const minPrice = prices.length > 0 ? Math.min(...prices) : 0;
+    const maxPrice = prices.length > 0 ? Math.max(...prices) : 0;
+
+    // Count amenities
+    const amenityCounts = new Map<string, number>();
+    for (const property of properties) {
+      if (property.amenities) {
+        const propAmenities = property.amenities as Record<string, boolean>;
+        for (const [key, value] of Object.entries(propAmenities)) {
+          if (value) {
+            amenityCounts.set(key, (amenityCounts.get(key) ?? 0) + 1);
+          }
+        }
+      }
+    }
+
+    const amenities = Array.from(amenityCounts.entries())
+      .map(([name, count]) => ({ name, count }))
+      .sort((a, b) => b.count - a.count);
+
+    return {
+      cities,
+      neighborhoods,
+      propertyTypes,
+      priceRange: { min: minPrice, max: maxPrice },
+      amenities,
+      totalCount: properties.length,
     };
   },
 });
@@ -196,7 +354,7 @@ export const getMyProperties = query({
 
     const user = await ctx.db
       .query('users')
-      .withIndex('by_token', (q) => q.eq('tokenIdentifier', identity.tokenIdentifier))
+      .withIndex('by_clerk_id', (q) => q.eq('clerkId', identity.subject))
       .unique();
 
     if (!user) {
@@ -242,7 +400,7 @@ export const createProperty = mutation({
 
     const user = await ctx.db
       .query('users')
-      .withIndex('by_token', (q) => q.eq('tokenIdentifier', identity.tokenIdentifier))
+      .withIndex('by_clerk_id', (q) => q.eq('clerkId', identity.subject))
       .unique();
 
     if (!user) {
@@ -316,7 +474,7 @@ export const updateProperty = mutation({
 
     const user = await ctx.db
       .query('users')
-      .withIndex('by_token', (q) => q.eq('tokenIdentifier', identity.tokenIdentifier))
+      .withIndex('by_clerk_id', (q) => q.eq('clerkId', identity.subject))
       .unique();
 
     if (!user) {
@@ -387,7 +545,7 @@ export const addPropertyImages = mutation({
 
     const user = await ctx.db
       .query('users')
-      .withIndex('by_token', (q) => q.eq('tokenIdentifier', identity.tokenIdentifier))
+      .withIndex('by_clerk_id', (q) => q.eq('clerkId', identity.subject))
       .unique();
 
     if (!user) {
@@ -422,7 +580,7 @@ export const submitForVerification = mutation({
 
     const user = await ctx.db
       .query('users')
-      .withIndex('by_token', (q) => q.eq('tokenIdentifier', identity.tokenIdentifier))
+      .withIndex('by_clerk_id', (q) => q.eq('clerkId', identity.subject))
       .unique();
 
     if (!user) {
@@ -480,7 +638,7 @@ export const updatePropertyStatus = mutation({
 
     const user = await ctx.db
       .query('users')
-      .withIndex('by_token', (q) => q.eq('tokenIdentifier', identity.tokenIdentifier))
+      .withIndex('by_clerk_id', (q) => q.eq('clerkId', identity.subject))
       .unique();
 
     if (!user || (user.role !== 'admin' && user.role !== 'verifier')) {
@@ -518,7 +676,7 @@ export const archiveProperty = mutation({
 
     const user = await ctx.db
       .query('users')
-      .withIndex('by_token', (q) => q.eq('tokenIdentifier', identity.tokenIdentifier))
+      .withIndex('by_clerk_id', (q) => q.eq('clerkId', identity.subject))
       .unique();
 
     if (!user) {
