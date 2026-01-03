@@ -1,0 +1,144 @@
+{
+  "common": {
+    "loading": "Loading...",
+    "error": "An error occurred",
+    "retry": "Retry",
+    "cancel": "Cancel",
+    "save": "Save",
+    "delete": "Delete",
+    "edit": "Edit",
+    "confirm": "Confirm",
+    "back": "Back",
+    "next": "Next",
+    "done": "Done",
+    "search": "Search",
+    "filter": "Filter",
+    "sort": "Sort"
+  },
+  "tabs": {
+    "home": "Home",
+    "search": "Search",
+    "saved": "Saved",
+    "messages": "Messages",
+    "profile": "Profile"
+  },
+  "welcome": {
+    "title": "Find Your Perfect Home",
+    "subtitle": "The most trusted rental platform in Cameroon",
+    "feature1": "Verified properties",
+    "feature2": "Secure Mobile Money payment",
+    "feature3": "Bilingual support FR/EN",
+    "getStarted": "Get Started",
+    "alreadyHaveAccount": "I already have an account"
+  },
+  "auth": {
+    "login": "Login",
+    "register": "Register",
+    "email": "Email",
+    "phone": "Phone",
+    "password": "Password",
+    "confirmPassword": "Confirm password",
+    "firstName": "First name",
+    "lastName": "Last name",
+    "forgotPassword": "Forgot password?",
+    "noAccount": "No account?",
+    "hasAccount": "Already have an account?",
+    "createAccount": "Create account",
+    "selectRole": "I am a...",
+    "renter": "Renter",
+    "landlord": "Landlord"
+  },
+  "home": {
+    "title": "Home",
+    "subtitle": "Find your next home",
+    "featured": "Featured",
+    "recent": "Recent",
+    "noProperties": "No properties available"
+  },
+  "search": {
+    "title": "Search",
+    "placeholder": "City, neighborhood or keyword...",
+    "enterQuery": "Enter at least 2 characters",
+    "noResults": "No results found"
+  },
+  "filters": {
+    "all": "All",
+    "verified": "Verified",
+    "nearMe": "Near me",
+    "allCities": "All cities",
+    "priceRange": "Price range",
+    "propertyType": "Property type",
+    "bedrooms": "Bedrooms",
+    "amenities": "Amenities"
+  },
+  "property": {
+    "details": "Details",
+    "description": "Description",
+    "amenities": "Amenities",
+    "location": "Location",
+    "contact": "Contact landlord",
+    "save": "Save",
+    "share": "Share",
+    "report": "Report",
+    "rentPerMonth": "/month",
+    "caution": "Deposit",
+    "months": "months",
+    "verified": "Verified",
+    "notVerified": "Not verified"
+  },
+  "saved": {
+    "title": "Saved",
+    "properties": "properties",
+    "emptyTitle": "No saved properties",
+    "emptyDescription": "Save properties to find them here"
+  },
+  "messages": {
+    "title": "Messages",
+    "you": "You",
+    "emptyTitle": "No messages",
+    "emptyDescription": "Contact a landlord to start a conversation",
+    "typeMessage": "Type a message...",
+    "send": "Send"
+  },
+  "profile": {
+    "title": "Profile",
+    "account": "Account",
+    "settings": "Settings",
+    "support": "Support",
+    "editProfile": "Edit profile",
+    "myProperties": "My properties",
+    "transactions": "Transactions",
+    "language": "Language",
+    "notifications": "Notifications",
+    "help": "Help & Support",
+    "about": "About",
+    "logout": "Logout"
+  },
+  "roles": {
+    "renter": "Renter",
+    "landlord": "Landlord",
+    "admin": "Admin",
+    "verifier": "Verifier"
+  },
+  "propertyTypes": {
+    "studio": "Studio",
+    "1br": "1 Bedroom",
+    "2br": "2 Bedrooms",
+    "3br": "3 Bedrooms",
+    "4br": "4 Bedrooms",
+    "house": "House",
+    "apartment": "Apartment",
+    "villa": "Villa"
+  },
+  "amenities": {
+    "wifi": "WiFi",
+    "parking": "Parking",
+    "ac": "Air Conditioning",
+    "security": "Security",
+    "water247": "24/7 Water",
+    "electricity247": "24/7 Electricity",
+    "furnished": "Furnished",
+    "balcony": "Balcony",
+    "garden": "Garden"
+  }
+}

@@ -1,0 +1,144 @@
+{
+  "common": {
+    "loading": "Chargement...",
+    "error": "Une erreur s'est produite",
+    "retry": "Réessayer",
+    "cancel": "Annuler",
+    "save": "Enregistrer",
+    "delete": "Supprimer",
+    "edit": "Modifier",
+    "confirm": "Confirmer",
+    "back": "Retour",
+    "next": "Suivant",
+    "done": "Terminé",
+    "search": "Rechercher",
+    "filter": "Filtrer",
+    "sort": "Trier"
+  },
+  "tabs": {
+    "home": "Accueil",
+    "search": "Recherche",
+    "saved": "Favoris",
+    "messages": "Messages",
+    "profile": "Profil"
+  },
+  "welcome": {
+    "title": "Trouvez votre maison idéale",
+    "subtitle": "La plateforme de location immobilière la plus fiable au Cameroun",
+    "feature1": "Propriétés vérifiées",
+    "feature2": "Paiement Mobile Money sécurisé",
+    "feature3": "Support bilingue FR/EN",
+    "getStarted": "Commencer",
+    "alreadyHaveAccount": "J'ai déjà un compte"
+  },
+  "auth": {
+    "login": "Connexion",
+    "register": "Inscription",
+    "email": "Email",
+    "phone": "Téléphone",
+    "password": "Mot de passe",
+    "confirmPassword": "Confirmer le mot de passe",
+    "firstName": "Prénom",
+    "lastName": "Nom",
+    "forgotPassword": "Mot de passe oublié?",
+    "noAccount": "Pas de compte?",
+    "hasAccount": "Déjà un compte?",
+    "createAccount": "Créer un compte",
+    "selectRole": "Je suis un...",
+    "renter": "Locataire",
+    "landlord": "Propriétaire"
+  },
+  "home": {
+    "title": "Accueil",
+    "subtitle": "Trouvez votre prochaine maison",
+    "featured": "À la une",
+    "recent": "Récentes",
+    "noProperties": "Aucune propriété disponible"
+  },
+  "search": {
+    "title": "Recherche",
+    "placeholder": "Ville, quartier ou mot-clé...",
+    "enterQuery": "Entrez au moins 2 caractères",
+    "noResults": "Aucun résultat trouvé"
+  },
+  "filters": {
+    "all": "Tous",
+    "verified": "Vérifiées",
+    "nearMe": "Près de moi",
+    "allCities": "Toutes les villes",
+    "priceRange": "Fourchette de prix",
+    "propertyType": "Type de propriété",
+    "bedrooms": "Chambres",
+    "amenities": "Équipements"
+  },
+  "property": {
+    "details": "Détails",
+    "description": "Description",
+    "amenities": "Équipements",
+    "location": "Localisation",
+    "contact": "Contacter le propriétaire",
+    "save": "Enregistrer",
+    "share": "Partager",
+    "report": "Signaler",
+    "rentPerMonth": "/mois",
+    "caution": "Caution",
+    "months": "mois",
+    "verified": "Vérifié",
+    "notVerified": "Non vérifié"
+  },
+  "saved": {
+    "title": "Favoris",
+    "properties": "propriétés",
+    "emptyTitle": "Aucun favori",
+    "emptyDescription": "Enregistrez des propriétés pour les retrouver ici"
+  },
+  "messages": {
+    "title": "Messages",
+    "you": "Vous",
+    "emptyTitle": "Aucun message",
+    "emptyDescription": "Contactez un propriétaire pour commencer une conversation",
+    "typeMessage": "Écrivez un message...",
+    "send": "Envoyer"
+  },
+  "profile": {
+    "title": "Profil",
+    "account": "Compte",
+    "settings": "Paramètres",
+    "support": "Aide",
+    "editProfile": "Modifier le profil",
+    "myProperties": "Mes propriétés",
+    "transactions": "Transactions",
+    "language": "Langue",
+    "notifications": "Notifications",
+    "help": "Aide & Support",
+    "about": "À propos",
+    "logout": "Déconnexion"
+  },
+  "roles": {
+    "renter": "Locataire",
+    "landlord": "Propriétaire",
+    "admin": "Administrateur",
+    "verifier": "Vérificateur"
+  },
+  "propertyTypes": {
+    "studio": "Studio",
+    "1br": "1 Chambre",
+    "2br": "2 Chambres",
+    "3br": "3 Chambres",
+    "4br": "4 Chambres",
+    "house": "Maison",
+    "apartment": "Appartement",
+    "villa": "Villa"
+  },
+  "amenities": {
+    "wifi": "WiFi",
+    "parking": "Parking",
+    "ac": "Climatisation",
+    "security": "Sécurité",
+    "water247": "Eau 24/7",
+    "electricity247": "Électricité 24/7",
+    "furnished": "Meublé",
+    "balcony": "Balcon",
+    "garden": "Jardin"
+  }
+}
