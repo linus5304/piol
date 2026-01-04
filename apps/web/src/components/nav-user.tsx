@@ -1,6 +1,6 @@
 'use client';
 
-import { useClerk } from '@clerk/nextjs';
+import { useSafeClerk, isClerkConfigured } from '@/hooks/use-safe-auth';
 import Link from 'next/link';
 import {
   CreditCard,
@@ -41,7 +41,7 @@ export function NavUser({
   };
 }) {
   const { isMobile } = useSidebar();
-  const { signOut } = useClerk();
+  const { signOut } = useSafeClerk();
 
   const initials = user.name
     .split(' ')

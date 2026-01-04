@@ -3,7 +3,7 @@
 import * as React from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { useUser } from '@clerk/nextjs';
+import { useSafeUser } from '@/hooks/use-safe-auth';
 import {
   LayoutDashboard,
   Heart,
@@ -100,7 +100,7 @@ const secondaryNavigation = [
 ];
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
-  const { user } = useUser();
+  const { user } = useSafeUser();
   const pathname = usePathname();
   
   const role = (user?.unsafeMetadata?.role as 'renter' | 'landlord') || 'renter';

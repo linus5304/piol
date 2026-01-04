@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { useAuth } from '@clerk/nextjs';
+import { useSafeAuth } from '@/hooks/use-safe-auth';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -113,7 +113,7 @@ function formatCurrency(amount: number): string {
 
 export default function PropertyDetailPage({ params }: { params: { id: string } }) {
   const t = useTranslations();
-  const { isSignedIn } = useAuth();
+  const { isSignedIn } = useSafeAuth();
   const [selectedImage, setSelectedImage] = useState(0);
   const [isSaved, setIsSaved] = useState(false);
   const [showGallery, setShowGallery] = useState(false);
