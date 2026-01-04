@@ -86,6 +86,9 @@
 
 ## Git Hygiene
 
+- Every feature/fix/chore starts from a new branch; no direct work on `main`.
+- Commit every meaningful change; keep commits small and scoped to one concern.
+- All changes go through a PR with review; no bypassing. Squash or rebase-only.
 - Commit format: `<scope>: <change>` in present tense. One concern per commit.
 - Keep `.env.*` out of git; update `.env.example` when adding config.
 - No large binary assets in repo—use object storage/CDN.

@@ -1,0 +1,211 @@
+<mxfile host="app.diagrams.net" modified="2026-01-03T00:00:00.000Z" agent="Piol Architecture" version="21.0.0" type="device">
+  <diagram name="Piol Architecture" id="piol-arch">
+    <mxGraphModel dx="1422" dy="794" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1100" pageHeight="850" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        
+        <!-- Title -->
+        <mxCell id="title" value="PIOL - Cameroon Housing Marketplace Architecture" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=20;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="300" y="20" width="500" height="40" as="geometry" />
+        </mxCell>
+        
+        <!-- Clients Section -->
+        <mxCell id="clients-group" value="Clients" style="swimlane;fontStyle=1;childLayout=stackLayout;horizontal=1;startSize=30;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=0;marginBottom=0;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+          <mxGeometry x="40" y="80" width="300" height="160" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="web-client" value="Web App (Next.js 16)&#xa;- React 19, Tailwind 4&#xa;- shadcn/ui components&#xa;- next-intl (FR/EN)&#xa;- PWA-ready" style="rounded=1;whiteSpace=wrap;html=1;align=left;spacingLeft=10;" vertex="1" parent="clients-group">
+          <mxGeometry y="30" width="145" height="120" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="mobile-client" value="Mobile App (Expo)&#xa;- React Native 0.81&#xa;- expo-router&#xa;- react-native-maps&#xa;- i18next (FR/EN)&#xa;- Zustand state" style="rounded=1;whiteSpace=wrap;html=1;align=left;spacingLeft=10;" vertex="1" parent="clients-group">
+          <mxGeometry x="155" y="30" width="145" height="120" as="geometry" />
+        </mxCell>
+        
+        <!-- Auth -->
+        <mxCell id="auth-box" value="Clerk Auth&#xa;(SSO, OAuth)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="1">
+          <mxGeometry x="380" y="100" width="120" height="60" as="geometry" />
+        </mxCell>
+        
+        <!-- Convex Backend -->
+        <mxCell id="convex-group" value="Convex Backend (Serverless)" style="swimlane;fontStyle=1;childLayout=stackLayout;horizontal=1;startSize=30;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=0;marginBottom=0;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="1">
+          <mxGeometry x="40" y="280" width="540" height="200" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="convex-inner" value="" style="fillColor=none;strokeColor=none;" vertex="1" parent="convex-group">
+          <mxGeometry y="30" width="540" height="170" as="geometry" />
+        </mxCell>
+        
+        <!-- Convex Modules -->
+        <mxCell id="users-mod" value="users.ts&#xa;(profiles, roles)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;" vertex="1" parent="1">
+          <mxGeometry x="55" y="320" width="95" height="50" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="props-mod" value="properties.ts&#xa;(CRUD, search)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;" vertex="1" parent="1">
+          <mxGeometry x="160" y="320" width="95" height="50" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="verify-mod" value="verifications.ts&#xa;(workflow)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;" vertex="1" parent="1">
+          <mxGeometry x="265" y="320" width="95" height="50" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="trans-mod" value="transactions.ts&#xa;(payments)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;" vertex="1" parent="1">
+          <mxGeometry x="370" y="320" width="95" height="50" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="msg-mod" value="messages.ts&#xa;(chat)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;" vertex="1" parent="1">
+          <mxGeometry x="475" y="320" width="90" height="50" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="notif-mod" value="notifications.ts" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;" vertex="1" parent="1">
+          <mxGeometry x="55" y="380" width="95" height="40" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="saved-mod" value="savedProperties.ts" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;" vertex="1" parent="1">
+          <mxGeometry x="160" y="380" width="95" height="40" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="reviews-mod" value="reviews.ts" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;" vertex="1" parent="1">
+          <mxGeometry x="265" y="380" width="95" height="40" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="files-mod" value="files.ts (storage)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;" vertex="1" parent="1">
+          <mxGeometry x="370" y="380" width="95" height="40" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="http-mod" value="http.ts (webhooks)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;" vertex="1" parent="1">
+          <mxGeometry x="475" y="380" width="90" height="40" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="schema-mod" value="schema.ts (10 tables: users, properties, verifications, transactions, messages, conversations, reviews, tenantScreenings, notifications, savedProperties)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;" vertex="1" parent="1">
+          <mxGeometry x="55" y="430" width="510" height="35" as="geometry" />
+        </mxCell>
+        
+        <!-- Actions Group -->
+        <mxCell id="actions-group" value="Convex Actions (Node.js)" style="swimlane;fontStyle=1;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=0;marginBottom=0;fillColor=#ffe6cc;strokeColor=#d79b00;" vertex="1" parent="1">
+          <mxGeometry x="600" y="280" width="180" height="130" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="mtn-action" value="mtnMomo.ts&#xa;(Collection, Disbursement)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;" vertex="1" parent="actions-group">
+          <mxGeometry y="26" width="180" height="48" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="orange-action" value="orangeMoney.ts&#xa;(WebPayment, Webhooks)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;" vertex="1" parent="actions-group">
+          <mxGeometry y="74" width="180" height="48" as="geometry" />
+        </mxCell>
+        
+        <!-- External Services -->
+        <mxCell id="ext-group" value="External Services" style="swimlane;fontStyle=1;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=0;marginBottom=0;fillColor=#f8cecc;strokeColor=#b85450;" vertex="1" parent="1">
+          <mxGeometry x="600" y="80" width="180" height="180" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="mtn-ext" value="MTN MoMo API" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff;" vertex="1" parent="ext-group">
+          <mxGeometry y="26" width="180" height="30" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="orange-ext" value="Orange Money API" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff;" vertex="1" parent="ext-group">
+          <mxGeometry y="56" width="180" height="30" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="clerk-ext" value="Clerk (Auth/Webhooks)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff;" vertex="1" parent="ext-group">
+          <mxGeometry y="86" width="180" height="30" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="sentry-ext" value="Sentry (Monitoring)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff;" vertex="1" parent="ext-group">
+          <mxGeometry y="116" width="180" height="30" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="storage-ext" value="Convex File Storage" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff;" vertex="1" parent="ext-group">
+          <mxGeometry y="146" width="180" height="30" as="geometry" />
+        </mxCell>
+        
+        <!-- Data Flow Arrows -->
+        <mxCell id="arrow1" value="" style="endArrow=classic;startArrow=classic;html=1;entryX=0.5;entryY=0;exitX=0.5;exitY=1;" edge="1" parent="1" source="clients-group" target="convex-group">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="190" y="250" as="sourcePoint" />
+            <mxPoint x="190" y="280" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <mxCell id="arrow2" value="Convex Client&#xa;(Real-time)" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="arrow1">
+          <mxGeometry x="-0.1" y="1" relative="1" as="geometry">
+            <mxPoint x="-1" y="-5" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        
+        <mxCell id="arrow3" value="" style="endArrow=classic;startArrow=classic;html=1;" edge="1" parent="1" source="auth-box" target="clients-group">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="340" y="130" as="sourcePoint" />
+            <mxPoint x="390" y="80" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <mxCell id="arrow4" value="" style="endArrow=classic;startArrow=classic;html=1;" edge="1" parent="1" source="actions-group" target="ext-group">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="690" y="270" as="sourcePoint" />
+            <mxPoint x="690" y="260" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <mxCell id="arrow5" value="" style="endArrow=classic;startArrow=classic;html=1;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" edge="1" parent="1" source="convex-group" target="actions-group">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="580" y="380" as="sourcePoint" />
+            <mxPoint x="600" y="380" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <!-- Legend -->
+        <mxCell id="legend" value="LEGEND" style="swimlane;fontStyle=1;childLayout=stackLayout;horizontal=1;startSize=20;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=0;marginBottom=0;fillColor=#f5f5f5;strokeColor=#666666;" vertex="1" parent="1">
+          <mxGeometry x="800" y="280" width="160" height="130" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="leg1" value="✅ Implemented" style="text;html=1;strokeColor=none;fillColor=#d5e8d4;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;spacingLeft=5;" vertex="1" parent="legend">
+          <mxGeometry y="20" width="160" height="22" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="leg2" value="🔶 Stubbed/Mock" style="text;html=1;strokeColor=none;fillColor=#ffe6cc;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;spacingLeft=5;" vertex="1" parent="legend">
+          <mxGeometry y="42" width="160" height="22" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="leg3" value="🔴 Missing for MVP" style="text;html=1;strokeColor=none;fillColor=#f8cecc;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;spacingLeft=5;" vertex="1" parent="legend">
+          <mxGeometry y="64" width="160" height="22" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="leg4" value="🟣 Schema/Data" style="text;html=1;strokeColor=none;fillColor=#e1d5e7;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;spacingLeft=5;" vertex="1" parent="legend">
+          <mxGeometry y="86" width="160" height="22" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="leg5" value="🔵 Client Apps" style="text;html=1;strokeColor=none;fillColor=#dae8fc;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;spacingLeft=5;" vertex="1" parent="legend">
+          <mxGeometry y="108" width="160" height="22" as="geometry" />
+        </mxCell>
+        
+        <!-- Status Box -->
+        <mxCell id="status-group" value="MVP STATUS" style="swimlane;fontStyle=1;childLayout=stackLayout;horizontal=1;startSize=20;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=0;marginBottom=0;fillColor=#f5f5f5;strokeColor=#666666;" vertex="1" parent="1">
+          <mxGeometry x="40" y="500" width="920" height="320" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="status-content" value="" style="fillColor=none;strokeColor=none;" vertex="1" parent="status-group">
+          <mxGeometry y="20" width="920" height="300" as="geometry" />
+        </mxCell>
+        
+        <!-- Implemented Features -->
+        <mxCell id="impl-box" value="✅ IMPLEMENTED&#xa;&#xa;Backend:&#xa;• Users (CRUD, roles, Clerk sync)&#xa;• Properties (CRUD, search index)&#xa;• Messages (conversations)&#xa;• Verifications (full workflow)&#xa;• Transactions (escrow)&#xa;• Notifications&#xa;• Saved Properties&#xa;• MTN/Orange actions (skeleton)&#xa;&#xa;Web UI:&#xa;• Landing page (i18n)&#xa;• Properties browse/detail&#xa;• Auth (Clerk)&#xa;• Dashboard layout&#xa;• New property form" style="rounded=1;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacingLeft=10;spacingTop=5;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="1">
+          <mxGeometry x="55" y="530" width="280" height="275" as="geometry" />
+        </mxCell>
+        
+        <!-- Stubbed Features -->
+        <mxCell id="stub-box" value="🔶 STUBBED / NOT WIRED&#xa;&#xa;• Properties listing → mock data&#xa;• Property detail → mock data&#xa;• Dashboard stats → mock data&#xa;• New property → not calling Convex&#xa;• Image upload → form exists, no upload&#xa;• Mobile → fallback to mock data&#xa;• Messages UI → placeholder&#xa;• Payments UI → no flow&#xa;• Maps → 'Coming soon' placeholder" style="rounded=1;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacingLeft=10;spacingTop=5;fillColor=#ffe6cc;strokeColor=#d79b00;" vertex="1" parent="1">
+          <mxGeometry x="350" y="530" width="280" height="275" as="geometry" />
+        </mxCell>
+        
+        <!-- Missing Features -->
+        <mxCell id="miss-box" value="🔴 MISSING FOR MVP&#xa;&#xa;Critical:&#xa;• Wire UI to Convex queries&#xa;• Payment flow UI (MTN/Orange)&#xa;• Image upload to Convex storage&#xa;• Real messaging UI&#xa;&#xa;Important:&#xa;• Verifier dashboard UI&#xa;• Admin dashboard UI&#xa;• Reviews UI&#xa;• Push notifications setup&#xa;• Property analytics UI&#xa;&#xa;Nice-to-have:&#xa;• Maps integration&#xa;• Offline mode&#xa;• Tenant screening UI" style="rounded=1;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacingLeft=10;spacingTop=5;fillColor=#f8cecc;strokeColor=#b85450;" vertex="1" parent="1">
+          <mxGeometry x="645" y="530" width="280" height="275" as="geometry" />
+        </mxCell>
+        
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
+

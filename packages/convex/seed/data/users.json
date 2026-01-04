@@ -1,0 +1,45 @@
+[
+  {
+    "clerkId": "user_seed_landlord_1",
+    "email": "landlord1@example.com",
+    "phone": "237699123456",
+    "role": "landlord",
+    "firstName": "Jean-Pierre",
+    "lastName": "Kamga",
+    "languagePreference": "fr",
+    "emailVerified": true,
+    "phoneVerified": true,
+    "idVerified": true,
+    "isActive": true,
+    "onboardingCompleted": true
+  },
+  {
+    "clerkId": "user_seed_landlord_2",
+    "email": "landlord2@example.com",
+    "phone": "237677234567",
+    "role": "landlord",
+    "firstName": "Marie",
+    "lastName": "Ngo Bassa",
+    "languagePreference": "fr",
+    "emailVerified": true,
+    "phoneVerified": true,
+    "idVerified": true,
+    "isActive": true,
+    "onboardingCompleted": true
+  },
+  {
+    "clerkId": "user_seed_renter_1",
+    "email": "renter1@example.com",
+    "phone": "237655345678",
+    "role": "renter",
+    "firstName": "Paul",
+    "lastName": "Mbarga",
+    "languagePreference": "en",
+    "emailVerified": true,
+    "phoneVerified": true,
+    "idVerified": false,
+    "isActive": true,
+    "onboardingCompleted": true
+  }
+]
+

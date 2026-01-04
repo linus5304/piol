@@ -1,0 +1,33 @@
+[
+  {
+    "title": "Appartement spacieux à Bonapriso",
+    "propertyType": "3br",
+    "rentAmount": 250000,
+    "currency": "XAF",
+    "city": "Douala",
+    "neighborhood": "Bonapriso",
+    "status": "active",
+    "verificationStatus": "approved"
+  },
+  {
+    "title": "Studio moderne à Bastos",
+    "propertyType": "studio",
+    "rentAmount": 85000,
+    "currency": "XAF",
+    "city": "Yaoundé",
+    "neighborhood": "Bastos",
+    "status": "active",
+    "verificationStatus": "approved"
+  },
+  {
+    "title": "Villa de luxe à Kribi",
+    "propertyType": "villa",
+    "rentAmount": 750000,
+    "currency": "XAF",
+    "city": "Kribi",
+    "neighborhood": "Grand Batanga",
+    "status": "active",
+    "verificationStatus": "approved"
+  }
+]
+
