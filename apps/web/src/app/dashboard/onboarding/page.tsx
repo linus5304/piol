@@ -9,7 +9,7 @@ import { Card } from '@/components/ui/card';
 type Role = 'renter' | 'landlord';
 
 export default function OnboardingPage() {
-  const { user, isLoaded } = useUser();
+  const { user, isLoaded } = useSafeUser();
   const router = useRouter();
   const [selectedRole, setSelectedRole] = useState<Role>(
     (user?.unsafeMetadata?.role as Role) || 'renter'

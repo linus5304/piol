@@ -19,7 +19,7 @@ import {
 } from 'lucide-react';
 
 export default function DashboardPage() {
-  const { user, isLoaded } = useUser();
+  const { user, isLoaded } = useSafeUser();
 
   if (!isLoaded) {
     return (

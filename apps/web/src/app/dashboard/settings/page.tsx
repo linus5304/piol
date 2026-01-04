@@ -15,7 +15,7 @@ import {
 } from '@/components/ui/select';
 
 export default function SettingsPage() {
-  const { user, isLoaded } = useUser();
+  const { user, isLoaded } = useSafeUser();
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Form state
