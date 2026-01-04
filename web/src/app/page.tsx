@@ -4,38 +4,15 @@ import { useTranslations } from 'next-intl';
 import Link from 'next/link';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Card, CardContent } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
 import { PropertyCard } from '@/components/property-card';
 import { LanguageSwitcher } from '@/components/language-switcher';
+import { Search, CheckCircle2, Shield, Smartphone, ArrowRight, MapPin, Menu } from 'lucide-react';
+import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 
-// Cameroon cities with cultural context
-const cameroonCities = [
-  {
-    name: 'Douala',
-    properties: '450+',
-    image: 'https://images.unsplash.com/photo-1564501049412-61c2a3083791?w=600&h=400&fit=crop',
-    tagline: 'La capitale économique',
-  },
-  {
-    name: 'Yaoundé',
-    properties: '380+',
-    image: 'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=600&h=400&fit=crop',
-    tagline: 'La ville aux sept collines',
-  },
-  {
-    name: 'Buea',
-    properties: '120+',
-    image: 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=600&h=400&fit=crop',
-    tagline: 'Au pied du Mont Cameroun',
-  },
-  {
-    name: 'Kribi',
-    properties: '85+',
-    image: 'https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=600&h=400&fit=crop',
-    tagline: 'Perle de la côte',
-  },
-];
-
-// Mock featured properties
+// Featured properties data
 const featuredProperties = [
   {
     _id: 'feat-1',
@@ -49,7 +26,7 @@ const featuredProperties = [
     status: 'active' as const,
     verificationStatus: 'approved' as const,
     landlordId: 'landlord-1',
-    landlordName: 'Jean-Pierre Kamga',
+    landlordName: 'Jean-Pierre K.',
     landlordVerified: true,
   },
   {
@@ -64,7 +41,7 @@ const featuredProperties = [
     status: 'active' as const,
     verificationStatus: 'approved' as const,
     landlordId: 'landlord-2',
-    landlordName: 'Marie Ngo Bassa',
+    landlordName: 'Marie N.',
     landlordVerified: true,
   },
   {
@@ -79,31 +56,17 @@ const featuredProperties = [
     status: 'active' as const,
     verificationStatus: 'approved' as const,
     landlordId: 'landlord-3',
-    landlordName: 'Paul Mbarga Atangana',
+    landlordName: 'Paul M.',
     landlordVerified: true,
   },
 ];
 
-// Testimonials
-const testimonials = [
-  {
-    name: 'Amina Bello',
-    role: 'Locataire à Douala',
-    text: "J'ai trouvé mon appartement en seulement 3 jours. Les photos correspondaient parfaitement à la réalité !",
-    avatar: '👩🏾',
-  },
-  {
-    name: 'Christian Fotso',
-    role: 'Propriétaire',
-    text: "Piol m'a aidé à trouver des locataires sérieux. Le paiement via Mobile Money est vraiment pratique.",
-    avatar: '👨🏾',
-  },
-  {
-    name: 'Sandra Eyenga',
-    role: 'Étudiante à Yaoundé',
-    text: "Super plateforme ! J'ai pu comparer plusieurs studios près de l'université facilement.",
-    avatar: '👩🏾‍🎓',
-  },
+// Cities data
+const cities = [
+  { name: 'Douala', count: '450+' },
+  { name: 'Yaoundé', count: '380+' },
+  { name: 'Buea', count: '120+' },
+  { name: 'Kribi', count: '85+' },
 ];
 
 export default function HomePage() {
@@ -112,151 +75,105 @@ export default function HomePage() {
   const tFooter = useTranslations('footer');
 
   return (
-    <div className="min-h-screen bg-[#FAF9F7]">
+    <div className="min-h-screen bg-background">
       {/* Header */}
-      <header className="bg-white/80 backdrop-blur-md border-b border-[#E8E4DE] sticky top-0 z-50">
-        <div className="container mx-auto px-4 py-4 flex items-center justify-between">
-          <Link href="/" className="flex items-center gap-3 group">
-            <div className="w-10 h-10 bg-gradient-to-br from-[#E85D4C] to-[#D14836] rounded-xl flex items-center justify-center shadow-lg group-hover:shadow-xl transition-all group-hover:scale-105">
-              <span className="text-white text-xl font-bold">P</span>
+      <header className="border-b bg-background sticky top-0 z-50">
+        <div className="container mx-auto px-4 h-16 flex items-center justify-between">
+          <Link href="/" className="flex items-center gap-2">
+            <div className="w-8 h-8 bg-foreground flex items-center justify-center">
+              <span className="text-background text-sm font-bold">P</span>
             </div>
-            <span className="text-2xl font-bold text-[#2D2A26]">Piol</span>
+            <span className="text-xl font-semibold">Piol</span>
           </Link>
 
-          <nav className="hidden md:flex items-center gap-8">
-            <Link
-              href="/properties"
-              className="text-[#5C564D] hover:text-[#2D2A26] font-medium transition-colors"
-            >
+          {/* Desktop Nav */}
+          <nav className="hidden md:flex items-center gap-6">
+            <Link href="/properties" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
               {tNav('properties')}
             </Link>
-            <Link
-              href="/about"
-              className="text-[#5C564D] hover:text-[#2D2A26] font-medium transition-colors"
-            >
+            <Link href="/about" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
               {tNav('about')}
             </Link>
-            <Link
-              href="/contact"
-              className="text-[#5C564D] hover:text-[#2D2A26] font-medium transition-colors"
-            >
+            <Link href="/contact" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
               {tNav('contact')}
             </Link>
           </nav>
 
           <div className="flex items-center gap-3">
             <LanguageSwitcher />
-            <Link href="/sign-in">
-              <Button variant="ghost" className="font-semibold text-[#5C564D] hover:text-[#2D2A26]">
-                {tNav('signIn')}
-              </Button>
+            <Link href="/sign-in" className="hidden sm:block">
+              <Button variant="ghost" size="sm">{tNav('signIn')}</Button>
             </Link>
-            <Link href="/sign-up">
-              <Button className="bg-[#E85D4C] hover:bg-[#D14836] font-semibold rounded-xl shadow-md hover:shadow-lg transition-all">
-                {tNav('signUp')}
-              </Button>
+            <Link href="/sign-up" className="hidden sm:block">
+              <Button size="sm">{tNav('signUp')}</Button>
             </Link>
+            
+            {/* Mobile Menu */}
+            <Sheet>
+              <SheetTrigger asChild className="md:hidden">
+                <Button variant="ghost" size="icon">
+                  <Menu className="h-5 w-5" />
+                </Button>
+              </SheetTrigger>
+              <SheetContent side="right" className="w-72">
+                <nav className="flex flex-col gap-4 mt-8">
+                  <Link href="/properties" className="text-lg font-medium">{tNav('properties')}</Link>
+                  <Link href="/about" className="text-lg font-medium">{tNav('about')}</Link>
+                  <Link href="/contact" className="text-lg font-medium">{tNav('contact')}</Link>
+                  <hr className="my-4" />
+                  <Link href="/sign-in"><Button variant="outline" className="w-full">{tNav('signIn')}</Button></Link>
+                  <Link href="/sign-up"><Button className="w-full">{tNav('signUp')}</Button></Link>
+                </nav>
+              </SheetContent>
+            </Sheet>
           </div>
         </div>
       </header>
 
-      {/* Hero Section - Cameroon Inspired */}
-      <section className="relative overflow-hidden">
-        {/* Background Pattern - Subtle Cameroon flag inspired gradient */}
-        <div className="absolute inset-0">
-          <div className="absolute inset-0 bg-gradient-to-br from-[#007A33]/5 via-[#CE1126]/5 to-[#FCD116]/10" />
-          <div className="absolute top-0 right-0 w-96 h-96 bg-[#E85D4C]/10 rounded-full blur-3xl" />
-          <div className="absolute bottom-0 left-0 w-96 h-96 bg-[#2D6A4F]/10 rounded-full blur-3xl" />
-        </div>
-        
-        <div className="container mx-auto px-4 py-16 md:py-24 relative">
-          <div className="grid lg:grid-cols-2 gap-12 items-center">
-            <div>
-              <div className="inline-flex items-center gap-2 bg-[#2D6A4F]/10 text-[#2D6A4F] px-4 py-2 rounded-full text-sm font-semibold mb-6">
-                <span>🇨🇲</span>
-                <span>La 1ère plateforme de location au Cameroun</span>
-              </div>
-              
-              <h1 className="text-4xl md:text-5xl lg:text-6xl font-extrabold text-[#2D2A26] leading-tight">
-                Trouvez votre{' '}
-                <span className="text-[#E85D4C]">chez-vous</span>{' '}
-                au Cameroun
-              </h1>
-              
-              <p className="text-lg text-[#5C564D] mt-6 leading-relaxed max-w-xl">
-                Annonces vérifiées, paiement sécurisé par Mobile Money, et propriétaires de confiance.
-                De Douala à Yaoundé, trouvez le logement idéal.
-              </p>
+      {/* Hero Section */}
+      <section className="border-b">
+        <div className="container mx-auto px-4 py-16 md:py-24">
+          <div className="max-w-3xl">
+            <Badge variant="secondary" className="mb-4">
+              Plateforme de location au Cameroun
+            </Badge>
+            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight mb-6">
+              Trouvez votre prochain logement
+            </h1>
+            <p className="text-lg text-muted-foreground mb-8 max-w-xl">
+              Annonces vérifiées, paiement sécurisé par Mobile Money. 
+              De Douala à Yaoundé, trouvez le logement idéal.
+            </p>
 
-              {/* Search Bar */}
-              <div className="mt-8 bg-white rounded-2xl shadow-xl p-2 flex flex-col sm:flex-row gap-2">
-                <div className="flex-1 flex items-center gap-3 px-4 py-3">
-                  <span className="text-[#8B8378]">📍</span>
-                  <input
-                    type="text"
-                    placeholder="Douala, Yaoundé, Buea..."
-                    className="flex-1 outline-none text-[#2D2A26] placeholder:text-[#C4BEB4]"
-                  />
-                </div>
-                <Link href="/properties">
-                  <Button className="bg-[#E85D4C] hover:bg-[#D14836] text-white font-semibold px-8 py-6 rounded-xl w-full sm:w-auto">
-                    Rechercher
-                  </Button>
-                </Link>
+            {/* Search Bar */}
+            <div className="flex flex-col sm:flex-row gap-2 mb-8">
+              <div className="relative flex-1">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Input 
+                  placeholder="Rechercher par ville ou quartier..." 
+                  className="pl-10 h-12"
+                />
               </div>
-
-              {/* Trust Badges */}
-              <div className="flex flex-wrap items-center gap-6 mt-8 text-sm text-[#5C564D]">
-                <div className="flex items-center gap-2">
-                  <span className="w-8 h-8 bg-[#2D6A4F]/10 rounded-full flex items-center justify-center">✓</span>
-                  <span>Annonces vérifiées</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <span className="w-8 h-8 bg-[#D4A017]/10 rounded-full flex items-center justify-center">📱</span>
-                  <span>MTN MoMo & Orange Money</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <span className="w-8 h-8 bg-[#E85D4C]/10 rounded-full flex items-center justify-center">🔒</span>
-                  <span>Paiement sécurisé</span>
-                </div>
-              </div>
+              <Link href="/properties">
+                <Button size="lg" className="h-12 px-8 w-full sm:w-auto">
+                  Rechercher
+                </Button>
+              </Link>
             </div>
 
-            {/* Hero Image Grid */}
-            <div className="hidden lg:grid grid-cols-2 gap-4">
-              <div className="space-y-4">
-                <div className="relative h-48 rounded-2xl overflow-hidden shadow-lg">
-                  <Image
-                    src="https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=400&h=300&fit=crop"
-                    alt="Villa moderne"
-                    fill
-                    className="object-cover"
-                  />
-                </div>
-                <div className="relative h-64 rounded-2xl overflow-hidden shadow-lg">
-                  <Image
-                    src="https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=400&h=400&fit=crop"
-                    alt="Appartement"
-                    fill
-                    className="object-cover"
-                  />
-                </div>
+            {/* Stats */}
+            <div className="flex flex-wrap gap-8">
+              <div>
+                <div className="text-3xl font-bold">1,000+</div>
+                <div className="text-sm text-muted-foreground">Logements</div>
               </div>
-              <div className="space-y-4 pt-8">
-                <div className="relative h-64 rounded-2xl overflow-hidden shadow-lg">
-                  <Image
-                    src="https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=400&h=400&fit=crop"
-                    alt="Studio moderne"
-                    fill
-                    className="object-cover"
-                  />
-                </div>
-                <div className="relative h-48 rounded-2xl overflow-hidden shadow-lg bg-gradient-to-br from-[#E85D4C] to-[#D14836] flex items-center justify-center">
-                  <div className="text-center text-white p-6">
-                    <div className="text-4xl font-bold">1,000+</div>
-                    <div className="text-sm opacity-90">Logements disponibles</div>
-                  </div>
-                </div>
+              <div>
+                <div className="text-3xl font-bold">5,000+</div>
+                <div className="text-sm text-muted-foreground">Utilisateurs</div>
+              </div>
+              <div>
+                <div className="text-3xl font-bold">98%</div>
+                <div className="text-sm text-muted-foreground">Satisfaction</div>
               </div>
             </div>
           </div>
@@ -264,37 +181,26 @@ export default function HomePage() {
       </section>
 
       {/* Cities Section */}
-      <section className="py-16 bg-white">
-        <div className="container mx-auto px-4">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl md:text-4xl font-bold text-[#2D2A26]">
-              Explorez nos villes
-            </h2>
-            <p className="text-[#5C564D] mt-3 max-w-xl mx-auto">
-              Du dynamisme de Douala au charme de Kribi, trouvez votre quartier idéal
-            </p>
+      <section className="border-b">
+        <div className="container mx-auto px-4 py-12">
+          <div className="flex items-center justify-between mb-6">
+            <h2 className="text-xl font-semibold">Villes populaires</h2>
+            <Link href="/properties" className="text-sm text-muted-foreground hover:text-foreground flex items-center gap-1">
+              Voir tout <ArrowRight className="h-4 w-4" />
+            </Link>
           </div>
-
-          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {cameroonCities.map((city) => (
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            {cities.map((city) => (
               <Link key={city.name} href={`/properties?city=${city.name}`}>
-                <div className="group relative h-64 rounded-2xl overflow-hidden shadow-md hover:shadow-xl transition-all cursor-pointer">
-                  <Image
-                    src={city.image}
-                    alt={city.name}
-                    fill
-                    className="object-cover group-hover:scale-110 transition-transform duration-500"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
-                  <div className="absolute bottom-0 left-0 right-0 p-6 text-white">
-                    <h3 className="text-xl font-bold">{city.name}</h3>
-                    <p className="text-sm opacity-80">{city.tagline}</p>
-                    <div className="mt-2 inline-flex items-center gap-1 text-sm bg-white/20 backdrop-blur-sm px-3 py-1 rounded-full">
-                      <span>🏠</span>
-                      <span>{city.properties} annonces</span>
+                <Card className="hover:bg-muted/50 transition-colors cursor-pointer">
+                  <CardContent className="p-4 flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <MapPin className="h-4 w-4 text-muted-foreground" />
+                      <span className="font-medium">{city.name}</span>
                     </div>
-                  </div>
-                </div>
+                    <Badge variant="secondary">{city.count}</Badge>
+                  </CardContent>
+                </Card>
               </Link>
             ))}
           </div>
@@ -302,47 +208,34 @@ export default function HomePage() {
       </section>
 
       {/* How It Works */}
-      <section className="py-16 bg-[#FAF9F7]">
-        <div className="container mx-auto px-4">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl md:text-4xl font-bold text-[#2D2A26]">
-              Comment ça marche ?
-            </h2>
-            <p className="text-[#5C564D] mt-3">
-              Trouvez et louez en 3 étapes simples
-            </p>
-          </div>
-
+      <section className="border-b bg-muted/30">
+        <div className="container mx-auto px-4 py-16">
+          <h2 className="text-2xl font-semibold mb-8 text-center">Comment ça marche</h2>
           <div className="grid md:grid-cols-3 gap-8 max-w-4xl mx-auto">
             <div className="text-center">
-              <div className="w-20 h-20 bg-[#E85D4C]/10 rounded-2xl flex items-center justify-center mx-auto mb-6">
-                <span className="text-4xl">🔍</span>
+              <div className="w-12 h-12 bg-foreground text-background flex items-center justify-center mx-auto mb-4 text-xl font-bold">
+                1
               </div>
-              <div className="w-8 h-8 bg-[#E85D4C] text-white rounded-full flex items-center justify-center mx-auto mb-4 font-bold">1</div>
-              <h3 className="text-xl font-bold text-[#2D2A26] mb-2">Recherchez</h3>
-              <p className="text-[#5C564D]">
-                Filtrez par ville, prix, type de logement et équipements
+              <h3 className="font-semibold mb-2">Recherchez</h3>
+              <p className="text-sm text-muted-foreground">
+                Filtrez par ville, prix et type de logement
               </p>
             </div>
-
             <div className="text-center">
-              <div className="w-20 h-20 bg-[#2D6A4F]/10 rounded-2xl flex items-center justify-center mx-auto mb-6">
-                <span className="text-4xl">💬</span>
+              <div className="w-12 h-12 bg-foreground text-background flex items-center justify-center mx-auto mb-4 text-xl font-bold">
+                2
               </div>
-              <div className="w-8 h-8 bg-[#2D6A4F] text-white rounded-full flex items-center justify-center mx-auto mb-4 font-bold">2</div>
-              <h3 className="text-xl font-bold text-[#2D2A26] mb-2">Contactez</h3>
-              <p className="text-[#5C564D]">
-                Discutez directement avec les propriétaires vérifiés
+              <h3 className="font-semibold mb-2">Contactez</h3>
+              <p className="text-sm text-muted-foreground">
+                Discutez avec les propriétaires vérifiés
               </p>
             </div>
-
             <div className="text-center">
-              <div className="w-20 h-20 bg-[#D4A017]/10 rounded-2xl flex items-center justify-center mx-auto mb-6">
-                <span className="text-4xl">🔑</span>
+              <div className="w-12 h-12 bg-foreground text-background flex items-center justify-center mx-auto mb-4 text-xl font-bold">
+                3
               </div>
-              <div className="w-8 h-8 bg-[#D4A017] text-white rounded-full flex items-center justify-center mx-auto mb-4 font-bold">3</div>
-              <h3 className="text-xl font-bold text-[#2D2A26] mb-2">Emménagez</h3>
-              <p className="text-[#5C564D]">
+              <h3 className="font-semibold mb-2">Emménagez</h3>
+              <p className="text-sm text-muted-foreground">
                 Payez par Mobile Money et récupérez vos clés
               </p>
             </div>
@@ -351,22 +244,16 @@ export default function HomePage() {
       </section>
 
       {/* Featured Properties */}
-      <section className="py-16 bg-white">
-        <div className="container mx-auto px-4">
-          <div className="flex justify-between items-center mb-10">
-            <div>
-              <h2 className="text-3xl md:text-4xl font-bold text-[#2D2A26]">
-                Annonces à la une
-              </h2>
-              <p className="text-[#5C564D] mt-2">Sélectionnées pour vous</p>
-            </div>
+      <section className="border-b">
+        <div className="container mx-auto px-4 py-16">
+          <div className="flex items-center justify-between mb-8">
+            <h2 className="text-2xl font-semibold">Annonces à la une</h2>
             <Link href="/properties">
-              <Button variant="outline" className="rounded-xl border-[#E8E4DE] hover:border-[#E85D4C] hover:text-[#E85D4C]">
-                Voir tout →
+              <Button variant="outline" size="sm">
+                Voir tout <ArrowRight className="ml-2 h-4 w-4" />
               </Button>
             </Link>
           </div>
-
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
             {featuredProperties.map((property) => (
               <PropertyCard key={property._id} property={property} />
@@ -375,145 +262,111 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Testimonials */}
-      <section className="py-16 bg-gradient-to-br from-[#2D6A4F] to-[#1B4332]">
-        <div className="container mx-auto px-4">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl md:text-4xl font-bold text-white">
-              Ce que disent nos utilisateurs
-            </h2>
-          </div>
-
-          <div className="grid md:grid-cols-3 gap-6 max-w-5xl mx-auto">
-            {testimonials.map((testimonial, idx) => (
-              <div key={idx} className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 text-white">
-                <div className="text-4xl mb-4">{testimonial.avatar}</div>
-                <p className="text-white/90 mb-4 leading-relaxed">"{testimonial.text}"</p>
-                <div>
-                  <div className="font-semibold">{testimonial.name}</div>
-                  <div className="text-sm text-white/70">{testimonial.role}</div>
-                </div>
-              </div>
-            ))}
+      {/* Features Section */}
+      <section className="border-b bg-muted/30">
+        <div className="container mx-auto px-4 py-16">
+          <h2 className="text-2xl font-semibold mb-8 text-center">Pourquoi Piol</h2>
+          <div className="grid md:grid-cols-3 gap-6 max-w-4xl mx-auto">
+            <Card>
+              <CardContent className="p-6">
+                <CheckCircle2 className="h-8 w-8 mb-4" />
+                <h3 className="font-semibold mb-2">Annonces vérifiées</h3>
+                <p className="text-sm text-muted-foreground">
+                  Chaque annonce est vérifiée par notre équipe pour garantir son authenticité.
+                </p>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardContent className="p-6">
+                <Shield className="h-8 w-8 mb-4" />
+                <h3 className="font-semibold mb-2">Paiement sécurisé</h3>
+                <p className="text-sm text-muted-foreground">
+                  Payez en toute sécurité via Mobile Money (MTN, Orange).
+                </p>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardContent className="p-6">
+                <Smartphone className="h-8 w-8 mb-4" />
+                <h3 className="font-semibold mb-2">Support bilingue</h3>
+                <p className="text-sm text-muted-foreground">
+                  Assistance en français et anglais disponible 7j/7.
+                </p>
+              </CardContent>
+            </Card>
           </div>
         </div>
       </section>
 
       {/* CTA Section */}
-      <section className="py-16 bg-[#FAF9F7]">
-        <div className="container mx-auto px-4">
-          <div className="bg-gradient-to-br from-[#E85D4C] to-[#D14836] rounded-3xl p-8 md:p-12 text-center text-white relative overflow-hidden">
-            {/* Decorative elements */}
-            <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full blur-3xl" />
-            <div className="absolute bottom-0 left-0 w-64 h-64 bg-black/10 rounded-full blur-3xl" />
-            
-            <div className="relative">
-              <h2 className="text-3xl md:text-4xl font-bold mb-4">
+      <section className="border-b">
+        <div className="container mx-auto px-4 py-16">
+          <Card className="bg-foreground text-background">
+            <CardContent className="p-8 md:p-12 text-center">
+              <h2 className="text-2xl md:text-3xl font-bold mb-4">
                 Prêt à trouver votre logement ?
               </h2>
-              <p className="text-white/90 text-lg mb-8 max-w-xl mx-auto">
-                Rejoignez des milliers de Camerounais qui ont trouvé leur chez-eux grâce à Piol
+              <p className="text-background/80 mb-8 max-w-md mx-auto">
+                Rejoignez des milliers d'utilisateurs qui ont trouvé leur chez-eux avec Piol.
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
                 <Link href="/sign-up">
-                  <Button
-                    size="lg"
-                    className="bg-white text-[#E85D4C] hover:bg-gray-100 font-bold px-8 py-6 rounded-xl"
-                  >
-                    Créer un compte gratuit
+                  <Button size="lg" variant="secondary" className="w-full sm:w-auto">
+                    Créer un compte
                   </Button>
                 </Link>
                 <Link href="/sign-up?role=landlord">
-                  <Button
-                    size="lg"
-                    variant="outline"
-                    className="border-2 border-white text-white hover:bg-white/10 font-bold px-8 py-6 rounded-xl"
-                  >
+                  <Button size="lg" variant="outline" className="w-full sm:w-auto border-background/20 text-background hover:bg-background/10">
                     Je suis propriétaire
                   </Button>
                 </Link>
               </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Payment Methods */}
-      <section className="py-12 bg-white border-t border-[#E8E4DE]">
-        <div className="container mx-auto px-4">
-          <div className="flex flex-col md:flex-row items-center justify-center gap-8 text-center">
-            <span className="text-[#5C564D] font-medium">Moyens de paiement acceptés :</span>
-            <div className="flex items-center gap-6">
-              <div className="flex items-center gap-2 bg-[#FCD116] text-black px-4 py-2 rounded-lg font-semibold">
-                📱 MTN MoMo
-              </div>
-              <div className="flex items-center gap-2 bg-[#FF6600] text-white px-4 py-2 rounded-lg font-semibold">
-                📱 Orange Money
-              </div>
-            </div>
-          </div>
+            </CardContent>
+          </Card>
         </div>
       </section>
 
       {/* Footer */}
-      <footer className="bg-[#2D2A26] text-[#C4BEB4] py-16">
-        <div className="container mx-auto px-4">
-          <div className="grid md:grid-cols-4 gap-12">
+      <footer className="bg-muted/30">
+        <div className="container mx-auto px-4 py-12">
+          <div className="grid md:grid-cols-4 gap-8">
             <div>
-              <div className="flex items-center gap-3 mb-6">
-                <div className="w-10 h-10 bg-gradient-to-br from-[#E85D4C] to-[#D14836] rounded-xl flex items-center justify-center">
-                  <span className="text-white text-xl font-bold">P</span>
+              <div className="flex items-center gap-2 mb-4">
+                <div className="w-8 h-8 bg-foreground flex items-center justify-center">
+                  <span className="text-background text-sm font-bold">P</span>
                 </div>
-                <span className="text-2xl font-bold text-white">Piol</span>
+                <span className="text-xl font-semibold">Piol</span>
               </div>
-              <p className="leading-relaxed">
-                La plateforme de confiance pour trouver et louer des logements au Cameroun.
+              <p className="text-sm text-muted-foreground">
+                {tFooter('description')}
               </p>
-              <div className="flex gap-4 mt-6">
-                <a href="#" className="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center hover:bg-white/20 transition-colors">
-                  📘
-                </a>
-                <a href="#" className="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center hover:bg-white/20 transition-colors">
-                  📸
-                </a>
-                <a href="#" className="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center hover:bg-white/20 transition-colors">
-                  🐦
-                </a>
-              </div>
             </div>
-
             <div>
-              <h4 className="font-bold text-white mb-6">Liens rapides</h4>
-              <ul className="space-y-3">
-                <li><Link href="/properties" className="hover:text-white transition-colors">Rechercher</Link></li>
-                <li><Link href="/about" className="hover:text-white transition-colors">À propos</Link></li>
-                <li><Link href="/contact" className="hover:text-white transition-colors">Contact</Link></li>
+              <h4 className="font-semibold mb-4">{tFooter('quickLinks')}</h4>
+              <ul className="space-y-2 text-sm">
+                <li><Link href="/properties" className="text-muted-foreground hover:text-foreground">{tNav('properties')}</Link></li>
+                <li><Link href="/about" className="text-muted-foreground hover:text-foreground">{tNav('about')}</Link></li>
+                <li><Link href="/contact" className="text-muted-foreground hover:text-foreground">{tNav('contact')}</Link></li>
               </ul>
             </div>
-
             <div>
-              <h4 className="font-bold text-white mb-6">Légal</h4>
-              <ul className="space-y-3">
-                <li><Link href="/privacy" className="hover:text-white transition-colors">Confidentialité</Link></li>
-                <li><Link href="/terms" className="hover:text-white transition-colors">Conditions d'utilisation</Link></li>
+              <h4 className="font-semibold mb-4">{tFooter('legal')}</h4>
+              <ul className="space-y-2 text-sm">
+                <li><Link href="/privacy" className="text-muted-foreground hover:text-foreground">{tFooter('privacy')}</Link></li>
+                <li><Link href="/terms" className="text-muted-foreground hover:text-foreground">{tFooter('terms')}</Link></li>
               </ul>
             </div>
-
             <div>
-              <h4 className="font-bold text-white mb-6">Contact</h4>
-              <ul className="space-y-3">
-                <li className="flex items-center gap-2">📧 support@piol.cm</li>
-                <li className="flex items-center gap-2">📞 +237 6XX XXX XXX</li>
-                <li className="flex items-center gap-2">📍 Douala, Cameroun</li>
+              <h4 className="font-semibold mb-4">{tNav('contact')}</h4>
+              <ul className="space-y-2 text-sm text-muted-foreground">
+                <li>support@piol.cm</li>
+                <li>+237 6XX XXX XXX</li>
+                <li>Douala, Cameroun</li>
               </ul>
             </div>
           </div>
-
-          <div className="border-t border-white/10 mt-12 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
-            <p className="text-sm">© {new Date().getFullYear()} Piol. Tous droits réservés.</p>
-            <p className="text-sm flex items-center gap-2">
-              Fait avec ❤️ au <span className="text-[#FCD116]">🇨🇲</span> Cameroun
-            </p>
+          <div className="border-t mt-8 pt-8 text-center text-sm text-muted-foreground">
+            © {new Date().getFullYear()} Piol. {tFooter('copyright')}
           </div>
         </div>
       </footer>
