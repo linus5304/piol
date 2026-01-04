@@ -1,7 +1,11 @@
 {
   "compilerOptions": {
     "target": "ES2017",
-    "lib": ["dom", "dom.iterable", "esnext"],
+    "lib": [
+      "dom",
+      "dom.iterable",
+      "esnext"
+    ],
     "allowJs": true,
     "skipLibCheck": true,
     "strict": true,
@@ -19,9 +23,15 @@
       }
     ],
     "paths": {
-      "@/*": ["./src/*"],
-      "convex/_generated/api": ["./convex/_generated/api"],
-      "convex/_generated/*": ["./convex/_generated/*"]
+      "@/*": [
+        "./src/*"
+      ],
+      "convex/_generated/api": [
+        "./convex/_generated/api"
+      ],
+      "convex/_generated/*": [
+        "./convex/_generated/*"
+      ]
     }
   },
   "include": [
@@ -32,8 +42,13 @@
     "*.ts",
     "*.tsx",
     "convex/_generated/**/*.ts",
-    "convex/_generated/**/*.js"
+    "convex/_generated/**/*.js",
+    ".next/dev/types/**/*.ts"
   ],
-  "exclude": ["node_modules", "convex/*.ts", "convex/actions/**", "convex/seed/**"]
+  "exclude": [
+    "node_modules",
+    "convex/*.ts",
+    "convex/actions/**",
+    "convex/seed/**"
+  ]
 }
-
