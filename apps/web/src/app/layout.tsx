@@ -8,8 +8,9 @@ import './globals.css';
 import { Toaster } from '@/components/ui/sonner';
 import { Providers } from './providers';
 import { ConnectionStatus } from '@/components/connection-status';
+import { env, isClerkConfigured } from '@/lib/env';
 
-// Nunito Sans - warmer, more approachable font inspired by shadcn Lyra preset
+// Nunito Sans - warmer, more approachable font
 const nunitoSans = Nunito_Sans({
   variable: '--font-sans',
   subsets: ['latin'],
@@ -22,31 +23,31 @@ const jetbrainsMono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  title: 'Piol - Cameroon Housing Marketplace',
+  title: `${env.NEXT_PUBLIC_APP_NAME} - Cameroon Housing Marketplace`,
   description:
     'Find your perfect home in Cameroon. Verified properties, secure payments, and trusted landlords.',
   keywords: ['rental', 'housing', 'cameroon', 'douala', 'yaoundé', 'apartment', 'property'],
-  authors: [{ name: 'Piol' }],
+  authors: [{ name: env.NEXT_PUBLIC_APP_NAME }],
   manifest: '/manifest.json',
   appleWebApp: {
     capable: true,
     statusBarStyle: 'default',
-    title: 'Piol',
+    title: env.NEXT_PUBLIC_APP_NAME,
   },
   formatDetection: {
     telephone: true,
   },
   openGraph: {
-    title: 'Piol - Cameroon Housing Marketplace',
+    title: `${env.NEXT_PUBLIC_APP_NAME} - Cameroon Housing Marketplace`,
     description: 'Find your perfect home in Cameroon',
     type: 'website',
     locale: 'fr_CM',
     alternateLocale: 'en_CM',
-    siteName: 'Piol',
+    siteName: env.NEXT_PUBLIC_APP_NAME,
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Piol - Cameroon Housing Marketplace',
+    title: `${env.NEXT_PUBLIC_APP_NAME} - Cameroon Housing Marketplace`,
     description: 'Find your perfect home in Cameroon',
   },
 };
@@ -54,10 +55,6 @@ export const metadata: Metadata = {
 export const viewport: Viewport = {
   themeColor: '#FF385C',
 };
-
-// Check if Clerk is properly configured
-const clerkKey = process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY;
-const isClerkConfigured = clerkKey && !clerkKey.includes('REPLACE_WITH');
 
 export default async function RootLayout({
   children,

@@ -6,7 +6,7 @@ import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
-import { isClerkConfigured } from '@/hooks/use-safe-auth';
+import { isClerkConfigured } from '@/lib/env';
 
 // Demo sign-up form when Clerk is not configured
 function DemoSignUpForm() {

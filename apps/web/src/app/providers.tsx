@@ -5,10 +5,7 @@ import { ConvexReactClient, ConvexProvider } from 'convex/react';
 import { ConvexProviderWithClerk } from 'convex/react-clerk';
 import { useAuth } from '@clerk/nextjs';
 import { type ReactNode, useMemo, useState } from 'react';
-
-const convexUrl = process.env.NEXT_PUBLIC_CONVEX_URL;
-const clerkKey = process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY;
-const isClerkConfigured = clerkKey && !clerkKey.includes('REPLACE_WITH');
+import { env, isClerkConfigured, isConvexConfigured } from '@/lib/env';
 
 export function Providers({ children }: { children: ReactNode }) {
   const [queryClient] = useState(
@@ -24,11 +21,11 @@ export function Providers({ children }: { children: ReactNode }) {
   );
 
   const convex = useMemo(() => {
-    if (!convexUrl || convexUrl.includes('REPLACE_WITH')) {
-      console.warn('NEXT_PUBLIC_CONVEX_URL not set - Convex features disabled');
+    if (!isConvexConfigured) {
+      console.warn('⚠️ NEXT_PUBLIC_CONVEX_URL not set - Convex features disabled');
       return null;
     }
-    return new ConvexReactClient(convexUrl);
+    return new ConvexReactClient(env.NEXT_PUBLIC_CONVEX_URL!);
   }, []);
 
   // If no Convex URL, render without Convex provider
