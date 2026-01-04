@@ -19,19 +19,23 @@ const isPublicRoute = createRouteMatcher([
     '/api/webhooks(.*)',
 ]);
 
-// If Clerk is not configured, use a passthrough middleware
-function passthroughMiddleware(_request: NextRequest) {
+// Passthrough proxy when Clerk is not configured
+function passthroughProxy() {
     return NextResponse.next();
 }
 
-// Export the appropriate middleware based on configuration
-export default isClerkConfigured
-    ? clerkMiddleware(async (auth, request) => {
-        if (!isPublicRoute(request)) {
-            await auth.protect();
-        }
-    })
-    : passthroughMiddleware;
+// Clerk proxy handler
+const clerkProxy = clerkMiddleware(async (auth, request) => {
+    if (!isPublicRoute(request)) {
+        await auth.protect();
+    }
+});
+
+// Export the appropriate proxy based on configuration
+export const proxy = isClerkConfigured ? clerkProxy : passthroughProxy;
+
+// Default export for backwards compatibility
+export default proxy;
 
 export const config = {
     matcher: [
