@@ -12,7 +12,8 @@
     "./primitives": "./src/primitives/index.ts",
     "./primitives/*": "./src/primitives/*.tsx",
     "./styles/*": "./src/styles/*",
-    "./lib/utils": "./src/lib/utils.ts"
+    "./lib/utils": "./src/lib/utils.ts",
+    "./tokens": "./src/tokens/index.ts"
   },
   "scripts": {
     "lint": "biome check .",

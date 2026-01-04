@@ -6,7 +6,7 @@ import { useState, useCallback } from 'react';
 import { cn } from '@/lib/utils';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Heart, MapPin, Bed, Bath, Wifi, Car, Wind, Shield, ImageOff } from 'lucide-react';
+import { Heart, MapPin, Bed, Bath, Wifi, Car, Wind, Shield, ImageOff, CheckCircle } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 
 interface PropertyCardProps {
@@ -135,10 +135,10 @@ export function PropertyCard({
   if (variant === 'horizontal') {
     return (
       <Link href={`/properties/${property._id}`} className={cn('group block', className)}>
-        <Card className="hover:bg-muted/50 transition-colors">
+        <Card className="hover:shadow-card transition-all rounded-xl overflow-hidden">
           <CardContent className="p-0 flex gap-4">
             {/* Image */}
-            <div className="relative w-48 h-32 flex-shrink-0 overflow-hidden bg-muted">
+            <div className="relative w-48 h-32 flex-shrink-0 overflow-hidden bg-muted rounded-l-xl">
               {!imageLoaded && <div className="absolute inset-0 bg-muted animate-pulse" />}
               {imageError ? (
                 <div className="absolute inset-0 flex items-center justify-center bg-muted">
@@ -159,8 +159,9 @@ export function PropertyCard({
                 />
               )}
               {isVerified && (
-                <Badge className="absolute top-2 left-2">
-                  ✓ Vérifié
+                <Badge className="absolute top-2 left-2 rounded-full bg-[#008A05] text-white border-0">
+                  <CheckCircle className="w-3 h-3 mr-1" />
+                  Vérifié
                 </Badge>
               )}
             </div>
@@ -173,7 +174,7 @@ export function PropertyCard({
                     <MapPin className="w-3.5 h-3.5" />
                     <span>{property.neighborhood}, {property.city}</span>
                   </div>
-                  <h3 className="font-medium line-clamp-1 group-hover:underline">
+                  <h3 className="font-medium line-clamp-1 group-hover:text-[#FF385C] transition-colors">
                     {property.title}
                   </h3>
                 </div>
@@ -181,12 +182,12 @@ export function PropertyCard({
                   <button
                     type="button"
                     onClick={handleSave}
-                    className="flex-shrink-0 p-2 hover:bg-muted transition-colors touch-target"
+                    className="flex-shrink-0 p-2 hover:bg-muted rounded-full transition-colors touch-target"
                   >
                     <Heart
                       className={cn(
                         'w-5 h-5 transition-colors',
-                        isSaved ? 'fill-foreground text-foreground' : 'text-muted-foreground'
+                        isSaved ? 'fill-[#FF385C] text-[#FF385C]' : 'text-muted-foreground'
                       )}
                     />
                   </button>
@@ -208,7 +209,7 @@ export function PropertyCard({
                   ))}
                 </div>
                 <div>
-                  <span className="font-semibold">
+                  <span className="font-semibold text-[#FF385C]">
                     {formatCurrency(property.rentAmount)} FCFA
                   </span>
                   <span className="text-muted-foreground text-sm"> /mois</span>
@@ -223,9 +224,9 @@ export function PropertyCard({
 
   return (
     <Link href={`/properties/${property._id}`} className={cn('group block', className)}>
-      <Card className="overflow-hidden hover:bg-muted/30 transition-colors">
+      <Card className="overflow-hidden card-hover rounded-xl border-0 shadow-sm">
         {/* Image Container */}
-        <div className="relative aspect-[4/3] overflow-hidden bg-muted">
+        <div className="relative aspect-[4/3] overflow-hidden bg-muted rounded-t-xl">
           {!imageLoaded && <div className="absolute inset-0 bg-muted animate-pulse" />}
 
           {imageError ? (
@@ -242,7 +243,7 @@ export function PropertyCard({
               onLoad={() => setImageLoaded(true)}
               onError={handleImageError}
               className={cn(
-                'object-cover',
+                'object-cover group-hover:scale-105 transition-transform duration-300',
                 !imageLoaded && 'opacity-0'
               )}
             />
@@ -253,13 +254,13 @@ export function PropertyCard({
             <button
               type="button"
               onClick={handleSave}
-              className="absolute top-3 right-3 w-9 h-9 flex items-center justify-center bg-background hover:bg-muted transition-all touch-target"
+              className="absolute top-3 right-3 w-9 h-9 flex items-center justify-center bg-white/90 hover:bg-white rounded-full shadow-sm transition-all touch-target"
               aria-label={isSaved ? 'Retirer des favoris' : 'Ajouter aux favoris'}
             >
               <Heart
                 className={cn(
                   'w-5 h-5 transition-colors',
-                  isSaved ? 'fill-foreground text-foreground' : 'text-muted-foreground'
+                  isSaved ? 'fill-[#FF385C] text-[#FF385C]' : 'text-foreground'
                 )}
               />
             </button>
@@ -267,8 +268,9 @@ export function PropertyCard({
 
           {/* Verified Badge */}
           {isVerified && (
-            <Badge className="absolute top-3 left-3">
-              ✓ Vérifié
+            <Badge className="absolute top-3 left-3 rounded-full bg-[#008A05] text-white border-0">
+              <CheckCircle className="w-3 h-3 mr-1" />
+              Vérifié
             </Badge>
           )}
         </div>
@@ -285,7 +287,7 @@ export function PropertyCard({
           </div>
 
           {/* Title */}
-          <h3 className="font-medium mt-1 line-clamp-1 group-hover:underline">
+          <h3 className="font-medium mt-1 line-clamp-1 group-hover:text-[#FF385C] transition-colors">
             {property.title}
           </h3>
 
@@ -310,7 +312,7 @@ export function PropertyCard({
           {activeAmenities.length > 0 && (
             <div className="flex items-center gap-2 mt-2 flex-wrap">
               {activeAmenities.slice(0, 4).map(({ key, icon: Icon }) => (
-                <Badge key={key} variant="secondary" className="gap-1 text-xs">
+                <Badge key={key} variant="secondary" className="gap-1 text-xs rounded-full">
                   <Icon className="w-3 h-3" />
                   {getAmenityLabel(key)}
                 </Badge>
@@ -320,7 +322,7 @@ export function PropertyCard({
 
           {/* Price */}
           <div className="mt-3 flex items-baseline gap-1">
-            <span className="font-semibold text-lg">
+            <span className="font-semibold text-lg text-[#FF385C]">
               {formatCurrency(property.rentAmount)} FCFA
             </span>
             <span className="text-muted-foreground text-sm">/mois</span>
@@ -329,7 +331,7 @@ export function PropertyCard({
           {/* Landlord */}
           {landlordName && (
             <div className="flex items-center gap-2 mt-3 pt-3 border-t">
-              <div className="w-6 h-6 bg-muted flex items-center justify-center text-xs font-medium">
+              <div className="w-7 h-7 bg-gradient-to-br from-[#FF385C] to-[#E31C5F] rounded-full flex items-center justify-center text-xs font-medium text-white">
                 {landlordName.charAt(0)}
               </div>
               <span className="text-xs text-muted-foreground">

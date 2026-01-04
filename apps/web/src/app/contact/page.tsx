@@ -6,6 +6,9 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { PublicLayout, PageSection, PageHeader } from '@/components/layouts/public-layout';
+import { Mail, Phone, MessageCircle, MapPin, CheckCircle } from 'lucide-react';
+import { brandConstants } from '@/components/brand';
 
 export default function ContactPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -23,36 +26,19 @@ export default function ContactPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <header className="bg-white border-b">
-        <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
-          <Link href="/" className="flex items-center gap-2">
-            <span className="text-2xl">🏠</span>
-            <span className="text-xl font-bold text-gray-900">Piol</span>
-          </Link>
-          <nav className="flex items-center gap-6">
-            <Link href="/properties" className="text-gray-600 hover:text-gray-900">
-              Propriétés
-            </Link>
-            <Link href="/sign-in">
-              <Button variant="outline">Connexion</Button>
-            </Link>
-          </nav>
-        </div>
-      </header>
+    <PublicLayout>
+      <PageSection bordered>
+        <PageHeader 
+          title="Contactez-nous" 
+          description="Une question? Notre équipe est là pour vous aider."
+          centered
+        />
+      </PageSection>
 
-      <main className="max-w-4xl mx-auto px-4 py-16">
-        <div className="text-center mb-12">
-          <h1 className="text-3xl font-bold text-gray-900 mb-4">Contactez-nous</h1>
-          <p className="text-gray-600">
-            Une question? Notre équipe est là pour vous aider.
-          </p>
-        </div>
-
-        <div className="grid md:grid-cols-2 gap-8">
+      <PageSection>
+        <div className="grid md:grid-cols-5 gap-8 max-w-5xl mx-auto">
           {/* Contact Form */}
-          <Card>
+          <Card className="md:col-span-3 rounded-xl">
             <CardHeader>
               <CardTitle>Envoyez-nous un message</CardTitle>
               <CardDescription>
@@ -61,12 +47,14 @@ export default function ContactPage() {
             </CardHeader>
             <CardContent>
               {submitted ? (
-                <div className="text-center py-8">
-                  <div className="text-4xl mb-4">✉️</div>
-                  <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                <div className="text-center py-12">
+                  <div className="w-16 h-16 bg-green-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                    <CheckCircle className="w-8 h-8 text-green-600" />
+                  </div>
+                  <h3 className="text-lg font-semibold mb-2">
                     Message envoyé!
                   </h3>
-                  <p className="text-gray-600">
+                  <p className="text-muted-foreground">
                     Merci de nous avoir contacté. Nous vous répondrons bientôt.
                   </p>
                 </div>
@@ -75,39 +63,43 @@ export default function ContactPage() {
                   <div className="grid gap-4 md:grid-cols-2">
                     <div className="space-y-2">
                       <Label htmlFor="firstName">Prénom</Label>
-                      <Input id="firstName" required />
+                      <Input id="firstName" required className="rounded-xl" />
                     </div>
                     <div className="space-y-2">
                       <Label htmlFor="lastName">Nom</Label>
-                      <Input id="lastName" required />
+                      <Input id="lastName" required className="rounded-xl" />
                     </div>
                   </div>
 
                   <div className="space-y-2">
                     <Label htmlFor="email">Email</Label>
-                    <Input id="email" type="email" required />
+                    <Input id="email" type="email" required className="rounded-xl" />
                   </div>
 
                   <div className="space-y-2">
                     <Label htmlFor="phone">Téléphone</Label>
-                    <Input id="phone" type="tel" placeholder="+237 6XX XXX XXX" />
+                    <Input id="phone" type="tel" placeholder="+237 6XX XXX XXX" className="rounded-xl" />
                   </div>
 
                   <div className="space-y-2">
                     <Label htmlFor="subject">Sujet</Label>
-                    <Input id="subject" required />
+                    <Input id="subject" required className="rounded-xl" />
                   </div>
 
                   <div className="space-y-2">
                     <Label htmlFor="message">Message</Label>
                     <textarea
                       id="message"
-                      className="w-full min-h-[120px] px-3 py-2 border rounded-md"
+                      className="w-full min-h-[120px] px-3 py-2 border rounded-xl bg-background resize-none focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
                       required
                     />
                   </div>
 
-                  <Button type="submit" className="w-full" disabled={isSubmitting}>
+                  <Button 
+                    type="submit" 
+                    className="w-full rounded-xl bg-[#FF385C] hover:bg-[#E31C5F]" 
+                    disabled={isSubmitting}
+                  >
                     {isSubmitting ? 'Envoi en cours...' : 'Envoyer le message'}
                   </Button>
                 </form>
@@ -116,15 +108,17 @@ export default function ContactPage() {
           </Card>
 
           {/* Contact Info */}
-          <div className="space-y-6">
-            <Card>
-              <CardContent className="pt-6">
+          <div className="md:col-span-2 space-y-4">
+            <Card className="rounded-xl">
+              <CardContent className="p-5">
                 <div className="flex items-start gap-4">
-                  <div className="text-2xl">📧</div>
+                  <div className="w-10 h-10 bg-[#FF385C]/10 rounded-xl flex items-center justify-center shrink-0">
+                    <Mail className="w-5 h-5 text-[#FF385C]" />
+                  </div>
                   <div>
-                    <h3 className="font-semibold text-gray-900">Email</h3>
-                    <p className="text-gray-600">support@piol.cm</p>
-                    <p className="text-sm text-gray-500 mt-1">
+                    <h3 className="font-semibold">Email</h3>
+                    <p className="text-muted-foreground text-sm">{brandConstants.contact.email}</p>
+                    <p className="text-xs text-muted-foreground mt-1">
                       Nous répondons sous 24h
                     </p>
                   </div>
@@ -132,14 +126,16 @@ export default function ContactPage() {
               </CardContent>
             </Card>
 
-            <Card>
-              <CardContent className="pt-6">
+            <Card className="rounded-xl">
+              <CardContent className="p-5">
                 <div className="flex items-start gap-4">
-                  <div className="text-2xl">📞</div>
+                  <div className="w-10 h-10 bg-[#FF385C]/10 rounded-xl flex items-center justify-center shrink-0">
+                    <Phone className="w-5 h-5 text-[#FF385C]" />
+                  </div>
                   <div>
-                    <h3 className="font-semibold text-gray-900">Téléphone</h3>
-                    <p className="text-gray-600">+237 6XX XXX XXX</p>
-                    <p className="text-sm text-gray-500 mt-1">
+                    <h3 className="font-semibold">Téléphone</h3>
+                    <p className="text-muted-foreground text-sm">{brandConstants.contact.phone}</p>
+                    <p className="text-xs text-muted-foreground mt-1">
                       Lun - Ven, 8h - 18h
                     </p>
                   </div>
@@ -147,14 +143,16 @@ export default function ContactPage() {
               </CardContent>
             </Card>
 
-            <Card>
-              <CardContent className="pt-6">
+            <Card className="rounded-xl">
+              <CardContent className="p-5">
                 <div className="flex items-start gap-4">
-                  <div className="text-2xl">💬</div>
+                  <div className="w-10 h-10 bg-green-100 rounded-xl flex items-center justify-center shrink-0">
+                    <MessageCircle className="w-5 h-5 text-green-600" />
+                  </div>
                   <div>
-                    <h3 className="font-semibold text-gray-900">WhatsApp</h3>
-                    <p className="text-gray-600">+237 6XX XXX XXX</p>
-                    <p className="text-sm text-gray-500 mt-1">
+                    <h3 className="font-semibold">WhatsApp</h3>
+                    <p className="text-muted-foreground text-sm">{brandConstants.contact.phone}</p>
+                    <p className="text-xs text-muted-foreground mt-1">
                       Réponse rapide
                     </p>
                   </div>
@@ -162,14 +160,16 @@ export default function ContactPage() {
               </CardContent>
             </Card>
 
-            <Card>
-              <CardContent className="pt-6">
+            <Card className="rounded-xl">
+              <CardContent className="p-5">
                 <div className="flex items-start gap-4">
-                  <div className="text-2xl">📍</div>
+                  <div className="w-10 h-10 bg-[#FF385C]/10 rounded-xl flex items-center justify-center shrink-0">
+                    <MapPin className="w-5 h-5 text-[#FF385C]" />
+                  </div>
                   <div>
-                    <h3 className="font-semibold text-gray-900">Adresse</h3>
-                    <p className="text-gray-600">Douala, Cameroun</p>
-                    <p className="text-sm text-gray-500 mt-1">
+                    <h3 className="font-semibold">Adresse</h3>
+                    <p className="text-muted-foreground text-sm">{brandConstants.contact.address}</p>
+                    <p className="text-xs text-muted-foreground mt-1">
                       Sur rendez-vous uniquement
                     </p>
                   </div>
@@ -178,30 +178,25 @@ export default function ContactPage() {
             </Card>
 
             {/* FAQ Link */}
-            <Card className="bg-blue-50 border-blue-200">
-              <CardContent className="pt-6">
-                <h3 className="font-semibold text-blue-900 mb-2">
+            <Card className="rounded-xl bg-blue-50 border-blue-100 dark:bg-blue-950/20 dark:border-blue-900">
+              <CardContent className="p-5">
+                <h3 className="font-semibold text-blue-900 dark:text-blue-100 mb-2">
                   Questions fréquentes
                 </h3>
-                <p className="text-blue-800 text-sm mb-4">
+                <p className="text-blue-700 dark:text-blue-300 text-sm mb-4">
                   Consultez notre FAQ pour des réponses rapides.
                 </p>
-                <Button variant="outline" className="w-full border-blue-300 text-blue-700">
+                <Button 
+                  variant="outline" 
+                  className="w-full rounded-xl border-blue-200 text-blue-700 hover:bg-blue-100 dark:border-blue-800 dark:text-blue-300 dark:hover:bg-blue-900/50"
+                >
                   Voir la FAQ
                 </Button>
               </CardContent>
             </Card>
           </div>
         </div>
-      </main>
-
-      {/* Footer */}
-      <footer className="bg-gray-900 text-gray-400 py-8">
-        <div className="max-w-7xl mx-auto px-4 text-center">
-          <p>© {new Date().getFullYear()} Piol. Tous droits réservés.</p>
-        </div>
-      </footer>
-    </div>
+      </PageSection>
+    </PublicLayout>
   );
 }
-

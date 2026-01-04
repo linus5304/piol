@@ -24,13 +24,11 @@ import {
   X,
   Map,
   Grid3X3,
-  Menu,
 } from 'lucide-react';
 import Link from 'next/link';
 import { useMemo, useState } from 'react';
 import { useTranslations } from 'next-intl';
-import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
-import { LanguageSwitcher } from '@/components/language-switcher';
+import { PublicLayout } from '@/components/layouts/public-layout';
 
 const cities = ['Douala', 'Yaoundé', 'Bafoussam', 'Buea', 'Kribi', 'Limbé', 'Bamenda', 'Garoua'];
 
@@ -243,61 +241,9 @@ export default function PropertiesPage() {
   };
 
   return (
-    <div className="min-h-screen bg-background">
-      {/* Header */}
-      <header className="border-b bg-background sticky top-0 z-50">
-        <div className="container mx-auto px-4 h-14 flex items-center justify-between">
-          <Link href="/" className="flex items-center gap-2">
-            <div className="w-8 h-8 bg-foreground flex items-center justify-center">
-              <span className="text-background text-sm font-bold">P</span>
-            </div>
-            <span className="text-xl font-semibold">Piol</span>
-          </Link>
-
-          <nav className="hidden md:flex items-center gap-6">
-            <Link href="/properties" className="text-sm font-medium">
-              {t('nav.properties')}
-            </Link>
-            <Link href="/about" className="text-sm font-medium text-muted-foreground hover:text-foreground">
-              {t('nav.about')}
-            </Link>
-            <Link href="/contact" className="text-sm font-medium text-muted-foreground hover:text-foreground">
-              {t('nav.contact')}
-            </Link>
-          </nav>
-
-          <div className="flex items-center gap-3">
-            <LanguageSwitcher />
-            <Link href="/sign-in" className="hidden sm:block">
-              <Button variant="ghost" size="sm">{t('nav.login')}</Button>
-            </Link>
-            <Link href="/sign-up" className="hidden sm:block">
-              <Button size="sm">{t('nav.register')}</Button>
-            </Link>
-            
-            <Sheet>
-              <SheetTrigger asChild className="md:hidden">
-                <Button variant="ghost" size="icon">
-                  <Menu className="h-5 w-5" />
-                </Button>
-              </SheetTrigger>
-              <SheetContent side="right" className="w-72">
-                <nav className="flex flex-col gap-4 mt-8">
-                  <Link href="/properties" className="text-lg font-medium">{t('nav.properties')}</Link>
-                  <Link href="/about" className="text-lg font-medium">{t('nav.about')}</Link>
-                  <Link href="/contact" className="text-lg font-medium">{t('nav.contact')}</Link>
-                  <hr className="my-4" />
-                  <Link href="/sign-in"><Button variant="outline" className="w-full">{t('nav.login')}</Button></Link>
-                  <Link href="/sign-up"><Button className="w-full">{t('nav.register')}</Button></Link>
-                </nav>
-              </SheetContent>
-            </Sheet>
-          </div>
-        </div>
-      </header>
-
+    <PublicLayout showFooter={false}>
       {/* Search & Filters */}
-      <div className="border-b bg-background">
+      <div className="border-b bg-background sticky top-16 z-40">
         <div className="container mx-auto px-4 py-4">
           {/* Search Bar */}
           <div className="flex gap-2 mb-4">
@@ -308,11 +254,11 @@ export default function PropertiesPage() {
                 placeholder={t('search.placeholder')}
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10"
+                className="pl-10 rounded-xl"
               />
             </div>
             <Select value={selectedCity ?? 'all'} onValueChange={(v) => setSelectedCity(v === 'all' ? undefined : v)}>
-              <SelectTrigger className="w-40 hidden sm:flex">
+              <SelectTrigger className="w-40 hidden sm:flex rounded-xl">
                 <MapPin className="h-4 w-4 mr-2" />
                 <SelectValue placeholder={t('search.allCities')} />
               </SelectTrigger>
@@ -326,12 +272,12 @@ export default function PropertiesPage() {
             <Button
               variant="outline"
               onClick={() => setShowFilters(!showFilters)}
-              className={activeFiltersCount > 0 ? 'border-foreground' : ''}
+              className={`rounded-xl ${activeFiltersCount > 0 ? 'border-foreground' : ''}`}
             >
               <SlidersHorizontal className="h-4 w-4" />
               <span className="hidden sm:inline ml-2">{t('filters.title')}</span>
               {activeFiltersCount > 0 && (
-                <Badge className="ml-2">{activeFiltersCount}</Badge>
+                <Badge className="ml-2 rounded-full">{activeFiltersCount}</Badge>
               )}
             </Button>
           </div>
@@ -345,7 +291,7 @@ export default function PropertiesPage() {
                 <button
                   key={category.value}
                   onClick={() => setSelectedCategory(category.value)}
-                  className={`flex items-center gap-2 px-4 py-2 text-sm font-medium whitespace-nowrap transition-colors touch-target ${
+                  className={`flex items-center gap-2 px-4 py-2 text-sm font-medium whitespace-nowrap transition-colors touch-target rounded-lg ${
                     isActive
                       ? 'bg-foreground text-background'
                       : 'text-muted-foreground hover:text-foreground hover:bg-muted'
@@ -367,7 +313,7 @@ export default function PropertiesPage() {
                 <div>
                   <label className="block text-sm font-medium mb-2">{t('filters.priceRange')}</label>
                   <Select value={priceRange} onValueChange={setPriceRange}>
-                    <SelectTrigger>
+                    <SelectTrigger className="rounded-xl">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
@@ -380,7 +326,7 @@ export default function PropertiesPage() {
                 <div>
                   <label className="block text-sm font-medium mb-2">{t('filters.sortBy')}</label>
                   <Select value={sortBy} onValueChange={setSortBy}>
-                    <SelectTrigger>
+                    <SelectTrigger className="rounded-xl">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
@@ -391,10 +337,10 @@ export default function PropertiesPage() {
                   </Select>
                 </div>
                 <div className="md:col-span-2 flex items-end justify-end gap-2">
-                  <Button variant="ghost" onClick={clearAllFilters}>
+                  <Button variant="ghost" onClick={clearAllFilters} className="rounded-xl">
                     {t('filters.clearAll')}
                   </Button>
-                  <Button onClick={() => setShowFilters(false)}>
+                  <Button onClick={() => setShowFilters(false)} className="rounded-xl bg-[#FF385C] hover:bg-[#E31C5F]">
                     {t('filters.showResults', { count: propertiesResult.total })}
                   </Button>
                 </div>
@@ -404,7 +350,7 @@ export default function PropertiesPage() {
         )}
       </div>
 
-      <main className="container mx-auto px-4 py-6">
+      <div className="container mx-auto px-4 py-6">
         {/* Results Header */}
         <div className="flex items-center justify-between mb-6">
           <div>
@@ -420,7 +366,7 @@ export default function PropertiesPage() {
             {activeFiltersCount > 0 && (
               <div className="hidden md:flex items-center gap-2">
                 {selectedCity && (
-                  <Badge variant="secondary" className="gap-1">
+                  <Badge variant="secondary" className="gap-1 rounded-full">
                     {selectedCity}
                     <button onClick={() => setSelectedCity(undefined)}>
                       <X className="w-3 h-3" />
@@ -428,7 +374,7 @@ export default function PropertiesPage() {
                   </Badge>
                 )}
                 {selectedCategory !== 'all' && (
-                  <Badge variant="secondary" className="gap-1">
+                  <Badge variant="secondary" className="gap-1 rounded-full">
                     {t(propertyCategories.find((c) => c.value === selectedCategory)?.labelKey || '')}
                     <button onClick={() => setSelectedCategory('all')}>
                       <X className="w-3 h-3" />
@@ -437,7 +383,7 @@ export default function PropertiesPage() {
                 )}
               </div>
             )}
-            <div className="flex border">
+            <div className="flex rounded-xl border overflow-hidden">
               <button
                 onClick={() => setViewMode('grid')}
                 className={`p-2 ${viewMode === 'grid' ? 'bg-muted' : 'hover:bg-muted'}`}
@@ -463,14 +409,14 @@ export default function PropertiesPage() {
 
             {propertiesResult.properties.length === 0 && (
               <div className="col-span-full text-center py-16">
-                <div className="w-16 h-16 mx-auto mb-6 bg-muted flex items-center justify-center">
+                <div className="w-16 h-16 mx-auto mb-6 bg-muted flex items-center justify-center rounded-2xl">
                   <Search className="w-8 h-8 text-muted-foreground" />
                 </div>
                 <h3 className="text-lg font-semibold mb-2">{t('properties.noResults')}</h3>
                 <p className="text-muted-foreground mb-6 max-w-md mx-auto">
                   {t('properties.noResultsDescription')}
                 </p>
-                <Button variant="outline" onClick={clearAllFilters}>
+                <Button variant="outline" onClick={clearAllFilters} className="rounded-xl">
                   {t('filters.clearAll')}
                 </Button>
               </div>
@@ -483,7 +429,7 @@ export default function PropertiesPage() {
                 <PropertyCard key={property._id} property={property} variant="horizontal" />
               ))}
             </div>
-            <Card className="flex items-center justify-center">
+            <Card className="flex items-center justify-center rounded-xl">
               <CardContent className="text-center">
                 <Map className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
                 <p className="text-muted-foreground">{t('properties.mapComingSoon')}</p>
@@ -495,18 +441,18 @@ export default function PropertiesPage() {
         {/* Load More */}
         {propertiesResult.properties.length > 0 && propertiesResult.properties.length < propertiesResult.total && (
           <div className="text-center mt-12">
-            <Button variant="outline" size="lg">
+            <Button variant="outline" size="lg" className="rounded-xl">
               {t('common.loadMore')}
             </Button>
           </div>
         )}
-      </main>
+      </div>
 
       {/* Floating Map Button - Mobile */}
       <div className="fixed bottom-6 left-1/2 -translate-x-1/2 md:hidden">
         <Button
           onClick={() => setViewMode(viewMode === 'grid' ? 'map' : 'grid')}
-          className="shadow-lg"
+          className="shadow-lg rounded-full bg-[#FF385C] hover:bg-[#E31C5F]"
         >
           {viewMode === 'grid' ? (
             <>
@@ -521,6 +467,6 @@ export default function PropertiesPage() {
           )}
         </Button>
       </div>
-    </div>
+    </PublicLayout>
   );
 }
