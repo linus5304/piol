@@ -59,9 +59,11 @@ export function NavUser({
               size="lg"
               className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
             >
-              <Avatar className="h-8 w-8">
+              <Avatar className="h-8 w-8 ring-2 ring-primary/20">
                 <AvatarImage src={user.avatar} alt={user.name} />
-                <AvatarFallback>{initials || 'U'}</AvatarFallback>
+                <AvatarFallback className="bg-primary text-primary-foreground text-xs font-medium">
+                  {initials || 'U'}
+                </AvatarFallback>
               </Avatar>
               <div className="grid flex-1 text-left text-sm leading-tight">
                 <span className="truncate font-medium">{user.name}</span>
@@ -73,19 +75,21 @@ export function NavUser({
             </SidebarMenuButton>
           </DropdownMenuTrigger>
           <DropdownMenuContent
-            className="w-56"
+            className="w-56 rounded-lg"
             side={isMobile ? 'bottom' : 'right'}
             align="end"
             sideOffset={4}
           >
             <DropdownMenuLabel className="p-0 font-normal">
-              <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
-                <Avatar className="h-8 w-8">
+              <div className="flex items-center gap-2 px-2 py-2 text-left text-sm">
+                <Avatar className="h-9 w-9 ring-2 ring-primary/20">
                   <AvatarImage src={user.avatar} alt={user.name} />
-                  <AvatarFallback>{initials || 'U'}</AvatarFallback>
+                  <AvatarFallback className="bg-primary text-primary-foreground text-xs font-medium">
+                    {initials || 'U'}
+                  </AvatarFallback>
                 </Avatar>
                 <div className="grid flex-1 text-left text-sm leading-tight">
-                  <span className="truncate font-medium">{user.name}</span>
+                  <span className="truncate font-semibold">{user.name}</span>
                   <span className="text-muted-foreground truncate text-xs">
                     {user.email}
                   </span>
@@ -95,26 +99,29 @@ export function NavUser({
             <DropdownMenuSeparator />
             <DropdownMenuGroup>
               <DropdownMenuItem asChild>
-                <Link href="/dashboard/settings">
+                <Link href="/dashboard/settings" className="cursor-pointer">
                   <User className="mr-2 h-4 w-4" />
                   Profil
                 </Link>
               </DropdownMenuItem>
               <DropdownMenuItem asChild>
-                <Link href="/dashboard/payments">
+                <Link href="/dashboard/payments" className="cursor-pointer">
                   <CreditCard className="mr-2 h-4 w-4" />
                   Paiements
                 </Link>
               </DropdownMenuItem>
               <DropdownMenuItem asChild>
-                <Link href="/dashboard/notifications">
+                <Link href="/dashboard/notifications" className="cursor-pointer">
                   <Bell className="mr-2 h-4 w-4" />
                   Notifications
                 </Link>
               </DropdownMenuItem>
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
-            <DropdownMenuItem onClick={() => signOut({ redirectUrl: '/' })}>
+            <DropdownMenuItem 
+              onClick={() => signOut({ redirectUrl: '/' })}
+              className="text-destructive focus:text-destructive cursor-pointer"
+            >
               <LogOut className="mr-2 h-4 w-4" />
               Déconnexion
             </DropdownMenuItem>

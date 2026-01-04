@@ -20,6 +20,8 @@ import {
 import { NavMain } from '@/components/nav-main';
 import { NavSecondary } from '@/components/nav-secondary';
 import { NavUser } from '@/components/nav-user';
+import { LogoIcon } from '@/components/brand';
+import { brand } from '@repo/ui/tokens';
 import {
   Sidebar,
   SidebarContent,
@@ -118,11 +120,11 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton asChild className="data-[slot=sidebar-menu-button]:!p-1.5">
-              <Link href="/">
-                <div className="w-6 h-6 bg-foreground flex items-center justify-center">
-                  <span className="text-background text-xs font-bold">P</span>
-                </div>
-                <span className="text-base font-semibold">Piol</span>
+              <Link href="/" className="flex items-center gap-2">
+                <LogoIcon size={24} className="shrink-0" />
+                <span className="text-base font-semibold tracking-tight">
+                  {brand.name}
+                </span>
               </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
