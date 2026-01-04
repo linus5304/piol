@@ -3,15 +3,17 @@ import { ClerkProvider } from '@clerk/nextjs';
 import { frFR, enUS } from '@clerk/localizations';
 import { NextIntlClientProvider } from 'next-intl';
 import { getMessages, getLocale } from 'next-intl/server';
-import { JetBrains_Mono, Space_Grotesk } from 'next/font/google';
+import { JetBrains_Mono, Nunito_Sans } from 'next/font/google';
 import './globals.css';
 import { Toaster } from '@/components/ui/sonner';
 import { Providers } from './providers';
 import { ConnectionStatus } from '@/components/connection-status';
 
-const spaceGrotesk = Space_Grotesk({
+// Nunito Sans - warmer, more approachable font inspired by shadcn Lyra preset
+const nunitoSans = Nunito_Sans({
   variable: '--font-sans',
   subsets: ['latin'],
+  weight: ['400', '500', '600', '700', '800'],
 });
 
 const jetbrainsMono = JetBrains_Mono({
@@ -70,7 +72,7 @@ export default async function RootLayout({
 
   const content = (
     <html lang={locale} suppressHydrationWarning>
-      <body className={`${spaceGrotesk.variable} ${jetbrainsMono.variable} font-sans antialiased`}>
+      <body className={`${nunitoSans.variable} ${jetbrainsMono.variable} font-sans antialiased`}>
         <NextIntlClientProvider messages={messages}>
           <ConnectionStatus />
           <Providers>{children}</Providers>
