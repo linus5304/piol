@@ -92,9 +92,12 @@
 
 ## Git Hygiene
 
+- **MANDATORY: All new features/changes MUST be done on a separate branch before merging to main.**
 - Every feature/fix/chore starts from a new branch; no direct work on `main`.
+- Branch naming: `feat/<feature-name>`, `fix/<bug-name>`, `chore/<task-name>`.
 - Commit every meaningful change; keep commits small and scoped to one concern.
 - All changes go through a PR with review; no bypassing. Squash or rebase-only.
+- **No code goes to production without tests.** Write tests before or alongside code.
 - Commit format: `<scope>: <change>` in present tense. One concern per commit.
 - Keep `.env.*` out of git; update `.env.example` when adding config.
 - No large binary assets in repo—use object storage/CDN.

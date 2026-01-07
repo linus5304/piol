@@ -22,7 +22,7 @@
   "devDependencies": {
     "@repo/types": "workspace:*",
     "@types/bun": "latest",
-    "convex-test": "^0.0.38",
+    "convex-test": "^0.0.41",
     "typescript": "^5",
     "vitest": "^3.2.4"
   }
