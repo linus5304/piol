@@ -1,13 +1,13 @@
 'use node';
-// @ts-nocheck - Uses deprecated { name: '...' } syntax, needs migration to api/internal references
 
 import { v } from 'convex/values';
-import { action } from '../_generated/server';
+import { internal } from '../_generated/api';
+import { internalAction } from '../_generated/server';
 
 // Orange Money API Configuration
 const ORANGE_MONEY_BASE_URL =
   process.env.ORANGE_MONEY_ENVIRONMENT === 'production'
-    ? 'https://api.orange.com'
+    ? 'https://api.orange.com/orange-money-webpay/cm/v1'
     : 'https://api.orange.com/orange-money-webpay/cm/v1';
 
 interface OrangeMoneyTokenResponse {
@@ -38,9 +38,14 @@ interface OrangeMoneyPaymentResponse {
 
 // Get OAuth token for Orange Money API
 async function getOrangeToken(): Promise<string> {
-  const credentials = Buffer.from(
-    `${process.env.ORANGE_MONEY_CLIENT_ID}:${process.env.ORANGE_MONEY_CLIENT_SECRET}`
-  ).toString('base64');
+  const clientId = process.env.ORANGE_MONEY_CLIENT_ID;
+  const clientSecret = process.env.ORANGE_MONEY_CLIENT_SECRET;
+
+  if (!clientId || !clientSecret) {
+    throw new Error('Orange Money credentials not configured');
+  }
+
+  const credentials = Buffer.from(`${clientId}:${clientSecret}`).toString('base64');
 
   const response = await fetch('https://api.orange.com/oauth/v3/token', {
     method: 'POST',
@@ -59,8 +64,8 @@ async function getOrangeToken(): Promise<string> {
   return data.access_token;
 }
 
-// Initialize web payment (returns payment URL for redirect)
-export const initializeWebPayment = action({
+// Initialize web payment (returns payment URL for redirect) - Internal action
+export const initializeWebPayment = internalAction({
   args: {
     amount: v.number(),
     currency: v.optional(v.string()),
@@ -112,13 +117,10 @@ export const initializeWebPayment = action({
     }
 
     // Store payment token for later verification
-    await ctx.runMutation(
-      { name: 'transactions:updateMoMoReference' },
-      {
-        transactionId: args.transactionId,
-        mobileMoneyReference: data.pay_token!,
-      }
-    );
+    await ctx.runMutation(internal.transactions.updateMoMoReference, {
+      transactionId: args.transactionId,
+      mobileMoneyReference: data.pay_token!,
+    });
 
     return {
       success: true,
@@ -129,8 +131,8 @@ export const initializeWebPayment = action({
   },
 });
 
-// Check payment status using pay_token
-export const checkPaymentStatus = action({
+// Check payment status using pay_token - Internal action
+export const checkPaymentStatus = internalAction({
   args: {
     payToken: v.string(),
     orderId: v.string(),
@@ -159,8 +161,8 @@ export const checkPaymentStatus = action({
   },
 });
 
-// Handle payment notification (webhook)
-export const handlePaymentNotification = action({
+// Handle payment notification (webhook) - Internal action
+export const handlePaymentNotification = internalAction({
   args: {
     notifToken: v.string(),
     status: v.string(),
@@ -169,51 +171,24 @@ export const handlePaymentNotification = action({
     amount: v.optional(v.number()),
   },
   handler: async (ctx, args) => {
-    // Verify the notification token
-    // In production, you should verify this against stored tokens
+    // Extract transaction ID from order ID (format: PIOL-{timestamp}-{transactionId})
+    const parts = args.orderId.split('-');
+    const transactionIdStr = parts[parts.length - 1];
 
-    // Find transaction by order ID
-    const transactionId = args.orderId.split('-').pop();
-
-    if (!transactionId) {
+    if (!transactionIdStr) {
       throw new Error('Invalid order ID format');
     }
 
-    // Update transaction status based on payment result
+    // Map Orange status to our status
     const paymentStatus = args.status === 'SUCCESS' ? 'completed' : 'failed';
 
-    await ctx.runMutation(
-      { name: 'transactions:updateTransactionStatus' },
-      {
-        id: transactionId as any,
-        paymentStatus,
-        completedAt: args.status === 'SUCCESS' ? Date.now() : undefined,
-      }
-    );
-
-    // If payment successful, notify landlord and potentially release escrow
-    if (args.status === 'SUCCESS') {
-      // Create notification for landlord
-      const transaction = await ctx.runQuery(
-        { name: 'transactions:getTransaction' },
-        {
-          id: transactionId as any,
-        }
-      );
-
-      if (transaction) {
-        await ctx.runMutation(
-          { name: 'notifications:createNotification' },
-          {
-            userId: transaction.landlordId,
-            notificationType: 'payment_received',
-            title: 'Paiement reçu',
-            message: `Un paiement de ${args.amount ?? 0} FCFA a été reçu.`,
-            data: { transactionId, amount: args.amount },
-          }
-        );
-      }
-    }
+    // Update transaction status
+    await ctx.runMutation(internal.transactions.internalUpdateStatus, {
+      transactionId: transactionIdStr as any, // Will be validated by Convex
+      paymentStatus,
+      externalId: args.txnId,
+      callbackReceived: true,
+    });
 
     return {
       success: true,

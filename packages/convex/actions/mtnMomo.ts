@@ -1,8 +1,8 @@
 'use node';
-// @ts-nocheck - Uses deprecated { name: '...' } syntax, needs migration to api/internal references
 
 import { v } from 'convex/values';
-import { action } from '../_generated/server';
+import { internal } from '../_generated/api';
+import { internalAction } from '../_generated/server';
 
 // MTN MoMo API Configuration
 const MTN_MOMO_BASE_URL =
@@ -36,15 +36,21 @@ interface MoMoPaymentStatus {
 
 // Get OAuth token for MTN MoMo API
 async function getMoMoToken(): Promise<string> {
-  const credentials = Buffer.from(
-    `${process.env.MTN_MOMO_API_USER}:${process.env.MTN_MOMO_API_KEY}`
-  ).toString('base64');
+  const apiUser = process.env.MTN_MOMO_API_USER;
+  const apiKey = process.env.MTN_MOMO_API_KEY;
+  const subscriptionKey = process.env.MTN_MOMO_SUBSCRIPTION_KEY;
+
+  if (!apiUser || !apiKey || !subscriptionKey) {
+    throw new Error('MTN MoMo credentials not configured');
+  }
+
+  const credentials = Buffer.from(`${apiUser}:${apiKey}`).toString('base64');
 
   const response = await fetch(`${MTN_MOMO_BASE_URL}/collection/token/`, {
     method: 'POST',
     headers: {
       Authorization: `Basic ${credentials}`,
-      'Ocp-Apim-Subscription-Key': process.env.MTN_MOMO_SUBSCRIPTION_KEY!,
+      'Ocp-Apim-Subscription-Key': subscriptionKey,
     },
   });
 
@@ -56,8 +62,8 @@ async function getMoMoToken(): Promise<string> {
   return data.access_token;
 }
 
-// Request payment from user (Collection)
-export const requestPayment = action({
+// Request payment from user (Collection) - Internal action
+export const requestPayment = internalAction({
   args: {
     amount: v.number(),
     currency: v.optional(v.string()),
@@ -82,13 +88,15 @@ export const requestPayment = action({
       payeeNote: args.payeeNote ?? 'Paiement via Piol',
     };
 
+    const subscriptionKey = process.env.MTN_MOMO_SUBSCRIPTION_KEY!;
+
     const response = await fetch(`${MTN_MOMO_BASE_URL}/collection/v1_0/requesttopay`, {
       method: 'POST',
       headers: {
         Authorization: `Bearer ${token}`,
         'X-Reference-Id': referenceId,
         'X-Target-Environment': process.env.MTN_MOMO_ENVIRONMENT ?? 'sandbox',
-        'Ocp-Apim-Subscription-Key': process.env.MTN_MOMO_SUBSCRIPTION_KEY!,
+        'Ocp-Apim-Subscription-Key': subscriptionKey,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify(payload),
@@ -100,13 +108,10 @@ export const requestPayment = action({
     }
 
     // Update transaction with MoMo reference
-    await ctx.runMutation(
-      { name: 'transactions:updateMoMoReference' },
-      {
-        transactionId: args.transactionId,
-        mobileMoneyReference: referenceId,
-      }
-    );
+    await ctx.runMutation(internal.transactions.updateMoMoReference, {
+      transactionId: args.transactionId,
+      mobileMoneyReference: referenceId,
+    });
 
     return {
       success: true,
@@ -116,13 +121,14 @@ export const requestPayment = action({
   },
 });
 
-// Check payment status
-export const checkPaymentStatus = action({
+// Check payment status - Internal action
+export const checkPaymentStatus = internalAction({
   args: {
     referenceId: v.string(),
   },
   handler: async (ctx, args) => {
     const token = await getMoMoToken();
+    const subscriptionKey = process.env.MTN_MOMO_SUBSCRIPTION_KEY!;
 
     const response = await fetch(
       `${MTN_MOMO_BASE_URL}/collection/v1_0/requesttopay/${args.referenceId}`,
@@ -131,7 +137,7 @@ export const checkPaymentStatus = action({
         headers: {
           Authorization: `Bearer ${token}`,
           'X-Target-Environment': process.env.MTN_MOMO_ENVIRONMENT ?? 'sandbox',
-          'Ocp-Apim-Subscription-Key': process.env.MTN_MOMO_SUBSCRIPTION_KEY!,
+          'Ocp-Apim-Subscription-Key': subscriptionKey,
         },
       }
     );
@@ -150,8 +156,8 @@ export const checkPaymentStatus = action({
   },
 });
 
-// Disburse payment to landlord
-export const disburseFunds = action({
+// Disburse payment to landlord - Internal action
+export const disburseFunds = internalAction({
   args: {
     amount: v.number(),
     currency: v.optional(v.string()),
@@ -163,6 +169,7 @@ export const disburseFunds = action({
   handler: async (ctx, args) => {
     const token = await getMoMoToken();
     const referenceId = crypto.randomUUID();
+    const subscriptionKey = process.env.MTN_MOMO_SUBSCRIPTION_KEY!;
 
     const payload = {
       amount: args.amount.toString(),
@@ -183,7 +190,7 @@ export const disburseFunds = action({
         Authorization: `Bearer ${token}`,
         'X-Reference-Id': referenceId,
         'X-Target-Environment': process.env.MTN_MOMO_ENVIRONMENT ?? 'sandbox',
-        'Ocp-Apim-Subscription-Key': process.env.MTN_MOMO_SUBSCRIPTION_KEY!,
+        'Ocp-Apim-Subscription-Key': subscriptionKey,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify(payload),
@@ -202,13 +209,14 @@ export const disburseFunds = action({
   },
 });
 
-// Validate phone number (check if account exists)
-export const validateAccount = action({
+// Validate phone number (check if account exists) - Internal action
+export const validateAccount = internalAction({
   args: {
     phoneNumber: v.string(),
   },
   handler: async (ctx, args) => {
     const token = await getMoMoToken();
+    const subscriptionKey = process.env.MTN_MOMO_SUBSCRIPTION_KEY!;
 
     const response = await fetch(
       `${MTN_MOMO_BASE_URL}/collection/v1_0/accountholder/msisdn/${args.phoneNumber}/basicuserinfo`,
@@ -217,7 +225,7 @@ export const validateAccount = action({
         headers: {
           Authorization: `Bearer ${token}`,
           'X-Target-Environment': process.env.MTN_MOMO_ENVIRONMENT ?? 'sandbox',
-          'Ocp-Apim-Subscription-Key': process.env.MTN_MOMO_SUBSCRIPTION_KEY!,
+          'Ocp-Apim-Subscription-Key': subscriptionKey,
         },
       }
     );

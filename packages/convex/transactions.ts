@@ -1,5 +1,5 @@
 import { v } from 'convex/values';
-import { mutation, query } from './_generated/server';
+import { internalMutation, mutation, query } from './_generated/server';
 
 // Generate unique transaction reference
 function generateTransactionReference(): string {
@@ -469,6 +469,150 @@ export const getTransactionStats = query({
         bank_transfer: completed.filter((t) => t.paymentMethod === 'bank_transfer').length,
         cash: completed.filter((t) => t.paymentMethod === 'cash').length,
       },
+    };
+  },
+});
+
+// ============================================================================
+// Internal mutations (called by actions)
+// ============================================================================
+
+// Update mobile money reference (called by payment actions)
+export const updateMoMoReference = internalMutation({
+  args: {
+    transactionId: v.id('transactions'),
+    mobileMoneyReference: v.string(),
+  },
+  handler: async (ctx, args) => {
+    const transaction = await ctx.db.get(args.transactionId);
+    if (!transaction) {
+      throw new Error('Transaction not found');
+    }
+
+    await ctx.db.patch(args.transactionId, {
+      mobileMoneyReference: args.mobileMoneyReference,
+    });
+
+    return args.transactionId;
+  },
+});
+
+// Internal: Update transaction status (called by payment webhooks)
+export const internalUpdateStatus = internalMutation({
+  args: {
+    transactionId: v.id('transactions'),
+    paymentStatus: v.union(
+      v.literal('pending'),
+      v.literal('processing'),
+      v.literal('completed'),
+      v.literal('failed'),
+      v.literal('refunded')
+    ),
+    escrowStatus: v.optional(
+      v.union(v.literal('held'), v.literal('released'), v.literal('refunded'))
+    ),
+    mobileMoneyReference: v.optional(v.string()),
+    externalId: v.optional(v.string()),
+    callbackReceived: v.optional(v.boolean()),
+  },
+  handler: async (ctx, args) => {
+    const transaction = await ctx.db.get(args.transactionId);
+    if (!transaction) {
+      throw new Error('Transaction not found');
+    }
+
+    const updates: Record<string, unknown> = {
+      paymentStatus: args.paymentStatus,
+    };
+
+    if (args.mobileMoneyReference) {
+      updates.mobileMoneyReference = args.mobileMoneyReference;
+    }
+    if (args.externalId) {
+      updates.externalId = args.externalId;
+    }
+    if (args.callbackReceived !== undefined) {
+      updates.callbackReceived = args.callbackReceived;
+    }
+    if (args.escrowStatus) {
+      updates.escrowStatus = args.escrowStatus;
+    }
+
+    if (args.paymentStatus === 'completed') {
+      updates.completedAt = Date.now();
+      if (!args.escrowStatus) {
+        updates.escrowStatus = 'held';
+      }
+    }
+
+    await ctx.db.patch(args.transactionId, updates);
+
+    // Create notification for relevant parties
+    if (args.paymentStatus === 'completed') {
+      await ctx.db.insert('notifications', {
+        userId: transaction.landlordId,
+        notificationType: 'payment_received',
+        title: 'Paiement reçu! 💰',
+        message: `Paiement de ${transaction.amount} FCFA reçu`,
+        data: { transactionId: args.transactionId },
+        isRead: false,
+      });
+
+      await ctx.db.insert('notifications', {
+        userId: transaction.renterId,
+        notificationType: 'payment_confirmed',
+        title: 'Paiement confirmé ✅',
+        message: `Votre paiement de ${transaction.amount} FCFA a été confirmé`,
+        data: { transactionId: args.transactionId },
+        isRead: false,
+      });
+    } else if (args.paymentStatus === 'failed') {
+      await ctx.db.insert('notifications', {
+        userId: transaction.renterId,
+        notificationType: 'payment_failed',
+        title: 'Paiement échoué',
+        message: 'Votre paiement a échoué. Veuillez réessayer.',
+        data: { transactionId: args.transactionId },
+        isRead: false,
+      });
+    }
+
+    return args.transactionId;
+  },
+});
+
+// Internal: Get transaction for actions
+export const internalGetTransaction = query({
+  args: { transactionId: v.id('transactions') },
+  handler: async (ctx, args) => {
+    const transaction = await ctx.db.get(args.transactionId);
+    if (!transaction) {
+      return null;
+    }
+
+    const property = await ctx.db.get(transaction.propertyId);
+    const renter = await ctx.db.get(transaction.renterId);
+    const landlord = await ctx.db.get(transaction.landlordId);
+
+    return {
+      ...transaction,
+      property: property ? { _id: property._id, title: property.title } : null,
+      renter: renter
+        ? {
+            _id: renter._id,
+            firstName: renter.firstName,
+            lastName: renter.lastName,
+            phone: renter.phone,
+          }
+        : null,
+      landlord: landlord
+        ? {
+            _id: landlord._id,
+            firstName: landlord.firstName,
+            lastName: landlord.lastName,
+            phone: landlord.phone,
+          }
+        : null,
     };
   },
 });
