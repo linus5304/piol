@@ -33,6 +33,16 @@
     }
   },
   "files": {
-    "ignore": ["node_modules", ".next", "dist", "build", "coverage", ".expo", "convex/_generated"]
+    "ignore": [
+      "node_modules",
+      ".next",
+      "dist",
+      "build",
+      "coverage",
+      ".expo",
+      "convex/_generated",
+      "packages/convex/_generated",
+      "_generated"
+    ]
   }
 }
