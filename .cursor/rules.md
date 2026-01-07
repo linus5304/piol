@@ -1,5 +1,11 @@
 # Cursor Rules — Cameroon Housing Marketplace (Convex + Expo + Next + Bun)
 
+> **See also:** Detailed agent instructions for each layer:
+> - [AGENTS.md](../AGENTS.md) — System design overview, data flows, architecture
+> - [AGENTS.backend.md](../AGENTS.backend.md) — Convex patterns, auth, payments
+> - [AGENTS.frontend.md](../AGENTS.frontend.md) — Next.js components, data fetching
+> - [AGENTS.mobile.md](../AGENTS.mobile.md) — Expo/React Native patterns
+
 ## Scope & Defaults
 
 - TypeScript everywhere; no `any`. Keep files <300 LOC when feasible.
