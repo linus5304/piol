@@ -1,7 +1,7 @@
 /**
  * Piol Design System - Design Tokens
  * Single source of truth for all design values
- * 
+ *
  * Inspired by Airbnb's warm, trust-focused UI
  */
 
@@ -14,10 +14,10 @@ export const brand = {
   tagline: 'Trouvez votre chez-vous',
   taglineEn: 'Find your home',
   colors: {
-    coral: '#FF385C',      // Primary brand color
-    coralDark: '#E31C5F',  // Hover/pressed state
+    coral: '#FF385C', // Primary brand color
+    coralDark: '#E31C5F', // Hover/pressed state
     coralLight: '#FF5A7D', // Light variant
-    coralPale: '#FFE4E8',  // Very light bg
+    coralPale: '#FFE4E8', // Very light bg
   },
 } as const;
 
@@ -35,18 +35,18 @@ export const colors = {
   // Neutrals (Airbnb-inspired)
   background: '#FFFFFF',
   foreground: '#222222',
-  muted: '#717171',           // Airbnb's signature gray
-  mutedLight: '#B0B0B0',      // Lighter gray
-  subtle: '#F7F7F7',          // Light backgrounds
-  border: '#DDDDDD',          // Softer borders
-  borderLight: '#EBEBEB',     // Very light borders
+  muted: '#717171', // Airbnb's signature gray
+  mutedLight: '#B0B0B0', // Lighter gray
+  subtle: '#F7F7F7', // Light backgrounds
+  border: '#DDDDDD', // Softer borders
+  borderLight: '#EBEBEB', // Very light borders
 
   // Semantic
-  success: '#008A05',         // Verification green
+  success: '#008A05', // Verification green
   successLight: '#E6F4E7',
-  warning: '#C13515',         // Alert/error
+  warning: '#C13515', // Alert/error
   warningLight: '#FDECEA',
-  info: '#1A73E8',            // Info blue
+  info: '#1A73E8', // Info blue
   infoLight: '#E8F0FE',
 
   // Cards
@@ -64,13 +64,13 @@ export const colors = {
 
 export const radius = {
   none: '0px',
-  xs: '4px',       // Very small elements
-  sm: '8px',       // Small elements, badges
-  md: '12px',      // Cards, inputs (Airbnb default)
-  lg: '16px',      // Larger cards
-  xl: '24px',      // Hero sections, modals
-  '2xl': '32px',   // Large decorative
-  full: '9999px',  // Pills, avatars
+  xs: '4px', // Very small elements
+  sm: '8px', // Small elements, badges
+  md: '12px', // Cards, inputs (Airbnb default)
+  lg: '16px', // Larger cards
+  xl: '24px', // Hero sections, modals
+  '2xl': '32px', // Large decorative
+  full: '9999px', // Pills, avatars
 } as const;
 
 // =============================================================================
@@ -231,4 +231,3 @@ export default {
   zIndex,
   cssVariables,
 };
-

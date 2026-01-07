@@ -1,10 +1,10 @@
 'use client';
 
-import { useState } from 'react';
-import Link from 'next/link';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
+import Link from 'next/link';
+import { useState } from 'react';
 
 // Mock data for messages
 const mockConversations = [
@@ -106,9 +106,7 @@ export default function MessagesPage() {
         {filteredConversations.length === 0 ? (
           <div className="p-8 text-center">
             <div className="text-4xl mb-4">💬</div>
-            <h3 className="text-lg font-medium text-gray-900 mb-1">
-              Aucune conversation
-            </h3>
+            <h3 className="text-lg font-medium text-gray-900 mb-1">Aucune conversation</h3>
             <p className="text-gray-500">
               {searchQuery
                 ? 'Aucune conversation ne correspond à votre recherche'
@@ -134,19 +132,11 @@ export default function MessagesPage() {
 
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2">
-                  <span className="font-medium text-gray-900">
-                    {conversation.user.name}
-                  </span>
-                  {conversation.user.verified && (
-                    <span className="text-green-500 text-sm">✓</span>
-                  )}
-                  {conversation.unread && (
-                    <span className="w-2 h-2 bg-blue-500 rounded-full" />
-                  )}
+                  <span className="font-medium text-gray-900">{conversation.user.name}</span>
+                  {conversation.user.verified && <span className="text-green-500 text-sm">✓</span>}
+                  {conversation.unread && <span className="w-2 h-2 bg-blue-500 rounded-full" />}
                 </div>
-                <p className="text-sm text-gray-500 truncate">
-                  {conversation.property}
-                </p>
+                <p className="text-sm text-gray-500 truncate">{conversation.property}</p>
                 <p
                   className={cn(
                     'text-sm truncate mt-1',
@@ -167,4 +157,3 @@ export default function MessagesPage() {
     </div>
   );
 }
-

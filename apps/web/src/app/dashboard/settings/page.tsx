@@ -1,7 +1,5 @@
 'use client';
 
-import { useSafeUser } from '@/hooks/use-safe-auth';
-import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -13,6 +11,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { useSafeUser } from '@/hooks/use-safe-auth';
+import { useState } from 'react';
 
 export default function SettingsPage() {
   const { user, isLoaded } = useSafeUser();
@@ -175,11 +175,7 @@ export default function SettingsPage() {
                   Recevoir des emails pour les nouveaux messages
                 </p>
               </div>
-              <input
-                type="checkbox"
-                defaultChecked
-                className="h-4 w-4 rounded border-gray-300"
-              />
+              <input type="checkbox" defaultChecked className="h-4 w-4 rounded border-gray-300" />
             </div>
             <div className="flex items-center justify-between">
               <div>
@@ -188,11 +184,7 @@ export default function SettingsPage() {
                   Être notifié des nouvelles propriétés correspondant à vos critères
                 </p>
               </div>
-              <input
-                type="checkbox"
-                defaultChecked
-                className="h-4 w-4 rounded border-gray-300"
-              />
+              <input type="checkbox" defaultChecked className="h-4 w-4 rounded border-gray-300" />
             </div>
             <div className="flex items-center justify-between">
               <div>
@@ -201,10 +193,7 @@ export default function SettingsPage() {
                   Recevoir des conseils et actualités immobilières
                 </p>
               </div>
-              <input
-                type="checkbox"
-                className="h-4 w-4 rounded border-gray-300"
-              />
+              <input type="checkbox" className="h-4 w-4 rounded border-gray-300" />
             </div>
           </CardContent>
         </Card>
@@ -221,9 +210,7 @@ export default function SettingsPage() {
       <Card className="border-red-200">
         <CardHeader>
           <CardTitle className="text-red-600">Zone de danger</CardTitle>
-          <CardDescription>
-            Actions irréversibles sur votre compte
-          </CardDescription>
+          <CardDescription>Actions irréversibles sur votre compte</CardDescription>
         </CardHeader>
         <CardContent>
           <Button variant="outline" className="text-red-600 border-red-200 hover:bg-red-50">
@@ -234,4 +221,3 @@ export default function SettingsPage() {
     </div>
   );
 }
-

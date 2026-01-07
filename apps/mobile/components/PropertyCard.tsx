@@ -1,6 +1,6 @@
 import { useMutation, useQuery } from 'convex/react';
-import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
 import { useState } from 'react';
+import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
 import { formatCurrency } from '../lib/utils';
 
 // Only import api if convex is available
@@ -39,14 +39,16 @@ interface PropertyCardProps {
 export function PropertyCard({ property, onPress, showSaveButton = true }: PropertyCardProps) {
   // Local state for optimistic updates when Convex is unavailable
   const [localSaved, setLocalSaved] = useState(false);
-  
+
   // Only use Convex hooks if api is available
-  const isSavedQuery = api ? useQuery(api.savedProperties.isPropertySaved, {
-    propertyId: property._id as any,
-  }) : undefined;
-  
+  const isSavedQuery = api
+    ? useQuery(api.savedProperties.isPropertySaved, {
+        propertyId: property._id as any,
+      })
+    : undefined;
+
   const toggleSaveMutation = api ? useMutation(api.savedProperties.toggleSaveProperty) : null;
-  
+
   const isSaved = isSavedQuery ?? localSaved;
 
   const handleSavePress = async () => {
@@ -77,11 +79,7 @@ export function PropertyCard({ property, onPress, showSaveButton = true }: Prope
     <Pressable style={styles.container} onPress={onPress}>
       <View style={styles.imageContainer}>
         {property.images && property.images.length > 0 && property.images[0].url ? (
-          <Image
-            source={{ uri: property.images[0].url }}
-            style={styles.image}
-            resizeMode="cover"
-          />
+          <Image source={{ uri: property.images[0].url }} style={styles.image} resizeMode="cover" />
         ) : (
           <View style={styles.imagePlaceholder}>
             <Text style={styles.imagePlaceholderText}>🏠</Text>

@@ -1,16 +1,16 @@
-import { useSignIn, useAuth } from '@clerk/clerk-expo';
-import { useRouter, Link } from 'expo-router';
+import { useAuth, useSignIn } from '@clerk/clerk-expo';
+import { Link, useRouter } from 'expo-router';
+import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useState, useEffect } from 'react';
 import {
+  ActivityIndicator,
+  KeyboardAvoidingView,
+  Platform,
   Pressable,
   StyleSheet,
   Text,
   TextInput,
   View,
-  KeyboardAvoidingView,
-  Platform,
-  ActivityIndicator,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -244,4 +244,3 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
 });
-

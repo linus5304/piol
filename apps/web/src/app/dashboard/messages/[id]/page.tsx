@@ -1,11 +1,11 @@
 'use client';
 
-import { useState } from 'react';
-import Link from 'next/link';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
+import Link from 'next/link';
+import { useState } from 'react';
 
 // Mock conversation data
 const mockMessages = [
@@ -72,10 +72,7 @@ export default function ConversationPage({ params }: { params: { id: string } })
     <div className="flex flex-col h-[calc(100vh-12rem)]">
       {/* Header */}
       <div className="flex items-center gap-4 pb-4 border-b">
-        <Link
-          href="/dashboard/messages"
-          className="text-gray-500 hover:text-gray-700"
-        >
+        <Link href="/dashboard/messages" className="text-gray-500 hover:text-gray-700">
           ← Retour
         </Link>
         <div className="flex items-center gap-3 flex-1">
@@ -87,9 +84,7 @@ export default function ConversationPage({ params }: { params: { id: string } })
           <div>
             <div className="flex items-center gap-2">
               <span className="font-medium">{otherUser.name}</span>
-              {otherUser.verified && (
-                <span className="text-green-500 text-sm">✓ Vérifié</span>
-              )}
+              {otherUser.verified && <span className="text-green-500 text-sm">✓ Vérifié</span>}
             </div>
             <p className="text-sm text-gray-500">{property.title}</p>
           </div>
@@ -119,17 +114,12 @@ export default function ConversationPage({ params }: { params: { id: string } })
         {messages.map((message) => (
           <div
             key={message.id}
-            className={cn(
-              'flex',
-              message.senderId === 'me' ? 'justify-end' : 'justify-start'
-            )}
+            className={cn('flex', message.senderId === 'me' ? 'justify-end' : 'justify-start')}
           >
             <div
               className={cn(
                 'max-w-[70%] rounded-2xl px-4 py-2',
-                message.senderId === 'me'
-                  ? 'bg-[#FF385C] text-white'
-                  : 'bg-gray-100 text-gray-900'
+                message.senderId === 'me' ? 'bg-[#FF385C] text-white' : 'bg-gray-100 text-gray-900'
               )}
             >
               <p>{message.text}</p>
@@ -169,4 +159,3 @@ export default function ConversationPage({ params }: { params: { id: string } })
     </div>
   );
 }
-

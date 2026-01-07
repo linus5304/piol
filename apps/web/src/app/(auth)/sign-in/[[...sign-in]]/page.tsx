@@ -1,11 +1,11 @@
 'use client';
 
-import { SignIn } from '@clerk/nextjs';
-import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { isClerkConfigured } from '@/lib/env';
+import { SignIn } from '@clerk/nextjs';
+import Link from 'next/link';
 
 // Demo sign-in form when Clerk is not configured
 function DemoSignInForm() {
@@ -13,17 +13,16 @@ function DemoSignInForm() {
     <Card className="w-full max-w-md">
       <CardHeader className="text-center">
         <CardTitle className="text-2xl">Se connecter</CardTitle>
-        <CardDescription>
-          Bienvenue! Connectez-vous pour accéder à votre compte.
-        </CardDescription>
+        <CardDescription>Bienvenue! Connectez-vous pour accéder à votre compte.</CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
         <div className="bg-amber-50 border border-amber-200 rounded-lg p-4 text-sm text-amber-800">
           <strong>Mode Démo:</strong> L'authentification Clerk n'est pas configurée.
           <br />
-          Pour activer l'authentification complète, ajoutez vos clés Clerk dans <code className="bg-amber-100 px-1 rounded">.env.local</code>
+          Pour activer l'authentification complète, ajoutez vos clés Clerk dans{' '}
+          <code className="bg-amber-100 px-1 rounded">.env.local</code>
         </div>
-        
+
         <div className="space-y-3">
           <Input placeholder="Email" type="email" disabled />
           <Input placeholder="Mot de passe" type="password" disabled />
@@ -66,12 +65,8 @@ export default function SignInPage() {
   return (
     <div className="flex flex-col items-center">
       <div className="mb-8 text-center">
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">
-          Se connecter
-        </h1>
-        <p className="text-gray-600">
-          Bienvenue! Connectez-vous pour accéder à votre compte.
-        </p>
+        <h1 className="text-3xl font-bold text-gray-900 mb-2">Se connecter</h1>
+        <p className="text-gray-600">Bienvenue! Connectez-vous pour accéder à votre compte.</p>
       </div>
 
       <SignIn
@@ -81,10 +76,8 @@ export default function SignInPage() {
             card: 'w-full shadow-xl border-0',
             headerTitle: 'hidden',
             headerSubtitle: 'hidden',
-            socialButtonsBlockButton:
-              'border border-gray-200 hover:bg-gray-50 transition-colors',
-            formButtonPrimary:
-              'bg-[#FF385C] hover:bg-[#E31C5F] transition-colors',
+            socialButtonsBlockButton: 'border border-gray-200 hover:bg-gray-50 transition-colors',
+            formButtonPrimary: 'bg-[#FF385C] hover:bg-[#E31C5F] transition-colors',
             footerActionLink: 'text-[#FF385C] hover:text-[#E31C5F]',
           },
         }}

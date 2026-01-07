@@ -1,6 +1,6 @@
-import { internalMutation, type MutationCtx } from '../_generated/server';
-import { seedUsers, clearUsers } from './users';
-import { seedProperties, clearProperties } from './properties';
+import { type MutationCtx, internalMutation } from '../_generated/server';
+import { clearProperties, seedProperties } from './properties';
+import { clearUsers, seedUsers } from './users';
 
 /**
  * Seeds the database with realistic Cameroon housing data.
@@ -71,4 +71,3 @@ export const clear = internalMutation({
     console.log('✅ Seed data cleared!');
   },
 });
-

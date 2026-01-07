@@ -15,10 +15,7 @@ export async function seedProperties(
     const existingProperty = await ctx.db
       .query('properties')
       .filter((q) =>
-        q.and(
-          q.eq(q.field('title'), propertyData.title),
-          q.eq(q.field('city'), propertyData.city)
-        )
+        q.and(q.eq(q.field('title'), propertyData.title), q.eq(q.field('city'), propertyData.city))
       )
       .unique();
 
@@ -28,7 +25,8 @@ export async function seedProperties(
         landlordId: landlord.id,
         cautionMonths: 2,
         upfrontMonths: 6,
-        searchText: `${propertyData.title} ${propertyData.city} ${propertyData.neighborhood}`.toLowerCase(),
+        searchText:
+          `${propertyData.title} ${propertyData.city} ${propertyData.neighborhood}`.toLowerCase(),
       } as any);
       seededProperties.push({ id: propertyId, ...propertyData });
       console.log(`  ✓ Created property: ${propertyData.title}`);
@@ -47,10 +45,7 @@ export async function clearProperties(ctx: MutationCtx) {
     .filter((q) =>
       q.or(
         ...propertiesData.map((p) =>
-          q.and(
-            q.eq(q.field('title'), p.title),
-            q.eq(q.field('city'), p.city)
-          )
+          q.and(q.eq(q.field('title'), p.title), q.eq(q.field('city'), p.city))
         )
       )
     )
@@ -62,4 +57,3 @@ export async function clearProperties(ctx: MutationCtx) {
 
   console.log(`  ✓ Cleared ${seedProperties.length} seed properties`);
 }
-

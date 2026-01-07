@@ -3,13 +3,8 @@
   "version": "0.1.0",
   "private": true,
   "description": "Cameroon Housing Marketplace - Making home rental simple, transparent & trustworthy",
-  "workspaces": [
-    "apps/*",
-    "packages/*"
-  ],
-  "trustedDependencies": [
-    "@biomejs/biome"
-  ],
+  "workspaces": ["apps/*", "packages/*"],
+  "trustedDependencies": ["@biomejs/biome"],
   "scripts": {
     "dev": "turbo run dev --filter=@repo/web",
     "dev:all": "turbo run dev dev:convex --parallel",

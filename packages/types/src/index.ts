@@ -114,4 +114,3 @@ export const CAMEROON_CITIES = [
   'Maroua',
   'Ngaoundéré',
 ];
-

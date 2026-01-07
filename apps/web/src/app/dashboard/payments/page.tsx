@@ -1,6 +1,5 @@
 'use client';
 
-import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import {
@@ -11,6 +10,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { cn } from '@/lib/utils';
+import { useState } from 'react';
 
 // Mock payment data
 const mockPayments = [
@@ -64,7 +64,7 @@ const typeLabels: Record<string, string> = {
 };
 
 function formatCurrency(amount: number): string {
-  return new Intl.NumberFormat('fr-FR').format(amount) + ' FCFA';
+  return `${new Intl.NumberFormat('fr-FR').format(amount)} FCFA`;
 }
 
 function formatDate(date: Date): string {
@@ -102,9 +102,7 @@ export default function PaymentsPage() {
         <Card>
           <CardHeader className="pb-2">
             <CardDescription>Total payé</CardDescription>
-            <CardTitle className="text-2xl text-green-600">
-              {formatCurrency(totalPaid)}
-            </CardTitle>
+            <CardTitle className="text-2xl text-green-600">{formatCurrency(totalPaid)}</CardTitle>
           </CardHeader>
         </Card>
         <Card>
@@ -157,12 +155,8 @@ export default function PaymentsPage() {
         {filteredPayments.length === 0 ? (
           <div className="p-8 text-center">
             <div className="text-4xl mb-4">💳</div>
-            <h3 className="text-lg font-medium text-gray-900 mb-1">
-              Aucun paiement
-            </h3>
-            <p className="text-gray-500">
-              Vos transactions apparaîtront ici
-            </p>
+            <h3 className="text-lg font-medium text-gray-900 mb-1">Aucun paiement</h3>
+            <p className="text-gray-500">Vos transactions apparaîtront ici</p>
           </div>
         ) : (
           <div className="divide-y">
@@ -170,30 +164,22 @@ export default function PaymentsPage() {
               <div key={payment.id} className="px-4 py-4 hover:bg-gray-50">
                 <div className="grid grid-cols-12 gap-4 items-center">
                   <div className="col-span-4">
-                    <p className="font-medium text-gray-900">
-                      {typeLabels[payment.type]}
-                    </p>
+                    <p className="font-medium text-gray-900">{typeLabels[payment.type]}</p>
                     <p className="text-sm text-gray-500">
                       {payment.reference || 'En attente de paiement'}
                     </p>
                     {payment.method && (
-                      <p className="text-xs text-gray-400 mt-1">
-                        via {payment.method}
-                      </p>
+                      <p className="text-xs text-gray-400 mt-1">via {payment.method}</p>
                     )}
                   </div>
                   <div className="col-span-3">
-                    <p className="text-sm text-gray-600 truncate">
-                      {payment.property}
-                    </p>
+                    <p className="text-sm text-gray-600 truncate">{payment.property}</p>
                   </div>
                   <div className="col-span-2">
                     <p className="text-sm text-gray-600">{formatDate(payment.date)}</p>
                   </div>
                   <div className="col-span-2 text-right">
-                    <p className="font-medium text-gray-900">
-                      {formatCurrency(payment.amount)}
-                    </p>
+                    <p className="font-medium text-gray-900">{formatCurrency(payment.amount)}</p>
                   </div>
                   <div className="col-span-1">
                     <span
@@ -216,9 +202,7 @@ export default function PaymentsPage() {
       <Card>
         <CardHeader>
           <CardTitle className="text-lg">Méthodes de paiement</CardTitle>
-          <CardDescription>
-            Nous acceptons les paiements via Mobile Money
-          </CardDescription>
+          <CardDescription>Nous acceptons les paiements via Mobile Money</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="flex gap-4">
@@ -236,4 +220,3 @@ export default function PaymentsPage() {
     </div>
   );
 }
-

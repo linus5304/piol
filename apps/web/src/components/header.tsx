@@ -1,13 +1,9 @@
 'use client';
 
-import Link from 'next/link';
-import { useTranslations } from 'next-intl';
-import { usePathname } from 'next/navigation';
-import { useSafeUser, useSafeClerk, isClerkConfigured } from '@/hooks/use-safe-auth';
-import { Button } from '@/components/ui/button';
 import { Logo } from '@/components/brand';
 import { LanguageSwitcher } from '@/components/language-switcher';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -17,15 +13,14 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { Sheet, SheetContent, SheetTrigger, SheetHeader, SheetTitle } from '@/components/ui/sheet';
-import { 
-  Menu, 
-  Settings, 
-  LogOut, 
-  ChevronDown,
-} from 'lucide-react';
-import { mainNav, getUserNav, userNavSettings, type UserRole } from '@/config/navigation';
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
+import { type UserRole, getUserNav, mainNav, userNavSettings } from '@/config/navigation';
+import { isClerkConfigured, useSafeClerk, useSafeUser } from '@/hooks/use-safe-auth';
 import { cn } from '@/lib/utils';
+import { ChevronDown, LogOut, Menu, Settings } from 'lucide-react';
+import { useTranslations } from 'next-intl';
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 
 interface HeaderProps {
   variant?: 'default' | 'transparent';
@@ -38,10 +33,13 @@ export function Header({ variant = 'default' }: HeaderProps) {
   const clerk = useSafeClerk();
 
   const isActive = (href: string) => pathname === href;
-  
+
   const userRole = (user?.unsafeMetadata?.role as UserRole) || 'renter';
-  const userInitial = user?.firstName?.charAt(0) || user?.primaryEmailAddress?.emailAddress?.charAt(0)?.toUpperCase() || 'U';
-  const userName = user?.firstName 
+  const userInitial =
+    user?.firstName?.charAt(0) ||
+    user?.primaryEmailAddress?.emailAddress?.charAt(0)?.toUpperCase() ||
+    'U';
+  const userName = user?.firstName
     ? `${user.firstName}${user.lastName ? ` ${user.lastName}` : ''}`
     : user?.primaryEmailAddress?.emailAddress || 'User';
 
@@ -54,11 +52,11 @@ export function Header({ variant = 'default' }: HeaderProps) {
   };
 
   return (
-    <header 
+    <header
       className={cn(
         'sticky top-0 z-50 w-full border-b backdrop-blur-md transition-all duration-200',
-        variant === 'transparent' 
-          ? 'bg-background/80 border-border/50' 
+        variant === 'transparent'
+          ? 'bg-background/80 border-border/50'
           : 'bg-background/95 border-border'
       )}
     >
@@ -88,7 +86,7 @@ export function Header({ variant = 'default' }: HeaderProps) {
           {/* Right Section */}
           <div className="flex items-center gap-2">
             <LanguageSwitcher />
-            
+
             {/* Auth Section */}
             {!isLoaded ? (
               // Loading state
@@ -97,8 +95,8 @@ export function Header({ variant = 'default' }: HeaderProps) {
               // Signed in - User Menu
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button 
-                    variant="ghost" 
+                  <Button
+                    variant="ghost"
                     className="relative h-10 gap-2 pl-2 pr-3 rounded-full hover:bg-muted"
                   >
                     <Avatar className="h-7 w-7">
@@ -149,7 +147,7 @@ export function Header({ variant = 'default' }: HeaderProps) {
                     );
                   })}
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem 
+                  <DropdownMenuItem
                     onClick={handleSignOut}
                     className="text-destructive focus:text-destructive cursor-pointer"
                   >
@@ -167,7 +165,10 @@ export function Header({ variant = 'default' }: HeaderProps) {
                   </Button>
                 </Link>
                 <Link href="/sign-up">
-                  <Button size="sm" className="bg-[#FF385C] hover:bg-[#E31C5F] text-white font-medium">
+                  <Button
+                    size="sm"
+                    className="bg-[#FF385C] hover:bg-[#E31C5F] text-white font-medium"
+                  >
                     {t('signUp')}
                   </Button>
                 </Link>
@@ -255,8 +256,8 @@ export function Header({ variant = 'default' }: HeaderProps) {
 
                 <div className="absolute bottom-8 left-6 right-6">
                   {isSignedIn ? (
-                    <Button 
-                      variant="outline" 
+                    <Button
+                      variant="outline"
                       className="w-full justify-center gap-2 text-destructive border-destructive/30 hover:bg-destructive/10"
                       onClick={handleSignOut}
                     >

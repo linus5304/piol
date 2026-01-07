@@ -1,20 +1,10 @@
 'use client';
 
-import { useSafeClerk, isClerkConfigured } from '@/hooks/use-safe-auth';
+import { isClerkConfigured, useSafeClerk } from '@/hooks/use-safe-auth';
+import { Bell, CreditCard, LogOut, MoreVertical, User } from 'lucide-react';
 import Link from 'next/link';
-import {
-  CreditCard,
-  MoreVertical,
-  LogOut,
-  Bell,
-  User,
-} from 'lucide-react';
 
-import {
-  Avatar,
-  AvatarFallback,
-  AvatarImage,
-} from '@/components/ui/avatar';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -67,9 +57,7 @@ export function NavUser({
               </Avatar>
               <div className="grid flex-1 text-left text-sm leading-tight">
                 <span className="truncate font-medium">{user.name}</span>
-                <span className="text-muted-foreground truncate text-xs">
-                  {user.email}
-                </span>
+                <span className="text-muted-foreground truncate text-xs">{user.email}</span>
               </div>
               <MoreVertical className="ml-auto h-4 w-4" />
             </SidebarMenuButton>
@@ -90,9 +78,7 @@ export function NavUser({
                 </Avatar>
                 <div className="grid flex-1 text-left text-sm leading-tight">
                   <span className="truncate font-semibold">{user.name}</span>
-                  <span className="text-muted-foreground truncate text-xs">
-                    {user.email}
-                  </span>
+                  <span className="text-muted-foreground truncate text-xs">{user.email}</span>
                 </div>
               </div>
             </DropdownMenuLabel>
@@ -118,7 +104,7 @@ export function NavUser({
               </DropdownMenuItem>
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
-            <DropdownMenuItem 
+            <DropdownMenuItem
               onClick={() => signOut({ redirectUrl: '/' })}
               className="text-destructive focus:text-destructive cursor-pointer"
             >

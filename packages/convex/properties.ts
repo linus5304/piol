@@ -51,16 +51,12 @@ export const listProperties = query({
   handler: async (ctx, args) => {
     const limit = args.limit ?? 20;
 
-    let propertiesQuery = ctx.db.query('properties');
-
     // Filter by city and status
-    if (args.city) {
-      propertiesQuery = propertiesQuery.withIndex('by_city_status', (q) =>
-        q.eq('city', args.city).eq('status', 'active')
-      );
-    } else {
-      propertiesQuery = propertiesQuery.withIndex('by_status', (q) => q.eq('status', 'active'));
-    }
+    const propertiesQuery = args.city
+      ? ctx.db
+          .query('properties')
+          .withIndex('by_city_status', (q) => q.eq('city', args.city).eq('status', 'active'))
+      : ctx.db.query('properties').withIndex('by_status', (q) => q.eq('status', 'active'));
 
     let properties = await propertiesQuery.collect();
 
@@ -69,7 +65,7 @@ export const listProperties = query({
       properties = properties.filter((p) => p.propertyType === args.propertyType);
     }
     if (args.neighborhood) {
-      properties = properties.filter((p) => 
+      properties = properties.filter((p) =>
         p.neighborhood?.toLowerCase().includes(args.neighborhood!.toLowerCase())
       );
     }
@@ -104,7 +100,6 @@ export const listProperties = query({
       case 'oldest':
         properties.sort((a, b) => a._creationTime - b._creationTime);
         break;
-      case 'newest':
       default:
         properties.sort((a, b) => b._creationTime - a._creationTime);
         break;
@@ -205,21 +200,19 @@ export const getFilterOptions = query({
     city: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
-    let propertiesQuery = ctx.db.query('properties');
-
-    if (args.city) {
-      propertiesQuery = propertiesQuery.withIndex('by_city_status', (q) =>
-        q.eq('city', args.city).eq('status', 'active')
-      );
-    } else {
-      propertiesQuery = propertiesQuery.withIndex('by_status', (q) => q.eq('status', 'active'));
-    }
+    const propertiesQuery = args.city
+      ? ctx.db
+          .query('properties')
+          .withIndex('by_city_status', (q) => q.eq('city', args.city).eq('status', 'active'))
+      : ctx.db.query('properties').withIndex('by_status', (q) => q.eq('status', 'active'));
 
     const properties = await propertiesQuery.collect();
 
     // Extract unique values
     const cities = [...new Set(properties.map((p) => p.city))].sort();
-    const neighborhoods = [...new Set(properties.filter((p) => p.neighborhood).map((p) => p.neighborhood!))].sort();
+    const neighborhoods = [
+      ...new Set(properties.filter((p) => p.neighborhood).map((p) => p.neighborhood!)),
+    ].sort();
     const propertyTypes = [...new Set(properties.map((p) => p.propertyType))];
 
     // Get price range

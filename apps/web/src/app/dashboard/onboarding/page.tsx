@@ -1,11 +1,11 @@
 'use client';
 
-import { useSafeUser } from '@/hooks/use-safe-auth';
-import { useRouter } from 'next/navigation';
-import { useState, useEffect } from 'react';
+import { Logo } from '@/components/brand';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import { Logo } from '@/components/brand';
+import { useSafeUser } from '@/hooks/use-safe-auth';
+import { useRouter } from 'next/navigation';
+import { useEffect, useState } from 'react';
 
 type Role = 'renter' | 'landlord';
 
@@ -78,9 +78,7 @@ export default function OnboardingPage() {
           <div className="flex justify-center mb-6">
             <Logo size="lg" asLink={false} />
           </div>
-          <h1 className="text-2xl font-bold mb-2">
-            Bienvenue sur Piol!
-          </h1>
+          <h1 className="text-2xl font-bold mb-2">Bienvenue sur Piol!</h1>
           <p className="text-muted-foreground">
             Dites-nous comment vous souhaitez utiliser la plateforme
           </p>
@@ -99,9 +97,7 @@ export default function OnboardingPage() {
             <div className="flex items-center gap-4">
               <span className="text-3xl">🔑</span>
               <div>
-                <div className="font-semibold">
-                  Je cherche un logement
-                </div>
+                <div className="font-semibold">Je cherche un logement</div>
                 <div className="text-sm text-muted-foreground">
                   Parcourir les annonces et contacter les propriétaires
                 </div>
@@ -121,9 +117,7 @@ export default function OnboardingPage() {
             <div className="flex items-center gap-4">
               <span className="text-3xl">🏢</span>
               <div>
-                <div className="font-semibold">
-                  Je suis propriétaire
-                </div>
+                <div className="font-semibold">Je suis propriétaire</div>
                 <div className="text-sm text-muted-foreground">
                   Publier des annonces et gérer mes biens
                 </div>

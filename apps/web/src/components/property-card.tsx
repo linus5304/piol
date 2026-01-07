@@ -1,13 +1,24 @@
 'use client';
 
-import Link from 'next/link';
-import Image from 'next/image';
-import { useState, useCallback } from 'react';
-import { cn } from '@/lib/utils';
-import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Heart, MapPin, Bed, Bath, Wifi, Car, Wind, Shield, ImageOff, CheckCircle } from 'lucide-react';
+import { Card, CardContent } from '@/components/ui/card';
+import { cn } from '@/lib/utils';
+import {
+  Bath,
+  Bed,
+  Car,
+  CheckCircle,
+  Heart,
+  ImageOff,
+  MapPin,
+  Shield,
+  Wifi,
+  Wind,
+} from 'lucide-react';
 import { useTranslations } from 'next-intl';
+import Image from 'next/image';
+import Link from 'next/link';
+import { useCallback, useState } from 'react';
 
 interface PropertyCardProps {
   property: {
@@ -92,7 +103,7 @@ export function PropertyCard({
   const [imageError, setImageError] = useState(false);
 
   const imageUrl = property.images?.[0]?.url || getConsistentImage(property._id);
-  
+
   const handleImageError = useCallback(() => {
     setImageError(true);
     setImageLoaded(true);
@@ -152,10 +163,7 @@ export function PropertyCard({
                   sizes="192px"
                   onLoad={() => setImageLoaded(true)}
                   onError={handleImageError}
-                  className={cn(
-                    'object-cover',
-                    !imageLoaded && 'opacity-0'
-                  )}
+                  className={cn('object-cover', !imageLoaded && 'opacity-0')}
                 />
               )}
               {isVerified && (
@@ -172,7 +180,9 @@ export function PropertyCard({
                 <div>
                   <div className="flex items-center gap-2 text-sm text-muted-foreground mb-1">
                     <MapPin className="w-3.5 h-3.5" />
-                    <span>{property.neighborhood}, {property.city}</span>
+                    <span>
+                      {property.neighborhood}, {property.city}
+                    </span>
                   </div>
                   <h3 className="font-medium line-clamp-1 group-hover:text-[#FF385C] transition-colors">
                     {property.title}

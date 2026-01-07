@@ -1,14 +1,14 @@
 'use client';
 
+import { PageSection, PublicLayout } from '@/components/layouts/public-layout';
+import { PropertyCard } from '@/components/property-card';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { ArrowRight, CheckCircle2, MapPin, Search, Shield, Smartphone } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import Link from 'next/link';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Card, CardContent } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { PropertyCard } from '@/components/property-card';
-import { PublicLayout, PageSection } from '@/components/layouts/public-layout';
-import { Search, CheckCircle2, Shield, Smartphone, ArrowRight, MapPin } from 'lucide-react';
 
 // Featured properties data
 const featuredProperties = [
@@ -20,7 +20,9 @@ const featuredProperties = [
     currency: 'XAF',
     city: 'Douala',
     neighborhood: 'Bonapriso',
-    images: [{ url: 'https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=800&h=600&fit=crop' }],
+    images: [
+      { url: 'https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=800&h=600&fit=crop' },
+    ],
     status: 'active' as const,
     verificationStatus: 'approved' as const,
     landlordId: 'landlord-1',
@@ -35,7 +37,9 @@ const featuredProperties = [
     currency: 'XAF',
     city: 'Yaoundé',
     neighborhood: 'Ngoa-Ekelle',
-    images: [{ url: 'https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=800&h=600&fit=crop' }],
+    images: [
+      { url: 'https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=800&h=600&fit=crop' },
+    ],
     status: 'active' as const,
     verificationStatus: 'approved' as const,
     landlordId: 'landlord-2',
@@ -50,7 +54,9 @@ const featuredProperties = [
     currency: 'XAF',
     city: 'Douala',
     neighborhood: 'Bonanjo',
-    images: [{ url: 'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=800&h=600&fit=crop' }],
+    images: [
+      { url: 'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=800&h=600&fit=crop' },
+    ],
     status: 'active' as const,
     verificationStatus: 'approved' as const,
     landlordId: 'landlord-3',
@@ -84,21 +90,24 @@ export default function HomePage() {
             Trouvez votre prochain logement
           </h1>
           <p className="text-lg text-muted-foreground mb-8 max-w-xl">
-            Annonces vérifiées, paiement sécurisé par Mobile Money. 
-            De Douala à Yaoundé, trouvez le logement idéal.
+            Annonces vérifiées, paiement sécurisé par Mobile Money. De Douala à Yaoundé, trouvez le
+            logement idéal.
           </p>
 
           {/* Search Bar */}
           <div className="flex flex-col sm:flex-row gap-2 mb-8">
             <div className="relative flex-1">
               <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
-              <Input 
-                placeholder="Rechercher par ville ou quartier..." 
+              <Input
+                placeholder="Rechercher par ville ou quartier..."
                 className="pl-12 h-14 text-base rounded-xl"
               />
             </div>
             <Link href="/properties">
-              <Button size="lg" className="h-14 px-8 w-full sm:w-auto rounded-xl bg-[#FF385C] hover:bg-[#E31C5F]">
+              <Button
+                size="lg"
+                className="h-14 px-8 w-full sm:w-auto rounded-xl bg-[#FF385C] hover:bg-[#E31C5F]"
+              >
                 Rechercher
               </Button>
             </Link>
@@ -126,7 +135,10 @@ export default function HomePage() {
       <PageSection bordered>
         <div className="flex items-center justify-between mb-6">
           <h2 className="text-xl font-semibold">Villes populaires</h2>
-          <Link href="/properties" className="text-sm text-muted-foreground hover:text-foreground flex items-center gap-1">
+          <Link
+            href="/properties"
+            className="text-sm text-muted-foreground hover:text-foreground flex items-center gap-1"
+          >
             Voir tout <ArrowRight className="h-4 w-4" />
           </Link>
         </div>
@@ -139,7 +151,9 @@ export default function HomePage() {
                     <MapPin className="h-4 w-4 text-muted-foreground" />
                     <span className="font-medium">{city.name}</span>
                   </div>
-                  <Badge variant="secondary" className="rounded-full">{city.count}</Badge>
+                  <Badge variant="secondary" className="rounded-full">
+                    {city.count}
+                  </Badge>
                 </CardContent>
               </Card>
             </Link>
@@ -241,9 +255,7 @@ export default function HomePage() {
       {/* CTA Section */}
       <PageSection bg="brand">
         <div className="text-center max-w-2xl mx-auto">
-          <h2 className="text-2xl md:text-3xl font-bold mb-4">
-            Prêt à trouver votre logement ?
-          </h2>
+          <h2 className="text-2xl md:text-3xl font-bold mb-4">Prêt à trouver votre logement ?</h2>
           <p className="text-white/80 mb-8">
             Rejoignez des milliers d'utilisateurs qui ont trouvé leur chez-eux avec Piol.
           </p>
@@ -254,7 +266,11 @@ export default function HomePage() {
               </Button>
             </Link>
             <Link href="/sign-up?role=landlord">
-              <Button size="lg" variant="outline" className="w-full sm:w-auto rounded-xl border-white/30 text-white hover:bg-white/10 bg-white/5">
+              <Button
+                size="lg"
+                variant="outline"
+                className="w-full sm:w-auto rounded-xl border-white/30 text-white hover:bg-white/10 bg-white/5"
+              >
                 Je suis propriétaire
               </Button>
             </Link>

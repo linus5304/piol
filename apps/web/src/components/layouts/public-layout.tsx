@@ -1,7 +1,7 @@
 'use client';
 
-import { Header } from '@/components/header';
 import { Footer } from '@/components/footer';
+import { Header } from '@/components/header';
 import { cn } from '@/lib/utils';
 
 interface PublicLayoutProps {
@@ -20,12 +20,12 @@ interface PublicLayoutProps {
 
 /**
  * PublicLayout - Consistent layout wrapper for public pages
- * 
+ *
  * Provides:
  * - Consistent Header with auth state
  * - Consistent Footer
  * - Standard page structure
- * 
+ *
  * Usage:
  * ```tsx
  * <PublicLayout>
@@ -44,15 +44,11 @@ export function PublicLayout({
   return (
     <div className="min-h-screen flex flex-col bg-background">
       <Header variant={headerVariant} />
-      
-      <main className={cn(
-        'flex-1',
-        containerized && 'container mx-auto px-4 py-8',
-        className
-      )}>
+
+      <main className={cn('flex-1', containerized && 'container mx-auto px-4 py-8', className)}>
         {children}
       </main>
-      
+
       {showFooter && <Footer variant={footerVariant} />}
     </div>
   );
@@ -70,14 +66,14 @@ interface PageSectionProps {
   bordered?: boolean;
 }
 
-export function PageSection({ 
-  children, 
+export function PageSection({
+  children,
   className,
   bg = 'default',
   bordered = false,
 }: PageSectionProps) {
   return (
-    <section 
+    <section
       className={cn(
         'py-12 md:py-16',
         bg === 'muted' && 'bg-muted/30',
@@ -86,9 +82,7 @@ export function PageSection({
         className
       )}
     >
-      <div className="container mx-auto px-4">
-        {children}
-      </div>
+      <div className="container mx-auto px-4">{children}</div>
     </section>
   );
 }
@@ -112,31 +106,17 @@ export function PageHeader({
   centered = false,
 }: PageHeaderProps) {
   return (
-    <div className={cn(
-      'py-8 md:py-12',
-      centered && 'text-center',
-      className
-    )}>
-      <h1 className="text-3xl md:text-4xl font-bold tracking-tight">
-        {title}
-      </h1>
+    <div className={cn('py-8 md:py-12', centered && 'text-center', className)}>
+      <h1 className="text-3xl md:text-4xl font-bold tracking-tight">{title}</h1>
       {description && (
-        <p className={cn(
-          'mt-4 text-lg text-muted-foreground',
-          centered && 'max-w-2xl mx-auto'
-        )}>
+        <p className={cn('mt-4 text-lg text-muted-foreground', centered && 'max-w-2xl mx-auto')}>
           {description}
         </p>
       )}
-      {children && (
-        <div className="mt-6">
-          {children}
-        </div>
-      )}
+      {children && <div className="mt-6">{children}</div>}
     </div>
   );
 }
 
 // Export all layout components
 export default PublicLayout;
-

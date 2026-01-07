@@ -32,4 +32,3 @@ jest.mock('convex/react', () => ({
   useAction: jest.fn(() => jest.fn()),
   ConvexProvider: ({ children }) => children,
 }));
-

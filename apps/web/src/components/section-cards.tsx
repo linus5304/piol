@@ -1,14 +1,17 @@
 'use client';
 
-import { TrendingUp, TrendingDown, Building2, Eye, MessageSquare, Heart, Search, CreditCard } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card';
+  Building2,
+  CreditCard,
+  Eye,
+  Heart,
+  MessageSquare,
+  Search,
+  TrendingDown,
+  TrendingUp,
+} from 'lucide-react';
 
 interface SectionCardsProps {
   role: 'renter' | 'landlord';
@@ -155,9 +158,7 @@ export function SectionCards({ role, stats = {} }: SectionCardsProps) {
       <Card className="rounded-xl">
         <CardHeader className="pb-2">
           <CardDescription>Vues récentes</CardDescription>
-          <CardTitle className="text-2xl font-semibold tabular-nums">
-            {stats.views ?? 0}
-          </CardTitle>
+          <CardTitle className="text-2xl font-semibold tabular-nums">{stats.views ?? 0}</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="flex items-center gap-2 text-sm text-muted-foreground">

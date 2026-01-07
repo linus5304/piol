@@ -15,35 +15,48 @@ export default function PrivacyPage() {
 
       <main className="max-w-3xl mx-auto px-4 py-16">
         <h1 className="text-3xl font-bold text-gray-900 mb-8">Politique de confidentialité</h1>
-        
+
         <div className="prose prose-gray max-w-none">
           <p className="text-gray-600 mb-6">
-            Dernière mise à jour: {new Date().toLocaleDateString('fr-FR', { year: 'numeric', month: 'long', day: 'numeric' })}
+            Dernière mise à jour:{' '}
+            {new Date().toLocaleDateString('fr-FR', {
+              year: 'numeric',
+              month: 'long',
+              day: 'numeric',
+            })}
           </p>
 
           <h2 className="text-xl font-semibold text-gray-900 mt-8 mb-4">1. Introduction</h2>
           <p className="text-gray-600 mb-4">
-            Chez Piol, nous prenons la protection de vos données personnelles très au sérieux. 
-            Cette politique de confidentialité explique comment nous collectons, utilisons et 
-            protégeons vos informations.
+            Chez Piol, nous prenons la protection de vos données personnelles très au sérieux. Cette
+            politique de confidentialité explique comment nous collectons, utilisons et protégeons
+            vos informations.
           </p>
 
           <h2 className="text-xl font-semibold text-gray-900 mt-8 mb-4">2. Données collectées</h2>
-          <p className="text-gray-600 mb-4">
-            Nous collectons les types de données suivants:
-          </p>
+          <p className="text-gray-600 mb-4">Nous collectons les types de données suivants:</p>
           <ul className="list-disc list-inside text-gray-600 mb-4 space-y-2">
-            <li><strong>Informations de compte:</strong> nom, email, numéro de téléphone</li>
-            <li><strong>Informations de profil:</strong> photo de profil, préférences</li>
-            <li><strong>Données de transaction:</strong> historique des paiements</li>
-            <li><strong>Données d'utilisation:</strong> pages visitées, recherches effectuées</li>
-            <li><strong>Données de localisation:</strong> ville, quartier de recherche</li>
+            <li>
+              <strong>Informations de compte:</strong> nom, email, numéro de téléphone
+            </li>
+            <li>
+              <strong>Informations de profil:</strong> photo de profil, préférences
+            </li>
+            <li>
+              <strong>Données de transaction:</strong> historique des paiements
+            </li>
+            <li>
+              <strong>Données d'utilisation:</strong> pages visitées, recherches effectuées
+            </li>
+            <li>
+              <strong>Données de localisation:</strong> ville, quartier de recherche
+            </li>
           </ul>
 
-          <h2 className="text-xl font-semibold text-gray-900 mt-8 mb-4">3. Utilisation des données</h2>
-          <p className="text-gray-600 mb-4">
-            Nous utilisons vos données pour:
-          </p>
+          <h2 className="text-xl font-semibold text-gray-900 mt-8 mb-4">
+            3. Utilisation des données
+          </h2>
+          <p className="text-gray-600 mb-4">Nous utilisons vos données pour:</p>
           <ul className="list-disc list-inside text-gray-600 mb-4 space-y-2">
             <li>Fournir et améliorer nos services</li>
             <li>Faciliter la communication entre utilisateurs</li>
@@ -55,7 +68,7 @@ export default function PrivacyPage() {
 
           <h2 className="text-xl font-semibold text-gray-900 mt-8 mb-4">4. Partage des données</h2>
           <p className="text-gray-600 mb-4">
-            Nous ne vendons jamais vos données personnelles. Nous pouvons partager certaines 
+            Nous ne vendons jamais vos données personnelles. Nous pouvons partager certaines
             informations avec:
           </p>
           <ul className="list-disc list-inside text-gray-600 mb-4 space-y-2">
@@ -76,9 +89,7 @@ export default function PrivacyPage() {
           </ul>
 
           <h2 className="text-xl font-semibold text-gray-900 mt-8 mb-4">6. Vos droits</h2>
-          <p className="text-gray-600 mb-4">
-            Vous avez le droit de:
-          </p>
+          <p className="text-gray-600 mb-4">Vous avez le droit de:</p>
           <ul className="list-disc list-inside text-gray-600 mb-4 space-y-2">
             <li>Accéder à vos données personnelles</li>
             <li>Corriger des informations inexactes</li>
@@ -89,15 +100,17 @@ export default function PrivacyPage() {
 
           <h2 className="text-xl font-semibold text-gray-900 mt-8 mb-4">7. Cookies</h2>
           <p className="text-gray-600 mb-4">
-            Nous utilisons des cookies pour améliorer votre expérience sur Piol. Vous pouvez 
-            gérer vos préférences de cookies dans les paramètres de votre navigateur.
+            Nous utilisons des cookies pour améliorer votre expérience sur Piol. Vous pouvez gérer
+            vos préférences de cookies dans les paramètres de votre navigateur.
           </p>
 
-          <h2 className="text-xl font-semibold text-gray-900 mt-8 mb-4">8. Conservation des données</h2>
+          <h2 className="text-xl font-semibold text-gray-900 mt-8 mb-4">
+            8. Conservation des données
+          </h2>
           <p className="text-gray-600 mb-4">
-            Nous conservons vos données aussi longtemps que votre compte est actif ou que 
-            nécessaire pour vous fournir nos services. Après suppression de votre compte, 
-            certaines données peuvent être conservées pour des raisons légales.
+            Nous conservons vos données aussi longtemps que votre compte est actif ou que nécessaire
+            pour vous fournir nos services. Après suppression de votre compte, certaines données
+            peuvent être conservées pour des raisons légales.
           </p>
 
           <h2 className="text-xl font-semibold text-gray-900 mt-8 mb-4">9. Contact</h2>
@@ -105,7 +118,8 @@ export default function PrivacyPage() {
             Pour toute question concernant cette politique ou vos données personnelles:
           </p>
           <p className="text-gray-600">
-            <strong>Email:</strong> privacy@piol.cm<br />
+            <strong>Email:</strong> privacy@piol.cm
+            <br />
             <strong>Adresse:</strong> Douala, Cameroun
           </p>
         </div>
@@ -120,4 +134,3 @@ export default function PrivacyPage() {
     </div>
   );
 }
-

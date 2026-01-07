@@ -1,7 +1,8 @@
 import { Redirect, Slot } from 'expo-router';
 
 // Check if Clerk is configured
-const isClerkConfigured = !!process.env.EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY && 
+const isClerkConfigured =
+  !!process.env.EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY &&
   !process.env.EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY.includes('REPLACE_WITH');
 
 // Conditionally import Clerk

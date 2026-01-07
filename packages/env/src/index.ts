@@ -10,7 +10,7 @@ export const clerkSchemas = {
   // Server-side Clerk
   CLERK_SECRET_KEY: z.string().optional(),
   CLERK_WEBHOOK_SECRET: z.string().optional(),
-  
+
   // Client-side Clerk
   NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: z.string().optional(),
   NEXT_PUBLIC_CLERK_SIGN_IN_URL: z.string().default('/sign-in'),
@@ -22,7 +22,7 @@ export const clerkSchemas = {
 export const convexSchemas = {
   // Server-side
   CONVEX_DEPLOYMENT: z.string().optional(),
-  
+
   // Client-side
   NEXT_PUBLIC_CONVEX_URL: z.string().url().optional(),
 };

@@ -1,17 +1,17 @@
 import {
-  Search,
-  LayoutDashboard,
-  Heart,
-  MessageSquare,
   Building2,
-  Settings,
   CreditCard,
-  User,
-  LogOut,
+  Heart,
   Home,
   Info,
-  Phone,
+  LayoutDashboard,
+  LogOut,
   type LucideIcon,
+  MessageSquare,
+  Phone,
+  Search,
+  Settings,
+  User,
 } from 'lucide-react';
 
 // =============================================================================
@@ -38,20 +38,20 @@ export interface NavSection {
 // =============================================================================
 
 export const mainNav: NavItem[] = [
-  { 
-    href: '/properties', 
+  {
+    href: '/properties',
     label: 'Propriétés',
     labelKey: 'nav.properties',
     icon: Search,
   },
-  { 
-    href: '/about', 
+  {
+    href: '/about',
     label: 'À propos',
     labelKey: 'nav.about',
     icon: Info,
   },
-  { 
-    href: '/contact', 
+  {
+    href: '/contact',
     label: 'Contact',
     labelKey: 'nav.contact',
     icon: Phone,
@@ -64,14 +64,14 @@ export const mainNav: NavItem[] = [
 // =============================================================================
 
 export const userNavBase: NavItem[] = [
-  { 
-    href: '/dashboard', 
+  {
+    href: '/dashboard',
     label: 'Dashboard',
     labelKey: 'nav.dashboard',
     icon: LayoutDashboard,
   },
-  { 
-    href: '/dashboard/messages', 
+  {
+    href: '/dashboard/messages',
     label: 'Messages',
     labelKey: 'nav.messages',
     icon: MessageSquare,
@@ -80,8 +80,8 @@ export const userNavBase: NavItem[] = [
 
 export const userNavRenter: NavItem[] = [
   ...userNavBase,
-  { 
-    href: '/dashboard/saved', 
+  {
+    href: '/dashboard/saved',
     label: 'Favoris',
     labelKey: 'nav.saved',
     icon: Heart,
@@ -90,14 +90,14 @@ export const userNavRenter: NavItem[] = [
 
 export const userNavLandlord: NavItem[] = [
   ...userNavBase,
-  { 
-    href: '/dashboard/properties', 
+  {
+    href: '/dashboard/properties',
     label: 'Mes biens',
     labelKey: 'nav.myProperties',
     icon: Building2,
   },
-  { 
-    href: '/dashboard/payments', 
+  {
+    href: '/dashboard/payments',
     label: 'Paiements',
     labelKey: 'nav.payments',
     icon: CreditCard,
@@ -106,14 +106,14 @@ export const userNavLandlord: NavItem[] = [
 
 export const userNavAdmin: NavItem[] = [
   ...userNavBase,
-  { 
-    href: '/dashboard/properties', 
+  {
+    href: '/dashboard/properties',
     label: 'Propriétés',
     labelKey: 'nav.properties',
     icon: Building2,
   },
-  { 
-    href: '/dashboard/payments', 
+  {
+    href: '/dashboard/payments',
     label: 'Paiements',
     labelKey: 'nav.payments',
     icon: CreditCard,
@@ -122,8 +122,8 @@ export const userNavAdmin: NavItem[] = [
 
 // Settings & Logout (separate section)
 export const userNavSettings: NavItem[] = [
-  { 
-    href: '/dashboard/settings', 
+  {
+    href: '/dashboard/settings',
     label: 'Paramètres',
     labelKey: 'nav.settings',
     icon: Settings,
@@ -146,9 +146,7 @@ export const sidebarNavRenter: NavSection[] = [
   },
   {
     title: 'Compte',
-    items: [
-      { href: '/dashboard/settings', label: 'Paramètres', icon: Settings },
-    ],
+    items: [{ href: '/dashboard/settings', label: 'Paramètres', icon: Settings }],
   },
 ];
 
@@ -164,9 +162,7 @@ export const sidebarNavLandlord: NavSection[] = [
   },
   {
     title: 'Compte',
-    items: [
-      { href: '/dashboard/settings', label: 'Paramètres', icon: Settings },
-    ],
+    items: [{ href: '/dashboard/settings', label: 'Paramètres', icon: Settings }],
   },
 ];
 
@@ -185,7 +181,7 @@ export const footerNav = {
     { href: '/terms', label: 'Conditions', labelKey: 'footer.terms' },
   ],
   support: [
-    { href: '/help', label: 'Centre d\'aide', labelKey: 'footer.help' },
+    { href: '/help', label: "Centre d'aide", labelKey: 'footer.help' },
     { href: '/faq', label: 'FAQ', labelKey: 'footer.faq' },
   ],
 };
@@ -225,8 +221,10 @@ export function getSidebarNav(role: UserRole): NavSection[] {
 
 export const siteConfig = {
   name: 'Piol',
-  description: 'Trouvez votre prochain logement au Cameroun. Annonces vérifiées, paiement sécurisé par Mobile Money.',
-  descriptionEn: 'Find your next home in Cameroon. Verified listings, secure Mobile Money payments.',
+  description:
+    'Trouvez votre prochain logement au Cameroun. Annonces vérifiées, paiement sécurisé par Mobile Money.',
+  descriptionEn:
+    'Find your next home in Cameroon. Verified listings, secure Mobile Money payments.',
   url: process.env.NEXT_PUBLIC_APP_URL || 'https://piol.cm',
   ogImage: '/og-image.png',
   links: {
@@ -234,4 +232,3 @@ export const siteConfig = {
     facebook: 'https://facebook.com/piolcm',
   },
 };
-

@@ -1,37 +1,37 @@
 'use client';
 
-import { useState } from 'react';
-import Link from 'next/link';
-import { useSafeAuth } from '@/hooks/use-safe-auth';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { useSafeAuth } from '@/hooks/use-safe-auth';
 import { cn } from '@/lib/utils';
 import {
-  ArrowLeft,
-  Share2,
-  Heart,
-  MapPin,
-  Star,
-  Shield,
-  Wifi,
-  Car,
-  Wind,
-  Droplet,
-  Zap,
   Armchair,
-  Sun,
-  TreePine,
+  ArrowLeft,
+  BadgeCheck,
+  Calendar,
+  Car,
   ChevronLeft,
   ChevronRight,
-  X,
   Clock,
-  BadgeCheck,
+  Droplet,
+  Heart,
+  MapPin,
   MessageCircle,
   Phone,
-  Calendar,
+  Share2,
+  Shield,
+  Star,
+  Sun,
+  TreePine,
+  Wifi,
+  Wind,
+  X,
+  Zap,
 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
+import Link from 'next/link';
+import { useState } from 'react';
 
 // Mock property data
 const mockProperty = {
@@ -150,7 +150,8 @@ export default function PropertyDetailPage({ params }: { params: { id: string } 
       <div className="relative">
         {/* Desktop Grid Gallery */}
         <div className="hidden md:grid grid-cols-4 grid-rows-2 gap-2 max-w-7xl mx-auto px-4 py-4 h-[480px]">
-          <div
+          <button
+            type="button"
             className="col-span-2 row-span-2 relative rounded-l-2xl overflow-hidden cursor-pointer group"
             onClick={() => {
               setSelectedImage(0);
@@ -163,10 +164,11 @@ export default function PropertyDetailPage({ params }: { params: { id: string } 
               className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
             />
             <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors" />
-          </div>
+          </button>
           {mockProperty.images.slice(1, 5).map((image, index) => (
-            <div
-              key={index}
+            <button
+              type="button"
+              key={image}
               className={cn(
                 'relative cursor-pointer group overflow-hidden',
                 index === 1 && 'rounded-tr-2xl',
@@ -179,15 +181,16 @@ export default function PropertyDetailPage({ params }: { params: { id: string } 
             >
               <img
                 src={image}
-                alt={`Photo ${index + 2}`}
+                alt={`Property view ${index + 2}`}
                 className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
               />
               <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors" />
-            </div>
+            </button>
           ))}
 
           {/* Show all photos button */}
           <button
+            type="button"
             onClick={() => setShowGallery(true)}
             className="absolute bottom-8 right-8 flex items-center gap-2 px-4 py-2 bg-white rounded-lg shadow-lg hover:scale-105 transition-transform text-sm font-medium"
           >
@@ -204,9 +207,10 @@ export default function PropertyDetailPage({ params }: { params: { id: string } 
             className="w-full h-full object-cover"
           />
           <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex items-center gap-1.5">
-            {mockProperty.images.map((_, index) => (
+            {mockProperty.images.map((image, index) => (
               <button
-                key={index}
+                type="button"
+                key={image}
                 onClick={() => setSelectedImage(index)}
                 className={cn(
                   'w-2 h-2 rounded-full transition-all',
@@ -216,12 +220,14 @@ export default function PropertyDetailPage({ params }: { params: { id: string } 
             ))}
           </div>
           <button
+            type="button"
             onClick={() => setSelectedImage(Math.max(0, selectedImage - 1))}
             className="absolute left-4 top-1/2 -translate-y-1/2 w-8 h-8 bg-white/90 rounded-full flex items-center justify-center shadow-lg"
           >
             <ChevronLeft className="w-5 h-5" />
           </button>
           <button
+            type="button"
             onClick={() =>
               setSelectedImage(Math.min(mockProperty.images.length - 1, selectedImage + 1))
             }
@@ -237,6 +243,7 @@ export default function PropertyDetailPage({ params }: { params: { id: string } 
         <div className="fixed inset-0 z-50 bg-black">
           <div className="absolute top-4 right-4 z-10">
             <button
+              type="button"
               onClick={() => setShowGallery(false)}
               className="w-10 h-10 bg-white/10 hover:bg-white/20 rounded-full flex items-center justify-center text-white transition-colors"
             >
@@ -245,6 +252,7 @@ export default function PropertyDetailPage({ params }: { params: { id: string } 
           </div>
           <div className="h-full flex items-center justify-center p-4">
             <button
+              type="button"
               onClick={() => setSelectedImage(Math.max(0, selectedImage - 1))}
               className="absolute left-4 w-12 h-12 bg-white/10 hover:bg-white/20 rounded-full flex items-center justify-center text-white transition-colors"
             >
@@ -252,10 +260,11 @@ export default function PropertyDetailPage({ params }: { params: { id: string } 
             </button>
             <img
               src={mockProperty.images[selectedImage]}
-              alt={`Photo ${selectedImage + 1}`}
+              alt={`Gallery view ${selectedImage + 1}`}
               className="max-h-[90vh] max-w-[90vw] object-contain"
             />
             <button
+              type="button"
               onClick={() =>
                 setSelectedImage(Math.min(mockProperty.images.length - 1, selectedImage + 1))
               }
@@ -265,9 +274,10 @@ export default function PropertyDetailPage({ params }: { params: { id: string } 
             </button>
           </div>
           <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex items-center gap-2">
-            {mockProperty.images.map((_, index) => (
+            {mockProperty.images.map((image, index) => (
               <button
-                key={index}
+                type="button"
+                key={image}
                 onClick={() => setSelectedImage(index)}
                 className={cn(
                   'w-2.5 h-2.5 rounded-full transition-all',
@@ -389,10 +399,15 @@ export default function PropertyDetailPage({ params }: { params: { id: string } 
 
             {/* Description */}
             <div>
-              <h2 className="text-xl font-semibold text-neutral-900 mb-4">À propos de ce logement</h2>
+              <h2 className="text-xl font-semibold text-neutral-900 mb-4">
+                À propos de ce logement
+              </h2>
               <div className="prose prose-neutral max-w-none">
-                {mockProperty.description.split('\n\n').map((paragraph, index) => (
-                  <p key={index} className="text-neutral-600 mb-4 whitespace-pre-line leading-relaxed">
+                {mockProperty.description.split('\n\n').map((paragraph) => (
+                  <p
+                    key={paragraph.slice(0, 50)}
+                    className="text-neutral-600 mb-4 whitespace-pre-line leading-relaxed"
+                  >
                     {paragraph}
                   </p>
                 ))}
@@ -480,7 +495,10 @@ export default function PropertyDetailPage({ params }: { params: { id: string } 
 
                   {isSignedIn ? (
                     <div className="space-y-3">
-                      <Button className="w-full bg-primary hover:bg-primary-hover text-white" size="lg">
+                      <Button
+                        className="w-full bg-primary hover:bg-primary-hover text-white"
+                        size="lg"
+                      >
                         <MessageCircle className="w-4 h-4 mr-2" />
                         Contacter le propriétaire
                       </Button>
@@ -491,7 +509,10 @@ export default function PropertyDetailPage({ params }: { params: { id: string } 
                     </div>
                   ) : (
                     <Link href="/sign-in" className="block">
-                      <Button className="w-full bg-primary hover:bg-primary-hover text-white" size="lg">
+                      <Button
+                        className="w-full bg-primary hover:bg-primary-hover text-white"
+                        size="lg"
+                      >
                         Se connecter pour contacter
                       </Button>
                     </Link>

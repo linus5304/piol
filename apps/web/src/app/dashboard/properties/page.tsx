@@ -1,7 +1,5 @@
 'use client';
 
-import Link from 'next/link';
-import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import {
@@ -12,6 +10,8 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { cn } from '@/lib/utils';
+import Link from 'next/link';
+import { useState } from 'react';
 
 // Mock landlord properties
 const mockProperties = [
@@ -74,7 +74,7 @@ const verificationLabels: Record<string, { label: string; color: string }> = {
 };
 
 function formatCurrency(amount: number): string {
-  return new Intl.NumberFormat('fr-FR').format(amount) + ' FCFA';
+  return `${new Intl.NumberFormat('fr-FR').format(amount)} FCFA`;
 }
 
 export default function PropertiesPage() {
@@ -129,9 +129,7 @@ export default function PropertiesPage() {
       {filteredProperties.length === 0 ? (
         <div className="text-center py-12 bg-white rounded-lg border">
           <div className="text-5xl mb-4">🏘️</div>
-          <h3 className="text-lg font-medium text-gray-900 mb-2">
-            Aucune propriété
-          </h3>
+          <h3 className="text-lg font-medium text-gray-900 mb-2">Aucune propriété</h3>
           <p className="text-gray-500 mb-6">
             {searchQuery || statusFilter !== 'all'
               ? 'Aucune propriété ne correspond à vos filtres'
@@ -144,10 +142,7 @@ export default function PropertiesPage() {
       ) : (
         <div className="bg-white rounded-lg border divide-y">
           {filteredProperties.map((property) => (
-            <div
-              key={property.id}
-              className="p-4 hover:bg-gray-50 transition-colors"
-            >
+            <div key={property.id} className="p-4 hover:bg-gray-50 transition-colors">
               <div className="flex gap-4">
                 {/* Image */}
                 <div className="w-24 h-24 bg-gray-100 rounded-lg overflow-hidden flex-shrink-0">
@@ -229,4 +224,3 @@ export default function PropertiesPage() {
     </div>
   );
 }
-

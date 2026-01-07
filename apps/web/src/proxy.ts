@@ -8,27 +8,27 @@ const isClerkConfigured = clerkKey && !clerkKey.includes('REPLACE_WITH');
 
 // Define public routes that don't require authentication
 const isPublicRoute = createRouteMatcher([
-    '/',
-    '/properties(.*)',
-    '/about',
-    '/contact',
-    '/terms',
-    '/privacy',
-    '/sign-in(.*)',
-    '/sign-up(.*)',
-    '/api/webhooks(.*)',
+  '/',
+  '/properties(.*)',
+  '/about',
+  '/contact',
+  '/terms',
+  '/privacy',
+  '/sign-in(.*)',
+  '/sign-up(.*)',
+  '/api/webhooks(.*)',
 ]);
 
 // Passthrough proxy when Clerk is not configured
 function passthroughProxy() {
-    return NextResponse.next();
+  return NextResponse.next();
 }
 
 // Clerk proxy handler
 const clerkProxy = clerkMiddleware(async (auth, request) => {
-    if (!isPublicRoute(request)) {
-        await auth.protect();
-    }
+  if (!isPublicRoute(request)) {
+    await auth.protect();
+  }
 });
 
 // Export the appropriate proxy based on configuration
@@ -38,11 +38,10 @@ export const proxy = isClerkConfigured ? clerkProxy : passthroughProxy;
 export default proxy;
 
 export const config = {
-    matcher: [
-        // Skip Next.js internals and all static files
-        '/((?!_next|[^?]*\\.(?:html?|css|js(?!on)|jpe?g|webp|png|gif|svg|ttf|woff2?|ico|csv|docx?|xlsx?|zip|webmanifest)).*)',
-        // Always run for API routes
-        '/(api|trpc)(.*)',
-    ],
+  matcher: [
+    // Skip Next.js internals and all static files
+    '/((?!_next|[^?]*\\.(?:html?|css|js(?!on)|jpe?g|webp|png|gif|svg|ttf|woff2?|ico|csv|docx?|xlsx?|zip|webmanifest)).*)',
+    // Always run for API routes
+    '/(api|trpc)(.*)',
+  ],
 };
-

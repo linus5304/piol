@@ -24,7 +24,8 @@ export const getNotifications = query({
 
     const limit = args.limit ?? 50;
 
-    let notifications: Awaited<ReturnType<typeof ctx.db.query>>[] = [];
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    let notifications: any[];
     if (args.unreadOnly) {
       notifications = await ctx.db
         .query('notifications')

@@ -18,9 +18,7 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
 
       {/* Footer */}
       <footer className="p-6 text-center text-sm text-gray-500">
-        <p>
-          © {new Date().getFullYear()} Piol. Tous droits réservés. | All rights reserved.
-        </p>
+        <p>© {new Date().getFullYear()} Piol. Tous droits réservés. | All rights reserved.</p>
         <div className="mt-2 space-x-4">
           <Link href="/terms" className="hover:text-gray-700">
             Conditions d'utilisation
@@ -33,4 +31,3 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
     </div>
   );
 }
-

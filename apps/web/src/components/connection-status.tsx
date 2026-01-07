@@ -1,8 +1,8 @@
 'use client';
 
-import { useEffect, useState } from 'react';
 import { Wifi, WifiOff } from 'lucide-react';
 import { useTranslations } from 'next-intl';
+import { useEffect, useState } from 'react';
 
 export function ConnectionStatus() {
   const t = useTranslations('common');
@@ -41,11 +41,7 @@ export function ConnectionStatus() {
     <div
       className={`fixed top-0 left-0 right-0 z-[100] px-4 py-2 text-center text-sm font-medium transition-transform duration-300 ${
         showBanner ? 'translate-y-0' : '-translate-y-full'
-      } ${
-        isOnline
-          ? 'bg-green-100 text-green-800'
-          : 'bg-amber-100 text-amber-800'
-      }`}
+      } ${isOnline ? 'bg-green-100 text-green-800' : 'bg-amber-100 text-amber-800'}`}
     >
       <div className="flex items-center justify-center gap-2">
         {isOnline ? (
@@ -63,4 +59,3 @@ export function ConnectionStatus() {
     </div>
   );
 }
-

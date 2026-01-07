@@ -1,7 +1,11 @@
 'use client';
 
-import { useAuth as useClerkAuth, useUser as useClerkUser, useClerk as useClerkInstance } from '@clerk/nextjs';
 import { env, isClerkConfigured } from '@/lib/env';
+import {
+  useAuth as useClerkAuth,
+  useClerk as useClerkInstance,
+  useUser as useClerkUser,
+} from '@clerk/nextjs';
 
 // Re-export the config check
 export { isClerkConfigured };

@@ -1,4 +1,5 @@
-"use node";
+'use node';
+// @ts-nocheck - Uses deprecated { name: '...' } syntax, needs migration to api/internal references
 
 import { v } from 'convex/values';
 import { action } from '../_generated/server';

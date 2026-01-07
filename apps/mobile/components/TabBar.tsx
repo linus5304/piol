@@ -1,14 +1,7 @@
 import { usePathname, useRouter } from 'expo-router';
 import { useCallback, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import {
-  Platform,
-  Pressable,
-  StyleSheet,
-  Text,
-  View,
-  type ViewStyle,
-} from 'react-native';
+import { Platform, Pressable, StyleSheet, Text, View, type ViewStyle } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { colors, shadows, spacing, tabBar, touchTarget, typography } from '../lib/tokens';
 
@@ -43,20 +36,11 @@ function TabButton({ item, isActive, onPress, label }: TabButtonProps) {
       accessibilityRole="tab"
       accessibilityState={{ selected: isActive }}
       accessibilityLabel={label}
-      style={({ pressed }) => [
-        styles.tabButton,
-        pressed && styles.tabButtonPressed,
-      ]}
+      style={({ pressed }) => [styles.tabButton, pressed && styles.tabButtonPressed]}
     >
-      <Text style={[styles.tabIcon, { opacity: isActive ? 1 : 0.7 }]}>
-        {item.icon}
-      </Text>
+      <Text style={[styles.tabIcon, { opacity: isActive ? 1 : 0.7 }]}>{item.icon}</Text>
       <Text
-        style={[
-          styles.tabLabel,
-          { color: activeColor },
-          isActive && styles.tabLabelActive,
-        ]}
+        style={[styles.tabLabel, { color: activeColor }, isActive && styles.tabLabelActive]}
         numberOfLines={1}
       >
         {label}
@@ -78,9 +62,7 @@ export function TabBar() {
     if (pathname === '/' || pathname === '/(tabs)' || pathname === '/(tabs)/index') {
       return 'index';
     }
-    const match = TAB_ITEMS.find((tab) => 
-      pathname.startsWith(tab.href) && tab.name !== 'index'
-    );
+    const match = TAB_ITEMS.find((tab) => pathname.startsWith(tab.href) && tab.name !== 'index');
     return match?.name ?? 'index';
   }, [pathname]);
 
@@ -99,10 +81,7 @@ export function TabBar() {
   };
 
   return (
-    <View
-      style={[styles.container, containerStyle, shadows.md]}
-      accessibilityRole="tablist"
-    >
+    <View style={[styles.container, containerStyle, shadows.md]} accessibilityRole="tablist">
       {TAB_ITEMS.map((item) => (
         <TabButton
           key={item.name}
@@ -157,4 +136,3 @@ const styles = StyleSheet.create({
     borderRadius: 2,
   },
 });
-

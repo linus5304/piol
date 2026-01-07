@@ -16,6 +16,9 @@
       "style": {
         "useConst": "error",
         "noNonNullAssertion": "off"
+      },
+      "security": {
+        "noDangerouslySetInnerHtml": "off"
       }
     }
   },

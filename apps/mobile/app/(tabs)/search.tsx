@@ -54,22 +54,25 @@ export default function SearchScreen() {
   const debouncedQuery = useDebounce(searchQuery, 300);
 
   // Use Convex if available
-  const convexResults = api && debouncedQuery.length >= 2
-    ? useQuery(api.properties.searchProperties, { 
-        searchQuery: debouncedQuery, 
-        city: selectedCity, 
-        limit: 30 
-      })
-    : undefined;
+  const convexResults =
+    api && debouncedQuery.length >= 2
+      ? useQuery(api.properties.searchProperties, {
+          searchQuery: debouncedQuery,
+          city: selectedCity,
+          limit: 30,
+        })
+      : undefined;
 
   // For demo mode, filter mock data based on search query
-  const demoResults = debouncedQuery.length >= 2 
-    ? mockSearchResults.filter(p => 
-        p.title.toLowerCase().includes(debouncedQuery.toLowerCase()) ||
-        p.city.toLowerCase().includes(debouncedQuery.toLowerCase()) ||
-        p.neighborhood?.toLowerCase().includes(debouncedQuery.toLowerCase())
-      )
-    : [];
+  const demoResults =
+    debouncedQuery.length >= 2
+      ? mockSearchResults.filter(
+          (p) =>
+            p.title.toLowerCase().includes(debouncedQuery.toLowerCase()) ||
+            p.city.toLowerCase().includes(debouncedQuery.toLowerCase()) ||
+            p.neighborhood?.toLowerCase().includes(debouncedQuery.toLowerCase())
+        )
+      : [];
 
   const searchResults = api ? convexResults : demoResults;
 

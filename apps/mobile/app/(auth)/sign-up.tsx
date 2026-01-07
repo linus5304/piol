@@ -1,17 +1,17 @@
-import { useSignUp, useAuth } from '@clerk/clerk-expo';
-import { useRouter, Link, useLocalSearchParams } from 'expo-router';
+import { useAuth, useSignUp } from '@clerk/clerk-expo';
+import { Link, useLocalSearchParams, useRouter } from 'expo-router';
+import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useState, useEffect } from 'react';
 import {
+  ActivityIndicator,
+  KeyboardAvoidingView,
+  Platform,
   Pressable,
+  ScrollView,
   StyleSheet,
   Text,
   TextInput,
   View,
-  KeyboardAvoidingView,
-  Platform,
-  ActivityIndicator,
-  ScrollView,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -248,8 +248,7 @@ export default function SignUpScreen() {
 
             <Text style={styles.terms}>
               {t('auth.bySigningUp')}{' '}
-              <Text style={styles.termsLink}>{t('auth.termsOfService')}</Text>
-              {' '}{t('common.and')}{' '}
+              <Text style={styles.termsLink}>{t('auth.termsOfService')}</Text> {t('common.and')}{' '}
               <Text style={styles.termsLink}>{t('auth.privacyPolicy')}</Text>
             </Text>
 
@@ -420,4 +419,3 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
 });
-

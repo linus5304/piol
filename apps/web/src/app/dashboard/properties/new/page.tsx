@@ -1,8 +1,5 @@
 'use client';
 
-import { useState } from 'react';
-import Link from 'next/link';
-import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -14,6 +11,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { useState } from 'react';
 
 const propertyTypes = [
   { value: 'studio', label: 'Studio' },
@@ -67,7 +67,10 @@ export default function NewPropertyPage() {
   const toggleAmenity = (amenityId: string) => {
     const current = formData.selectedAmenities;
     if (current.includes(amenityId)) {
-      updateForm('selectedAmenities', current.filter((id) => id !== amenityId));
+      updateForm(
+        'selectedAmenities',
+        current.filter((id) => id !== amenityId)
+      );
     } else {
       updateForm('selectedAmenities', [...current, amenityId]);
     }
@@ -78,10 +81,10 @@ export default function NewPropertyPage() {
     try {
       // TODO: Submit to Convex
       console.log('Submitting property:', formData);
-      
+
       // Simulate API call
       await new Promise((resolve) => setTimeout(resolve, 1000));
-      
+
       router.push('/dashboard/properties');
     } catch (error) {
       console.error('Error creating property:', error);
@@ -108,9 +111,7 @@ export default function NewPropertyPage() {
         {[1, 2, 3].map((s) => (
           <div
             key={s}
-            className={`h-2 flex-1 rounded-full ${
-              s <= step ? 'bg-[#FF385C]' : 'bg-gray-200'
-            }`}
+            className={`h-2 flex-1 rounded-full ${s <= step ? 'bg-[#FF385C]' : 'bg-gray-200'}`}
           />
         ))}
       </div>
@@ -166,10 +167,7 @@ export default function NewPropertyPage() {
 
               <div className="space-y-2">
                 <Label>Ville *</Label>
-                <Select
-                  value={formData.city}
-                  onValueChange={(v) => updateForm('city', v)}
-                >
+                <Select value={formData.city} onValueChange={(v) => updateForm('city', v)}>
                   <SelectTrigger>
                     <SelectValue placeholder="Sélectionner" />
                   </SelectTrigger>
@@ -348,12 +346,12 @@ export default function NewPropertyPage() {
               <div className="grid grid-cols-4 gap-4">
                 {formData.images.map((file, index) => (
                   <div
-                    key={index}
+                    key={file.name}
                     className="aspect-square bg-gray-100 rounded-lg overflow-hidden"
                   >
                     <img
                       src={URL.createObjectURL(file)}
-                      alt={`Photo ${index + 1}`}
+                      alt={`Upload preview ${index + 1}`}
                       className="w-full h-full object-cover"
                     />
                   </div>
@@ -382,7 +380,7 @@ export default function NewPropertyPage() {
                   Enregistrer brouillon
                 </Button>
                 <Button onClick={handleSubmit} disabled={isSubmitting}>
-                  {isSubmitting ? 'Publication...' : 'Publier l\'annonce'}
+                  {isSubmitting ? 'Publication...' : "Publier l'annonce"}
                 </Button>
               </div>
             </div>
@@ -392,4 +390,3 @@ export default function NewPropertyPage() {
     </div>
   );
 }
-

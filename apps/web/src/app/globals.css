@@ -10,118 +10,126 @@
 
 :root {
   /* Brand Colors */
-  --brand-coral: #FF385C;
-  --brand-coral-dark: #E31C5F;
-  --brand-coral-light: #FF5A7D;
-  --brand-coral-pale: #FFE4E8;
+  --brand-coral: #ff385c;
+  --brand-coral-dark: #e31c5f;
+  --brand-coral-light: #ff5a7d;
+  --brand-coral-pale: #ffe4e8;
 
   /* Border Radius - Airbnb style (12px default) */
   --radius: 12px;
 
   /* Font */
-  --font-sans: var(--font-nunito-sans, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif);
+  --font-sans: var(
+    --font-nunito-sans,
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    Roboto,
+    sans-serif
+  );
 
   /* Primary - Coral (brand) */
-  --primary: #FF385C;
-  --primary-foreground: #FFFFFF;
+  --primary: #ff385c;
+  --primary-foreground: #ffffff;
 
   /* Background & Foreground */
-  --background: #FFFFFF;
+  --background: #ffffff;
   --foreground: #222222;
 
   /* Card */
-  --card: #FFFFFF;
+  --card: #ffffff;
   --card-foreground: #222222;
 
   /* Popover */
-  --popover: #FFFFFF;
+  --popover: #ffffff;
   --popover-foreground: #222222;
 
   /* Secondary */
-  --secondary: #F7F7F7;
+  --secondary: #f7f7f7;
   --secondary-foreground: #222222;
 
   /* Muted (Airbnb gray) */
-  --muted: #F7F7F7;
+  --muted: #f7f7f7;
   --muted-foreground: #717171;
 
   /* Accent */
-  --accent: #F7F7F7;
+  --accent: #f7f7f7;
   --accent-foreground: #222222;
 
   /* Destructive */
-  --destructive: #C13515;
-  --destructive-foreground: #FFFFFF;
+  --destructive: #c13515;
+  --destructive-foreground: #ffffff;
 
   /* Success */
-  --success: #008A05;
-  --success-foreground: #FFFFFF;
+  --success: #008a05;
+  --success-foreground: #ffffff;
 
   /* Border & Input (softer) */
-  --border: #DDDDDD;
-  --input: #DDDDDD;
-  --ring: #FF385C;
+  --border: #dddddd;
+  --input: #dddddd;
+  --ring: #ff385c;
 
   /* Charts - Warm palette */
-  --chart-1: #FF385C;
-  --chart-2: #E31C5F;
-  --chart-3: #008A05;
+  --chart-1: #ff385c;
+  --chart-2: #e31c5f;
+  --chart-3: #008a05;
   --chart-4: #717171;
   --chart-5: #222222;
 
   /* Sidebar */
-  --sidebar: #FAFAFA;
+  --sidebar: #fafafa;
   --sidebar-foreground: #222222;
-  --sidebar-primary: #FF385C;
-  --sidebar-primary-foreground: #FFFFFF;
-  --sidebar-accent: #F7F7F7;
+  --sidebar-primary: #ff385c;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #f7f7f7;
   --sidebar-accent-foreground: #222222;
-  --sidebar-border: #EBEBEB;
-  --sidebar-ring: #FF385C;
+  --sidebar-border: #ebebeb;
+  --sidebar-ring: #ff385c;
 }
 
 .dark {
-  --brand-coral: #FF5A7D;
-  --brand-coral-dark: #FF385C;
-  --brand-coral-light: #FF8DA1;
-  --brand-coral-pale: #3D1F25;
+  --brand-coral: #ff5a7d;
+  --brand-coral-dark: #ff385c;
+  --brand-coral-light: #ff8da1;
+  --brand-coral-pale: #3d1f25;
 
-  --background: #0A0A0B;
-  --foreground: #FAFAFA;
+  --background: #0a0a0b;
+  --foreground: #fafafa;
   --card: #141416;
-  --card-foreground: #FAFAFA;
+  --card-foreground: #fafafa;
   --popover: #141416;
-  --popover-foreground: #FAFAFA;
-  --primary: #FF5A7D;
-  --primary-foreground: #0A0A0B;
-  --secondary: #1F1F23;
-  --secondary-foreground: #FAFAFA;
-  --muted: #1F1F23;
-  --muted-foreground: #A1A1AA;
-  --accent: #1F1F23;
-  --accent-foreground: #FAFAFA;
-  --destructive: #EF4444;
-  --destructive-foreground: #FAFAFA;
-  --success: #22C55E;
-  --success-foreground: #0A0A0B;
-  --border: #27272A;
-  --input: #27272A;
-  --ring: #FF5A7D;
+  --popover-foreground: #fafafa;
+  --primary: #ff5a7d;
+  --primary-foreground: #0a0a0b;
+  --secondary: #1f1f23;
+  --secondary-foreground: #fafafa;
+  --muted: #1f1f23;
+  --muted-foreground: #a1a1aa;
+  --accent: #1f1f23;
+  --accent-foreground: #fafafa;
+  --destructive: #ef4444;
+  --destructive-foreground: #fafafa;
+  --success: #22c55e;
+  --success-foreground: #0a0a0b;
+  --border: #27272a;
+  --input: #27272a;
+  --ring: #ff5a7d;
 
-  --chart-1: #FF5A7D;
-  --chart-2: #FF8DA1;
-  --chart-3: #22C55E;
-  --chart-4: #A1A1AA;
-  --chart-5: #FAFAFA;
+  --chart-1: #ff5a7d;
+  --chart-2: #ff8da1;
+  --chart-3: #22c55e;
+  --chart-4: #a1a1aa;
+  --chart-5: #fafafa;
 
-  --sidebar: #0A0A0B;
-  --sidebar-foreground: #FAFAFA;
-  --sidebar-primary: #FF5A7D;
-  --sidebar-primary-foreground: #0A0A0B;
-  --sidebar-accent: #1F1F23;
-  --sidebar-accent-foreground: #FAFAFA;
-  --sidebar-border: #27272A;
-  --sidebar-ring: #FF5A7D;
+  --sidebar: #0a0a0b;
+  --sidebar-foreground: #fafafa;
+  --sidebar-primary: #ff5a7d;
+  --sidebar-primary-foreground: #0a0a0b;
+  --sidebar-accent: #1f1f23;
+  --sidebar-accent-foreground: #fafafa;
+  --sidebar-border: #27272a;
+  --sidebar-ring: #ff5a7d;
 }
 
 @theme inline {
@@ -204,8 +212,12 @@
   }
 
   @keyframes shimmer {
-    0% { background-position: 200% 0; }
-    100% { background-position: -200% 0; }
+    0% {
+      background-position: 200% 0;
+    }
+    100% {
+      background-position: -200% 0;
+    }
   }
 
   /* Image loading state */
@@ -215,8 +227,13 @@
   }
 
   @keyframes pulse {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0.5; }
+    0%,
+    100% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0.5;
+    }
   }
 
   /* Badge styles */
@@ -262,8 +279,12 @@
   }
 
   @keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
+    0% {
+      transform: rotate(0deg);
+    }
+    100% {
+      transform: rotate(360deg);
+    }
   }
 
   /* Hide scrollbar but keep functionality */

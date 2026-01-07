@@ -4,7 +4,7 @@ import { z } from 'zod';
 /**
  * Type-safe environment variables configuration
  * Following next-forge patterns for robust env handling
- * 
+ *
  * @see https://www.next-forge.com/docs
  * @see https://env.t3.gg/docs/nextjs
  */
@@ -16,17 +16,17 @@ export const env = createEnv({
   server: {
     // Node environment
     NODE_ENV: z.enum(['development', 'production', 'test']).default('development'),
-    
+
     // Clerk Authentication (Server)
     CLERK_SECRET_KEY: z.string().optional(),
     CLERK_WEBHOOK_SECRET: z.string().optional(),
-    
+
     // Convex Backend
     CONVEX_DEPLOYMENT: z.string().optional(),
-    
+
     // Sentry Error Tracking
     SENTRY_AUTH_TOKEN: z.string().optional(),
-    
+
     // Analytics (optional)
     ANALYTICS_SECRET: z.string().optional(),
   },
@@ -42,13 +42,13 @@ export const env = createEnv({
     NEXT_PUBLIC_CLERK_SIGN_UP_URL: z.string().default('/sign-up'),
     NEXT_PUBLIC_CLERK_AFTER_SIGN_IN_URL: z.string().default('/dashboard'),
     NEXT_PUBLIC_CLERK_AFTER_SIGN_UP_URL: z.string().default('/dashboard/onboarding'),
-    
+
     // Convex Backend (Client)
     NEXT_PUBLIC_CONVEX_URL: z.string().url().optional(),
-    
+
     // Sentry Error Tracking (Client)
     NEXT_PUBLIC_SENTRY_DSN: z.string().url().optional(),
-    
+
     // App Configuration
     NEXT_PUBLIC_APP_URL: z.string().url().default('http://localhost:3000'),
     NEXT_PUBLIC_APP_NAME: z.string().default('Piol'),
@@ -66,7 +66,7 @@ export const env = createEnv({
     CONVEX_DEPLOYMENT: process.env.CONVEX_DEPLOYMENT,
     SENTRY_AUTH_TOKEN: process.env.SENTRY_AUTH_TOKEN,
     ANALYTICS_SECRET: process.env.ANALYTICS_SECRET,
-    
+
     // Client
     NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY,
     NEXT_PUBLIC_CLERK_SIGN_IN_URL: process.env.NEXT_PUBLIC_CLERK_SIGN_IN_URL,
@@ -96,16 +96,15 @@ export const env = createEnv({
  * Helper to check if Clerk is configured
  */
 export const isClerkConfigured = Boolean(
-  env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY && 
-  !env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY.includes('REPLACE_WITH')
+  env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY &&
+    !env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY.includes('REPLACE_WITH')
 );
 
 /**
  * Helper to check if Convex is configured
  */
 export const isConvexConfigured = Boolean(
-  env.NEXT_PUBLIC_CONVEX_URL && 
-  !env.NEXT_PUBLIC_CONVEX_URL.includes('REPLACE_WITH')
+  env.NEXT_PUBLIC_CONVEX_URL && !env.NEXT_PUBLIC_CONVEX_URL.includes('REPLACE_WITH')
 );
 
 /**

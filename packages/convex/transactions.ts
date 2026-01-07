@@ -41,7 +41,8 @@ export const getMyTransactions = query({
     const limit = args.limit ?? 50;
 
     // Get transactions based on role
-    let transactions: Awaited<ReturnType<typeof ctx.db.query>>[] = [];
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    let transactions: any[];
     if (args.role === 'landlord' || (!args.role && user.role === 'landlord')) {
       transactions = await ctx.db
         .query('transactions')
@@ -68,11 +69,12 @@ export const getMyTransactions = query({
     // Enrich with property info
     const enrichedTransactions = await Promise.all(
       transactions.map(async (transaction) => {
-        const property = await ctx.db.get(transaction.propertyId);
-        const otherUser =
-          user.role === 'landlord'
-            ? await ctx.db.get(transaction.renterId)
-            : await ctx.db.get(transaction.landlordId);
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const property = (await ctx.db.get(transaction.propertyId)) as any;
+        const otherUserId =
+          user.role === 'landlord' ? transaction.renterId : transaction.landlordId;
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const otherUser = (await ctx.db.get(otherUserId)) as any;
 
         return {
           ...transaction,

@@ -1,16 +1,16 @@
 import { useAuth } from '@clerk/clerk-expo';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { useTranslation } from 'react-i18next';
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
+  Dimensions,
+  Image,
+  Linking,
   Pressable,
   ScrollView,
   StyleSheet,
   Text,
   View,
-  Dimensions,
-  Image,
-  Linking,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -63,7 +63,7 @@ const amenityLabels: Record<string, { label: string; icon: string }> = {
 };
 
 function formatCurrency(amount: number): string {
-  return new Intl.NumberFormat('fr-FR').format(amount) + ' FCFA';
+  return `${new Intl.NumberFormat('fr-FR').format(amount)} FCFA`;
 }
 
 export default function PropertyDetailScreen() {
@@ -92,9 +92,7 @@ export default function PropertyDetailScreen() {
       return;
     }
 
-    const message = encodeURIComponent(
-      `Bonjour, je suis intéressé par: ${mockProperty.title}`
-    );
+    const message = encodeURIComponent(`Bonjour, je suis intéressé par: ${mockProperty.title}`);
     const whatsappUrl = `whatsapp://send?phone=${mockProperty.landlord.phone}&text=${message}`;
     Linking.openURL(whatsappUrl);
   };
@@ -130,16 +128,16 @@ export default function PropertyDetailScreen() {
           }}
           scrollEventThrottle={16}
         >
-          {mockProperty.images.map((image, index) => (
-            <Image key={index} source={{ uri: image }} style={styles.image} />
+          {mockProperty.images.map((image) => (
+            <Image key={image} source={{ uri: image }} style={styles.image} />
           ))}
         </ScrollView>
 
         {/* Image Indicators */}
         <View style={styles.imageIndicators}>
-          {mockProperty.images.map((_, index) => (
+          {mockProperty.images.map((image, index) => (
             <View
-              key={index}
+              key={image}
               style={[
                 styles.imageIndicator,
                 index === currentImageIndex && styles.imageIndicatorActive,
@@ -224,13 +222,9 @@ export default function PropertyDetailScreen() {
               <View style={styles.landlordInfo}>
                 <View style={styles.landlordNameRow}>
                   <Text style={styles.landlordName}>{mockProperty.landlord.name}</Text>
-                  {mockProperty.landlord.verified && (
-                    <Text style={styles.landlordVerified}>✓</Text>
-                  )}
+                  {mockProperty.landlord.verified && <Text style={styles.landlordVerified}>✓</Text>}
                 </View>
-                <Text style={styles.landlordResponse}>
-                  ⏱️ {mockProperty.landlord.responseTime}
-                </Text>
+                <Text style={styles.landlordResponse}>⏱️ {mockProperty.landlord.responseTime}</Text>
               </View>
             </View>
           </View>
@@ -239,8 +233,8 @@ export default function PropertyDetailScreen() {
           <View style={styles.safetyTips}>
             <Text style={styles.safetyTitle}>🛡️ Conseils de sécurité</Text>
             <Text style={styles.safetyText}>
-              • Visitez toujours la propriété avant de payer{'\n'}
-              • Ne partagez jamais vos informations bancaires
+              • Visitez toujours la propriété avant de payer{'\n'}• Ne partagez jamais vos
+              informations bancaires
             </Text>
           </View>
 
@@ -255,7 +249,10 @@ export default function PropertyDetailScreen() {
           <View>
             <Text style={styles.bottomPrice}>{formatCurrency(mockProperty.rentAmount)}/mois</Text>
             <Text style={styles.bottomTotal}>
-              Total: {formatCurrency(mockProperty.rentAmount * (mockProperty.cautionMonths + mockProperty.upfrontMonths))}
+              Total:{' '}
+              {formatCurrency(
+                mockProperty.rentAmount * (mockProperty.cautionMonths + mockProperty.upfrontMonths)
+              )}
             </Text>
           </View>
           <View style={styles.bottomButtons}>
@@ -551,4 +548,3 @@ const styles = StyleSheet.create({
     color: '#fff',
   },
 });
-

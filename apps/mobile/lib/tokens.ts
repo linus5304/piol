@@ -140,4 +140,3 @@ export const tabBar = {
   backgroundColor: colors.white,
   borderColor: colors.gray[200],
 } as const;
-

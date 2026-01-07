@@ -1,9 +1,9 @@
 import { useRouter } from 'expo-router';
+import * as WebBrowser from 'expo-web-browser';
+import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import * as WebBrowser from 'expo-web-browser';
-import { useEffect, useState } from 'react';
 
 WebBrowser.maybeCompleteAuthSession();
 
@@ -19,15 +19,16 @@ try {
   console.warn('Clerk not available - running in demo mode');
 }
 
-const isClerkConfigured = !!process.env.EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY && 
+const isClerkConfigured =
+  !!process.env.EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY &&
   !process.env.EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY.includes('REPLACE_WITH');
 
 export default function WelcomeScreen() {
   const { t, i18n } = useTranslation();
   const router = useRouter();
   const { isSignedIn } = isClerkConfigured ? useAuth() : { isSignedIn: false };
-  const { startOAuthFlow: startGoogleOAuth } = isClerkConfigured 
-    ? useOAuth({ strategy: 'oauth_google' }) 
+  const { startOAuthFlow: startGoogleOAuth } = isClerkConfigured
+    ? useOAuth({ strategy: 'oauth_google' })
     : { startOAuthFlow: async () => ({}) };
 
   useEffect(() => {
@@ -47,7 +48,7 @@ export default function WelcomeScreen() {
       router.replace('/(tabs)');
       return;
     }
-    
+
     try {
       const { createdSessionId, setActive } = await startGoogleOAuth();
       if (createdSessionId && setActive) {
@@ -80,9 +81,7 @@ export default function WelcomeScreen() {
   return (
     <SafeAreaView style={styles.container}>
       <Pressable style={styles.languageToggle} onPress={toggleLanguage}>
-        <Text style={styles.languageToggleText}>
-          {i18n.language === 'fr' ? '🇬🇧 EN' : '🇫🇷 FR'}
-        </Text>
+        <Text style={styles.languageToggleText}>{i18n.language === 'fr' ? '🇬🇧 EN' : '🇫🇷 FR'}</Text>
       </Pressable>
 
       <View style={styles.content}>

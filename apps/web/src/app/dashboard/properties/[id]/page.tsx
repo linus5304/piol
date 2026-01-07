@@ -1,16 +1,17 @@
 'use client';
 
-import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import Link from 'next/link';
 
 // Mock property data
 const mockProperty = {
   id: '1',
   title: 'Appartement 2 chambres - Makepe',
-  description: 'Bel appartement de 2 chambres avec salon, cuisine équipée et salle de bain moderne. Situé dans un quartier calme et sécurisé.',
+  description:
+    'Bel appartement de 2 chambres avec salon, cuisine équipée et salle de bain moderne. Situé dans un quartier calme et sécurisé.',
   propertyType: '2br',
   city: 'Douala',
   neighborhood: 'Makepe',
@@ -101,27 +102,15 @@ export default function EditPropertyPage({ params }: { params: { id: string } })
           <div className="grid gap-4 md:grid-cols-3">
             <div className="space-y-2">
               <Label htmlFor="rent">Loyer mensuel (FCFA)</Label>
-              <Input
-                id="rent"
-                type="number"
-                defaultValue={mockProperty.rentAmount}
-              />
+              <Input id="rent" type="number" defaultValue={mockProperty.rentAmount} />
             </div>
             <div className="space-y-2">
               <Label htmlFor="caution">Mois de caution</Label>
-              <Input
-                id="caution"
-                type="number"
-                defaultValue={mockProperty.cautionMonths}
-              />
+              <Input id="caution" type="number" defaultValue={mockProperty.cautionMonths} />
             </div>
             <div className="space-y-2">
               <Label htmlFor="upfront">Avance (mois)</Label>
-              <Input
-                id="upfront"
-                type="number"
-                defaultValue={mockProperty.upfrontMonths}
-              />
+              <Input id="upfront" type="number" defaultValue={mockProperty.upfrontMonths} />
             </div>
           </div>
         </CardContent>
@@ -137,12 +126,12 @@ export default function EditPropertyPage({ params }: { params: { id: string } })
           <div className="grid grid-cols-4 gap-4">
             {mockProperty.images.map((image, index) => (
               <div
-                key={index}
+                key={image}
                 className="aspect-square bg-gray-100 rounded-lg overflow-hidden relative group"
               >
                 <img
                   src={image}
-                  alt={`Photo ${index + 1}`}
+                  alt={`Property ${index + 1}`}
                   className="w-full h-full object-cover"
                 />
                 <button
@@ -180,4 +169,3 @@ export default function EditPropertyPage({ params }: { params: { id: string } })
     </div>
   );
 }
-

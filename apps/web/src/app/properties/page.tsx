@@ -1,10 +1,11 @@
 'use client';
 
+import { PublicLayout } from '@/components/layouts/public-layout';
 import { PropertyCard } from '@/components/property-card';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
 import {
   Select,
   SelectContent,
@@ -13,22 +14,21 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import {
-  Search,
-  SlidersHorizontal,
-  MapPin,
   Building2,
+  Castle,
+  Grid3X3,
   Home,
   Hotel,
-  Castle,
+  Map as MapIcon,
+  MapPin,
+  Search,
+  SlidersHorizontal,
   Warehouse,
   X,
-  Map,
-  Grid3X3,
 } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import Link from 'next/link';
 import { useMemo, useState } from 'react';
-import { useTranslations } from 'next-intl';
-import { PublicLayout } from '@/components/layouts/public-layout';
 
 const cities = ['Douala', 'Yaoundé', 'Bafoussam', 'Buea', 'Kribi', 'Limbé', 'Bamenda', 'Garoua'];
 
@@ -257,7 +257,10 @@ export default function PropertiesPage() {
                 className="pl-10 rounded-xl"
               />
             </div>
-            <Select value={selectedCity ?? 'all'} onValueChange={(v) => setSelectedCity(v === 'all' ? undefined : v)}>
+            <Select
+              value={selectedCity ?? 'all'}
+              onValueChange={(v) => setSelectedCity(v === 'all' ? undefined : v)}
+            >
               <SelectTrigger className="w-40 hidden sm:flex rounded-xl">
                 <MapPin className="h-4 w-4 mr-2" />
                 <SelectValue placeholder={t('search.allCities')} />
@@ -265,7 +268,9 @@ export default function PropertiesPage() {
               <SelectContent>
                 <SelectItem value="all">{t('search.allCities')}</SelectItem>
                 {cities.map((city) => (
-                  <SelectItem key={city} value={city}>{city}</SelectItem>
+                  <SelectItem key={city} value={city}>
+                    {city}
+                  </SelectItem>
                 ))}
               </SelectContent>
             </Select>
@@ -289,6 +294,7 @@ export default function PropertiesPage() {
               const isActive = selectedCategory === category.value;
               return (
                 <button
+                  type="button"
                   key={category.value}
                   onClick={() => setSelectedCategory(category.value)}
                   className={`flex items-center gap-2 px-4 py-2 text-sm font-medium whitespace-nowrap transition-colors touch-target rounded-lg ${
@@ -311,22 +317,24 @@ export default function PropertiesPage() {
             <div className="container mx-auto px-4 py-4">
               <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                 <div>
-                  <label className="block text-sm font-medium mb-2">{t('filters.priceRange')}</label>
+                  <span className="block text-sm font-medium mb-2">{t('filters.priceRange')}</span>
                   <Select value={priceRange} onValueChange={setPriceRange}>
-                    <SelectTrigger className="rounded-xl">
+                    <SelectTrigger className="rounded-xl" aria-label={t('filters.priceRange')}>
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
                       {priceRanges.map((range) => (
-                        <SelectItem key={range.value} value={range.value}>{range.label}</SelectItem>
+                        <SelectItem key={range.value} value={range.value}>
+                          {range.label}
+                        </SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium mb-2">{t('filters.sortBy')}</label>
+                  <span className="block text-sm font-medium mb-2">{t('filters.sortBy')}</span>
                   <Select value={sortBy} onValueChange={setSortBy}>
-                    <SelectTrigger className="rounded-xl">
+                    <SelectTrigger className="rounded-xl" aria-label={t('filters.sortBy')}>
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
@@ -340,7 +348,10 @@ export default function PropertiesPage() {
                   <Button variant="ghost" onClick={clearAllFilters} className="rounded-xl">
                     {t('filters.clearAll')}
                   </Button>
-                  <Button onClick={() => setShowFilters(false)} className="rounded-xl bg-[#FF385C] hover:bg-[#E31C5F]">
+                  <Button
+                    onClick={() => setShowFilters(false)}
+                    className="rounded-xl bg-[#FF385C] hover:bg-[#E31C5F]"
+                  >
                     {t('filters.showResults', { count: propertiesResult.total })}
                   </Button>
                 </div>
@@ -355,7 +366,9 @@ export default function PropertiesPage() {
         <div className="flex items-center justify-between mb-6">
           <div>
             <h1 className="text-xl font-semibold">
-              {selectedCity ? t('properties.inCity', { city: selectedCity }) : t('properties.title')}
+              {selectedCity
+                ? t('properties.inCity', { city: selectedCity })
+                : t('properties.title')}
             </h1>
             <p className="text-sm text-muted-foreground mt-1">
               {t('properties.resultsCount', { count: propertiesResult.total })}
@@ -368,15 +381,17 @@ export default function PropertiesPage() {
                 {selectedCity && (
                   <Badge variant="secondary" className="gap-1 rounded-full">
                     {selectedCity}
-                    <button onClick={() => setSelectedCity(undefined)}>
+                    <button type="button" onClick={() => setSelectedCity(undefined)}>
                       <X className="w-3 h-3" />
                     </button>
                   </Badge>
                 )}
                 {selectedCategory !== 'all' && (
                   <Badge variant="secondary" className="gap-1 rounded-full">
-                    {t(propertyCategories.find((c) => c.value === selectedCategory)?.labelKey || '')}
-                    <button onClick={() => setSelectedCategory('all')}>
+                    {t(
+                      propertyCategories.find((c) => c.value === selectedCategory)?.labelKey || ''
+                    )}
+                    <button type="button" onClick={() => setSelectedCategory('all')}>
                       <X className="w-3 h-3" />
                     </button>
                   </Badge>
@@ -385,16 +400,18 @@ export default function PropertiesPage() {
             )}
             <div className="flex rounded-xl border overflow-hidden">
               <button
+                type="button"
                 onClick={() => setViewMode('grid')}
                 className={`p-2 ${viewMode === 'grid' ? 'bg-muted' : 'hover:bg-muted'}`}
               >
                 <Grid3X3 className="w-4 h-4" />
               </button>
               <button
+                type="button"
                 onClick={() => setViewMode('map')}
                 className={`p-2 ${viewMode === 'map' ? 'bg-muted' : 'hover:bg-muted'}`}
               >
-                <Map className="w-4 h-4" />
+                <MapIcon className="w-4 h-4" />
               </button>
             </div>
           </div>
@@ -439,13 +456,14 @@ export default function PropertiesPage() {
         )}
 
         {/* Load More */}
-        {propertiesResult.properties.length > 0 && propertiesResult.properties.length < propertiesResult.total && (
-          <div className="text-center mt-12">
-            <Button variant="outline" size="lg" className="rounded-xl">
-              {t('common.loadMore')}
-            </Button>
-          </div>
-        )}
+        {propertiesResult.properties.length > 0 &&
+          propertiesResult.properties.length < propertiesResult.total && (
+            <div className="text-center mt-12">
+              <Button variant="outline" size="lg" className="rounded-xl">
+                {t('common.loadMore')}
+              </Button>
+            </div>
+          )}
       </div>
 
       {/* Floating Map Button - Mobile */}

@@ -1,13 +1,13 @@
 'use client';
 
-import Link from 'next/link';
-import { usePathname } from 'next/navigation';
-import { Bell, Home, Search } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Separator } from '@/components/ui/separator';
 import { SidebarTrigger } from '@/components/ui/sidebar';
 import { cn } from '@/lib/utils';
+import { Bell, Home, Search } from 'lucide-react';
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 
 // Map routes to titles (centralized configuration)
 const routeTitles: Record<string, string> = {
@@ -22,7 +22,7 @@ const routeTitles: Record<string, string> = {
 
 export function SiteHeader() {
   const pathname = usePathname();
-  
+
   // Get the title based on current path
   const getTitle = () => {
     // Check for exact match first
@@ -44,7 +44,7 @@ export function SiteHeader() {
         <SidebarTrigger className="-ml-1" />
         <Separator orientation="vertical" className="mx-2 h-4" />
         <h1 className="text-sm font-medium text-sidebar-foreground">{getTitle()}</h1>
-        
+
         {/* Search - hidden on mobile */}
         <div className="ml-auto hidden md:flex items-center gap-2">
           <div className="relative w-64">
@@ -56,30 +56,30 @@ export function SiteHeader() {
             />
           </div>
         </div>
-        
+
         {/* Actions */}
         <div className="flex items-center gap-2 ml-auto md:ml-0">
-          <Button 
-            variant="ghost" 
-            size="icon" 
+          <Button
+            variant="ghost"
+            size="icon"
             className="h-9 w-9 relative text-sidebar-foreground hover:text-primary hover:bg-sidebar-accent"
           >
             <Bell className="h-4 w-4" />
             <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-primary rounded-full" />
           </Button>
           <Link href="/">
-            <Button 
-              variant="ghost" 
-              size="icon" 
+            <Button
+              variant="ghost"
+              size="icon"
               className="h-9 w-9 text-sidebar-foreground hover:text-primary hover:bg-sidebar-accent"
             >
               <Home className="h-4 w-4" />
             </Button>
           </Link>
           <Link href="/properties">
-            <Button 
-              variant="outline" 
-              size="sm" 
+            <Button
+              variant="outline"
+              size="sm"
               className="hidden sm:flex h-8 rounded-lg border-border hover:border-primary hover:text-primary"
             >
               Parcourir

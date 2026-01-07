@@ -1,7 +1,5 @@
 'use client';
 
-import { useTransition } from 'react';
-import { useLocale, useTranslations } from 'next-intl';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -9,8 +7,10 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { Globe, Check } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { Check, Globe } from 'lucide-react';
+import { useLocale, useTranslations } from 'next-intl';
+import { useTransition } from 'react';
 
 const languages = [
   { code: 'fr', flag: '🇫🇷', name: 'Français' },
@@ -26,11 +26,11 @@ export function LanguageSwitcher({ variant = 'default' }: LanguageSwitcherProps)
   const t = useTranslations('language');
   const [isPending, startTransition] = useTransition();
 
-  const currentLang = languages.find(l => l.code === locale) || languages[0];
+  const currentLang = languages.find((l) => l.code === locale) || languages[0];
 
   const setLocale = (newLocale: string) => {
     if (newLocale === locale) return;
-    
+
     startTransition(() => {
       // Set cookie and reload
       document.cookie = `NEXT_LOCALE=${newLocale};path=/;max-age=31536000`;
@@ -41,9 +41,9 @@ export function LanguageSwitcher({ variant = 'default' }: LanguageSwitcherProps)
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button 
-          variant="ghost" 
-          size="sm" 
+        <Button
+          variant="ghost"
+          size="sm"
           disabled={isPending}
           className={cn(
             'gap-1.5 font-medium transition-all',
@@ -53,19 +53,21 @@ export function LanguageSwitcher({ variant = 'default' }: LanguageSwitcherProps)
         >
           <Globe className="h-4 w-4 text-muted-foreground" />
           <span className="text-sm">{currentLang.flag}</span>
-          <span className={cn(
-            'uppercase text-xs font-semibold',
-            variant === 'minimal' && 'hidden sm:inline'
-          )}>
+          <span
+            className={cn(
+              'uppercase text-xs font-semibold',
+              variant === 'minimal' && 'hidden sm:inline'
+            )}
+          >
             {locale}
           </span>
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-40">
         {languages.map((lang) => (
-          <DropdownMenuItem 
+          <DropdownMenuItem
             key={lang.code}
-            onClick={() => setLocale(lang.code)} 
+            onClick={() => setLocale(lang.code)}
             className={cn(
               'flex items-center justify-between cursor-pointer',
               locale === lang.code && 'bg-muted'
@@ -75,9 +77,7 @@ export function LanguageSwitcher({ variant = 'default' }: LanguageSwitcherProps)
               <span className="text-base">{lang.flag}</span>
               <span className="text-sm">{lang.name}</span>
             </div>
-            {locale === lang.code && (
-              <Check className="h-4 w-4 text-[#FF385C]" />
-            )}
+            {locale === lang.code && <Check className="h-4 w-4 text-[#FF385C]" />}
           </DropdownMenuItem>
         ))}
       </DropdownMenuContent>

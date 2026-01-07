@@ -5,14 +5,14 @@ module.exports = {
       // Airbnb-inspired border radius (12px base)
       borderRadius: {
         none: '0',
-        sm: '8px',       // Small elements
+        sm: '8px', // Small elements
         DEFAULT: '12px', // Default (cards, buttons)
-        md: '12px',      // Same as default
-        lg: '16px',      // Larger cards
-        xl: '24px',      // Modals, hero sections
-        '2xl': '32px',   // Large decorative
-        '3xl': '48px',   // Extra large
-        full: '9999px',  // Pills, avatars
+        md: '12px', // Same as default
+        lg: '16px', // Larger cards
+        xl: '24px', // Modals, hero sections
+        '2xl': '32px', // Large decorative
+        '3xl': '48px', // Extra large
+        full: '9999px', // Pills, avatars
       },
       // Font family
       fontFamily: {
@@ -29,11 +29,11 @@ module.exports = {
       },
       // Airbnb-style shadows
       boxShadow: {
-        'card': '0 6px 16px rgba(0, 0, 0, 0.12)',
+        card: '0 6px 16px rgba(0, 0, 0, 0.12)',
         'card-hover': '0 6px 20px rgba(0, 0, 0, 0.18)',
         'card-lift': '0 12px 28px rgba(0, 0, 0, 0.15)',
-        'dropdown': '0 2px 16px rgba(0, 0, 0, 0.12)',
-        'modal': '0 8px 28px rgba(0, 0, 0, 0.28)',
+        dropdown: '0 2px 16px rgba(0, 0, 0, 0.12)',
+        modal: '0 8px 28px rgba(0, 0, 0, 0.28)',
       },
       // Smooth transitions
       transitionDuration: {

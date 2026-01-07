@@ -1,9 +1,10 @@
 import { Redirect } from 'expo-router';
-import { View, ActivityIndicator, StyleSheet } from 'react-native';
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
+import { ActivityIndicator, StyleSheet, View } from 'react-native';
 
 // Check if Clerk is configured
-const isClerkConfigured = !!process.env.EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY && 
+const isClerkConfigured =
+  !!process.env.EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY &&
   !process.env.EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY.includes('REPLACE_WITH');
 
 // Conditionally get Clerk auth state
@@ -19,7 +20,7 @@ if (isClerkConfigured) {
 
 export default function Index() {
   const [isReady, setIsReady] = useState(false);
-  
+
   // Use Clerk auth if available
   const clerkAuth = useClerkAuth ? useClerkAuth() : { isSignedIn: false, isLoaded: true };
   const { isSignedIn, isLoaded } = clerkAuth;

@@ -29,9 +29,7 @@ export async function seedUsers(ctx: MutationCtx) {
 export async function clearUsers(ctx: MutationCtx) {
   const seedUsers = await ctx.db
     .query('users')
-    .filter((q) =>
-      q.or(...usersData.map((u) => q.eq(q.field('clerkId'), u.clerkId)))
-    )
+    .filter((q) => q.or(...usersData.map((u) => q.eq(q.field('clerkId'), u.clerkId))))
     .collect();
 
   for (const user of seedUsers) {
@@ -40,4 +38,3 @@ export async function clearUsers(ctx: MutationCtx) {
 
   console.log(`  ✓ Cleared ${seedUsers.length} seed users`);
 }
-

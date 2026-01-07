@@ -1,14 +1,14 @@
 'use client';
 
-import { useState } from 'react';
-import Link from 'next/link';
+import { brandConstants } from '@/components/brand';
+import { PageHeader, PageSection, PublicLayout } from '@/components/layouts/public-layout';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { PublicLayout, PageSection, PageHeader } from '@/components/layouts/public-layout';
-import { Mail, Phone, MessageCircle, MapPin, CheckCircle } from 'lucide-react';
-import { brandConstants } from '@/components/brand';
+import { CheckCircle, Mail, MapPin, MessageCircle, Phone } from 'lucide-react';
+import Link from 'next/link';
+import { useState } from 'react';
 
 export default function ContactPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -17,10 +17,10 @@ export default function ContactPage() {
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setIsSubmitting(true);
-    
+
     // Simulate form submission
     await new Promise((resolve) => setTimeout(resolve, 1000));
-    
+
     setIsSubmitting(false);
     setSubmitted(true);
   };
@@ -28,8 +28,8 @@ export default function ContactPage() {
   return (
     <PublicLayout>
       <PageSection bordered>
-        <PageHeader 
-          title="Contactez-nous" 
+        <PageHeader
+          title="Contactez-nous"
           description="Une question? Notre équipe est là pour vous aider."
           centered
         />
@@ -41,9 +41,7 @@ export default function ContactPage() {
           <Card className="md:col-span-3 rounded-xl">
             <CardHeader>
               <CardTitle>Envoyez-nous un message</CardTitle>
-              <CardDescription>
-                Nous vous répondrons dans les plus brefs délais.
-              </CardDescription>
+              <CardDescription>Nous vous répondrons dans les plus brefs délais.</CardDescription>
             </CardHeader>
             <CardContent>
               {submitted ? (
@@ -51,9 +49,7 @@ export default function ContactPage() {
                   <div className="w-16 h-16 bg-green-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
                     <CheckCircle className="w-8 h-8 text-green-600" />
                   </div>
-                  <h3 className="text-lg font-semibold mb-2">
-                    Message envoyé!
-                  </h3>
+                  <h3 className="text-lg font-semibold mb-2">Message envoyé!</h3>
                   <p className="text-muted-foreground">
                     Merci de nous avoir contacté. Nous vous répondrons bientôt.
                   </p>
@@ -78,7 +74,12 @@ export default function ContactPage() {
 
                   <div className="space-y-2">
                     <Label htmlFor="phone">Téléphone</Label>
-                    <Input id="phone" type="tel" placeholder="+237 6XX XXX XXX" className="rounded-xl" />
+                    <Input
+                      id="phone"
+                      type="tel"
+                      placeholder="+237 6XX XXX XXX"
+                      className="rounded-xl"
+                    />
                   </div>
 
                   <div className="space-y-2">
@@ -95,9 +96,9 @@ export default function ContactPage() {
                     />
                   </div>
 
-                  <Button 
-                    type="submit" 
-                    className="w-full rounded-xl bg-[#FF385C] hover:bg-[#E31C5F]" 
+                  <Button
+                    type="submit"
+                    className="w-full rounded-xl bg-[#FF385C] hover:bg-[#E31C5F]"
                     disabled={isSubmitting}
                   >
                     {isSubmitting ? 'Envoi en cours...' : 'Envoyer le message'}
@@ -118,9 +119,7 @@ export default function ContactPage() {
                   <div>
                     <h3 className="font-semibold">Email</h3>
                     <p className="text-muted-foreground text-sm">{brandConstants.contact.email}</p>
-                    <p className="text-xs text-muted-foreground mt-1">
-                      Nous répondons sous 24h
-                    </p>
+                    <p className="text-xs text-muted-foreground mt-1">Nous répondons sous 24h</p>
                   </div>
                 </div>
               </CardContent>
@@ -135,9 +134,7 @@ export default function ContactPage() {
                   <div>
                     <h3 className="font-semibold">Téléphone</h3>
                     <p className="text-muted-foreground text-sm">{brandConstants.contact.phone}</p>
-                    <p className="text-xs text-muted-foreground mt-1">
-                      Lun - Ven, 8h - 18h
-                    </p>
+                    <p className="text-xs text-muted-foreground mt-1">Lun - Ven, 8h - 18h</p>
                   </div>
                 </div>
               </CardContent>
@@ -152,9 +149,7 @@ export default function ContactPage() {
                   <div>
                     <h3 className="font-semibold">WhatsApp</h3>
                     <p className="text-muted-foreground text-sm">{brandConstants.contact.phone}</p>
-                    <p className="text-xs text-muted-foreground mt-1">
-                      Réponse rapide
-                    </p>
+                    <p className="text-xs text-muted-foreground mt-1">Réponse rapide</p>
                   </div>
                 </div>
               </CardContent>
@@ -168,10 +163,10 @@ export default function ContactPage() {
                   </div>
                   <div>
                     <h3 className="font-semibold">Adresse</h3>
-                    <p className="text-muted-foreground text-sm">{brandConstants.contact.address}</p>
-                    <p className="text-xs text-muted-foreground mt-1">
-                      Sur rendez-vous uniquement
+                    <p className="text-muted-foreground text-sm">
+                      {brandConstants.contact.address}
                     </p>
+                    <p className="text-xs text-muted-foreground mt-1">Sur rendez-vous uniquement</p>
                   </div>
                 </div>
               </CardContent>
@@ -186,8 +181,8 @@ export default function ContactPage() {
                 <p className="text-blue-700 dark:text-blue-300 text-sm mb-4">
                   Consultez notre FAQ pour des réponses rapides.
                 </p>
-                <Button 
-                  variant="outline" 
+                <Button
+                  variant="outline"
                   className="w-full rounded-xl border-blue-200 text-blue-700 hover:bg-blue-100 dark:border-blue-800 dark:text-blue-300 dark:hover:bg-blue-900/50"
                 >
                   Voir la FAQ

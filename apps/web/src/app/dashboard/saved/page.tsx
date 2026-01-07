@@ -1,8 +1,8 @@
 'use client';
 
-import Link from 'next/link';
-import { Button } from '@/components/ui/button';
 import { PropertyCard } from '@/components/property-card';
+import { Button } from '@/components/ui/button';
+import Link from 'next/link';
 
 // Mock saved properties
 const mockSavedProperties = [
@@ -56,11 +56,10 @@ export default function SavedPropertiesPage() {
       {mockSavedProperties.length === 0 ? (
         <div className="text-center py-12 bg-white rounded-lg border">
           <div className="text-5xl mb-4">❤️</div>
-          <h3 className="text-lg font-medium text-gray-900 mb-2">
-            Aucune propriété sauvegardée
-          </h3>
+          <h3 className="text-lg font-medium text-gray-900 mb-2">Aucune propriété sauvegardée</h3>
           <p className="text-gray-500 mb-6 max-w-md mx-auto">
-            Explorez les propriétés disponibles et sauvegardez vos favoris pour les retrouver facilement.
+            Explorez les propriétés disponibles et sauvegardez vos favoris pour les retrouver
+            facilement.
           </p>
           <Link href="/properties">
             <Button>Explorer les propriétés</Button>
@@ -76,4 +75,3 @@ export default function SavedPropertiesPage() {
     </div>
   );
 }
-

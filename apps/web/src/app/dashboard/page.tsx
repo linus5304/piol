@@ -1,22 +1,22 @@
 'use client';
 
-import { useSafeUser } from '@/hooks/use-safe-auth';
-import Link from 'next/link';
+import { SectionCards } from '@/components/section-cards';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { SectionCards } from '@/components/section-cards';
 import { Skeleton } from '@/components/ui/skeleton';
+import { useSafeUser } from '@/hooks/use-safe-auth';
 import {
-  Plus,
   ArrowRight,
-  Search,
   Building2,
-  MessageSquare,
+  Calendar,
+  CheckCircle,
   Heart,
   Home,
-  CheckCircle,
-  Calendar,
+  MessageSquare,
+  Plus,
+  Search,
 } from 'lucide-react';
+import Link from 'next/link';
 
 export default function DashboardPage() {
   const { user, isLoaded } = useSafeUser();
@@ -43,9 +43,7 @@ export default function DashboardPage() {
       {/* Welcome Section */}
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-semibold">
-            Bonjour, {firstName}
-          </h1>
+          <h1 className="text-2xl font-semibold">Bonjour, {firstName}</h1>
           <p className="text-muted-foreground text-sm mt-1">
             {role === 'landlord'
               ? 'Gérez vos propriétés et suivez vos revenus'
@@ -122,9 +120,7 @@ export default function DashboardPage() {
                         <h3 className="font-medium group-hover:text-primary transition-colors">
                           Messages
                         </h3>
-                        <p className="text-sm text-muted-foreground mt-1">
-                          Répondez aux demandes
-                        </p>
+                        <p className="text-sm text-muted-foreground mt-1">Répondez aux demandes</p>
                       </div>
                       <ArrowRight className="h-5 w-5 text-muted-foreground group-hover:text-primary transition-colors" />
                     </div>

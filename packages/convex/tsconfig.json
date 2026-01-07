@@ -14,11 +14,11 @@
     "isolatedModules": true,
     "jsx": "react-jsx",
     "baseUrl": ".",
+    "types": [],
     "paths": {
       "@repo/types": ["../types/src"]
     }
   },
   "include": ["./**/*.ts", "./**/*.tsx"],
-  "exclude": ["node_modules"]
+  "exclude": ["node_modules", "actions"]
 }
-

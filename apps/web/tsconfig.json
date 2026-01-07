@@ -1,11 +1,7 @@
 {
   "compilerOptions": {
     "target": "ES2017",
-    "lib": [
-      "dom",
-      "dom.iterable",
-      "esnext"
-    ],
+    "lib": ["dom", "dom.iterable", "esnext"],
     "allowJs": true,
     "skipLibCheck": true,
     "strict": true,
@@ -17,21 +13,16 @@
     "isolatedModules": true,
     "jsx": "react-jsx",
     "incremental": true,
+    "types": ["react", "node"],
     "plugins": [
       {
         "name": "next"
       }
     ],
     "paths": {
-      "@/*": [
-        "./src/*"
-      ],
-      "convex/_generated/api": [
-        "./convex/_generated/api"
-      ],
-      "convex/_generated/*": [
-        "./convex/_generated/*"
-      ]
+      "@/*": ["./src/*"],
+      "convex/_generated/api": ["./convex/_generated/api"],
+      "convex/_generated/*": ["./convex/_generated/*"]
     }
   },
   "include": [
@@ -45,10 +36,5 @@
     "convex/_generated/**/*.js",
     ".next/dev/types/**/*.ts"
   ],
-  "exclude": [
-    "node_modules",
-    "convex/*.ts",
-    "convex/actions/**",
-    "convex/seed/**"
-  ]
+  "exclude": ["node_modules", "convex/*.ts", "convex/actions/**", "convex/seed/**"]
 }

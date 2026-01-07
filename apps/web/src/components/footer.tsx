@@ -1,9 +1,9 @@
-import Link from 'next/link';
-import { useTranslations } from 'next-intl';
 import { Logo, brandConstants } from '@/components/brand';
 import { LanguageSwitcher } from '@/components/language-switcher';
 import { footerNav } from '@/config/navigation';
 import { cn } from '@/lib/utils';
+import { useTranslations } from 'next-intl';
+import Link from 'next/link';
 
 interface FooterProps {
   variant?: 'default' | 'minimal' | 'dark';
@@ -37,12 +37,10 @@ export function Footer({ variant = 'default', className }: FooterProps) {
   }
 
   return (
-    <footer 
+    <footer
       className={cn(
         'border-t',
-        variant === 'dark' 
-          ? 'bg-foreground text-background' 
-          : 'bg-muted/30',
+        variant === 'dark' ? 'bg-foreground text-background' : 'bg-muted/30',
         className
       )}
     >
@@ -50,14 +48,13 @@ export function Footer({ variant = 'default', className }: FooterProps) {
         <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
           {/* Brand Section */}
           <div className="col-span-2 md:col-span-1">
-            <Logo 
-              size="md" 
-              className={variant === 'dark' ? 'text-background' : ''} 
-            />
-            <p className={cn(
-              'mt-4 text-sm',
-              variant === 'dark' ? 'text-background/70' : 'text-muted-foreground'
-            )}>
+            <Logo size="md" className={variant === 'dark' ? 'text-background' : ''} />
+            <p
+              className={cn(
+                'mt-4 text-sm',
+                variant === 'dark' ? 'text-background/70' : 'text-muted-foreground'
+              )}
+            >
               {t('footer.description')}
             </p>
             <div className="mt-4">
@@ -67,21 +64,18 @@ export function Footer({ variant = 'default', className }: FooterProps) {
 
           {/* Quick Links */}
           <div>
-            <h4 className={cn(
-              'font-semibold mb-4',
-              variant === 'dark' ? 'text-background' : ''
-            )}>
+            <h4 className={cn('font-semibold mb-4', variant === 'dark' ? 'text-background' : '')}>
               {t('footer.quickLinks')}
             </h4>
             <ul className="space-y-2">
               {footerNav.quickLinks.map((link) => (
                 <li key={link.href}>
-                  <Link 
+                  <Link
                     href={link.href}
                     className={cn(
                       'text-sm transition-colors',
-                      variant === 'dark' 
-                        ? 'text-background/70 hover:text-background' 
+                      variant === 'dark'
+                        ? 'text-background/70 hover:text-background'
                         : 'text-muted-foreground hover:text-foreground'
                     )}
                   >
@@ -94,21 +88,18 @@ export function Footer({ variant = 'default', className }: FooterProps) {
 
           {/* Legal */}
           <div>
-            <h4 className={cn(
-              'font-semibold mb-4',
-              variant === 'dark' ? 'text-background' : ''
-            )}>
+            <h4 className={cn('font-semibold mb-4', variant === 'dark' ? 'text-background' : '')}>
               {t('footer.legal')}
             </h4>
             <ul className="space-y-2">
               {footerNav.legal.map((link) => (
                 <li key={link.href}>
-                  <Link 
+                  <Link
                     href={link.href}
                     className={cn(
                       'text-sm transition-colors',
-                      variant === 'dark' 
-                        ? 'text-background/70 hover:text-background' 
+                      variant === 'dark'
+                        ? 'text-background/70 hover:text-background'
                         : 'text-muted-foreground hover:text-foreground'
                     )}
                   >
@@ -121,16 +112,15 @@ export function Footer({ variant = 'default', className }: FooterProps) {
 
           {/* Contact */}
           <div>
-            <h4 className={cn(
-              'font-semibold mb-4',
-              variant === 'dark' ? 'text-background' : ''
-            )}>
+            <h4 className={cn('font-semibold mb-4', variant === 'dark' ? 'text-background' : '')}>
               {t('nav.contact')}
             </h4>
-            <ul className={cn(
-              'space-y-2 text-sm',
-              variant === 'dark' ? 'text-background/70' : 'text-muted-foreground'
-            )}>
+            <ul
+              className={cn(
+                'space-y-2 text-sm',
+                variant === 'dark' ? 'text-background/70' : 'text-muted-foreground'
+              )}
+            >
               <li>{brandConstants.contact.email}</li>
               <li>{brandConstants.contact.phone}</li>
               <li>{brandConstants.contact.address}</li>
@@ -139,17 +129,21 @@ export function Footer({ variant = 'default', className }: FooterProps) {
         </div>
 
         {/* Bottom Bar */}
-        <div className={cn(
-          'border-t mt-8 pt-8 flex flex-col sm:flex-row items-center justify-between gap-4',
-          variant === 'dark' ? 'border-background/20' : 'border-border'
-        )}>
-          <p className={cn(
-            'text-sm',
-            variant === 'dark' ? 'text-background/60' : 'text-muted-foreground'
-          )}>
+        <div
+          className={cn(
+            'border-t mt-8 pt-8 flex flex-col sm:flex-row items-center justify-between gap-4',
+            variant === 'dark' ? 'border-background/20' : 'border-border'
+          )}
+        >
+          <p
+            className={cn(
+              'text-sm',
+              variant === 'dark' ? 'text-background/60' : 'text-muted-foreground'
+            )}
+          >
             © {currentYear} {brandConstants.name}. {t('footer.copyright')}
           </p>
-          
+
           {/* Social Links */}
           <div className="flex items-center gap-4">
             {Object.entries(brandConstants.social).map(([platform, url]) => (
@@ -160,8 +154,8 @@ export function Footer({ variant = 'default', className }: FooterProps) {
                 rel="noopener noreferrer"
                 className={cn(
                   'text-sm transition-colors capitalize',
-                  variant === 'dark' 
-                    ? 'text-background/60 hover:text-background' 
+                  variant === 'dark'
+                    ? 'text-background/60 hover:text-background'
                     : 'text-muted-foreground hover:text-foreground'
                 )}
               >
@@ -180,24 +174,23 @@ export function FooterStatic({ variant = 'default', className }: FooterProps) {
   const currentYear = new Date().getFullYear();
 
   return (
-    <footer 
+    <footer
       className={cn(
         'border-t py-8',
-        variant === 'dark' 
-          ? 'bg-foreground text-background' 
-          : 'bg-muted/30',
+        variant === 'dark' ? 'bg-foreground text-background' : 'bg-muted/30',
         className
       )}
     >
       <div className="container mx-auto px-4 text-center">
-        <p className={cn(
-          'text-sm',
-          variant === 'dark' ? 'text-background/60' : 'text-muted-foreground'
-        )}>
+        <p
+          className={cn(
+            'text-sm',
+            variant === 'dark' ? 'text-background/60' : 'text-muted-foreground'
+          )}
+        >
           © {currentYear} {brandConstants.name}. Tous droits réservés.
         </p>
       </div>
     </footer>
   );
 }
-
