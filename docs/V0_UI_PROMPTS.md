@@ -9,12 +9,63 @@
 
 ---
 
+## 📚 Prompting Framework (from Vercel's Guide)
+
+The best v0 prompts include **three things**:
+
+### 1. Product Surface — What specifically are you building?
+List the actual **components, data, and actions**. Not "a dashboard", but:
+- What data it shows
+- What actions users can take
+- What the key sections are
+
+### 2. Context of Use — Who's using this, and when?
+Be specific about:
+- **Who** uses this? (role, technical comfort level)
+- **When** do they use it? (time constraints, environment)
+- **What decision** are they trying to make?
+- **How much time** do they have?
+
+### 3. Constraints & Taste — How should it work and look?
+Include:
+- Style preferences
+- Platform/device assumptions
+- Layout expectations
+- Color systems
+- Responsiveness or accessibility needs
+
+### Prompt Template
+
+```
+Build [product surface: components, data, actions].
+
+Used by [who],
+in [what moment],
+to [what decision or outcome].
+
+Constraints:
+- platform / device
+- visual tone
+- layout assumptions
+```
+
+### Why This Matters
+
+| Without context | With context |
+|-----------------|--------------|
+| Non-functional search/cart | Fully functional |
+| Not responsive | Mobile-first design |
+| Requires 1-2 more prompts | Works first try |
+| ~595 lines of code | ~443 lines (25% less) |
+
+---
+
 ## 🎨 Design System Context
 
 Include this context at the start of your v0 session to maintain consistency:
 
 ```
-I'm building Piol, a housing marketplace for Cameroon. 
+I'm building Piol, a housing marketplace for Cameroon.
 
 Design system:
 - Primary color: Emerald green (#10b981)
@@ -45,63 +96,28 @@ Content:
 ### 1. Landing Page (Homepage)
 
 ```
-Create a landing page for Piol, a Cameroon housing rental marketplace.
+Build a landing page for Piol, a Cameroon housing rental marketplace with:
+- Hero section: gradient overlay on modern African apartment image, headline "Trouvez votre logement idéal au Cameroun", search bar with city/type/budget dropdowns, trust stats (2,500+ propriétés, 1,200+ propriétaires vérifiés)
+- How it works: 3-step process (Recherchez → Visitez → Emménagez) with icons
+- Featured properties: grid of 6 property cards showing image, title, price in FCFA, location, bedrooms, verified badge
+- Trust section: 4 feature cards (Propriétés vérifiées, Paiements sécurisés via MTN MoMo/Orange Money, Zéro arnaque, Support local)
+- Cities section: 4 city cards (Yaoundé, Douala, Bafoussam, Bamenda) with property counts
+- Landlord CTA: "Vous êtes propriétaire? Publiez gratuitement"
+- Footer with navigation, legal links, social icons (Facebook, Instagram, WhatsApp)
 
-**Hero Section:**
-- Full-width hero with gradient overlay on background image (modern African apartment)
-- Large headline: "Trouvez votre logement idéal au Cameroun"
-- Subheadline: "Des milliers d'appartements et maisons vérifiés à Yaoundé, Douala et partout au Cameroun"
-- Search bar with:
-  - City dropdown (Yaoundé, Douala, Bafoussam, Bamenda, Garoua, Toutes les villes)
-  - Property type dropdown (Studio, 1 chambre, 2 chambres, etc.)
-  - Price range (Budget) dropdown
-  - Search button (primary emerald green)
-- Stats below search: "2,500+ propriétés" | "1,200+ propriétaires vérifiés" | "10,000+ locataires satisfaits"
+Used by Cameroonian renters (25-45 years old, mix of students and young professionals),
+on mobile phones during evening browsing or lunch breaks,
+to discover if Piol is trustworthy and start their housing search.
+First-time visitors need to understand value proposition in under 10 seconds.
 
-**How It Works Section:**
-- 3-step process with icons:
-  1. Recherchez (Search icon) - "Parcourez des milliers de propriétés vérifiées"
-  2. Visitez (Eye icon) - "Planifiez des visites avec les propriétaires"
-  3. Emménagez (Home icon) - "Payez en toute sécurité et emménagez"
-
-**Featured Properties Section:**
-- Section title: "Propriétés populaires"
-- Grid of 6 property cards (3 columns desktop, 1 mobile)
-- Each card shows: image, title, price (FCFA/mois), location, bedrooms badge, verified badge
-- "Voir toutes les propriétés" link button
-
-**Why Piol Section:**
-- 4 feature cards in grid:
-  1. "Propriétés vérifiées" - Shield icon - "Chaque propriété est visitée et vérifiée par notre équipe"
-  2. "Paiements sécurisés" - Lock icon - "Payez via MTN MoMo ou Orange Money en toute confiance"
-  3. "Zéro arnaque" - CheckCircle icon - "Fini les faux bailleurs et les arnaques"
-  4. "Support local" - HeadphonesIcon - "Une équipe basée au Cameroun à votre service"
-
-**Cities Section:**
-- "Explorez par ville"
-- 4 city cards with background images: Yaoundé, Douala, Bafoussam, Bamenda
-- Each shows city name and property count
-
-**CTA Section:**
-- Split layout:
-  - Left: "Vous êtes propriétaire?" 
-  - "Publiez votre propriété gratuitement et trouvez des locataires fiables"
-  - Button: "Publier une annonce"
-  - Right: Illustration of a landlord
-
-**Footer:**
-- Logo and tagline
-- Links: Propriétés, À propos, Contact, Aide
-- Legal: Conditions d'utilisation, Politique de confidentialité
-- Social: Facebook, Instagram, Twitter, WhatsApp
-- Copyright: © 2026 Piol. Tous droits réservés.
-
-**Style:**
-- Clean, modern, trustworthy aesthetic
-- Emerald green primary buttons
-- White/light gray backgrounds with subtle shadows on cards
-- Mobile responsive with hamburger menu
-- Sticky header with logo, navigation, language toggle (FR/EN), and Sign in/Sign up buttons
+Constraints:
+- Mobile-first (70% of Cameroon traffic is mobile)
+- Emerald green (#10b981) primary, white/slate backgrounds
+- French language, currency as "150 000 FCFA/mois"
+- Sticky header with logo, nav, language toggle (FR/EN), Sign in/Sign up
+- Clean, modern, trustworthy aesthetic - avoid cluttered look
+- shadcn/ui components, Tailwind CSS, Lucide icons
+- Cards with rounded-lg, subtle shadows (shadow-sm, shadow-md)
 ```
 
 ---
@@ -109,58 +125,28 @@ Create a landing page for Piol, a Cameroon housing rental marketplace.
 ### 2. Property Listing Page
 
 ```
-Create a property listing page for Piol housing marketplace.
+Build a property search/listing page with:
+- Sticky search bar: location input "Rechercher par ville, quartier...", filter buttons for Ville (multi-select), Type de bien (Studio, 1-4 chambres), Prix (range 0-500,000 FCFA), Plus de filtres (équipements, disponibilité)
+- Active filters as removable badges, results count "124 propriétés trouvées", sort dropdown (Plus récents, Prix croissant/décroissant)
+- Property grid: cards with image carousel (16:9, dots), heart/save button, "Vérifié" badge, title (2 lines max), price "150 000 FCFA/mois" in emerald, location with pin, features "2 chambres • 1 SDB • Meublé", amenity badges (WiFi, Parking, Clim), post date
+- Empty state: illustration, "Aucune propriété trouvée", reset filters button
+- Loading state: skeleton cards with shimmer
+- Pagination or infinite scroll with "Charger plus"
 
-**Header:**
-- Sticky header with: Logo, Navigation (Propriétés, À propos, Contact), Language toggle (FR/EN), Sign in button, "Publier" button (primary)
+Used by renters actively searching for housing,
+on mobile during commutes or desktop at work/home,
+to compare multiple properties quickly and save favorites.
+They filter by budget (most important) and location, then scan results fast.
 
-**Search & Filters Bar:**
-- Sticky below header on scroll
-- Search input with location icon: "Rechercher par ville, quartier..."
-- Filter buttons that open sheets/dropdowns:
-  - Ville (City) - multi-select dropdown
-  - Type de bien - checkboxes (Studio, 1 chambre, 2 chambres, etc.)
-  - Prix - range slider (0 - 500,000 FCFA)
-  - Plus de filtres - opens sheet with:
-    - Équipements: WiFi, Parking, Climatisation, Gardien, Meublé, Balcon
-    - Disponibilité: Immédiate, Dans 1 mois, Dans 3 mois
-- Active filters shown as removable badges
-- Results count: "124 propriétés trouvées"
-- Sort dropdown: "Trier par: Plus récents" (options: Plus récents, Prix croissant, Prix décroissant)
-
-**Property Grid:**
-- 3 columns on desktop, 2 on tablet, 1 on mobile
-- Property cards with:
-  - Image carousel (dots indicator) - 16:9 aspect ratio
-  - Heart/save icon (top right of image)
-  - "Vérifié" badge (green, top left) if verified
-  - Title (truncate 2 lines): "Appartement moderne 2 chambres à Bastos"
-  - Price: "150 000 FCFA/mois" (prominent, emerald color)
-  - Location with pin icon: "Bastos, Yaoundé"
-  - Features row: "2 chambres • 1 SDB • Meublé"
-  - Amenity badges (max 3): WiFi, Parking, Clim
-  - Posted date: "Publié il y a 2 jours"
-  - Card is fully clickable, navigates to /properties/[id]
-
-**Empty State:**
-- Illustration of empty search
-- "Aucune propriété trouvée"
-- "Essayez de modifier vos filtres ou d'élargir votre recherche"
-- Button: "Réinitialiser les filtres"
-
-**Loading State:**
-- Skeleton cards matching the card layout
-- Shimmer animation
-
-**Pagination:**
-- Bottom of page
-- "Page 1 sur 12" with Previous/Next buttons
-- Or infinite scroll with "Charger plus" button
-
-**Mobile Specific:**
-- Filters button opens full-screen sheet
-- Map toggle button (shows map view with markers)
-- Bottom padding for safe area
+Constraints:
+- Mobile-first: 1 column mobile, 2 tablet, 3 desktop
+- Filters open as full-screen sheet on mobile
+- Cards fully clickable → /properties/[id]
+- Price prominent in emerald color
+- Include map toggle button for mobile
+- Skeleton loaders matching exact card layout
+- French labels, FCFA currency
+- shadcn/ui, Tailwind, Lucide icons
 ```
 
 ---
@@ -168,99 +154,32 @@ Create a property listing page for Piol housing marketplace.
 ### 3. Property Detail Page
 
 ```
-Create a property detail page for Piol housing marketplace.
+Build a property detail page with:
+- Breadcrumb: "Accueil > Propriétés > Yaoundé > Bastos > [Title]"
+- Image gallery: main large image (16:9), thumbnail grid below (4 visible + "+5 photos" overlay), fullscreen lightbox on click
+- Header: title, "Vérifié" badge (green), location "Bastos, Yaoundé", posted date
+- Sticky price card: "150 000 FCFA/mois" (large emerald), caution "2 mois (300 000 FCFA)", avance "6 mois (900 000 FCFA)", "Contacter le propriétaire" primary button, "Planifier une visite" secondary, heart save + share buttons
+- Details grid with icons: Type, Chambres, Salles de bain, Surface (m²), Étage, Disponibilité
+- Description section: full text, expandable if long
+- Équipements grid (2 columns): WiFi, Parking, Climatisation, Gardien 24h/24, Eau, Électricité, Meublé, Balcon - with green checkmarks
+- Location section: map placeholder, neighborhood, city, nearby landmarks
+- Landlord card: avatar/initials, name "Marie K.", "Identité vérifiée" badge, member since, rating 4.8/5 (12 avis), response time, "Voir le profil" link
+- Reviews section: average rating, list with avatar, stars, date, comment, "Locataire vérifié" badge
+- Similar properties: horizontal scrollable row of 4 cards
 
-**Breadcrumb:**
-- "Accueil > Propriétés > Yaoundé > Bastos > Appartement moderne 2 chambres"
+Used by renters who found this property from search or shared link,
+viewing on mobile (70%) while comparing options or showing to roommates/family,
+to decide if they want to contact the landlord and how much money they need upfront.
+They scan images first, then price/location, then details.
 
-**Image Gallery:**
-- Main large image (16:9)
-- Thumbnail grid below (4 images visible + "+5 photos" overlay on last)
-- Clicking opens fullscreen lightbox gallery
-- Mobile: horizontal swipeable carousel with dots
-
-**Property Header:**
-- Title: "Appartement moderne 2 chambres à Bastos"
-- "Vérifié" badge with checkmark (green)
-- Location with icon: "Bastos, Yaoundé, Cameroun"
-- Listed date: "Publié le 15 janvier 2026"
-
-**Price Card (sticky on desktop, fixed bottom on mobile):**
-- Card with shadow
-- Price: "150 000 FCFA/mois" (large, emerald)
-- Caution: "Caution: 2 mois (300 000 FCFA)"
-- Avance: "Avance: 6 mois (900 000 FCFA)"
-- Primary button: "Contacter le propriétaire"
-- Secondary button: "Planifier une visite"
-- Save/favorite button with heart icon
-- Share button
-
-**Property Details Section:**
-- Grid of key details with icons:
-  - Type: Appartement
-  - Chambres: 2
-  - Salles de bain: 1
-  - Surface: 75 m²
-  - Étage: 2ème étage
-  - Disponibilité: Immédiate
-
-**Description Section:**
-- Heading: "Description"
-- Full text description (expandable if long)
-- Sample: "Magnifique appartement de 2 chambres situé dans le quartier prisé de Bastos. Entièrement meublé et équipé, il dispose d'une cuisine moderne, d'un salon spacieux et d'une terrasse avec vue. Idéal pour un couple ou un jeune professionnel."
-
-**Amenities Section:**
-- Heading: "Équipements"
-- Grid of amenities with icons and labels:
-  - ✓ WiFi inclus
-  - ✓ Parking privé
-  - ✓ Climatisation
-  - ✓ Gardien 24h/24
-  - ✓ Eau courante
-  - ✓ Électricité stable
-  - ✓ Meublé
-  - ✓ Balcon/Terrasse
-- Show in 2 columns, green checkmarks
-
-**Location Section:**
-- Heading: "Localisation"
-- Static map placeholder (or integrate real map later)
-- Neighborhood: "Bastos"
-- City: "Yaoundé"
-- Nearby: "À 5 min de l'ambassade de France, 10 min du centre-ville"
-
-**Landlord Section:**
-- Heading: "Propriétaire"
-- Card with:
-  - Avatar (or initials)
-  - Name: "Marie K."
-  - "Identité vérifiée" badge
-  - "Membre depuis 2024"
-  - Rating: 4.8/5 (12 avis)
-  - Response time: "Répond généralement en 2h"
-  - Button: "Voir le profil"
-
-**Reviews Section:**
-- Heading: "Avis des locataires" with count
-- Average rating: 4.8/5 stars
-- List of reviews:
-  - Reviewer avatar + name
-  - Star rating
-  - Date
-  - Comment text
-  - "Locataire vérifié" badge
-- "Voir tous les avis" link if more than 3
-
-**Similar Properties Section:**
-- Heading: "Propriétés similaires"
-- Horizontal scrollable row of 4 property cards
-- Same card design as listing page
-
-**Mobile Adaptations:**
-- Image gallery as full-width carousel
-- Sticky bottom bar with price and "Contacter" button
-- Collapsible sections with accordions
-- Back button in header
+Constraints:
+- Mobile: full-width image carousel, sticky bottom bar with price + "Contacter" button, collapsible accordion sections
+- Desktop: sticky price card on right side
+- Back button in mobile header
+- Prices clearly formatted with FCFA
+- Total upfront cost (caution + avance) must be immediately visible
+- French language throughout
+- shadcn/ui, Tailwind, Lucide icons
 ```
 
 ---
@@ -1219,6 +1138,49 @@ When using these prompts, always start your v0 session with the design system co
 - Shadows: shadow-sm for subtle, shadow-md for cards
 - Spacing: Use Tailwind spacing scale consistently
 - Fonts: System font stack (Geist if available)
+
+---
+
+## 🔄 Iteration Tips
+
+Once v0 generates your app, you have two main ways to iterate:
+
+### Prompt for Changes
+Best for:
+- Functional changes
+- Adding features
+- Restructuring layouts
+- Logic and state changes
+
+Example follow-ups:
+```
+"Add loading skeleton states to the property cards"
+"Make the filter sheet slide up from bottom on mobile"
+"Add a map toggle button next to the sort dropdown"
+"Include an empty state when no results match filters"
+```
+
+### Design Mode
+Click "Design Mode" in v0, select any element visually, and adjust properties directly.
+
+Best for:
+- Quick visual changes
+- Colors and spacing
+- Typography adjustments
+- Padding and margins
+
+**Rule of thumb:** Use prompts for logic and structure. Use Design Mode for visual tweaks.
+
+### Common Iteration Patterns
+
+| Issue | Follow-up Prompt |
+|-------|------------------|
+| Missing loading state | "Add skeleton loaders matching the card layout with shimmer animation" |
+| Not mobile-responsive | "Make this mobile-first: single column on mobile, 2 on tablet, 3 on desktop" |
+| Missing empty state | "Add an empty state with illustration and 'Aucun résultat' message" |
+| Colors wrong | "Change primary buttons to emerald-500 (#10b981)" |
+| Missing interaction | "Add hover state with shadow-md lift on cards" |
+| Accessibility | "Ensure all interactive elements are keyboard navigable with focus rings" |
 
 ---
 
