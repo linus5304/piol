@@ -92,15 +92,40 @@
 
 ## Git Hygiene
 
-- **MANDATORY: All new features/changes MUST be done on a separate branch before merging to main.**
-- Every feature/fix/chore starts from a new branch; no direct work on `main`.
-- Branch naming: `feat/<feature-name>`, `fix/<bug-name>`, `chore/<task-name>`.
-- Commit every meaningful change; keep commits small and scoped to one concern.
-- All changes go through a PR with review; no bypassing. Squash or rebase-only.
+### Branch Protection (STRICT)
+
+- **NEVER commit directly to `main`.** This rule has NO exceptions.
+- **All changes MUST go through a Pull Request (PR)** — features, fixes, docs, everything.
+- `main` branch is protected: requires PR, passing CI, and (ideally) code review.
+- Merging happens on GitHub, not locally. Never `git merge` into main locally.
+
+### Workflow
+
+1. `git checkout main && git pull` — start from latest main
+2. `git checkout -b <type>/<name>` — create feature branch
+3. Make changes, commit often, push to origin
+4. Open PR on GitHub → CI runs → review → merge (squash preferred)
+5. Delete branch after merge
+
+### Branch Naming
+
+- `feat/<feature-name>` — new features
+- `fix/<bug-name>` — bug fixes  
+- `chore/<task-name>` — maintenance, deps, config
+- `docs/<topic>` — documentation only
+- `refactor/<scope>` — code restructuring without behavior change
+
+### Commits
+
+- Commit format: `<scope>: <change>` in present tense
+- One logical change per commit; keep commits small and focused
 - **No code goes to production without tests.** Write tests before or alongside code.
-- Commit format: `<scope>: <change>` in present tense. One concern per commit.
+
+### Other Rules
+
 - Keep `.env.*` out of git; update `.env.example` when adding config.
 - No large binary assets in repo—use object storage/CDN.
+- Squash or rebase-only merges. No merge commits.
 
 ## Documentation
 
