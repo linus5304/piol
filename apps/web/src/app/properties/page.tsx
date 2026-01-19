@@ -15,7 +15,8 @@ import {
 } from '@/components/ui/select';
 import { Skeleton } from '@/components/ui/skeleton';
 import { api } from '@repo/convex/_generated/api';
-import { useQuery } from 'convex/react';
+import type { Id } from '@repo/convex/_generated/dataModel';
+import { useMutation, useQuery } from 'convex/react';
 import {
   Building2,
   Castle,
@@ -30,7 +31,7 @@ import {
   X,
 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
-import { useMemo, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 
 const cities = ['Douala', 'Yaoundé', 'Bafoussam', 'Buea', 'Kribi', 'Limbé', 'Bamenda', 'Garoua'];
 
@@ -169,6 +170,21 @@ export default function PropertiesPage() {
           limit: 50,
         }
       : 'skip'
+  );
+
+  // Saved properties functionality
+  const savedPropertyIds = useQuery(api.savedProperties.getSavedPropertyIds);
+  const toggleSaveProperty = useMutation(api.savedProperties.toggleSaveProperty);
+
+  const savedPropertyIdSet = useMemo(() => {
+    return new Set(savedPropertyIds ?? []);
+  }, [savedPropertyIds]);
+
+  const handleToggleSave = useCallback(
+    (propertyId: string) => {
+      toggleSaveProperty({ propertyId: propertyId as Id<'properties'> });
+    },
+    [toggleSaveProperty]
   );
 
   // Combine results based on which query is active
@@ -432,7 +448,12 @@ export default function PropertiesPage() {
             {/* Property cards */}
             {!propertiesResult.isLoading &&
               propertiesResult.properties.map((property) => (
-                <PropertyCard key={property._id} property={property} />
+                <PropertyCard
+                  key={property._id}
+                  property={property}
+                  isSaved={savedPropertyIdSet.has(property._id as Id<'properties'>)}
+                  onToggleSave={handleToggleSave}
+                />
               ))}
 
             {/* Empty state */}
@@ -464,7 +485,13 @@ export default function PropertiesPage() {
               {/* Property cards */}
               {!propertiesResult.isLoading &&
                 propertiesResult.properties.map((property) => (
-                  <PropertyCard key={property._id} property={property} variant="horizontal" />
+                  <PropertyCard
+                    key={property._id}
+                    property={property}
+                    variant="horizontal"
+                    isSaved={savedPropertyIdSet.has(property._id as Id<'properties'>)}
+                    onToggleSave={handleToggleSave}
+                  />
                 ))}
             </div>
             <Card className="flex items-center justify-center rounded-xl">
