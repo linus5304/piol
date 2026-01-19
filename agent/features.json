@@ -1,0 +1,112 @@
+{
+  "version": 1,
+  "lastUpdated": "2026-01-19T10:00:00Z",
+  "features": [
+    {
+      "id": "mvp-0",
+      "name": "Auth pages exist",
+      "status": "done",
+      "priority": 0,
+      "spec": null,
+      "acceptance": [
+        "Sign-up page renders at /sign-up",
+        "Sign-in page renders at /sign-in",
+        "Clerk auth integration works"
+      ],
+      "blockers": [],
+      "notes": "Completed. Auth pages functional with Clerk."
+    },
+    {
+      "id": "mvp-1",
+      "name": "Redirect to dashboard after auth",
+      "status": "done",
+      "priority": 1,
+      "spec": null,
+      "acceptance": [
+        "After sign-in, user lands on /dashboard",
+        "After sign-up, user lands on /dashboard/onboarding",
+        "Unauthenticated users cannot access /dashboard"
+      ],
+      "blockers": [],
+      "notes": "Redirects configured via Clerk fallbackRedirectUrl props. Middleware added to protect /dashboard routes. Demo mode bypasses auth check."
+    },
+    {
+      "id": "mvp-2",
+      "name": "Browse properties at /properties",
+      "status": "todo",
+      "priority": 2,
+      "spec": null,
+      "acceptance": [
+        "Route /properties loads without error",
+        "Properties fetched from Convex (not mock data)",
+        "Filtering by city works with real data",
+        "Filtering by property type works",
+        "Search query filters results"
+      ],
+      "blockers": [],
+      "notes": "UI complete with mock data. Needs Convex integration via useQuery(api.properties.list)."
+    },
+    {
+      "id": "mvp-3",
+      "name": "View property detail at /properties/[id]",
+      "status": "todo",
+      "priority": 3,
+      "spec": null,
+      "acceptance": [
+        "Route /properties/[id] loads property from Convex",
+        "Property images display",
+        "Amenities list renders",
+        "Landlord info shows",
+        "Contact/message button present"
+      ],
+      "blockers": [],
+      "notes": ""
+    },
+    {
+      "id": "mvp-4",
+      "name": "Landlord can create property",
+      "status": "todo",
+      "priority": 4,
+      "spec": null,
+      "acceptance": [
+        "Form at /dashboard/properties/new submits to Convex",
+        "Property created with status 'draft'",
+        "Images upload to Convex storage",
+        "Landlord redirected to property list after creation",
+        "Property appears in landlord's dashboard"
+      ],
+      "blockers": [],
+      "notes": "Form UI exists at /dashboard/properties/new. Has TODO for Convex integration."
+    },
+    {
+      "id": "mvp-5",
+      "name": "User can message landlord",
+      "status": "todo",
+      "priority": 5,
+      "spec": null,
+      "acceptance": [
+        "Message button on property detail sends message",
+        "Conversation created in Convex",
+        "Messages list at /dashboard/messages shows conversations",
+        "Real-time message updates work"
+      ],
+      "blockers": [],
+      "notes": "Messages schema exists. UI routes exist but need Convex wiring."
+    },
+    {
+      "id": "mvp-6",
+      "name": "User can save properties",
+      "status": "todo",
+      "priority": 6,
+      "spec": null,
+      "acceptance": [
+        "Heart/save button on property card toggles saved state",
+        "Saved properties stored in Convex savedProperties table",
+        "Saved properties list at /dashboard/saved shows user's saves",
+        "Save state persists across sessions"
+      ],
+      "blockers": [],
+      "notes": "savedProperties schema exists. Need UI integration."
+    }
+  ]
+}
