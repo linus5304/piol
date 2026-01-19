@@ -3,12 +3,21 @@
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Textarea } from '@/components/ui/textarea';
 import { useSafeAuth } from '@/hooks/use-safe-auth';
 import { cn } from '@/lib/utils';
 import { api } from '@repo/convex/_generated/api';
 import type { Id } from '@repo/convex/_generated/dataModel';
-import { useQuery } from 'convex/react';
+import { useMutation, useQuery } from 'convex/react';
 import {
   Armchair,
   ArrowLeft,
@@ -20,6 +29,7 @@ import {
   Droplet,
   Heart,
   ImageOff,
+  Loader2,
   MapPin,
   MessageCircle,
   Share2,
@@ -33,6 +43,7 @@ import {
   Zap,
 } from 'lucide-react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { use, useState } from 'react';
 
 const amenityConfig: Record<string, { label: string; icon: React.ElementType }> = {
@@ -83,10 +94,39 @@ export default function PropertyDetailPage({
   // Unwrap params promise (Next.js 15+ / React 19)
   const { id } = use(params);
 
+  const router = useRouter();
   const { isSignedIn } = useSafeAuth();
   const [selectedImage, setSelectedImage] = useState(0);
   const [isSaved, setIsSaved] = useState(false);
   const [showGallery, setShowGallery] = useState(false);
+  const [showContactDialog, setShowContactDialog] = useState(false);
+  const [messageText, setMessageText] = useState('');
+  const [isSending, setIsSending] = useState(false);
+
+  const sendMessage = useMutation(api.messages.sendMessage);
+
+  const handleSendMessage = async () => {
+    if (!messageText.trim() || !property?.landlord?._id) return;
+
+    setIsSending(true);
+    try {
+      await sendMessage({
+        recipientId: property.landlord._id,
+        propertyId: property._id,
+        messageText: messageText.trim(),
+      });
+
+      // Generate conversation ID to redirect (same logic as backend)
+      // Since we don't have the current user's ID here, we'll redirect to messages list
+      setShowContactDialog(false);
+      setMessageText('');
+      router.push('/dashboard/messages');
+    } catch (error) {
+      console.error('Failed to send message:', error);
+    } finally {
+      setIsSending(false);
+    }
+  };
 
   // Query property from Convex
   const property = useQuery(
@@ -505,6 +545,7 @@ export default function PropertyDetailPage({
                       <Button
                         className="w-full bg-primary hover:bg-primary-hover text-white"
                         size="lg"
+                        onClick={() => setShowContactDialog(true)}
                       >
                         <MessageCircle className="w-4 h-4 mr-2" />
                         Contacter le propriétaire
@@ -623,7 +664,11 @@ export default function PropertyDetailPage({
             )}
           </div>
           {isSignedIn ? (
-            <Button className="bg-primary hover:bg-primary-hover text-white" size="lg">
+            <Button
+              className="bg-primary hover:bg-primary-hover text-white"
+              size="lg"
+              onClick={() => setShowContactDialog(true)}
+            >
               <MessageCircle className="w-4 h-4 mr-2" />
               Contacter
             </Button>
@@ -636,6 +681,65 @@ export default function PropertyDetailPage({
           )}
         </div>
       </div>
+
+      {/* Contact Dialog */}
+      <Dialog open={showContactDialog} onOpenChange={setShowContactDialog}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Contacter le propriétaire</DialogTitle>
+            <DialogDescription>
+              Envoyez un message à {property.landlord?.firstName || 'le propriétaire'} concernant
+              cette propriété.
+            </DialogDescription>
+          </DialogHeader>
+
+          {/* Property Preview */}
+          <div className="flex items-center gap-3 p-3 bg-neutral-50 rounded-lg">
+            <img
+              src={images[0]}
+              alt={property.title}
+              className="w-16 h-16 object-cover rounded-lg"
+            />
+            <div className="flex-1 min-w-0">
+              <p className="font-medium text-neutral-900 truncate">{property.title}</p>
+              <p className="text-sm text-primary font-medium">
+                {formatCurrency(property.rentAmount)} {property.currency}/mois
+              </p>
+            </div>
+          </div>
+
+          <Textarea
+            placeholder="Bonjour, je suis intéressé(e) par cette propriété. Est-elle toujours disponible?"
+            value={messageText}
+            onChange={(e) => setMessageText(e.target.value)}
+            rows={4}
+            className="resize-none"
+          />
+
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowContactDialog(false)}>
+              Annuler
+            </Button>
+            <Button
+              onClick={handleSendMessage}
+              disabled={!messageText.trim() || isSending}
+              className="bg-primary hover:bg-primary-hover text-white"
+            >
+              {isSending ? (
+                <>
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  Envoi...
+                </>
+              ) : (
+                <>
+                  <MessageCircle className="w-4 h-4 mr-2" />
+                  Envoyer
+                </>
+              )}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
