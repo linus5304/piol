@@ -5,8 +5,12 @@ import type React from 'react';
 import { AppSidebar } from '@/components/app-sidebar';
 import { SiteHeader } from '@/components/site-header';
 import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar';
+import { useEnsureUser } from '@/hooks/use-ensure-user';
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
+  // Ensure user exists in Convex (fallback for webhook race condition)
+  useEnsureUser();
+
   return (
     <SidebarProvider
       style={

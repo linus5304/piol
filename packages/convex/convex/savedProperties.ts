@@ -1,6 +1,33 @@
 import { v } from 'convex/values';
 import { mutation, query } from './_generated/server';
 
+// Get user's saved property IDs (for efficient bulk checking)
+export const getSavedPropertyIds = query({
+  args: {},
+  handler: async (ctx) => {
+    const identity = await ctx.auth.getUserIdentity();
+    if (!identity) {
+      return [];
+    }
+
+    const user = await ctx.db
+      .query('users')
+      .withIndex('by_clerk_id', (q) => q.eq('clerkId', identity.subject))
+      .unique();
+
+    if (!user) {
+      return [];
+    }
+
+    const savedItems = await ctx.db
+      .query('savedProperties')
+      .withIndex('by_user', (q) => q.eq('userId', user._id))
+      .collect();
+
+    return savedItems.map((item) => item.propertyId);
+  },
+});
+
 // Get user's saved properties (favorites)
 export const getSavedProperties = query({
   args: {},

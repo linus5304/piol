@@ -207,6 +207,60 @@ export const ensureCurrentUser = mutation({
   },
 });
 
+// Auto-create user from JWT claims (simpler fallback)
+// Uses identity claims from Clerk JWT - no args needed
+export const getOrCreateCurrentUser = mutation({
+  args: {},
+  handler: async (ctx) => {
+    const identity = await ctx.auth.getUserIdentity();
+    if (!identity) {
+      throw new Error('Not authenticated');
+    }
+
+    const clerkId = identity.subject;
+
+    // Check if user already exists
+    const existingUser = await ctx.db
+      .query('users')
+      .withIndex('by_clerk_id', (q) => q.eq('clerkId', clerkId))
+      .unique();
+
+    if (existingUser) {
+      return existingUser;
+    }
+
+    // Extract info from JWT claims
+    // Clerk identity contains: subject, email, given_name, family_name, picture, etc.
+    const email = identity.email ?? `${clerkId}@placeholder.local`;
+    const firstName = identity.givenName ?? identity.name?.split(' ')[0];
+    const lastName = identity.familyName ?? identity.name?.split(' ').slice(1).join(' ');
+    const profileImageUrl = identity.pictureUrl;
+
+    // Create new user with default role (renter)
+    const userId = await ctx.db.insert('users', {
+      clerkId,
+      email,
+      phone: undefined,
+      role: 'renter', // Default role
+      firstName,
+      lastName,
+      profileImageUrl,
+      languagePreference: 'fr',
+      emailVerified: !!identity.emailVerified,
+      phoneVerified: false,
+      idVerified: false,
+      isActive: true,
+      onboardingCompleted: false,
+      lastLogin: Date.now(),
+    });
+
+    console.log(`Auto-created user ${userId} from JWT claims`);
+
+    const newUser = await ctx.db.get(userId);
+    return newUser;
+  },
+});
+
 // Update user profile
 export const updateProfile = mutation({
   args: {

@@ -54,6 +54,10 @@ interface PropertyCardProps {
     bathrooms?: number;
   };
   showSaveButton?: boolean;
+  /** Controlled save state - if provided, component becomes controlled */
+  isSaved?: boolean;
+  /** Callback when save button is clicked - receives property ID */
+  onToggleSave?: (propertyId: string) => void;
   className?: string;
   variant?: 'vertical' | 'horizontal';
 }
@@ -94,11 +98,15 @@ function formatCurrency(amount: number): string {
 export function PropertyCard({
   property,
   showSaveButton = true,
+  isSaved: isSavedProp,
+  onToggleSave,
   className,
   variant = 'vertical',
 }: PropertyCardProps) {
   const t = useTranslations();
-  const [isSaved, setIsSaved] = useState(false);
+  // Use prop if provided (controlled), otherwise local state (uncontrolled)
+  const [localSaved, setLocalSaved] = useState(false);
+  const isSaved = isSavedProp ?? localSaved;
   const [imageLoaded, setImageLoaded] = useState(false);
   const [imageError, setImageError] = useState(false);
 
@@ -129,7 +137,11 @@ export function PropertyCard({
   const handleSave = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    setIsSaved(!isSaved);
+    if (onToggleSave) {
+      onToggleSave(property._id);
+    } else {
+      setLocalSaved(!localSaved);
+    }
   };
 
   const amenityIcons = [

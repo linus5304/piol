@@ -4,6 +4,55 @@ Session history for AI agents working on Piol. Append new entries at the top.
 
 ---
 
+## Session: 2026-01-19 19:30
+
+**Focus**: mvp-6 - User can save properties
+**Outcome**: completed
+
+### Done
+- Committed leftover schema change from mvp-5 (placeholderImages field)
+- Created new branch `feat/mvp-6-save-properties` for this feature
+- Added `getSavedPropertyIds` query to Convex for efficient bulk checking
+- Updated `PropertyCard` component:
+  - Added optional `isSaved` and `onToggleSave` props
+  - Supports both controlled (props) and uncontrolled (local state) modes
+  - handleSave calls callback when provided
+- Wired `/properties` page:
+  - Fetches saved IDs using `getSavedPropertyIds` query
+  - Creates Set for O(1) lookup
+  - Passes `isSaved` and `onToggleSave` to each PropertyCard
+  - Both grid and horizontal views support saving
+- Wired `/dashboard/saved` page:
+  - Replaced mock data with `getSavedProperties` query
+  - Added loading skeletons
+  - Empty state when no saves
+  - Real-time updates when toggling saves
+
+### Blockers
+- None
+
+### Decisions
+- One query for all saved IDs (efficient) instead of N queries for N cards
+- PropertyCard uses controlled/uncontrolled pattern for flexibility
+- Type annotations added to fix implicit any errors
+
+### Files Changed
+- `packages/convex/convex/savedProperties.ts` - Added getSavedPropertyIds query
+- `apps/web/src/components/property-card.tsx` - Added isSaved/onToggleSave props
+- `apps/web/src/app/properties/page.tsx` - Wired save functionality
+- `apps/web/src/app/dashboard/saved/page.tsx` - Wired to real Convex data
+
+### Tests
+- Convex tests: 42/42 passed
+- Pre-existing test issues remain (not MVP-6 scope)
+
+### Next
+- MVP COMPLETE! All 7 features done
+- Create PRs for mvp-5 and mvp-6 branches
+- Post-MVP: payments, property verification, map view
+
+---
+
 ## Session: 2026-01-19 18:00
 
 **Focus**: mvp-5 - User can message landlord
