@@ -1,11 +1,11 @@
 import { convexTest } from 'convex-test';
 import { describe, expect, it } from 'vitest';
-import schema from '../schema';
+import schema from '../convex/schema';
 
 const modules = {
-  '../_generated/api.ts': async () => ({ api: {}, internal: {} }),
-  '../_generated/server.ts': async () => ({}),
-  '../_generated/dataModel.ts': async () => ({}),
+  '../convex/_generated/api.ts': async () => ({ api: {}, internal: {} }),
+  '../convex/_generated/server.ts': async () => ({}),
+  '../convex/_generated/dataModel.ts': async () => ({}),
 };
 
 function createTestContext() {

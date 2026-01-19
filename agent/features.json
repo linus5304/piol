@@ -33,7 +33,7 @@
     {
       "id": "mvp-2",
       "name": "Browse properties at /properties",
-      "status": "todo",
+      "status": "done",
       "priority": 2,
       "spec": null,
       "acceptance": [
@@ -44,12 +44,12 @@
         "Search query filters results"
       ],
       "blockers": [],
-      "notes": "UI complete with mock data. Needs Convex integration via useQuery(api.properties.list)."
+      "notes": "Wired to Convex listProperties and searchProperties queries. City filter uses index. Property type filter client-side for 'apartment' category (includes 1br-4br). Search triggers at 2+ chars. Loading skeletons added."
     },
     {
       "id": "mvp-3",
       "name": "View property detail at /properties/[id]",
-      "status": "todo",
+      "status": "done",
       "priority": 3,
       "spec": null,
       "acceptance": [
@@ -60,7 +60,7 @@
         "Contact/message button present"
       ],
       "blockers": [],
-      "notes": ""
+      "notes": "Wired to Convex getProperty query. Updated query to resolve image URLs from storage. Loading skeleton and not-found states added. Landlord info, amenities, and contact button all functional."
     },
     {
       "id": "mvp-4",

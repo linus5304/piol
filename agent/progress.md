@@ -4,6 +4,120 @@ Session history for AI agents working on Piol. Append new entries at the top.
 
 ---
 
+## Session: 2026-01-19 16:00
+
+**Focus**: mvp-3 - Property detail page at /properties/[id]
+**Outcome**: completed
+
+### Done
+- Cleaned up uncommitted files from previous session (next-env.d.ts formatting, env backup file)
+- Pushed mvp-2 branch to origin (PR creation failed due to gh auth - needs manual PR)
+- Updated `getProperty` Convex query to resolve image URLs from storage IDs
+- Query now returns `imageUrls` array with resolved URLs sorted by order
+- Landlord profile image URL also resolved in query
+- Rewrote property detail page to use Convex:
+  - Replaced mock data with `useQuery(api.properties.getProperty)`
+  - Added loading skeleton component
+  - Added not-found state when property doesn't exist
+  - Handled Next.js 16 params Promise with `use()` hook
+- All acceptance criteria met:
+  - Route loads property from Convex ✓
+  - Property images display (from storage or placeholder) ✓
+  - Amenities list renders ✓
+  - Landlord info shows ✓
+  - Contact/message button present ✓
+
+### Blockers
+- `gh pr create` failed due to auth mismatch (logged in as `linustruesignal`, repo owned by `linus5304`)
+- Needs manual PR creation at https://github.com/linus5304/piol/pull/new/feat/mvp-2-properties-convex
+
+### Decisions
+- Image URLs resolved in Convex query (single query vs multiple) for better performance
+- Placeholder images shown when property has no uploaded images
+- Save/heart button is local state only (will wire to Convex in mvp-6)
+- Contact button present but not wired to messaging (will wire in mvp-5)
+
+### Files Changed
+- `packages/convex/convex/properties.ts` - Enhanced getProperty to resolve image URLs
+- `apps/web/src/app/properties/[id]/page.tsx` - Complete rewrite with Convex integration
+
+### Next
+- Create PR for mvp-2/mvp-3 work (needs gh auth fix or manual creation)
+- mvp-4: Wire property creation form to Convex mutations
+
+---
+
+## Session: 2026-01-19 14:00
+
+**Focus**: Clean up uncommitted mvp-2 work and apply specs
+**Outcome**: completed
+
+### Done
+- Stashed uncommitted mvp-2 work from `docs/v0-ui-prompts` branch
+- Created proper feature branch `feat/mvp-2-properties-convex` from main
+- Applied stash and committed properly:
+  - Feature code: properties page wired to Convex
+  - Convex restructure: moved functions to `packages/convex/convex/`
+  - Specs: applied and archived `add-monorepo-constraints` proposal
+- Applied monorepo-conventions spec to `openspec/specs/`
+- Archived the change proposal to `openspec/changes/archive/`
+
+### Blockers
+- None
+
+### Decisions
+- Convex files now live at `packages/convex/convex/` per Convex CLI requirements
+- Package exports updated to point to new paths
+- Spec documents the canonical structure to prevent future confusion
+
+### Files Changed
+- All mvp-2 files (see previous session)
+- `openspec/specs/monorepo-conventions/spec.md` - Applied spec
+- `openspec/changes/archive/2026-01-19-add-monorepo-constraints/` - Archived proposal
+
+### Next
+- Push branch and create PR for mvp-2
+- Start mvp-3: property detail page
+
+---
+
+## Session: 2026-01-19 12:30
+
+**Focus**: mvp-2 - Browse properties at /properties
+**Outcome**: completed
+
+### Done
+- Removed 115 lines of mock property data from properties page
+- Added `@repo/convex` as workspace dependency to web app
+- Wired `useQuery(api.properties.listProperties)` for browsing with filters
+- Wired `useQuery(api.properties.searchProperties)` when search query >= 2 chars
+- Implemented filter mapping:
+  - City filter → Convex `city` arg (indexed query)
+  - Property type → Convex `propertyType` (apartment category filtered client-side to include 1br-4br)
+  - Price range → `minPrice`/`maxPrice` args
+  - Sort → mapped UI format (price-asc) to Convex format (price_asc)
+- Added loading skeleton components while data fetches
+- Fixed PropertyCard type to accept `landlord: ... | null` from Convex
+
+### Blockers
+- None
+
+### Decisions
+- Search triggers at 2+ characters to avoid spamming Convex with single-char queries
+- "Apartment" category includes 1br, 2br, 3br, 4br types (filtered client-side since Convex filters by exact type)
+- Used `'skip'` pattern to conditionally skip queries based on state
+
+### Files Changed
+- `apps/web/src/app/properties/page.tsx` - Main refactor
+- `apps/web/src/components/property-card.tsx` - Type fix for null landlord
+- `apps/web/package.json` - Added @repo/convex dependency
+
+### Next
+- mvp-3: Wire property detail page `/properties/[id]` to Convex `getProperty` query
+- Add real images support (currently uses placeholder images)
+
+---
+
 ## Session: 2026-01-19 11:00
 
 **Focus**: mvp-1 - Redirect to dashboard after auth

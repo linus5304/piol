@@ -10,7 +10,7 @@
     "dev:all": "turbo run dev dev:convex --parallel",
     "dev:web": "turbo run dev --filter=@repo/web",
     "dev:mobile": "turbo run dev --filter=@repo/mobile",
-    "dev:convex": "bunx convex dev",
+    "dev:convex": "cd packages/convex && bunx convex dev",
     "convex:init": "bunx convex dev --once",
     "build": "turbo run build",
     "lint": "turbo run lint",

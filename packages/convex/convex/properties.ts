@@ -317,15 +317,39 @@ export const getProperty = query({
     const avgRating =
       reviews.length > 0 ? reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length : null;
 
+    // Resolve image URLs from storage
+    const imageUrls = property.images
+      ? await Promise.all(
+          property.images.map(async (image) => {
+            const url = await ctx.storage.getUrl(image.storageId);
+            return {
+              url,
+              order: image.order,
+              caption: image.caption,
+              storageId: image.storageId,
+            };
+          })
+        )
+      : [];
+
+    // Sort images by order
+    const sortedImages = imageUrls.sort((a, b) => a.order - b.order);
+
+    // Resolve landlord profile image URL
+    const landlordProfileImageUrl = landlord?.profileImageId
+      ? await ctx.storage.getUrl(landlord.profileImageId)
+      : null;
+
     return {
       ...property,
+      imageUrls: sortedImages,
       landlord: landlord
         ? {
             _id: landlord._id,
             firstName: landlord.firstName,
             lastName: landlord.lastName,
             idVerified: landlord.idVerified,
-            profileImageId: landlord.profileImageId,
+            profileImageUrl: landlordProfileImageUrl,
           }
         : null,
       reviews: {
