@@ -4,6 +4,59 @@ Session history for AI agents working on Piol. Append new entries at the top.
 
 ---
 
+## Session: 2026-01-19 18:00
+
+**Focus**: mvp-5 - User can message landlord
+**Outcome**: completed
+
+### Done
+- Cleaned up uncommitted `next-env.d.ts` auto-generated change
+- Created new feature branch `feat/mvp-5-messaging` from main
+- Added contact dialog to property detail page (`/properties/[id]`):
+  - Dialog opens on "Contacter le propriétaire" button click
+  - Shows property preview in dialog
+  - Sends message via `sendMessage` mutation
+  - Redirects to `/dashboard/messages` after send
+  - Works on both desktop and mobile layouts
+- Wired messages list page (`/dashboard/messages`) to Convex:
+  - Uses `getConversations` query
+  - Shows other user info, property title, last message, unread count
+  - Loading skeleton and empty state
+  - Search filter for conversations
+- Wired conversation detail page (`/dashboard/messages/[id]`) to Convex:
+  - Uses `getMessages` query for message history
+  - Uses `sendMessage` mutation for new messages
+  - Uses `markMessagesAsRead` mutation (auto-marks on view)
+  - Auto-scroll to bottom on new messages
+  - Real-time updates via Convex reactive queries
+- Created `Textarea` UI component
+
+### Blockers
+- None
+
+### Decisions
+- Contact button opens dialog (compose message inline) rather than direct redirect
+- After sending first message, redirect to messages list (simpler than finding conversation ID client-side)
+- Messages marked as read when conversation view loads (useEffect)
+- Property ID extracted from conversation ID string for "View Property" link
+
+### Files Changed
+- `apps/web/src/app/properties/[id]/page.tsx` - Added contact dialog + imports
+- `apps/web/src/app/dashboard/messages/page.tsx` - Wired to getConversations
+- `apps/web/src/app/dashboard/messages/[id]/page.tsx` - Wired to getMessages + sendMessage
+- `apps/web/src/components/ui/textarea.tsx` - New component
+
+### Tests
+- Convex tests: 42/42 passed (including messages tests)
+- Web tests: 5/8 passed (3 failures are pre-existing PropertyCard i18n issues)
+- Mobile tests: failing (pre-existing Jest ESM config issue)
+
+### Next
+- mvp-6: Wire save/favorite button to savedProperties table
+- Fix pre-existing PropertyCard test issues (i18n mocking)
+
+---
+
 ## Session: 2026-01-19 16:00
 
 **Focus**: mvp-3 - Property detail page at /properties/[id]

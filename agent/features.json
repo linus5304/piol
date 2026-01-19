@@ -65,7 +65,7 @@
     {
       "id": "mvp-4",
       "name": "Landlord can create property",
-      "status": "todo",
+      "status": "done",
       "priority": 4,
       "spec": null,
       "acceptance": [
@@ -76,12 +76,12 @@
         "Property appears in landlord's dashboard"
       ],
       "blockers": [],
-      "notes": "Form UI exists at /dashboard/properties/new. Has TODO for Convex integration."
+      "notes": "Completed. Form wired to createProperty, generateUploadUrl, addPropertyImages mutations. Images uploaded sequentially. Dashboard list uses getMyProperties query."
     },
     {
       "id": "mvp-5",
       "name": "User can message landlord",
-      "status": "todo",
+      "status": "done",
       "priority": 5,
       "spec": null,
       "acceptance": [
@@ -91,7 +91,7 @@
         "Real-time message updates work"
       ],
       "blockers": [],
-      "notes": "Messages schema exists. UI routes exist but need Convex wiring."
+      "notes": "Completed. Contact dialog on property detail sends via sendMessage mutation. Messages list wired to getConversations. Conversation view wired to getMessages + sendMessage + markMessagesAsRead. Real-time updates automatic via Convex useQuery."
     },
     {
       "id": "mvp-6",
