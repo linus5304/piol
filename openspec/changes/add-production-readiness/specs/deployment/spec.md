@@ -28,6 +28,47 @@ The system SHALL collect performance metrics via Vercel Analytics.
 - **WHEN** a page loads
 - **THEN** Core Web Vitals (LCP, FID, CLS) are measured and reported
 
+### Requirement: Vercel Deployment Configuration
+
+The system SHALL be deployable to Vercel with proper monorepo configuration.
+
+#### Configuration: Vercel Project Settings
+
+| Setting | Value | Notes |
+|---------|-------|-------|
+| Root Directory | *(empty)* | Use repo root for Turborepo compatibility |
+| Build Command | `npx convex deploy && turbo run build --filter=@repo/web` | Deploys Convex first, then builds web app |
+| Output Directory | `apps/web/.next` | Next.js output location |
+| Install Command | `bun install` | Auto-detected |
+
+#### Configuration: Required Environment Variables (Vercel)
+
+| Variable | Purpose | Where to get |
+|----------|---------|--------------|
+| `CONVEX_DEPLOY_KEY` | Authorizes Convex deployment | Convex Dashboard → Settings → Deploy Key |
+| `NEXT_PUBLIC_CONVEX_URL` | Client-side Convex URL | Convex Dashboard → URL |
+| `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY` | Clerk auth (client) | Clerk Dashboard → API Keys |
+| `CLERK_SECRET_KEY` | Clerk auth (server) | Clerk Dashboard → API Keys |
+| `NEXT_PUBLIC_SENTRY_DSN` | Error tracking | Sentry → Project → DSN |
+| `SENTRY_AUTH_TOKEN` | Source map uploads | Sentry → Settings → Auth Tokens |
+| `SENTRY_ORG` | Sentry organization slug | Sentry URL path |
+| `SENTRY_PROJECT` | Sentry project slug | Sentry URL path |
+
+#### Configuration: Required Environment Variables (Convex Dashboard)
+
+| Variable | Purpose |
+|----------|---------|
+| `CLERK_JWT_ISSUER_DOMAIN` | Your Clerk domain (e.g., `your-app.clerk.accounts.dev`) |
+
+#### Scenario: Successful production deploy
+- **WHEN** code is pushed to `main` branch
+- **THEN** Vercel triggers build with Convex deploy followed by Next.js build
+- **AND** the app is deployed with correct environment configuration
+
+#### Scenario: Convex deploy fails gracefully
+- **WHEN** `CONVEX_DEPLOY_KEY` is missing or invalid
+- **THEN** the build fails with clear error message before Next.js build starts
+
 ### Requirement: Environment Separation
 
 The system SHALL support separate development and production environments.
