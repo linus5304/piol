@@ -4,6 +4,39 @@ Session history for AI agents working on Piol. Append new entries at the top.
 
 ---
 
+## Session: 2026-01-19 21:30
+
+**Focus**: prod-1 - Sentry error tracking
+**Outcome**: completed
+
+### Done
+- Added prod-1 through prod-5 features to `agent/features.json` (production readiness tracking)
+- Wired `withSentryConfig` in `next.config.ts`:
+  - Source map upload support (SENTRY_AUTH_TOKEN, SENTRY_ORG, SENTRY_PROJECT)
+  - Hide source maps from client bundles
+  - Silent mode for CI
+- Updated `.env.example` with SENTRY_ORG and SENTRY_PROJECT vars
+- Verified build passes with Sentry integration
+
+### Blockers
+- None
+
+### Decisions
+- Sentry enabled only when DSN is set (graceful degradation)
+- Source maps uploaded only when auth token present
+- Trace sample rate: 10% in prod, 100% in dev
+
+### Files Changed
+- `apps/web/next.config.ts` - Added withSentryConfig wrapper
+- `.env.example` - Added SENTRY_ORG, SENTRY_PROJECT
+- `agent/features.json` - Added prod-1 through prod-5 features
+- `agent/scratchpad.md` - Updated current context
+
+### Next
+- prod-2: Vercel Analytics (@vercel/analytics, @vercel/speed-insights)
+
+---
+
 ## Session: 2026-01-19 19:30
 
 **Focus**: mvp-6 - User can save properties
