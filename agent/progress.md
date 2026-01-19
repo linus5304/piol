@@ -7,26 +7,30 @@ Session history for AI agents working on Piol. Append new entries at the top.
 ## Session: 2026-01-19 11:00
 
 **Focus**: mvp-1 - Redirect to dashboard after auth
-**Outcome**: completed
+**Outcome**: completed (was already implemented)
 
 ### Done
-- Created `apps/web/src/middleware.ts` using Clerk v6 `clerkMiddleware`
-- Protected `/dashboard(.*)` routes — unauthenticated users redirect to `/sign-in`
-- Implemented demo mode bypass (when Clerk not configured)
-- Verified redirect props already set correctly in SignIn/SignUp components
+- Verified mvp-1 was already complete via existing `proxy.ts`
+- Initially created `middleware.ts` (wrong — Next.js 16 uses `proxy.ts`)
+- Consulted Next.js 16 docs and Clerk docs to understand the convention change
+- Deleted redundant `middleware.ts`
+- Confirmed `proxy.ts` correctly uses `clerkMiddleware` + `auth.protect()`
 
 ### Blockers
 - None
 
 ### Decisions
-- Used `createRouteMatcher` pattern for cleaner route matching
-- Demo mode checks env var directly in middleware (can't use client-side helpers)
-- Public routes include `/properties` so users can browse without auth
+- Next.js 16 renamed `middleware.ts` → `proxy.ts` and export `middleware` → `proxy`
+- Clerk docs now reference `proxy.ts` for Next.js 16+
+- Existing `proxy.ts` already handles all acceptance criteria correctly
+
+### Key Learning
+- Always check existing codebase before creating new files
+- Next.js 16 breaking change: middleware → proxy convention
 
 ### Next
 - mvp-2: Wire properties page to Convex (replace mock data with useQuery)
-- Check `packages/convex/properties.ts` for available queries
-- Check if seed data exists for testing
+- Test with agent-browser to verify auth flow works
 
 ---
 

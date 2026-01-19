@@ -28,7 +28,7 @@
         "Unauthenticated users cannot access /dashboard"
       ],
       "blockers": [],
-      "notes": "Redirects configured via Clerk fallbackRedirectUrl props. Middleware added to protect /dashboard routes. Demo mode bypasses auth check."
+      "notes": "Redirects via Clerk fallbackRedirectUrl props in SignIn/SignUp. Route protection via proxy.ts (Next.js 16 convention) using clerkMiddleware + auth.protect(). Demo mode passthrough when Clerk not configured."
     },
     {
       "id": "mvp-2",
