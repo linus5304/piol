@@ -12,6 +12,7 @@ import {
   Plus,
   Search,
   Settings,
+  Sparkles,
 } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
@@ -25,23 +26,27 @@ import {
   Sidebar,
   SidebarContent,
   SidebarFooter,
+  SidebarGroup,
+  SidebarGroupContent,
+  SidebarGroupLabel,
   SidebarHeader,
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
+  SidebarSeparator,
 } from '@/components/ui/sidebar';
 import { brand } from '@repo/ui/tokens';
 
 const renterNavigation = [
   {
-    title: 'Tableau de bord',
+    title: 'Accueil',
     url: '/dashboard',
-    icon: LayoutDashboard,
+    icon: Home,
   },
   {
-    title: 'Rechercher',
+    title: 'Propriétés',
     url: '/properties',
-    icon: Search,
+    icon: Building2,
   },
   {
     title: 'Favoris',
@@ -49,32 +54,22 @@ const renterNavigation = [
     icon: Heart,
   },
   {
-    title: 'Messages',
-    url: '/dashboard/messages',
-    icon: MessageSquare,
-  },
-  {
-    title: 'Paiements',
-    url: '/dashboard/payments',
-    icon: CreditCard,
+    title: 'Paramètres',
+    url: '/dashboard/settings',
+    icon: Settings,
   },
 ];
 
 const landlordNavigation = [
   {
-    title: 'Tableau de bord',
+    title: 'Accueil',
     url: '/dashboard',
-    icon: LayoutDashboard,
+    icon: Home,
   },
   {
-    title: 'Mes propriétés',
+    title: 'Propriétés',
     url: '/dashboard/properties',
     icon: Building2,
-  },
-  {
-    title: 'Ajouter',
-    url: '/dashboard/properties/new',
-    icon: Plus,
   },
   {
     title: 'Messages',
@@ -82,26 +77,36 @@ const landlordNavigation = [
     icon: MessageSquare,
   },
   {
-    title: 'Paiements',
-    url: '/dashboard/payments',
-    icon: CreditCard,
-  },
-];
-
-const secondaryNavigation = [
-  {
     title: 'Paramètres',
     url: '/dashboard/settings',
     icon: Settings,
   },
+];
+
+// Sample recent properties (like "Upcoming Events" in Catalyst)
+const recentProperties = [
+  { title: 'Appartement Bastos', url: '/dashboard/properties/1' },
+  { title: 'Villa Bonanjo', url: '/dashboard/properties/2' },
+  { title: 'Studio Akwa', url: '/dashboard/properties/3' },
+];
+
+const secondaryNavigation = [
   {
-    title: 'Aide',
+    title: 'Support',
     url: '/help',
     icon: HelpCircle,
   },
+  {
+    title: 'Nouveautés',
+    url: '/changelog',
+    icon: Sparkles,
+  },
 ];
 
-export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+export function AppSidebar({
+  variant = 'sidebar',
+  ...props
+}: React.ComponentProps<typeof Sidebar>) {
   const { user } = useSafeUser();
   const pathname = usePathname();
 
@@ -115,14 +120,16 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   };
 
   return (
-    <Sidebar collapsible="icon" {...props}>
+    <Sidebar collapsible="offcanvas" variant={variant} {...props}>
       <SidebarHeader>
         <SidebarMenu>
           <SidebarMenuItem>
-            <SidebarMenuButton asChild className="data-[slot=sidebar-menu-button]:!p-1.5">
+            <SidebarMenuButton asChild size="lg" className="data-[slot=sidebar-menu-button]:!p-2">
               <Link href="/" className="flex items-center gap-2">
-                <LogoIcon size={24} className="shrink-0" />
-                <span className="text-base font-semibold tracking-tight">{brand.name}</span>
+                <div className="flex h-8 w-8 items-center justify-center rounded-md bg-primary text-primary-foreground">
+                  <LogoIcon size={18} className="shrink-0" />
+                </div>
+                <span className="text-base font-semibold">{brand.name}</span>
               </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
@@ -130,6 +137,29 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       </SidebarHeader>
       <SidebarContent>
         <NavMain items={navItems} />
+
+        {/* Recent Properties Section (like Upcoming Events) */}
+        {role === 'landlord' && (
+          <SidebarGroup>
+            <SidebarGroupLabel className="text-sidebar-muted text-xs font-medium uppercase tracking-wider">
+              Propriétés récentes
+            </SidebarGroupLabel>
+            <SidebarGroupContent>
+              <SidebarMenu>
+                {recentProperties.map((property) => (
+                  <SidebarMenuItem key={property.title}>
+                    <SidebarMenuButton asChild>
+                      <Link href={property.url}>
+                        <span>{property.title}</span>
+                      </Link>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                ))}
+              </SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
+        )}
+
         <NavSecondary items={secondaryNavigation} className="mt-auto" />
       </SidebarContent>
       <SidebarFooter>

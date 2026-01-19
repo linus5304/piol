@@ -1,14 +1,14 @@
-import type { Metadata, Viewport } from 'next';
+import { enUS, frFR } from '@clerk/localizations';
 import { ClerkProvider } from '@clerk/nextjs';
-import { frFR, enUS } from '@clerk/localizations';
+import type { Metadata, Viewport } from 'next';
 import { NextIntlClientProvider } from 'next-intl';
-import { getMessages, getLocale } from 'next-intl/server';
+import { getLocale, getMessages } from 'next-intl/server';
 import { JetBrains_Mono, Nunito_Sans } from 'next/font/google';
 import './globals.css';
-import { Toaster } from '@/components/ui/sonner';
-import { Providers } from './providers';
 import { ConnectionStatus } from '@/components/connection-status';
+import { Toaster } from '@/components/ui/sonner';
 import { env, isClerkConfigured } from '@/lib/env';
+import { Providers } from './providers';
 
 // Nunito Sans - warmer, more approachable font
 const nunitoSans = Nunito_Sans({

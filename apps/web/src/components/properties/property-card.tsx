@@ -93,7 +93,7 @@ export function PropertyCard({ property, onFavoriteToggle }: PropertyCardProps) 
             className="flex h-full snap-x snap-mandatory overflow-x-auto scrollbar-hide"
             style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
           >
-            {images.map((image) => (
+            {images.map((image, index) => (
               <div key={image} className="relative h-full w-full flex-shrink-0 snap-center">
                 <Image
                   src={image || '/placeholder.svg'}
