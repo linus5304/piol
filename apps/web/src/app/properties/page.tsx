@@ -13,6 +13,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { Skeleton } from '@/components/ui/skeleton';
+import { api } from '@repo/convex/_generated/api';
+import { useQuery } from 'convex/react';
 import {
   Building2,
   Castle,
@@ -27,7 +30,6 @@ import {
   X,
 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
-import Link from 'next/link';
 import { useMemo, useState } from 'react';
 
 const cities = ['Douala', 'Yaoundé', 'Bafoussam', 'Buea', 'Kribi', 'Limbé', 'Bamenda', 'Garoua'];
@@ -50,121 +52,72 @@ const priceRanges = [
   { value: '500000+', label: 'Plus de 500 000 FCFA' },
 ];
 
-// Mock properties for demo
-const allProperties = [
-  {
-    _id: '1',
-    title: 'Bel appartement à Makepe',
-    propertyType: '2br' as const,
-    rentAmount: 150000,
-    currency: 'XAF',
-    city: 'Douala',
-    neighborhood: 'Makepe',
-    verificationStatus: 'approved',
-    landlord: { _id: 'l1', firstName: 'Jean', lastName: 'Kamga', idVerified: true },
-    amenities: { wifi: true, parking: true, ac: true },
-    bedrooms: 2,
-    bathrooms: 1,
-  },
-  {
-    _id: '2',
-    title: 'Studio moderne Bastos',
-    propertyType: 'studio' as const,
-    rentAmount: 85000,
-    currency: 'XAF',
-    city: 'Yaoundé',
-    neighborhood: 'Bastos',
-    verificationStatus: 'approved',
-    landlord: { _id: 'l2', firstName: 'Marie', lastName: 'Fotso', idVerified: true },
-    amenities: { wifi: true, security: true },
-    bedrooms: 1,
-    bathrooms: 1,
-  },
-  {
-    _id: '3',
-    title: 'Villa 4 chambres avec piscine',
-    propertyType: 'villa' as const,
-    rentAmount: 500000,
-    currency: 'XAF',
-    city: 'Douala',
-    neighborhood: 'Bonanjo',
-    verificationStatus: 'approved',
-    landlord: { _id: 'l3', firstName: 'Paul', lastName: 'Mbarga', idVerified: true },
-    amenities: { wifi: true, parking: true, ac: true, pool: true, security: true },
-    bedrooms: 4,
-    bathrooms: 3,
-  },
-  {
-    _id: '4',
-    title: 'Appartement 3 chambres Bonapriso',
-    propertyType: '3br' as const,
-    rentAmount: 250000,
-    currency: 'XAF',
-    city: 'Douala',
-    neighborhood: 'Bonapriso',
-    verificationStatus: 'approved',
-    landlord: { _id: 'l4', firstName: 'Alice', lastName: 'Ngo', idVerified: true },
-    amenities: { wifi: true, parking: true, balcony: true },
-    bedrooms: 3,
-    bathrooms: 2,
-  },
-  {
-    _id: '5',
-    title: 'Maison familiale Buea',
-    propertyType: 'house' as const,
-    rentAmount: 180000,
-    currency: 'XAF',
-    city: 'Buea',
-    neighborhood: 'Mile 17',
-    verificationStatus: 'approved',
-    landlord: { _id: 'l5', firstName: 'Peter', lastName: 'Tabi', idVerified: true },
-    amenities: { parking: true, garden: true },
-    bedrooms: 3,
-    bathrooms: 2,
-  },
-  {
-    _id: '6',
-    title: 'Studio étudiant Ngoa-Ekelle',
-    propertyType: 'studio' as const,
-    rentAmount: 45000,
-    currency: 'XAF',
-    city: 'Yaoundé',
-    neighborhood: 'Ngoa-Ekelle',
-    verificationStatus: 'approved',
-    landlord: { _id: 'l6', firstName: 'Sophie', lastName: 'Bella', idVerified: false },
-    amenities: { wifi: true },
-    bedrooms: 1,
-    bathrooms: 1,
-  },
-  {
-    _id: '7',
-    title: 'Loft spacieux centre-ville',
-    propertyType: 'apartment' as const,
-    rentAmount: 120000,
-    currency: 'XAF',
-    city: 'Douala',
-    neighborhood: 'Akwa',
-    verificationStatus: 'approved',
-    landlord: { _id: 'l7', firstName: 'Emmanuel', lastName: 'Ndong', idVerified: true },
-    amenities: { wifi: true, ac: true },
-    bedrooms: 2,
-    bathrooms: 1,
-  },
-  {
-    _id: '8',
-    title: 'Maison traditionnelle Foumban',
-    propertyType: 'house' as const,
-    rentAmount: 95000,
-    currency: 'XAF',
-    city: 'Bafoussam',
-    neighborhood: 'Centre',
-    verificationStatus: 'approved',
-    landlord: { _id: 'l8', firstName: 'Ibrahim', lastName: 'Njoya', idVerified: true },
-    amenities: { parking: true, garden: true },
-    bedrooms: 4,
-    bathrooms: 2,
-  },
-];
+// Map UI sort values to Convex format
+const sortByMap: Record<string, 'price_asc' | 'price_desc' | 'newest' | 'oldest'> = {
+  newest: 'newest',
+  'price-asc': 'price_asc',
+  'price-desc': 'price_desc',
+};
+
+// Parse price range string into min/max values
+function parsePriceRange(range: string): { minPrice?: number; maxPrice?: number } {
+  if (range === 'all') return {};
+  if (range.endsWith('+')) {
+    return { minPrice: Number(range.replace('+', '')) };
+  }
+  const [min, max] = range.split('-').map(Number);
+  return { minPrice: min, maxPrice: max };
+}
+
+// Type for property data (matches PropertyCard props)
+type PropertyWithLandlord = {
+  _id: string;
+  _creationTime?: number;
+  title: string;
+  propertyType: string;
+  rentAmount: number;
+  currency: string;
+  city: string;
+  neighborhood?: string;
+  verificationStatus?: string;
+  status?: string;
+  images?: { url?: string; storageId?: string }[];
+  amenities?: {
+    wifi?: boolean;
+    parking?: boolean;
+    ac?: boolean;
+    security?: boolean;
+    pool?: boolean;
+    balcony?: boolean;
+    garden?: boolean;
+  };
+  bedrooms?: number;
+  bathrooms?: number;
+  landlordId?: string;
+  landlordName?: string;
+  landlordVerified?: boolean;
+  landlord?: {
+    _id: string;
+    firstName: string;
+    lastName: string;
+    idVerified: boolean;
+  } | null;
+};
+
+// Property card skeleton for loading state
+function PropertyCardSkeleton() {
+  return (
+    <div className="rounded-xl overflow-hidden">
+      <Skeleton className="aspect-[4/3] w-full" />
+      <div className="p-4 space-y-2">
+        <Skeleton className="h-4 w-3/4" />
+        <Skeleton className="h-4 w-1/2" />
+        <Skeleton className="h-4 w-1/4" />
+        <Skeleton className="h-6 w-1/3 mt-2" />
+      </div>
+    </div>
+  );
+}
 
 export default function PropertiesPage() {
   const t = useTranslations();
@@ -176,26 +129,71 @@ export default function PropertiesPage() {
   const [viewMode, setViewMode] = useState<'grid' | 'map'>('grid');
   const [sortBy, setSortBy] = useState('newest');
 
-  const propertiesResult = useMemo(() => {
-    let filtered = allProperties;
+  // Build query args from filter state
+  const { minPrice, maxPrice } = parsePriceRange(priceRange);
+  const convexSortBy = sortByMap[sortBy] || 'newest';
 
-    if (searchQuery) {
-      const query = searchQuery.toLowerCase();
-      filtered = filtered.filter(
-        (p) =>
-          p.title.toLowerCase().includes(query) ||
-          p.city.toLowerCase().includes(query) ||
-          p.neighborhood.toLowerCase().includes(query)
-      );
+  // Map category to propertyType (null means no filter)
+  // Note: 'apartment' category includes apartment, 1br, 2br, 3br, 4br but Convex
+  // filters by exact type, so we only pass specific types to the query
+  const propertyTypeArg = useMemo(() => {
+    if (selectedCategory === 'all' || selectedCategory === 'apartment') return undefined;
+    if (['studio', 'house', 'villa'].includes(selectedCategory)) {
+      return selectedCategory as 'studio' | 'house' | 'villa';
     }
+    return undefined;
+  }, [selectedCategory]);
 
-    if (selectedCity) {
-      filtered = filtered.filter((p) => p.city === selectedCity);
-    }
+  // Use search query when user types, otherwise use listProperties
+  const searchResults = useQuery(
+    api.properties.searchProperties,
+    searchQuery.trim().length >= 2
+      ? {
+          searchQuery: searchQuery.trim(),
+          city: selectedCity,
+          propertyType: propertyTypeArg,
+          limit: 50,
+        }
+      : 'skip'
+  );
 
-    if (selectedCategory && selectedCategory !== 'all') {
+  const listResults = useQuery(
+    api.properties.listProperties,
+    searchQuery.trim().length < 2
+      ? {
+          city: selectedCity,
+          propertyType: propertyTypeArg,
+          minPrice,
+          maxPrice,
+          sortBy: convexSortBy,
+          limit: 50,
+        }
+      : 'skip'
+  );
+
+  // Combine results based on which query is active
+  const propertiesResult = useMemo((): {
+    properties: PropertyWithLandlord[];
+    total: number;
+    isLoading: boolean;
+  } => {
+    const isSearching = searchQuery.trim().length >= 2;
+
+    if (isSearching) {
+      if (searchResults === undefined) {
+        return { properties: [], total: 0, isLoading: true };
+      }
+      // Filter search results by price range client-side (search query doesn't support it)
+      let properties = searchResults as PropertyWithLandlord[];
+      if (minPrice !== undefined) {
+        properties = properties.filter((p) => p.rentAmount >= minPrice);
+      }
+      if (maxPrice !== undefined) {
+        properties = properties.filter((p) => p.rentAmount <= maxPrice);
+      }
+      // Apply apartment category filter client-side (includes 1br, 2br, etc)
       if (selectedCategory === 'apartment') {
-        filtered = filtered.filter(
+        properties = properties.filter(
           (p) =>
             p.propertyType === 'apartment' ||
             p.propertyType === '1br' ||
@@ -203,29 +201,33 @@ export default function PropertiesPage() {
             p.propertyType === '3br' ||
             p.propertyType === '4br'
         );
-      } else {
-        filtered = filtered.filter((p) => p.propertyType === selectedCategory);
       }
+      return { properties, total: properties.length, isLoading: false };
     }
 
-    if (priceRange && priceRange !== 'all') {
-      const [min, max] = priceRange.split('-').map((v) => (v === '' ? undefined : Number(v)));
-      if (priceRange.endsWith('+')) {
-        const minValue = Number(priceRange.replace('+', ''));
-        filtered = filtered.filter((p) => p.rentAmount >= minValue);
-      } else if (min !== undefined && max !== undefined) {
-        filtered = filtered.filter((p) => p.rentAmount >= min && p.rentAmount <= max);
-      }
+    if (listResults === undefined) {
+      return { properties: [], total: 0, isLoading: true };
     }
 
-    if (sortBy === 'price-asc') {
-      filtered = [...filtered].sort((a, b) => a.rentAmount - b.rentAmount);
-    } else if (sortBy === 'price-desc') {
-      filtered = [...filtered].sort((a, b) => b.rentAmount - a.rentAmount);
+    // Apply apartment category filter client-side
+    let properties = listResults.properties as PropertyWithLandlord[];
+    if (selectedCategory === 'apartment') {
+      properties = properties.filter(
+        (p) =>
+          p.propertyType === 'apartment' ||
+          p.propertyType === '1br' ||
+          p.propertyType === '2br' ||
+          p.propertyType === '3br' ||
+          p.propertyType === '4br'
+      );
     }
 
-    return { properties: filtered, total: filtered.length };
-  }, [searchQuery, selectedCity, selectedCategory, priceRange, sortBy]);
+    return {
+      properties,
+      total: properties.length,
+      isLoading: false,
+    };
+  }, [searchQuery, searchResults, listResults, minPrice, maxPrice, selectedCategory]);
 
   const activeFiltersCount = [
     selectedCity,
@@ -420,11 +422,21 @@ export default function PropertiesPage() {
         {/* Properties Grid */}
         {viewMode === 'grid' ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {propertiesResult.properties.map((property) => (
-              <PropertyCard key={property._id} property={property} />
-            ))}
+            {/* Loading skeletons */}
+            {propertiesResult.isLoading &&
+              Array.from({ length: 8 }).map((_, i) => (
+                // biome-ignore lint/suspicious/noArrayIndexKey: static skeleton placeholders
+                <PropertyCardSkeleton key={`skeleton-${i}`} />
+              ))}
 
-            {propertiesResult.properties.length === 0 && (
+            {/* Property cards */}
+            {!propertiesResult.isLoading &&
+              propertiesResult.properties.map((property) => (
+                <PropertyCard key={property._id} property={property} />
+              ))}
+
+            {/* Empty state */}
+            {!propertiesResult.isLoading && propertiesResult.properties.length === 0 && (
               <div className="col-span-full text-center py-16">
                 <div className="w-16 h-16 mx-auto mb-6 bg-muted flex items-center justify-center rounded-2xl">
                   <Search className="w-8 h-8 text-muted-foreground" />
@@ -442,13 +454,22 @@ export default function PropertiesPage() {
         ) : (
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 h-[calc(100vh-300px)]">
             <div className="overflow-y-auto space-y-4 pr-4">
-              {propertiesResult.properties.map((property) => (
-                <PropertyCard key={property._id} property={property} variant="horizontal" />
-              ))}
+              {/* Loading skeletons for horizontal view */}
+              {propertiesResult.isLoading &&
+                Array.from({ length: 4 }).map((_, i) => (
+                  // biome-ignore lint/suspicious/noArrayIndexKey: static skeleton placeholders
+                  <Skeleton key={`h-skeleton-${i}`} className="h-32 w-full rounded-xl" />
+                ))}
+
+              {/* Property cards */}
+              {!propertiesResult.isLoading &&
+                propertiesResult.properties.map((property) => (
+                  <PropertyCard key={property._id} property={property} variant="horizontal" />
+                ))}
             </div>
             <Card className="flex items-center justify-center rounded-xl">
               <CardContent className="text-center">
-                <Map className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
+                <MapIcon className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
                 <p className="text-muted-foreground">{t('properties.mapComingSoon')}</p>
               </CardContent>
             </Card>
@@ -474,7 +495,7 @@ export default function PropertiesPage() {
         >
           {viewMode === 'grid' ? (
             <>
-              <Map className="w-4 h-4 mr-2" />
+              <MapIcon className="w-4 h-4 mr-2" />
               {t('properties.showMap')}
             </>
           ) : (

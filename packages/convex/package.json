@@ -2,12 +2,12 @@
   "name": "@repo/convex",
   "version": "0.0.0",
   "private": true,
-  "main": "./_generated/api.js",
-  "types": "./_generated/api.d.ts",
+  "main": "./convex/_generated/api.js",
+  "types": "./convex/_generated/api.d.ts",
   "exports": {
-    "./_generated/api": "./_generated/api.js",
-    "./_generated/dataModel": "./_generated/dataModel.d.ts",
-    "./schema": "./schema.ts"
+    "./_generated/api": "./convex/_generated/api.js",
+    "./_generated/dataModel": "./convex/_generated/dataModel.d.ts",
+    "./schema": "./convex/schema.ts"
   },
   "scripts": {
     "dev:convex": "convex dev",
@@ -16,7 +16,7 @@
     "test": "vitest run"
   },
   "dependencies": {
-    "convex": "^1.31.2",
+    "convex": "^1.31.5",
     "svix": "^1.44.0"
   },
   "devDependencies": {

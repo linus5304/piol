@@ -40,7 +40,7 @@ interface PropertyCardProps {
       firstName: string;
       lastName: string;
       idVerified: boolean;
-    };
+    } | null;
     amenities?: {
       wifi?: boolean;
       parking?: boolean;
