@@ -14,6 +14,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Skeleton } from '@/components/ui/skeleton';
+import { useEnsureUser } from '@/hooks/use-ensure-user';
 import { api } from '@repo/convex/_generated/api';
 import type { Id } from '@repo/convex/_generated/dataModel';
 import { useMutation, useQuery } from 'convex/react';
@@ -130,6 +131,9 @@ export default function PropertiesPage() {
   const [viewMode, setViewMode] = useState<'grid' | 'map'>('grid');
   const [sortBy, setSortBy] = useState('newest');
 
+  // Ensure user exists in Convex when authenticated
+  useEnsureUser();
+
   // Build query args from filter state
   const { minPrice, maxPrice } = parsePriceRange(priceRange);
   const convexSortBy = sortByMap[sortBy] || 'newest';
@@ -181,8 +185,16 @@ export default function PropertiesPage() {
   }, [savedPropertyIds]);
 
   const handleToggleSave = useCallback(
-    (propertyId: string) => {
-      toggleSaveProperty({ propertyId: propertyId as Id<'properties'> });
+    async (propertyId: string) => {
+      try {
+        const result = await toggleSaveProperty({
+          propertyId: propertyId as Id<'properties'>,
+        });
+        console.log('[Save] Toggle result:', result);
+      } catch (error) {
+        console.error('[Save] Failed to toggle save:', error);
+        // TODO: Show toast notification to user
+      }
     },
     [toggleSaveProperty]
   );

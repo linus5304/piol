@@ -31,10 +31,15 @@ export default function SavedPropertiesPage() {
   const savedProperties = savedPropertiesData ?? [];
 
   const handleToggleSave = useCallback(
-    (propertyId: string) => {
-      toggleSaveProperty({
-        propertyId: propertyId as Parameters<typeof toggleSaveProperty>[0]['propertyId'],
-      });
+    async (propertyId: string) => {
+      try {
+        const result = await toggleSaveProperty({
+          propertyId: propertyId as Parameters<typeof toggleSaveProperty>[0]['propertyId'],
+        });
+        console.log('[Save] Toggle result:', result);
+      } catch (error) {
+        console.error('[Save] Failed to toggle save:', error);
+      }
     },
     [toggleSaveProperty]
   );
