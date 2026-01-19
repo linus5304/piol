@@ -1,5 +1,18 @@
 [
   {
+    "email": "linus@truesignaldigital.com",
+    "role": "landlord",
+    "firstName": "Linus",
+    "lastName": "Bayere",
+    "languagePreference": "en",
+    "emailVerified": true,
+    "phoneVerified": false,
+    "idVerified": true,
+    "isActive": true,
+    "onboardingCompleted": true,
+    "_comment": "Real user - clerkId will be matched from existing record"
+  },
+  {
     "clerkId": "user_seed_landlord_1",
     "email": "landlord1@example.com",
     "phone": "237699123456",

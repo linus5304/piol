@@ -36,6 +36,33 @@ bun run dev          # Web + Convex
 bun run dev:convex   # Convex only
 ```
 
+## Required Setup
+
+### Convex Environment Variables
+
+Set these in **Convex Dashboard → Settings → Environment Variables** (not in `.env.local`):
+
+| Variable | Description | Where to find |
+|----------|-------------|---------------|
+| `CLERK_JWT_ISSUER_DOMAIN` | Your Clerk domain (e.g., `your-app.clerk.accounts.dev`) | Clerk Dashboard → API Keys |
+
+Without this, you'll see: `"No auth provider found matching the given token (no providers configured)"`
+
+### Clerk JWT Template
+
+Create a JWT template named `convex` in **Clerk Dashboard → JWT Templates** with default claims.
+
+### Seed Data
+
+After setting up auth, seed realistic data:
+
+```bash
+bun run seed        # Populate with test properties
+bun run seed:reset  # Clear and re-seed
+```
+
+The seed uses your real user (linus@truesignaldigital.com) as a landlord if it exists in Convex.
+
 ## MVP Focus (Web Only)
 
 1. [x] Auth pages exist (sign-up, sign-in)

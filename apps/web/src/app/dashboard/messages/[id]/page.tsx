@@ -3,70 +3,126 @@
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Skeleton } from '@/components/ui/skeleton';
 import { cn } from '@/lib/utils';
+import { api } from '@repo/convex/_generated/api';
+import { useMutation, useQuery } from 'convex/react';
+import { Loader2, Send } from 'lucide-react';
 import Link from 'next/link';
-import { useState } from 'react';
+import { use, useEffect, useRef, useState } from 'react';
 
-// Mock conversation data
-const mockMessages = [
-  {
-    id: '1',
-    senderId: 'other',
-    text: 'Bonjour, la propriété est-elle toujours disponible?',
-    timestamp: new Date(Date.now() - 1000 * 60 * 60 * 2),
-  },
-  {
-    id: '2',
-    senderId: 'me',
-    text: 'Bonjour! Oui, elle est toujours disponible. Êtes-vous intéressé pour une visite?',
-    timestamp: new Date(Date.now() - 1000 * 60 * 60 * 1.5),
-  },
-  {
-    id: '3',
-    senderId: 'other',
-    text: 'Oui, je serais très intéressé. Quand serait-il possible de visiter?',
-    timestamp: new Date(Date.now() - 1000 * 60 * 60),
-  },
-  {
-    id: '4',
-    senderId: 'me',
-    text: 'Je suis disponible samedi matin ou dimanche après-midi. Quelle date vous conviendrait?',
-    timestamp: new Date(Date.now() - 1000 * 60 * 30),
-  },
-];
-
-const otherUser = {
-  name: 'Jean Kamga',
-  verified: true,
-};
-
-const property = {
-  title: 'Appartement 2 chambres - Makepe',
-  price: '150 000 FCFA/mois',
-};
-
-function formatTime(date: Date): string {
-  return date.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+function formatTime(timestamp: number): string {
+  return new Date(timestamp).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
 }
 
-export default function ConversationPage({ params }: { params: { id: string } }) {
+function getInitials(firstName?: string | null, lastName?: string | null): string {
+  const first = firstName?.[0] || '';
+  const last = lastName?.[0] || '';
+  return (first + last).toUpperCase() || '?';
+}
+
+export default function ConversationPage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = use(params);
+  const conversationId = decodeURIComponent(id);
+
   const [newMessage, setNewMessage] = useState('');
-  const [messages, setMessages] = useState(mockMessages);
+  const [isSending, setIsSending] = useState(false);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  const handleSend = () => {
-    if (!newMessage.trim()) return;
+  // Fetch messages and conversations for context
+  const messagesData = useQuery(api.messages.getMessages, { conversationId });
+  const conversations = useQuery(api.messages.getConversations);
 
-    setMessages([
-      ...messages,
-      {
-        id: Date.now().toString(),
-        senderId: 'me',
-        text: newMessage,
-        timestamp: new Date(),
-      },
-    ]);
-    setNewMessage('');
+  const sendMessage = useMutation(api.messages.sendMessage);
+  const markAsRead = useMutation(api.messages.markMessagesAsRead);
+
+  // Find the current conversation to get other user and property info
+  const currentConversation = conversations?.find((c) => c.conversationId === conversationId);
+  const otherUser = currentConversation?.otherUser;
+  const property = currentConversation?.property;
+
+  // Extract property ID from conversation ID if it exists (format: {userId}_{userId}_{propertyId})
+  const propertyIdFromConversation = conversationId.split('_')[2] as
+    | Parameters<typeof sendMessage>[0]['propertyId']
+    | undefined;
+
+  // Mark messages as read when viewing
+  const messages = messagesData?.messages;
+  useEffect(() => {
+    if (messages && messages.length > 0) {
+      markAsRead({ conversationId }).catch(console.error);
+    }
+  }, [conversationId, messages, markAsRead]);
+
+  // Scroll to bottom when new messages arrive
+  const messagesLength = messages?.length ?? 0;
+  useEffect(() => {
+    if (messagesLength > 0) {
+      messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    }
+  }, [messagesLength]);
+
+  const handleSend = async () => {
+    if (!newMessage.trim() || !otherUser?._id) return;
+
+    setIsSending(true);
+    try {
+      await sendMessage({
+        recipientId: otherUser._id,
+        propertyId: propertyIdFromConversation,
+        messageText: newMessage.trim(),
+      });
+      setNewMessage('');
+    } catch (error) {
+      console.error('Failed to send message:', error);
+    } finally {
+      setIsSending(false);
+    }
   };
+
+  // Loading state
+  if (messagesData === undefined || conversations === undefined) {
+    return (
+      <div className="flex flex-col h-[calc(100vh-12rem)]">
+        {/* Header Skeleton */}
+        <div className="flex items-center gap-4 pb-4 border-b">
+          <Skeleton className="h-4 w-16" />
+          <Skeleton className="h-10 w-10 rounded-full" />
+          <div className="flex-1 space-y-2">
+            <Skeleton className="h-4 w-32" />
+            <Skeleton className="h-3 w-48" />
+          </div>
+        </div>
+
+        {/* Property Preview Skeleton */}
+        <div className="my-4 p-3 bg-gray-50 rounded-lg border">
+          <div className="flex items-center gap-3">
+            <Skeleton className="w-16 h-16 rounded-lg" />
+            <div className="space-y-2">
+              <Skeleton className="h-4 w-40" />
+              <Skeleton className="h-3 w-24" />
+            </div>
+          </div>
+        </div>
+
+        {/* Messages Skeleton */}
+        <div className="flex-1 space-y-4 py-4">
+          {[1, 2, 3, 4].map((i) => (
+            <div key={i} className={cn('flex', i % 2 === 0 ? 'justify-end' : 'justify-start')}>
+              <Skeleton className="h-16 w-64 rounded-2xl" />
+            </div>
+          ))}
+        </div>
+
+        {/* Input Skeleton */}
+        <div className="pt-4 border-t">
+          <Skeleton className="h-10 w-full" />
+        </div>
+      </div>
+    );
+  }
+
+  const displayMessages = messages || [];
 
   return (
     <div className="flex flex-col h-[calc(100vh-12rem)]">
@@ -78,62 +134,73 @@ export default function ConversationPage({ params }: { params: { id: string } })
         <div className="flex items-center gap-3 flex-1">
           <Avatar className="h-10 w-10">
             <AvatarFallback className="bg-gray-200">
-              {otherUser.name.slice(0, 2).toUpperCase()}
+              {getInitials(otherUser?.firstName, otherUser?.lastName)}
             </AvatarFallback>
           </Avatar>
           <div>
             <div className="flex items-center gap-2">
-              <span className="font-medium">{otherUser.name}</span>
-              {otherUser.verified && <span className="text-green-500 text-sm">✓ Vérifié</span>}
+              <span className="font-medium">
+                {otherUser?.firstName || 'Utilisateur'} {otherUser?.lastName || ''}
+              </span>
             </div>
-            <p className="text-sm text-gray-500">{property.title}</p>
+            {property && <p className="text-sm text-gray-500">{property.title}</p>}
           </div>
         </div>
-        <Link href={`/properties/${params.id}`}>
-          <Button variant="outline" size="sm">
-            Voir la propriété
-          </Button>
-        </Link>
+        {propertyIdFromConversation && (
+          <Link href={`/properties/${propertyIdFromConversation}`}>
+            <Button variant="outline" size="sm">
+              Voir la propriété
+            </Button>
+          </Link>
+        )}
       </div>
 
       {/* Property Preview Card */}
-      <div className="my-4 p-3 bg-gray-50 rounded-lg border">
-        <div className="flex items-center gap-3">
-          <div className="w-16 h-16 bg-gray-200 rounded-lg flex items-center justify-center text-2xl">
-            🏠
-          </div>
-          <div>
-            <p className="font-medium text-gray-900">{property.title}</p>
-            <p className="text-sm text-[#FF385C] font-medium">{property.price}</p>
+      {property && (
+        <div className="my-4 p-3 bg-gray-50 rounded-lg border">
+          <div className="flex items-center gap-3">
+            <div className="w-16 h-16 bg-gray-200 rounded-lg flex items-center justify-center text-2xl">
+              🏠
+            </div>
+            <div>
+              <p className="font-medium text-gray-900">{property.title}</p>
+            </div>
           </div>
         </div>
-      </div>
+      )}
 
       {/* Messages */}
       <div className="flex-1 overflow-y-auto space-y-4 py-4">
-        {messages.map((message) => (
-          <div
-            key={message.id}
-            className={cn('flex', message.senderId === 'me' ? 'justify-end' : 'justify-start')}
-          >
+        {displayMessages.length === 0 ? (
+          <div className="flex items-center justify-center h-full text-gray-500">
+            <p>Aucun message. Commencez la conversation!</p>
+          </div>
+        ) : (
+          displayMessages.map((message) => (
             <div
-              className={cn(
-                'max-w-[70%] rounded-2xl px-4 py-2',
-                message.senderId === 'me' ? 'bg-[#FF385C] text-white' : 'bg-gray-100 text-gray-900'
-              )}
+              key={message._id}
+              className={cn('flex', message.isFromMe ? 'justify-end' : 'justify-start')}
             >
-              <p>{message.text}</p>
-              <p
+              <div
                 className={cn(
-                  'text-xs mt-1',
-                  message.senderId === 'me' ? 'text-white/70' : 'text-gray-500'
+                  'max-w-[70%] rounded-2xl px-4 py-2',
+                  message.isFromMe ? 'bg-[#FF385C] text-white' : 'bg-gray-100 text-gray-900'
                 )}
               >
-                {formatTime(message.timestamp)}
-              </p>
+                <p>{message.messageText}</p>
+                <p
+                  className={cn(
+                    'text-xs mt-1',
+                    message.isFromMe ? 'text-white/70' : 'text-gray-500'
+                  )}
+                >
+                  {formatTime(message._creationTime)}
+                </p>
+              </div>
             </div>
-          </div>
-        ))}
+          ))
+        )}
+        <div ref={messagesEndRef} />
       </div>
 
       {/* Message Input */}
@@ -150,9 +217,17 @@ export default function ConversationPage({ params }: { params: { id: string } })
             value={newMessage}
             onChange={(e) => setNewMessage(e.target.value)}
             className="flex-1"
+            disabled={isSending}
           />
-          <Button type="submit" disabled={!newMessage.trim()}>
-            Envoyer
+          <Button type="submit" disabled={!newMessage.trim() || isSending}>
+            {isSending ? (
+              <Loader2 className="w-4 h-4 animate-spin" />
+            ) : (
+              <>
+                <Send className="w-4 h-4 mr-2" />
+                Envoyer
+              </>
+            )}
           </Button>
         </form>
       </div>
