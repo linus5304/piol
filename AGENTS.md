@@ -1,624 +1,203 @@
-# Piol — System Design & Agent Instructions
+<!-- OPENSPEC:START -->
+# OpenSpec Instructions
 
-> Master guide for AI agents and developers working on the Cameroon Housing Marketplace
+These instructions are for AI assistants working in this project.
 
-## Quick Links
+Always open `@/openspec/AGENTS.md` when the request:
+- Mentions planning or proposals (words like proposal, spec, change, plan)
+- Introduces new capabilities, breaking changes, architecture shifts, or big performance/security work
+- Sounds ambiguous and you need the authoritative spec before coding
 
-| Document | Scope |
-|----------|-------|
-| [AGENTS.backend.md](./AGENTS.backend.md) | Convex backend, schema, auth, payments |
-| [AGENTS.frontend.md](./AGENTS.frontend.md) | Next.js web app |
-| [AGENTS.mobile.md](./AGENTS.mobile.md) | Expo/React Native mobile app |
-| [.cursor/rules.md](./.cursor/rules.md) | Code style, CI/CD, git hygiene |
+Use `@/openspec/AGENTS.md` to learn:
+- How to create and apply change proposals
+- Spec format and conventions
+- Project structure and guidelines
 
----
+Keep this managed block so 'openspec update' can refresh the instructions.
 
-## 🤖 Agent Development Harness
+<!-- OPENSPEC:END -->
 
-> Based on [Ralph Wiggum technique](https://ghuntley.com/ralph/) and [Anthropic's long-running agent harness](https://www.anthropic.com/engineering/effective-harnesses-for-long-running-agents)
+# Piol
 
-### Session Workflow
+Cameroon housing marketplace. Renters find verified properties, pay via mobile money (MTN MoMo, Orange Money), message landlords.
 
-**At session start:**
+## Stack
+
+- **Backend:** Convex (serverless + realtime DB), Clerk auth
+- **Web:** Next.js 16, React 19, Tailwind v4, shadcn/ui
+- **Mobile:** Expo 52, React Native (paused until web MVP done)
+- **Monorepo:** Turborepo + Bun
+
+## Run
+
 ```bash
-# 1. Run environment check & smoke test
-./.agent/init.sh
-
-# 2. Read progress from last session
-cat .agent/progress.md
-
-# 3. Check for blockers or decisions
-cat .agent/scratchpad.md
-
-# 4. Find next feature to work on
-cat .agent/features.json | jq '[.features[] | select(.status == "failing")] | sort_by(.priority) | .[0]'
+bun install
+bun run dev          # Web + Convex
+bun run dev:convex   # Convex only
 ```
 
-**During session:**
-- Work on **ONE feature at a time**
-- Test end-to-end before marking as passing
-- Commit after each completed feature
-- Update `scratchpad.md` with decisions/blockers
+## MVP Focus (Web Only)
 
-**At session end:**
-```bash
-# 1. Update features.json with status changes
-# 2. Add entry to progress.md
-# 3. Commit with descriptive message
-# 4. Ensure code is in mergeable state
-```
+1. [x] Auth pages exist (sign-up, sign-in)
+2. [ ] User redirected to dashboard after auth
+3. [ ] Browse properties at /properties
+4. [ ] View property detail at /properties/[id]
+5. [ ] Landlord can create property
+6. [ ] User can message landlord
+7. [ ] User can save properties
 
-### Harness Files
+## Code Style
+
+- **Formatter:** Biome (2 spaces, single quotes, semicolons)
+- **Files:** kebab-case. **Components:** PascalCase
+- **Commits:** `<scope>(<feature-id>): <description>` (e.g., `web(mvp-2): wire properties to Convex`)
+- **Branches:** `feat/`, `fix/`, `chore/` — always PR, never commit to main
+
+## Convex Patterns
+
+- **Queries:** Read-only, real-time subscriptions
+- **Mutations:** Write ops, always verify auth first
+- **Actions:** External API calls (payments, webhooks)
+- **Auth check:** `const identity = await ctx.auth.getUserIdentity(); if (!identity) throw new Error('Not authenticated');`
+
+## Schema
+
+Source of truth: `packages/convex/schema.ts`
+
+## OpenSpec
+
+Use `/openspec-proposal` to design before building new features. See `openspec/AGENTS.md` for workflow.
+
+## Agent Harness (Ralph Wiggum)
+
+Session-based workflow for AI agents. Keeps context minimal, tracks progress across sessions.
+
+### Files
 
 | File | Purpose |
 |------|---------|
-| [.agent/features.json](./.agent/features.json) | 130+ granular features with pass/fail status |
-| [.agent/progress.md](./.agent/progress.md) | Session handoff log — what was done, what's next |
-| [.agent/scratchpad.md](./.agent/scratchpad.md) | Current context, blockers, decisions |
-| [.agent/init.sh](./.agent/init.sh) | Environment check & smoke test script |
+| `agent/features.json` | MVP backlog with status, priority, acceptance criteria |
+| `agent/progress.md` | Session history (append-only) |
+| `agent/scratchpad.md` | Current working context (not committed, ephemeral) |
+| `agent/init.sh` | Run at session start to see context |
 
-### Key Principles
+### Session Workflow
 
-1. **Incremental Progress** — One feature per focus, not everything at once
-2. **Clean Handoffs** — Always leave code in mergeable state
-3. **Track Explicitly** — Update features.json and progress.md
-4. **Test Before Marking Done** — End-to-end verification, not just "code looks right"
-5. **Commit Constantly** — Every feature = revertable checkpoint
-
----
-
-## System Architecture
-
-```
-┌─────────────────────────────────────────────────────────────────────────────┐
-│                              CLIENTS                                         │
-├─────────────────────────────────┬───────────────────────────────────────────┤
-│         apps/web                │              apps/mobile                   │
-│      (Next.js 16)               │            (Expo Router)                   │
-│  ┌───────────────────────┐      │      ┌───────────────────────┐            │
-│  │   Server Components   │      │      │    React Native       │            │
-│  │   Client Components   │      │      │    Native Modules     │            │
-│  │   App Router          │      │      │    Tab Navigation     │            │
-│  └───────────┬───────────┘      │      └───────────┬───────────┘            │
-│              │                  │                  │                         │
-│              └──────────────────┼──────────────────┘                         │
-│                                 │                                            │
-│                    ┌────────────┴────────────┐                               │
-│                    │   Convex React Client   │                               │
-│                    │   (Real-time Sync)      │                               │
-│                    └────────────┬────────────┘                               │
-└─────────────────────────────────┼───────────────────────────────────────────┘
-                                  │
-                                  │ WebSocket / HTTP
-                                  │
-┌─────────────────────────────────┼───────────────────────────────────────────┐
-│                         BACKEND (packages/convex)                            │
-├─────────────────────────────────┼───────────────────────────────────────────┤
-│                    ┌────────────┴────────────┐                               │
-│                    │     Convex Runtime      │                               │
-│                    │  (Serverless Functions) │                               │
-│                    └────────────┬────────────┘                               │
-│                                 │                                            │
-│    ┌────────────────────────────┼────────────────────────────┐               │
-│    │                            │                            │               │
-│    ▼                            ▼                            ▼               │
-│ ┌──────────┐             ┌──────────┐              ┌──────────────┐          │
-│ │ Queries  │             │Mutations │              │   Actions    │          │
-│ │ (Read)   │             │ (Write)  │              │ (External)   │          │
-│ └────┬─────┘             └────┬─────┘              └──────┬───────┘          │
-│      │                        │                          │                   │
-│      └────────────────────────┴──────────────────────────┘                   │
-│                               │                                              │
-│                    ┌──────────┴──────────┐                                   │
-│                    │   Convex Database   │                                   │
-│                    │   (Document Store)  │                                   │
-│                    └─────────────────────┘                                   │
-└─────────────────────────────────────────────────────────────────────────────┘
-                                  │
-                                  │ HTTP/Webhooks
-                                  │
-┌─────────────────────────────────┼───────────────────────────────────────────┐
-│                        EXTERNAL SERVICES                                     │
-├─────────────────────────────────┼───────────────────────────────────────────┤
-│    ┌────────────────────────────┼────────────────────────────┐               │
-│    │                            │                            │               │
-│    ▼                            ▼                            ▼               │
-│ ┌──────────┐             ┌──────────────┐            ┌──────────────┐        │
-│ │  Clerk   │             │   MTN MoMo   │            │ Orange Money │        │
-│ │  (Auth)  │             │  (Payments)  │            │  (Payments)  │        │
-│ └──────────┘             └──────────────┘            └──────────────┘        │
-│                                                                              │
-│ ┌──────────┐             ┌──────────────┐            ┌──────────────┐        │
-│ │  Sentry  │             │ Convex Files │            │     CDN      │        │
-│ │ (Errors) │             │  (Storage)   │            │   (Images)   │        │
-│ └──────────┘             └──────────────┘            └──────────────┘        │
-└─────────────────────────────────────────────────────────────────────────────┘
+**Start of session:**
+```bash
+./agent/init.sh
 ```
 
----
+This shows:
+- Uncommitted work warning (if any — fix before proceeding!)
+- Feature status summary
+- Next feature to work on
+- Current context from scratchpad
+- Last session summary
 
-## Data Flow
+**During session:**
+1. Create a feature branch (if not already on one): `git checkout -b feat/<feature-id>-<description>`
+2. Work on ONE feature only (the one from init.sh)
+3. Update `agent/scratchpad.md` with decisions and notes
+4. When feature complete, update `agent/features.json`:
+   - Set status to `"done"`
+   - Add notes about what was done
 
-### 1. Property Listing Flow
+**End of session:**
+1. Append entry to `agent/progress.md`:
+   ```markdown
+   ## Session: YYYY-MM-DD HH:MM
+   
+   **Focus**: [feature id and name]
+   **Outcome**: completed | partial | blocked
+   
+   ### Done
+   - [What was accomplished]
+   
+   ### Blockers
+   - [What's blocking, if any]
+   
+   ### Decisions
+   - [Key decisions made]
+   
+   ### Next
+   - [Recommended next steps]
+   ```
+2. Update `agent/scratchpad.md` with context for next session
+3. Commit changes
+4. **Stop.** Human reviews, then starts new session.
 
-```
-Landlord creates listing
-         │
-         ▼
-┌─────────────────┐
-│  Draft Status   │  ← Can edit, add images
-└────────┬────────┘
-         │ Submit for verification
-         ▼
-┌─────────────────┐
-│    Pending      │  ← Waiting for verifier
-│  Verification   │
-└────────┬────────┘
-         │ Verifier approves
-         ▼
-┌─────────────────┐
-│    Verified     │  ← Ready to publish
-└────────┬────────┘
-         │ Landlord activates
-         ▼
-┌─────────────────┐
-│     Active      │  ← Visible to renters
-└────────┬────────┘
-         │
-    ┌────┴────┐
-    ▼         ▼
-┌───────┐ ┌────────┐
-│Rented │ │Archived│
-└───────┘ └────────┘
-```
+### Feature Status
 
-### 2. Payment Flow
+| Status | Meaning |
+|--------|---------|
+| `todo` | Not started |
+| `in_progress` | Currently being worked on (max 1) |
+| `blocked` | Waiting on external factor |
+| `done` | Verified complete |
 
-```
-Renter initiates payment
-         │
-         ▼
-┌─────────────────┐
-│    Pending      │  ← Transaction created
-└────────┬────────┘
-         │
-         ├─────────────────────────────────────────┐
-         │                                         │
-         ▼                                         ▼
-┌─────────────────┐                     ┌─────────────────┐
-│    MTN MoMo     │                     │  Orange Money   │
-│   USSD Prompt   │                     │   Web Redirect  │
-└────────┬────────┘                     └────────┬────────┘
-         │                                       │
-         └───────────────┬───────────────────────┘
-                         │ User confirms
-                         ▼
-              ┌─────────────────┐
-              │   Processing    │  ← Waiting for callback
-              └────────┬────────┘
-                       │ Webhook received
-                       ▼
-              ┌─────────────────┐
-              │    Completed    │  ← Funds in escrow
-              │   (Escrow Held) │
-              └────────┬────────┘
-                       │ Admin releases (after move-in)
-                       ▼
-              ┌─────────────────┐
-              │    Released     │  ← 95% to landlord
-              │ (5% commission) │     5% platform fee
-              └─────────────────┘
-```
+### Why This Workflow
 
-### 3. Messaging Flow
+- **Fresh context each session** — Prevents agent degradation from context overload
+- **Human checkpoint** — Review between sessions catches mistakes early
+- **External state** — Files are memory, not conversation history
+- **One feature focus** — Prevents scope creep
 
-```
-Renter views property
-         │
-         ▼
-┌─────────────────┐
-│ Contact Button  │
-└────────┬────────┘
-         │
-         ▼
-┌─────────────────────────────────────┐
-│     Conversation Created            │
-│  ID: {renterId}_{landlordId}_{propId}│
-└────────┬────────────────────────────┘
-         │
-         ▼
-┌─────────────────┐     ┌─────────────────┐
-│  Send Message   │────▶│  Notification   │
-│   (Mutation)    │     │    Created      │
-└────────┬────────┘     └─────────────────┘
-         │
-         ▼
-┌─────────────────┐
-│ Real-time Sync  │  ← Recipient sees instantly
-│   (Convex)      │
-└─────────────────┘
-```
+### Branch Workflow
 
----
-
-## Domain Model
-
-### Core Entities
-
-```
-┌─────────────┐         ┌─────────────┐
-│    Users    │         │  Properties │
-├─────────────┤         ├─────────────┤
-│ _id         │────┐    │ _id         │
-│ clerkId     │    │    │ landlordId  │───┐
-│ email       │    │    │ title       │   │
-│ phone       │    │    │ description │   │
-│ role        │    │    │ propertyType│   │
-│ firstName   │    │    │ rentAmount  │   │
-│ lastName    │    │    │ city        │   │
-│ language    │    │    │ neighborhood│   │
-│ idVerified  │    │    │ status      │   │
-└─────────────┘    │    │ verification│   │
-                   │    └─────────────┘   │
-                   │           │          │
-                   │           │          │
-                   ▼           ▼          │
-          ┌─────────────────────────┐     │
-          │      Transactions       │     │
-          ├─────────────────────────┤     │
-          │ _id                     │     │
-          │ propertyId ─────────────┼─────┘
-          │ renterId ───────────────┼──┐
-          │ landlordId ─────────────┼──┤
-          │ amount                  │  │
-          │ paymentMethod           │  │
-          │ paymentStatus           │  │
-          │ escrowStatus            │  │
-          └─────────────────────────┘  │
-                                       │
-┌─────────────┐    ┌─────────────┐     │
-│  Messages   │    │   Reviews   │     │
-├─────────────┤    ├─────────────┤     │
-│ senderId    │────│ reviewerId  │─────┤
-│ recipientId │────│ revieweeId  │─────┘
-│ propertyId  │    │ propertyId  │
-│ messageText │    │ rating      │
-│ isRead      │    │ comment     │
-└─────────────┘    └─────────────┘
-```
-
-### Role Matrix
-
-| Role | Description | Capabilities |
-|------|-------------|--------------|
-| `renter` | Property seekers | Browse, save, message, pay |
-| `landlord` | Property owners | All renter + create listings |
-| `verifier` | Platform staff | Verify properties, users |
-| `admin` | Platform admin | Full system access |
-
----
-
-## API Design Principles
-
-### 1. Query Naming Convention
-
-```typescript
-// Singular: Get one item
-getProperty({ propertyId })
-getCurrentUser()
-getUserById({ userId })
-
-// Plural: Get list
-listProperties({ city, limit, cursor })
-getMyProperties()
-getConversations()
-
-// Search: Full-text
-searchProperties({ query, city })
-
-// Aggregates
-getUnreadCount()
-getFilterOptions({ city })
-```
-
-### 2. Mutation Naming Convention
-
-```typescript
-// Create
-createProperty({ title, city, ... })
-sendMessage({ recipientId, messageText })
-
-// Update
-updateProperty({ propertyId, ...fields })
-updateProfile({ firstName, phone })
-markMessagesAsRead({ conversationId })
-
-// State transitions
-submitForVerification({ propertyId })
-updatePropertyStatus({ propertyId, status })
-
-// Delete (prefer soft delete)
-archiveProperty({ propertyId })
-```
-
-### 3. Action Naming Convention
-
-```typescript
-// External API calls
-processPayment({ transactionId, amount, phoneNumber })
-checkAndUpdatePaymentStatus({ transactionId })
-releaseEscrow({ transactionId })
-```
-
----
-
-## Security Model
-
-### Authentication Flow
-
-```
-┌──────────┐     ┌──────────┐     ┌──────────┐
-│  Client  │────▶│  Clerk   │────▶│ Convex   │
-│          │     │  (Auth)  │     │ Backend  │
-└──────────┘     └──────────┘     └──────────┘
-                      │                 │
-                      │ JWT Token       │
-                      ▼                 │
-              ┌──────────────┐          │
-              │ ctx.auth.    │◀─────────┘
-              │ getUserIdentity()
-              └──────────────┘
-                      │
-                      ▼
-              ┌──────────────┐
-              │ Lookup user  │
-              │ by clerkId   │
-              └──────────────┘
-                      │
-                      ▼
-              ┌──────────────┐
-              │ Check role   │
-              │ & authorize  │
-              └──────────────┘
-```
-
-### Authorization Checks
-
-```typescript
-// Every protected endpoint MUST:
-// 1. Verify authentication
-const identity = await ctx.auth.getUserIdentity();
-if (!identity) throw new Error('Not authenticated');
-
-// 2. Get user from DB (not from token claims!)
-const user = await ctx.db
-  .query('users')
-  .withIndex('by_clerk_id', q => q.eq('clerkId', identity.subject))
-  .unique();
-if (!user) throw new Error('User not found');
-
-// 3. Check role if needed
-if (user.role !== 'landlord' && user.role !== 'admin') {
-  throw new Error('Unauthorized');
-}
-
-// 4. Check ownership if needed
-if (property.landlordId !== user._id && user.role !== 'admin') {
-  throw new Error('Cannot modify others\' properties');
-}
-```
-
----
-
-## Monorepo Structure
-
-```
-piol/
-├── apps/
-│   ├── web/                 # Next.js web application
-│   │   ├── src/
-│   │   │   ├── app/         # App Router pages
-│   │   │   ├── components/  # React components
-│   │   │   ├── hooks/       # Custom hooks
-│   │   │   ├── lib/         # Utilities
-│   │   │   └── i18n/        # Translations
-│   │   └── package.json
-│   │
-│   └── mobile/              # Expo/React Native app
-│       ├── app/             # Expo Router screens
-│       ├── components/      # RN components
-│       ├── stores/          # Zustand stores
-│       ├── hooks/           # Custom hooks
-│       ├── lib/             # Utilities
-│       ├── i18n/            # Translations
-│       └── package.json
-│
-├── packages/
-│   ├── convex/              # Backend (Convex)
-│   │   ├── schema.ts        # Database schema
-│   │   ├── *.ts             # Domain modules
-│   │   ├── actions/         # External API calls
-│   │   └── package.json
-│   │
-│   ├── ui/                  # Shared UI components
-│   │   └── src/components/  # Button, Card, Input, etc.
-│   │
-│   ├── types/               # Shared TypeScript types
-│   │
-│   ├── config/              # Shared configs
-│   │   ├── eslint/
-│   │   ├── tailwind/
-│   │   └── typescript/
-│   │
-│   └── env/                 # Environment validation
-│
-├── turbo.json               # Turborepo config
-├── package.json             # Root package.json
-└── biome.json               # Linting/formatting
-```
-
----
-
-## Development Workflow
-
-### 1. Local Development
+**NEVER commit directly to main.** Each feature gets its own branch.
 
 ```bash
-# Install dependencies
-bun install
+# 1. Start feature on new branch (from main)
+git checkout main && git pull
+git checkout -b feat/mvp-2-properties-convex
 
-# Start all services
-bun run dev
+# 2. Work, commit, push
+# ... do work ...
+git push -u origin HEAD
 
-# Start specific apps
-bun run dev --filter=@repo/web
-bun run dev --filter=@repo/mobile
-bun run dev:convex --filter=@repo/convex
+# 3. Create PR to main when done
+gh pr create --title "web(mvp-2): wire properties to Convex"
 ```
 
-### 2. Code Quality
+**Branch naming:** `<type>/<feature-id>-<description>`
+- Types: `feat/`, `fix/`, `chore/`
+- Example: `feat/mvp-2-properties-convex`, `fix/mvp-3-image-loading`
+
+### Commit Protocol
+
+The project uses pre-commit hooks (Husky + lint-staged + Biome) that auto-format code. To avoid messy commits:
+
+**Two commits per feature:**
 
 ```bash
-# Format & lint
-bun run format
-bun run lint
+# 1. Format code first (prevents pre-commit hook from modifying files)
+bunx biome check --write .
 
-# Type check
-bun run typecheck
+# 2. Stage and commit feature code
+git add apps/ packages/
+git commit -m "web(mvp-2): wire properties to Convex"
 
-# Run tests
-bun run test
+# 3. Stage and commit agent state
+git add agent/features.json agent/progress.md
+git commit -m "agent: complete mvp-2"
+
+# 4. IMPORTANT: Check for missed files before pushing
+git status  # Should show nothing untracked (except gitignored)
 ```
 
-### 3. Git Workflow
-
+**Commit message format:**
 ```
-main ─────────────────────────────────────────────────▶
-       │              │              │
-       │ feat/add-x   │ fix/bug-y    │ chore/update-z
-       ▼              ▼              ▼
-    ───────        ───────        ───────
-       │              │              │
-       └──── PR ──────┴──── PR ──────┘
-                      │
-                      ▼
-                   squash
-                   merge
+<scope>(<feature-id>): <description>
+
+Scopes: web | convex | mobile | agent | chore
+Feature ID: mvp-1, mvp-2, etc. (omit for non-feature work)
 ```
 
-**Commit format:** `<scope>: <description>`
+**Why two commits:**
+- Feature code is reviewable and revertable independently
+- Agent state tracks progress without polluting feature history
+- `git log --grep="web"` shows only product changes
 
-```
-convex: add property search index
-web: implement property filters
-mobile: add pull-to-refresh
-types: add Transaction interface
-```
-
----
-
-## Performance Considerations
-
-### Database
-
-- **Index everything you query.** No table scans.
-- **Paginate all lists.** Max 100 items per request.
-- **Batch related fetches.** Avoid N+1 queries.
-
-### Frontend
-
-- **Server Components by default.** Client only when interactive.
-- **Skeleton loading states.** No layout shift.
-- **Image optimization.** Next.js Image, expo-image.
-- **Virtualize long lists.** FlashList on mobile.
-
-### Mobile
-
-- **60fps animations.** Use Reanimated for complex animations.
-- **Minimize re-renders.** useCallback, useMemo where needed.
-- **Offline-first mindset.** Zustand persist for critical state.
-
----
-
-## Observability
-
-### Logging
-
-```typescript
-// ✅ Structured logs
-console.log(`[properties] Created property ${propertyId} for user ${userId}`);
-
-// ❌ Avoid
-console.log('Created property', property); // PII exposure risk
-```
-
-### Error Handling
-
-```typescript
-// Throw user-safe errors
-throw new Error('Property not found');
-throw new Error('Payment failed: insufficient funds');
-
-// Never expose internals
-// ❌ throw new Error(`DB error: ${internalError.message}`);
-```
-
-### Metrics to Track
-
-- Property listing → verification → activation rate
-- Payment success/failure rate by provider
-- Message response time
-- Search → contact → payment conversion
-
----
-
-## Deployment
-
-### Environments
-
-| Environment | Purpose | Branch |
-|-------------|---------|--------|
-| Development | Local testing | - |
-| Preview | PR preview deployments | feature/* |
-| Production | Live application | main |
-
-### CI/CD Pipeline
-
-```
-PR Created
-    │
-    ▼
-┌─────────────────┐
-│  Type Check     │
-│  Lint           │
-│  Unit Tests     │
-│  Build          │
-└────────┬────────┘
-         │ All pass
-         ▼
-┌─────────────────┐
-│ Preview Deploy  │
-│ (Vercel/EAS)    │
-└────────┬────────┘
-         │ Review & Approve
-         ▼
-┌─────────────────┐
-│  Merge to main  │
-└────────┬────────┘
-         │
-         ▼
-┌─────────────────┐
-│ Production      │
-│ Deploy          │
-└─────────────────┘
-```
-
----
-
-## When in Doubt
-
-1. **Read the schema first.** `packages/convex/schema.ts` is the source of truth.
-2. **Follow existing patterns.** Look at similar files before creating new ones.
-3. **Keep it simple.** Don't over-engineer. Solve the problem at hand.
-4. **Test the happy path + one error case.** Don't aim for 100% coverage.
-5. **Ask about business logic.** Technical decisions should serve user needs.
+**What's NOT committed:**
+- `agent/scratchpad.md` — Ephemeral session context (gitignored)

@@ -1,6 +1,6 @@
 import { ClerkLoaded, ClerkProvider, useAuth } from '@clerk/clerk-expo';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { ConvexReactClient, ConvexProvider } from 'convex/react';
+import { ConvexProvider, ConvexReactClient } from 'convex/react';
 import { ConvexProviderWithClerk } from 'convex/react-clerk';
 import { Slot } from 'expo-router';
 import * as SecureStore from 'expo-secure-store';

@@ -1,11 +1,11 @@
 'use client';
 
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { ConvexReactClient, ConvexProvider } from 'convex/react';
-import { ConvexProviderWithClerk } from 'convex/react-clerk';
-import { useAuth } from '@clerk/nextjs';
-import { type ReactNode, useMemo, useState } from 'react';
 import { env, isClerkConfigured, isConvexConfigured } from '@/lib/env';
+import { useAuth } from '@clerk/nextjs';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { ConvexProvider, ConvexReactClient } from 'convex/react';
+import { ConvexProviderWithClerk } from 'convex/react-clerk';
+import { type ReactNode, useMemo, useState } from 'react';
 
 export function Providers({ children }: { children: ReactNode }) {
   const [queryClient] = useState(
