@@ -60,6 +60,9 @@ ios/
 *.temp
 .cache/
 
+# Agent harness (ephemeral session context)
+agent/scratchpad.md
+
 # Secrets
 secrets/
 *.pem
