@@ -4,6 +4,49 @@ Session history for AI agents working on Piol. Append new entries at the top.
 
 ---
 
+## Session: 2026-01-19 16:00
+
+**Focus**: mvp-3 - Property detail page at /properties/[id]
+**Outcome**: completed
+
+### Done
+- Cleaned up uncommitted files from previous session (next-env.d.ts formatting, env backup file)
+- Pushed mvp-2 branch to origin (PR creation failed due to gh auth - needs manual PR)
+- Updated `getProperty` Convex query to resolve image URLs from storage IDs
+- Query now returns `imageUrls` array with resolved URLs sorted by order
+- Landlord profile image URL also resolved in query
+- Rewrote property detail page to use Convex:
+  - Replaced mock data with `useQuery(api.properties.getProperty)`
+  - Added loading skeleton component
+  - Added not-found state when property doesn't exist
+  - Handled Next.js 16 params Promise with `use()` hook
+- All acceptance criteria met:
+  - Route loads property from Convex ✓
+  - Property images display (from storage or placeholder) ✓
+  - Amenities list renders ✓
+  - Landlord info shows ✓
+  - Contact/message button present ✓
+
+### Blockers
+- `gh pr create` failed due to auth mismatch (logged in as `linustruesignal`, repo owned by `linus5304`)
+- Needs manual PR creation at https://github.com/linus5304/piol/pull/new/feat/mvp-2-properties-convex
+
+### Decisions
+- Image URLs resolved in Convex query (single query vs multiple) for better performance
+- Placeholder images shown when property has no uploaded images
+- Save/heart button is local state only (will wire to Convex in mvp-6)
+- Contact button present but not wired to messaging (will wire in mvp-5)
+
+### Files Changed
+- `packages/convex/convex/properties.ts` - Enhanced getProperty to resolve image URLs
+- `apps/web/src/app/properties/[id]/page.tsx` - Complete rewrite with Convex integration
+
+### Next
+- Create PR for mvp-2/mvp-3 work (needs gh auth fix or manual creation)
+- mvp-4: Wire property creation form to Convex mutations
+
+---
+
 ## Session: 2026-01-19 14:00
 
 **Focus**: Clean up uncommitted mvp-2 work and apply specs

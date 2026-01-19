@@ -49,7 +49,7 @@
     {
       "id": "mvp-3",
       "name": "View property detail at /properties/[id]",
-      "status": "todo",
+      "status": "done",
       "priority": 3,
       "spec": null,
       "acceptance": [
@@ -60,7 +60,7 @@
         "Contact/message button present"
       ],
       "blockers": [],
-      "notes": ""
+      "notes": "Wired to Convex getProperty query. Updated query to resolve image URLs from storage. Loading skeleton and not-found states added. Landlord info, amenities, and contact button all functional."
     },
     {
       "id": "mvp-4",
