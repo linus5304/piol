@@ -96,7 +96,7 @@
     {
       "id": "mvp-6",
       "name": "User can save properties",
-      "status": "todo",
+      "status": "done",
       "priority": 6,
       "spec": null,
       "acceptance": [
@@ -106,7 +106,7 @@
         "Save state persists across sessions"
       ],
       "blockers": [],
-      "notes": "savedProperties schema exists. Need UI integration."
+      "notes": "Completed. Added getSavedPropertyIds query for efficient bulk checking. PropertyCard updated with controlled isSaved/onToggleSave props. /properties page wires save functionality. /dashboard/saved wired to getSavedProperties with full property details."
     }
   ]
 }
