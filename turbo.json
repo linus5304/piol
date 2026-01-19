@@ -6,6 +6,8 @@
       "dependsOn": ["^build"],
       "outputs": [".next/**", "!.next/cache/**", "dist/**"],
       "env": [
+        "VERCEL_ENV",
+        "CONVEX_DEPLOY_KEY",
         "CONVEX_DEPLOYMENT",
         "CONVEX_URL",
         "NEXT_PUBLIC_CONVEX_URL",
