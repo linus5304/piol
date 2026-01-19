@@ -1,7 +1,80 @@
 {
   "version": 1,
-  "lastUpdated": "2026-01-19T10:00:00Z",
+  "lastUpdated": "2026-01-19T21:30:00Z",
   "features": [
+    {
+      "id": "prod-1",
+      "name": "Sentry error tracking",
+      "status": "done",
+      "priority": 10,
+      "spec": "openspec/changes/add-production-readiness/specs/deployment/spec.md",
+      "acceptance": [
+        "@sentry/nextjs installed in web app",
+        "sentry.client.config.ts configured",
+        "sentry.server.config.ts configured",
+        "sentry.edge.config.ts configured",
+        "next.config.ts uses withSentryConfig",
+        "Sentry env vars documented in .env.example"
+      ],
+      "blockers": [],
+      "notes": "Complete. Config files with env-aware settings, withSentryConfig wrapper in next.config.ts, source map upload support. Build verified."
+    },
+    {
+      "id": "prod-2",
+      "name": "Vercel Analytics",
+      "status": "todo",
+      "priority": 11,
+      "spec": null,
+      "acceptance": [
+        "@vercel/analytics installed",
+        "@vercel/speed-insights installed",
+        "Analytics component in root layout",
+        "SpeedInsights component in root layout"
+      ],
+      "blockers": [],
+      "notes": ""
+    },
+    {
+      "id": "prod-3",
+      "name": "Fix code TODOs",
+      "status": "todo",
+      "priority": 12,
+      "spec": null,
+      "acceptance": [
+        "Toast notification on save error in properties page",
+        "Settings form wired to updateProfile mutation"
+      ],
+      "blockers": [],
+      "notes": ""
+    },
+    {
+      "id": "prod-4",
+      "name": "Claude Code Actions",
+      "status": "todo",
+      "priority": 13,
+      "spec": null,
+      "acceptance": [
+        "claude-pr-assistant.yml workflow with @claude trigger",
+        "security-review.yml workflow for automatic PR scanning",
+        "ANTHROPIC_API_KEY secret documented"
+      ],
+      "blockers": [],
+      "notes": ""
+    },
+    {
+      "id": "prod-5",
+      "name": "Environment documentation",
+      "status": "todo",
+      "priority": 14,
+      "spec": null,
+      "acceptance": [
+        ".env.example has production setup instructions",
+        "AGENTS.md documents Convex dev/prod switching",
+        "GitHub secrets documented (ANTHROPIC_API_KEY, VERCEL_*, CONVEX_*)"
+      ],
+      "blockers": [],
+      "notes": ""
+    },
     {
       "id": "mvp-0",
       "name": "Auth pages exist",
