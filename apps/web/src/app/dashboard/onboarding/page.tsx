@@ -4,6 +4,8 @@ import { Logo } from '@/components/brand';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { useSafeUser } from '@/hooks/use-safe-auth';
+import { api } from '@repo/convex/_generated/api';
+import { useMutation } from 'convex/react';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 
@@ -14,6 +16,7 @@ export default function OnboardingPage() {
   const router = useRouter();
   const [selectedRole, setSelectedRole] = useState<Role>('renter');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const ensureCurrentUser = useMutation(api.users.ensureCurrentUser);
 
   // Update selected role when user loads
   useEffect(() => {
@@ -34,6 +37,16 @@ export default function OnboardingPage() {
 
     setIsSubmitting(true);
     try {
+      // Create/update user in Convex with selected role
+      await ensureCurrentUser({
+        email: user.primaryEmailAddress?.emailAddress ?? '',
+        firstName: user.firstName ?? undefined,
+        lastName: user.lastName ?? undefined,
+        profileImageUrl: user.imageUrl ?? undefined,
+        role: selectedRole,
+      });
+
+      // Update Clerk metadata
       await user.update({
         unsafeMetadata: {
           ...user.unsafeMetadata,

@@ -165,7 +165,8 @@ export default function NewPropertyPage() {
       router.push('/dashboard/properties');
     } catch (error) {
       console.error('Error creating property:', error);
-      alert('Erreur lors de la création de la propriété');
+      const message = error instanceof Error ? error.message : 'Unknown error';
+      alert(`Erreur lors de la création de la propriété: ${message}`);
     } finally {
       setIsSubmitting(false);
     }
