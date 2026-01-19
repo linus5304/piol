@@ -2,9 +2,13 @@
 
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
+import { Skeleton } from '@/components/ui/skeleton';
 import { useSafeAuth } from '@/hooks/use-safe-auth';
 import { cn } from '@/lib/utils';
+import { api } from '@repo/convex/_generated/api';
+import type { Id } from '@repo/convex/_generated/dataModel';
+import { useQuery } from 'convex/react';
 import {
   Armchair,
   ArrowLeft,
@@ -13,12 +17,11 @@ import {
   Car,
   ChevronLeft,
   ChevronRight,
-  Clock,
   Droplet,
   Heart,
+  ImageOff,
   MapPin,
   MessageCircle,
-  Phone,
   Share2,
   Shield,
   Star,
@@ -29,71 +32,8 @@ import {
   X,
   Zap,
 } from 'lucide-react';
-import { useTranslations } from 'next-intl';
 import Link from 'next/link';
-import { useState } from 'react';
-
-// Mock property data
-const mockProperty = {
-  _id: 'prop-1',
-  title: 'Appartement moderne 2 chambres à Makepe',
-  description: `Découvrez ce magnifique appartement de 2 chambres situé dans le quartier calme de Makepe, Douala.
-
-L'appartement comprend:
-- Un salon spacieux et lumineux
-- Une cuisine moderne entièrement équipée
-- 2 chambres confortables avec placards intégrés
-- Une salle de bain moderne avec douche
-- Un balcon avec vue sur le quartier
-
-L'immeuble dispose d'un gardien 24h/24 et d'un parking sécurisé. Le quartier est proche de toutes les commodités: supermarchés, écoles, pharmacies et transports.
-
-Idéal pour un couple ou une petite famille recherchant le confort et la sécurité.`,
-  propertyType: '2br',
-  rentAmount: 150000,
-  currency: 'XAF',
-  cautionMonths: 2,
-  upfrontMonths: 6,
-  city: 'Douala',
-  neighborhood: 'Makepe',
-  addressLine1: 'Près du carrefour Ange Raphael',
-  bedrooms: 2,
-  bathrooms: 1,
-  size: 75,
-  amenities: {
-    wifi: true,
-    parking: true,
-    security: true,
-    water247: true,
-    electricity247: false,
-    furnished: false,
-    ac: true,
-    balcony: true,
-    garden: false,
-  },
-  images: [
-    'https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=1200&h=800&fit=crop',
-    'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=1200&h=800&fit=crop',
-    'https://images.unsplash.com/photo-1560185893-a55cbc8c57e8?w=1200&h=800&fit=crop',
-    'https://images.unsplash.com/photo-1484154218962-a197022b5858?w=1200&h=800&fit=crop',
-    'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=1200&h=800&fit=crop',
-  ],
-  status: 'active',
-  verificationStatus: 'approved',
-  landlord: {
-    _id: 'landlord-1',
-    firstName: 'Jean',
-    lastName: 'Kamga',
-    profileImageUrl: null,
-    idVerified: true,
-    responseTime: 'En quelques heures',
-    memberSince: '2023',
-    properties: 5,
-    rating: 4.9,
-    reviews: 23,
-  },
-  _creationTime: Date.now() - 1000 * 60 * 60 * 24 * 15,
-};
+import { use, useState } from 'react';
 
 const amenityConfig: Record<string, { label: string; icon: React.ElementType }> = {
   wifi: { label: 'WiFi inclus', icon: Wifi },
@@ -107,44 +47,97 @@ const amenityConfig: Record<string, { label: string; icon: React.ElementType }> 
   garden: { label: 'Accès jardin', icon: TreePine },
 };
 
+const propertyTypeLabels: Record<string, string> = {
+  studio: 'Studio',
+  '1br': '1 Chambre',
+  '2br': '2 Chambres',
+  '3br': '3 Chambres',
+  '4br': '4 Chambres',
+  house: 'Maison',
+  apartment: 'Appartement',
+  villa: 'Villa',
+};
+
 function formatCurrency(amount: number): string {
   return new Intl.NumberFormat('fr-FR').format(amount);
 }
 
-export default function PropertyDetailPage({ params }: { params: { id: string } }) {
-  const t = useTranslations();
+function formatDate(timestamp: number): string {
+  return new Date(timestamp).toLocaleDateString('fr-FR', {
+    year: 'numeric',
+    month: 'long',
+  });
+}
+
+// Placeholder images when no property images exist
+const placeholderImages = [
+  'https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=1200&h=800&fit=crop',
+  'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=1200&h=800&fit=crop',
+];
+
+export default function PropertyDetailPage({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}) {
+  // Unwrap params promise (Next.js 15+ / React 19)
+  const { id } = use(params);
+
   const { isSignedIn } = useSafeAuth();
   const [selectedImage, setSelectedImage] = useState(0);
   const [isSaved, setIsSaved] = useState(false);
   const [showGallery, setShowGallery] = useState(false);
 
-  const enabledAmenities = Object.entries(mockProperty.amenities)
-    .filter(([_, enabled]) => enabled)
-    .map(([key]) => key);
+  // Query property from Convex
+  const property = useQuery(
+    api.properties.getProperty,
+    // Only query if id looks like a valid Convex ID (starts with valid prefix)
+    id && id.length > 0 ? { propertyId: id as Id<'properties'> } : 'skip'
+  );
 
-  const totalEntry =
-    mockProperty.rentAmount * (mockProperty.cautionMonths + mockProperty.upfrontMonths);
+  // Loading state
+  if (property === undefined) {
+    return <PropertyDetailSkeleton />;
+  }
+
+  // Not found state
+  if (property === null) {
+    return (
+      <div className="min-h-screen bg-white">
+        <Header />
+        <div className="max-w-7xl mx-auto px-4 py-16 text-center">
+          <div className="w-24 h-24 mx-auto mb-6 rounded-full bg-neutral-100 flex items-center justify-center">
+            <ImageOff className="w-12 h-12 text-neutral-400" />
+          </div>
+          <h1 className="text-2xl font-semibold text-neutral-900 mb-2">Propriété introuvable</h1>
+          <p className="text-neutral-600 mb-8">Cette propriété n'existe pas ou a été supprimée.</p>
+          <Link href="/properties">
+            <Button>Voir toutes les propriétés</Button>
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
+  // Use property images or placeholder
+  const images =
+    property.imageUrls && property.imageUrls.length > 0
+      ? property.imageUrls
+          .map((img: { url: string | null }) => img.url)
+          .filter((url: string | null): url is string => url !== null)
+      : placeholderImages;
+
+  const enabledAmenities = property.amenities
+    ? Object.entries(property.amenities)
+        .filter(([_, enabled]) => enabled)
+        .map(([key]) => key)
+    : [];
+
+  const totalEntry = property.rentAmount * (property.cautionMonths + property.upfrontMonths);
 
   return (
     <div className="min-h-screen bg-white">
-      {/* Header */}
-      <header className="bg-white border-b border-neutral-200 sticky top-0 z-40">
-        <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
-          <Link href="/" className="flex items-center gap-2">
-            <span className="text-2xl">🏠</span>
-            <span className="text-xl font-bold text-primary">Piol</span>
-          </Link>
-          <div className="flex items-center gap-4">
-            <Link
-              href="/properties"
-              className="flex items-center gap-2 text-neutral-600 hover:text-neutral-900 transition-colors"
-            >
-              <ArrowLeft className="w-4 h-4" />
-              <span className="hidden sm:inline">Retour aux propriétés</span>
-            </Link>
-          </div>
-        </div>
-      </header>
+      <Header />
 
       {/* Image Gallery */}
       <div className="relative">
@@ -159,13 +152,13 @@ export default function PropertyDetailPage({ params }: { params: { id: string } 
             }}
           >
             <img
-              src={mockProperty.images[0]}
-              alt={mockProperty.title}
+              src={images[0]}
+              alt={property.title}
               className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
             />
             <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors" />
           </button>
-          {mockProperty.images.slice(1, 5).map((image, index) => (
+          {images.slice(1, 5).map((image: string, index: number) => (
             <button
               type="button"
               key={image}
@@ -188,53 +181,56 @@ export default function PropertyDetailPage({ params }: { params: { id: string } 
             </button>
           ))}
 
-          {/* Show all photos button */}
-          <button
-            type="button"
-            onClick={() => setShowGallery(true)}
-            className="absolute bottom-8 right-8 flex items-center gap-2 px-4 py-2 bg-white rounded-lg shadow-lg hover:scale-105 transition-transform text-sm font-medium"
-          >
-            <span>📷</span>
-            Voir les {mockProperty.images.length} photos
-          </button>
+          {images.length > 1 && (
+            <button
+              type="button"
+              onClick={() => setShowGallery(true)}
+              className="absolute bottom-8 right-8 flex items-center gap-2 px-4 py-2 bg-white rounded-lg shadow-lg hover:scale-105 transition-transform text-sm font-medium"
+            >
+              <span>📷</span>
+              Voir les {images.length} photos
+            </button>
+          )}
         </div>
 
         {/* Mobile Carousel */}
         <div className="md:hidden relative h-[300px]">
           <img
-            src={mockProperty.images[selectedImage]}
-            alt={mockProperty.title}
+            src={images[selectedImage] || images[0]}
+            alt={property.title}
             className="w-full h-full object-cover"
           />
-          <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex items-center gap-1.5">
-            {mockProperty.images.map((image, index) => (
+          {images.length > 1 && (
+            <>
+              <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex items-center gap-1.5">
+                {images.map((image: string, index: number) => (
+                  <button
+                    type="button"
+                    key={image}
+                    onClick={() => setSelectedImage(index)}
+                    className={cn(
+                      'w-2 h-2 rounded-full transition-all',
+                      index === selectedImage ? 'bg-white w-3' : 'bg-white/60'
+                    )}
+                  />
+                ))}
+              </div>
               <button
                 type="button"
-                key={image}
-                onClick={() => setSelectedImage(index)}
-                className={cn(
-                  'w-2 h-2 rounded-full transition-all',
-                  index === selectedImage ? 'bg-white w-3' : 'bg-white/60'
-                )}
-              />
-            ))}
-          </div>
-          <button
-            type="button"
-            onClick={() => setSelectedImage(Math.max(0, selectedImage - 1))}
-            className="absolute left-4 top-1/2 -translate-y-1/2 w-8 h-8 bg-white/90 rounded-full flex items-center justify-center shadow-lg"
-          >
-            <ChevronLeft className="w-5 h-5" />
-          </button>
-          <button
-            type="button"
-            onClick={() =>
-              setSelectedImage(Math.min(mockProperty.images.length - 1, selectedImage + 1))
-            }
-            className="absolute right-4 top-1/2 -translate-y-1/2 w-8 h-8 bg-white/90 rounded-full flex items-center justify-center shadow-lg"
-          >
-            <ChevronRight className="w-5 h-5" />
-          </button>
+                onClick={() => setSelectedImage(Math.max(0, selectedImage - 1))}
+                className="absolute left-4 top-1/2 -translate-y-1/2 w-8 h-8 bg-white/90 rounded-full flex items-center justify-center shadow-lg"
+              >
+                <ChevronLeft className="w-5 h-5" />
+              </button>
+              <button
+                type="button"
+                onClick={() => setSelectedImage(Math.min(images.length - 1, selectedImage + 1))}
+                className="absolute right-4 top-1/2 -translate-y-1/2 w-8 h-8 bg-white/90 rounded-full flex items-center justify-center shadow-lg"
+              >
+                <ChevronRight className="w-5 h-5" />
+              </button>
+            </>
+          )}
         </div>
       </div>
 
@@ -259,22 +255,20 @@ export default function PropertyDetailPage({ params }: { params: { id: string } 
               <ChevronLeft className="w-6 h-6" />
             </button>
             <img
-              src={mockProperty.images[selectedImage]}
+              src={images[selectedImage]}
               alt={`Gallery view ${selectedImage + 1}`}
               className="max-h-[90vh] max-w-[90vw] object-contain"
             />
             <button
               type="button"
-              onClick={() =>
-                setSelectedImage(Math.min(mockProperty.images.length - 1, selectedImage + 1))
-              }
+              onClick={() => setSelectedImage(Math.min(images.length - 1, selectedImage + 1))}
               className="absolute right-4 w-12 h-12 bg-white/10 hover:bg-white/20 rounded-full flex items-center justify-center text-white transition-colors"
             >
               <ChevronRight className="w-6 h-6" />
             </button>
           </div>
           <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex items-center gap-2">
-            {mockProperty.images.map((image, index) => (
+            {images.map((image: string, index: number) => (
               <button
                 type="button"
                 key={image}
@@ -287,7 +281,7 @@ export default function PropertyDetailPage({ params }: { params: { id: string } 
             ))}
           </div>
           <div className="absolute bottom-4 right-4 text-white/80 text-sm">
-            {selectedImage + 1} / {mockProperty.images.length}
+            {selectedImage + 1} / {images.length}
           </div>
         </div>
       )}
@@ -297,19 +291,24 @@ export default function PropertyDetailPage({ params }: { params: { id: string } 
         <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4 mb-8">
           <div>
             <h1 className="text-2xl md:text-3xl font-semibold text-neutral-900">
-              {mockProperty.title}
+              {property.title}
             </h1>
             <div className="flex flex-wrap items-center gap-x-4 gap-y-2 mt-2 text-neutral-600">
-              <span className="flex items-center gap-1">
-                <Star className="w-4 h-4 fill-amber-400 text-amber-400" />
-                <span className="font-medium text-neutral-900">{mockProperty.landlord.rating}</span>
-                <span>({mockProperty.landlord.reviews} avis)</span>
-              </span>
+              {property.reviews.averageRating && (
+                <span className="flex items-center gap-1">
+                  <Star className="w-4 h-4 fill-amber-400 text-amber-400" />
+                  <span className="font-medium text-neutral-900">
+                    {property.reviews.averageRating.toFixed(1)}
+                  </span>
+                  <span>({property.reviews.count} avis)</span>
+                </span>
+              )}
               <span className="flex items-center gap-1">
                 <MapPin className="w-4 h-4" />
-                {mockProperty.neighborhood}, {mockProperty.city}
+                {property.neighborhood ? `${property.neighborhood}, ` : ''}
+                {property.city}
               </span>
-              {mockProperty.verificationStatus === 'approved' && (
+              {property.verificationStatus === 'approved' && (
                 <span className="flex items-center gap-1 text-verified">
                   <BadgeCheck className="w-4 h-4" />
                   Vérifié
@@ -348,100 +347,104 @@ export default function PropertyDetailPage({ params }: { params: { id: string } 
             <div className="flex flex-wrap items-center gap-6 pb-6 border-b border-neutral-200">
               <div className="text-center">
                 <div className="text-2xl font-semibold text-neutral-900">
-                  {mockProperty.bedrooms}
+                  {propertyTypeLabels[property.propertyType] || property.propertyType}
                 </div>
-                <div className="text-sm text-neutral-600">Chambres</div>
+                <div className="text-sm text-neutral-600">Type</div>
               </div>
               <div className="w-px h-10 bg-neutral-200" />
               <div className="text-center">
                 <div className="text-2xl font-semibold text-neutral-900">
-                  {mockProperty.bathrooms}
+                  {property.cautionMonths}
                 </div>
-                <div className="text-sm text-neutral-600">Salle de bain</div>
+                <div className="text-sm text-neutral-600">Mois de caution</div>
               </div>
               <div className="w-px h-10 bg-neutral-200" />
               <div className="text-center">
-                <div className="text-2xl font-semibold text-neutral-900">{mockProperty.size}m²</div>
-                <div className="text-sm text-neutral-600">Surface</div>
+                <div className="text-2xl font-semibold text-neutral-900">
+                  {property.upfrontMonths}
+                </div>
+                <div className="text-sm text-neutral-600">Mois d'avance</div>
               </div>
             </div>
 
             {/* Landlord Preview */}
-            <div className="flex items-center justify-between py-6 border-b border-neutral-200">
-              <div className="flex items-center gap-4">
-                <Avatar className="h-14 w-14 border-2 border-white shadow-md">
-                  <AvatarImage src={mockProperty.landlord.profileImageUrl || undefined} />
-                  <AvatarFallback className="bg-gradient-to-br from-primary to-primary-hover text-white text-lg">
-                    {mockProperty.landlord.firstName[0]}
-                    {mockProperty.landlord.lastName[0]}
-                  </AvatarFallback>
-                </Avatar>
-                <div>
-                  <div className="flex items-center gap-2">
-                    <span className="font-medium text-neutral-900">
-                      Proposé par {mockProperty.landlord.firstName}
-                    </span>
-                    {mockProperty.landlord.idVerified && (
-                      <BadgeCheck className="w-5 h-5 text-verified" />
-                    )}
+            {property.landlord && (
+              <div className="flex items-center justify-between py-6 border-b border-neutral-200">
+                <div className="flex items-center gap-4">
+                  <Avatar className="h-14 w-14 border-2 border-white shadow-md">
+                    <AvatarImage src={property.landlord.profileImageUrl || undefined} />
+                    <AvatarFallback className="bg-gradient-to-br from-primary to-primary-hover text-white text-lg">
+                      {property.landlord.firstName?.[0] || '?'}
+                      {property.landlord.lastName?.[0] || ''}
+                    </AvatarFallback>
+                  </Avatar>
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <span className="font-medium text-neutral-900">
+                        Proposé par {property.landlord.firstName || 'Propriétaire'}
+                      </span>
+                      {property.landlord.idVerified && (
+                        <BadgeCheck className="w-5 h-5 text-verified" />
+                      )}
+                    </div>
+                    <p className="text-sm text-neutral-500">
+                      Publié le {formatDate(property._creationTime)}
+                    </p>
                   </div>
-                  <p className="text-sm text-neutral-500">
-                    {mockProperty.landlord.properties} propriétés • Membre depuis{' '}
-                    {mockProperty.landlord.memberSince}
-                  </p>
                 </div>
               </div>
-              <div className="hidden sm:flex items-center gap-2 text-sm text-neutral-600">
-                <Clock className="w-4 h-4" />
-                Répond {mockProperty.landlord.responseTime.toLowerCase()}
-              </div>
-            </div>
+            )}
 
             {/* Description */}
-            <div>
-              <h2 className="text-xl font-semibold text-neutral-900 mb-4">
-                À propos de ce logement
-              </h2>
-              <div className="prose prose-neutral max-w-none">
-                {mockProperty.description.split('\n\n').map((paragraph) => (
-                  <p
-                    key={paragraph.slice(0, 50)}
-                    className="text-neutral-600 mb-4 whitespace-pre-line leading-relaxed"
-                  >
-                    {paragraph}
-                  </p>
-                ))}
+            {property.description && (
+              <div>
+                <h2 className="text-xl font-semibold text-neutral-900 mb-4">
+                  À propos de ce logement
+                </h2>
+                <div className="prose prose-neutral max-w-none">
+                  {property.description.split('\n\n').map((paragraph: string) => (
+                    <p
+                      key={paragraph.slice(0, 50)}
+                      className="text-neutral-600 mb-4 whitespace-pre-line leading-relaxed"
+                    >
+                      {paragraph}
+                    </p>
+                  ))}
+                </div>
               </div>
-            </div>
+            )}
 
             {/* Amenities */}
-            <div className="pt-6 border-t border-neutral-200">
-              <h2 className="text-xl font-semibold text-neutral-900 mb-6">
-                Ce que propose ce logement
-              </h2>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                {enabledAmenities.map((amenityKey) => {
-                  const amenity = amenityConfig[amenityKey];
-                  if (!amenity) return null;
-                  const Icon = amenity.icon;
-                  return (
-                    <div key={amenityKey} className="flex items-center gap-4 py-3">
-                      <div className="w-10 h-10 rounded-lg bg-neutral-100 flex items-center justify-center">
-                        <Icon className="w-5 h-5 text-neutral-700" />
+            {enabledAmenities.length > 0 && (
+              <div className="pt-6 border-t border-neutral-200">
+                <h2 className="text-xl font-semibold text-neutral-900 mb-6">
+                  Ce que propose ce logement
+                </h2>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  {enabledAmenities.map((amenityKey) => {
+                    const amenity = amenityConfig[amenityKey];
+                    if (!amenity) return null;
+                    const Icon = amenity.icon;
+                    return (
+                      <div key={amenityKey} className="flex items-center gap-4 py-3">
+                        <div className="w-10 h-10 rounded-lg bg-neutral-100 flex items-center justify-center">
+                          <Icon className="w-5 h-5 text-neutral-700" />
+                        </div>
+                        <span className="text-neutral-700">{amenity.label}</span>
                       </div>
-                      <span className="text-neutral-700">{amenity.label}</span>
-                    </div>
-                  );
-                })}
+                    );
+                  })}
+                </div>
               </div>
-            </div>
+            )}
 
             {/* Location */}
             <div className="pt-6 border-t border-neutral-200">
               <h2 className="text-xl font-semibold text-neutral-900 mb-4">Où vous serez</h2>
               <p className="text-neutral-600 mb-4">
-                {mockProperty.neighborhood}, {mockProperty.city}
-                {mockProperty.addressLine1 && <> — {mockProperty.addressLine1}</>}
+                {property.neighborhood ? `${property.neighborhood}, ` : ''}
+                {property.city}
+                {property.addressLine1 && <> — {property.addressLine1}</>}
               </p>
               <div className="bg-neutral-100 rounded-2xl h-64 flex items-center justify-center">
                 <div className="text-center text-neutral-500">
@@ -462,9 +465,9 @@ export default function PropertyDetailPage({ params }: { params: { id: string } 
                   <div className="mb-6">
                     <div className="flex items-baseline gap-1">
                       <span className="text-3xl font-semibold text-neutral-900">
-                        {formatCurrency(mockProperty.rentAmount)}
+                        {formatCurrency(property.rentAmount)}
                       </span>
-                      <span className="text-neutral-500">FCFA</span>
+                      <span className="text-neutral-500">{property.currency}</span>
                     </div>
                     <span className="text-neutral-500">/mois</span>
                   </div>
@@ -472,24 +475,28 @@ export default function PropertyDetailPage({ params }: { params: { id: string } 
                   <div className="space-y-3 mb-6">
                     <div className="flex justify-between text-sm">
                       <span className="text-neutral-600">
-                        Caution ({mockProperty.cautionMonths} mois)
+                        Caution ({property.cautionMonths} mois)
                       </span>
                       <span className="font-medium">
-                        {formatCurrency(mockProperty.rentAmount * mockProperty.cautionMonths)} FCFA
+                        {formatCurrency(property.rentAmount * property.cautionMonths)}{' '}
+                        {property.currency}
                       </span>
                     </div>
                     <div className="flex justify-between text-sm">
                       <span className="text-neutral-600">
-                        Avance ({mockProperty.upfrontMonths} mois)
+                        Avance ({property.upfrontMonths} mois)
                       </span>
                       <span className="font-medium">
-                        {formatCurrency(mockProperty.rentAmount * mockProperty.upfrontMonths)} FCFA
+                        {formatCurrency(property.rentAmount * property.upfrontMonths)}{' '}
+                        {property.currency}
                       </span>
                     </div>
                     <div className="h-px bg-neutral-200 my-3" />
                     <div className="flex justify-between font-semibold text-lg">
                       <span>Total à l'entrée</span>
-                      <span>{formatCurrency(totalEntry)} FCFA</span>
+                      <span>
+                        {formatCurrency(totalEntry)} {property.currency}
+                      </span>
                     </div>
                   </div>
 
@@ -525,64 +532,49 @@ export default function PropertyDetailPage({ params }: { params: { id: string } 
               </Card>
 
               {/* Landlord Card */}
-              <Card className="border-neutral-200 rounded-2xl">
-                <CardContent className="p-6">
-                  <div className="flex items-center gap-4 mb-4">
-                    <Avatar className="h-16 w-16 border-2 border-white shadow-md">
-                      <AvatarImage src={mockProperty.landlord.profileImageUrl || undefined} />
-                      <AvatarFallback className="bg-gradient-to-br from-primary to-primary-hover text-white text-xl">
-                        {mockProperty.landlord.firstName[0]}
-                        {mockProperty.landlord.lastName[0]}
-                      </AvatarFallback>
-                    </Avatar>
-                    <div>
-                      <div className="flex items-center gap-2">
-                        <span className="font-semibold text-lg">
-                          {mockProperty.landlord.firstName} {mockProperty.landlord.lastName}
-                        </span>
-                        {mockProperty.landlord.idVerified && (
-                          <BadgeCheck className="w-5 h-5 text-verified" />
+              {property.landlord && (
+                <Card className="border-neutral-200 rounded-2xl">
+                  <CardContent className="p-6">
+                    <div className="flex items-center gap-4 mb-4">
+                      <Avatar className="h-16 w-16 border-2 border-white shadow-md">
+                        <AvatarImage src={property.landlord.profileImageUrl || undefined} />
+                        <AvatarFallback className="bg-gradient-to-br from-primary to-primary-hover text-white text-xl">
+                          {property.landlord.firstName?.[0] || '?'}
+                          {property.landlord.lastName?.[0] || ''}
+                        </AvatarFallback>
+                      </Avatar>
+                      <div>
+                        <div className="flex items-center gap-2">
+                          <span className="font-semibold text-lg">
+                            {property.landlord.firstName} {property.landlord.lastName}
+                          </span>
+                          {property.landlord.idVerified && (
+                            <BadgeCheck className="w-5 h-5 text-verified" />
+                          )}
+                        </div>
+                        {property.reviews.count > 0 && (
+                          <div className="flex items-center gap-1 text-sm text-neutral-500">
+                            <Star className="w-4 h-4 fill-amber-400 text-amber-400" />
+                            <span className="font-medium text-neutral-900">
+                              {property.reviews.averageRating?.toFixed(1)}
+                            </span>
+                            <span>• {property.reviews.count} avis</span>
+                          </div>
                         )}
                       </div>
-                      <div className="flex items-center gap-1 text-sm text-neutral-500">
-                        <Star className="w-4 h-4 fill-amber-400 text-amber-400" />
-                        <span className="font-medium text-neutral-900">
-                          {mockProperty.landlord.rating}
-                        </span>
-                        <span>• {mockProperty.landlord.reviews} avis</span>
-                      </div>
                     </div>
-                  </div>
 
-                  <div className="grid grid-cols-2 gap-4 py-4 border-y border-neutral-100">
-                    <div className="text-center">
-                      <div className="font-semibold text-neutral-900">
-                        {mockProperty.landlord.properties}
-                      </div>
-                      <div className="text-xs text-neutral-500">Propriétés</div>
+                    <div className="mt-4 space-y-2">
+                      {property.landlord.idVerified && (
+                        <div className="flex items-center gap-2 text-sm text-verified">
+                          <BadgeCheck className="w-4 h-4" />
+                          <span>Identité vérifiée</span>
+                        </div>
+                      )}
                     </div>
-                    <div className="text-center">
-                      <div className="font-semibold text-neutral-900">
-                        {mockProperty.landlord.memberSince}
-                      </div>
-                      <div className="text-xs text-neutral-500">Membre depuis</div>
-                    </div>
-                  </div>
-
-                  <div className="mt-4 space-y-2">
-                    <div className="flex items-center gap-2 text-sm text-neutral-600">
-                      <Clock className="w-4 h-4" />
-                      <span>Répond {mockProperty.landlord.responseTime.toLowerCase()}</span>
-                    </div>
-                    {mockProperty.landlord.idVerified && (
-                      <div className="flex items-center gap-2 text-sm text-verified">
-                        <BadgeCheck className="w-4 h-4" />
-                        <span>Identité vérifiée</span>
-                      </div>
-                    )}
-                  </div>
-                </CardContent>
-              </Card>
+                  </CardContent>
+                </Card>
+              )}
 
               {/* Safety Tips */}
               <Card className="bg-gradient-to-br from-blue-50 to-indigo-50 border-blue-100 rounded-2xl">
@@ -618,15 +610,17 @@ export default function PropertyDetailPage({ params }: { params: { id: string } 
           <div>
             <div className="flex items-baseline gap-1">
               <span className="text-xl font-semibold text-neutral-900">
-                {formatCurrency(mockProperty.rentAmount)}
+                {formatCurrency(property.rentAmount)}
               </span>
-              <span className="text-neutral-500 text-sm">FCFA/mois</span>
+              <span className="text-neutral-500 text-sm">{property.currency}/mois</span>
             </div>
-            <div className="flex items-center gap-1 text-sm text-neutral-500">
-              <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
-              <span>{mockProperty.landlord.rating}</span>
-              <span>({mockProperty.landlord.reviews})</span>
-            </div>
+            {property.reviews.count > 0 && (
+              <div className="flex items-center gap-1 text-sm text-neutral-500">
+                <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
+                <span>{property.reviews.averageRating?.toFixed(1)}</span>
+                <span>({property.reviews.count})</span>
+              </div>
+            )}
           </div>
           {isSignedIn ? (
             <Button className="bg-primary hover:bg-primary-hover text-white" size="lg">
@@ -642,6 +636,123 @@ export default function PropertyDetailPage({ params }: { params: { id: string } 
           )}
         </div>
       </div>
+    </div>
+  );
+}
+
+function Header() {
+  return (
+    <header className="bg-white border-b border-neutral-200 sticky top-0 z-40">
+      <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
+        <Link href="/" className="flex items-center gap-2">
+          <span className="text-2xl">🏠</span>
+          <span className="text-xl font-bold text-primary">Piol</span>
+        </Link>
+        <div className="flex items-center gap-4">
+          <Link
+            href="/properties"
+            className="flex items-center gap-2 text-neutral-600 hover:text-neutral-900 transition-colors"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            <span className="hidden sm:inline">Retour aux propriétés</span>
+          </Link>
+        </div>
+      </div>
+    </header>
+  );
+}
+
+function PropertyDetailSkeleton() {
+  return (
+    <div className="min-h-screen bg-white">
+      <Header />
+
+      {/* Image Gallery Skeleton */}
+      <div className="hidden md:grid grid-cols-4 grid-rows-2 gap-2 max-w-7xl mx-auto px-4 py-4 h-[480px]">
+        <Skeleton className="col-span-2 row-span-2 rounded-l-2xl" />
+        <Skeleton className="rounded-tr-2xl" />
+        <Skeleton />
+        <Skeleton />
+        <Skeleton className="rounded-br-2xl" />
+      </div>
+
+      {/* Mobile Image Skeleton */}
+      <div className="md:hidden">
+        <Skeleton className="h-[300px] w-full" />
+      </div>
+
+      <main className="max-w-7xl mx-auto px-4 py-8">
+        {/* Title Skeleton */}
+        <div className="mb-8">
+          <Skeleton className="h-9 w-3/4 mb-2" />
+          <Skeleton className="h-5 w-1/2" />
+        </div>
+
+        <div className="grid lg:grid-cols-3 gap-8 lg:gap-12">
+          <div className="lg:col-span-2 space-y-10">
+            {/* Stats Skeleton */}
+            <div className="flex gap-6 pb-6 border-b border-neutral-200">
+              <div className="text-center">
+                <Skeleton className="h-8 w-20 mb-1" />
+                <Skeleton className="h-4 w-16" />
+              </div>
+              <div className="text-center">
+                <Skeleton className="h-8 w-12 mb-1" />
+                <Skeleton className="h-4 w-24" />
+              </div>
+              <div className="text-center">
+                <Skeleton className="h-8 w-12 mb-1" />
+                <Skeleton className="h-4 w-24" />
+              </div>
+            </div>
+
+            {/* Landlord Skeleton */}
+            <div className="flex items-center gap-4 py-6 border-b border-neutral-200">
+              <Skeleton className="h-14 w-14 rounded-full" />
+              <div>
+                <Skeleton className="h-5 w-40 mb-2" />
+                <Skeleton className="h-4 w-32" />
+              </div>
+            </div>
+
+            {/* Description Skeleton */}
+            <div>
+              <Skeleton className="h-6 w-48 mb-4" />
+              <Skeleton className="h-4 w-full mb-2" />
+              <Skeleton className="h-4 w-full mb-2" />
+              <Skeleton className="h-4 w-3/4" />
+            </div>
+
+            {/* Amenities Skeleton */}
+            <div className="pt-6 border-t border-neutral-200">
+              <Skeleton className="h-6 w-64 mb-6" />
+              <div className="grid grid-cols-2 gap-4">
+                {[1, 2, 3, 4].map((i) => (
+                  <div key={i} className="flex items-center gap-4">
+                    <Skeleton className="h-10 w-10 rounded-lg" />
+                    <Skeleton className="h-4 w-32" />
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* Sidebar Skeleton */}
+          <div className="lg:col-span-1">
+            <Card className="shadow-xl border-neutral-200 rounded-2xl">
+              <CardContent className="p-6">
+                <Skeleton className="h-10 w-40 mb-2" />
+                <Skeleton className="h-4 w-20 mb-6" />
+                <Skeleton className="h-4 w-full mb-2" />
+                <Skeleton className="h-4 w-full mb-2" />
+                <Skeleton className="h-4 w-full mb-6" />
+                <Skeleton className="h-12 w-full mb-3" />
+                <Skeleton className="h-12 w-full" />
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+      </main>
     </div>
   );
 }
