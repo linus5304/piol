@@ -83,6 +83,8 @@ export default defineSchema({
         })
       )
     ),
+    // Placeholder image URLs for development/demo (not Convex storage)
+    placeholderImages: v.optional(v.array(v.string())),
     status: v.union(
       v.literal('draft'),
       v.literal('pending_verification'),

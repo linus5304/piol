@@ -318,7 +318,7 @@ export const getProperty = query({
       reviews.length > 0 ? reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length : null;
 
     // Resolve image URLs from storage
-    const imageUrls = property.images
+    const storageImages = property.images
       ? await Promise.all(
           property.images.map(async (image) => {
             const url = await ctx.storage.getUrl(image.storageId);
@@ -333,7 +333,18 @@ export const getProperty = query({
       : [];
 
     // Sort images by order
-    const sortedImages = imageUrls.sort((a, b) => a.order - b.order);
+    const sortedStorageImages = storageImages.sort((a, b) => a.order - b.order);
+
+    // Use storage images if available, otherwise fall back to placeholder images
+    const imageUrls =
+      sortedStorageImages.length > 0
+        ? sortedStorageImages
+        : (property.placeholderImages || []).map((url, index) => ({
+            url,
+            order: index,
+            caption: null,
+            storageId: null,
+          }));
 
     // Resolve landlord profile image URL
     const landlordProfileImageUrl = landlord?.profileImageId
@@ -342,7 +353,7 @@ export const getProperty = query({
 
     return {
       ...property,
-      imageUrls: sortedImages,
+      imageUrls,
       landlord: landlord
         ? {
             _id: landlord._id,

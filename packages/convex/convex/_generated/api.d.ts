@@ -20,6 +20,7 @@ import type * as reviews from "../reviews.js";
 import type * as savedProperties from "../savedProperties.js";
 import type * as seed_index from "../seed/index.js";
 import type * as seed_properties from "../seed/properties.js";
+import type * as seed_reviews from "../seed/reviews.js";
 import type * as seed_users from "../seed/users.js";
 import type * as transactions from "../transactions.js";
 import type * as users from "../users.js";
@@ -44,6 +45,7 @@ declare const fullApi: ApiFromModules<{
   savedProperties: typeof savedProperties;
   "seed/index": typeof seed_index;
   "seed/properties": typeof seed_properties;
+  "seed/reviews": typeof seed_reviews;
   "seed/users": typeof seed_users;
   transactions: typeof transactions;
   users: typeof users;

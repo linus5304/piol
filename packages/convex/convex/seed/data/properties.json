@@ -1,32 +1,334 @@
 [
   {
     "title": "Appartement spacieux à Bonapriso",
+    "description": "Magnifique appartement de 3 chambres situé dans le quartier prisé de Bonapriso à Douala. Entièrement rénové avec des finitions modernes.\n\nL'appartement comprend un grand salon lumineux, une cuisine équipée, trois chambres spacieuses avec placards intégrés, et deux salles de bain modernes.\n\nIdéalement situé à proximité des commerces, restaurants et écoles internationales. Parfait pour une famille ou des professionnels.",
     "propertyType": "3br",
     "rentAmount": 250000,
     "currency": "XAF",
     "city": "Douala",
     "neighborhood": "Bonapriso",
     "status": "active",
-    "verificationStatus": "approved"
+    "verificationStatus": "approved",
+    "amenities": {
+      "wifi": true,
+      "parking": true,
+      "ac": true,
+      "security": true,
+      "water247": true,
+      "electricity247": false,
+      "furnished": false,
+      "balcony": true,
+      "garden": false
+    },
+    "placeholderImages": [
+      "https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=800&h=600&fit=crop",
+      "https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=800&h=600&fit=crop",
+      "https://images.unsplash.com/photo-1560185893-a55cbc8c57e8?w=800&h=600&fit=crop",
+      "https://images.unsplash.com/photo-1484154218962-a197022b5858?w=800&h=600&fit=crop"
+    ]
   },
   {
     "title": "Studio moderne à Bastos",
+    "description": "Studio contemporain parfaitement aménagé dans le quartier diplomatique de Bastos à Yaoundé. Idéal pour un jeune professionnel ou un étudiant.\n\nEspace ouvert avec coin cuisine équipée, salle de bain moderne et grand placard de rangement. Lumineux grâce aux grandes fenêtres.\n\nSécurité 24h/24 avec gardien. Proche des ambassades et des centres commerciaux.",
     "propertyType": "studio",
     "rentAmount": 85000,
     "currency": "XAF",
     "city": "Yaoundé",
     "neighborhood": "Bastos",
     "status": "active",
-    "verificationStatus": "approved"
+    "verificationStatus": "approved",
+    "amenities": {
+      "wifi": true,
+      "parking": false,
+      "ac": true,
+      "security": true,
+      "water247": true,
+      "electricity247": true,
+      "furnished": true,
+      "balcony": false,
+      "garden": false
+    },
+    "placeholderImages": [
+      "https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=800&h=600&fit=crop",
+      "https://images.unsplash.com/photo-1502672023488-70e25813eb80?w=800&h=600&fit=crop",
+      "https://images.unsplash.com/photo-1493809842364-78817add7ffb?w=800&h=600&fit=crop"
+    ]
   },
   {
     "title": "Villa de luxe à Kribi",
+    "description": "Superbe villa de standing avec vue sur l'océan Atlantique à Kribi. Parfaite pour les amoureux de la plage et de la nature.\n\nCette villa comprend 4 chambres climatisées, un grand salon avec baies vitrées, une cuisine américaine, et une terrasse donnant sur un jardin tropical.\n\nAccès direct à la plage, piscine privée et personnel de maison disponible. Une opportunité rare sur la côte camerounaise.",
     "propertyType": "villa",
     "rentAmount": 750000,
     "currency": "XAF",
     "city": "Kribi",
     "neighborhood": "Grand Batanga",
     "status": "active",
-    "verificationStatus": "approved"
+    "verificationStatus": "approved",
+    "amenities": {
+      "wifi": true,
+      "parking": true,
+      "ac": true,
+      "security": true,
+      "water247": true,
+      "electricity247": true,
+      "furnished": true,
+      "balcony": true,
+      "garden": true
+    },
+    "placeholderImages": [
+      "https://images.unsplash.com/photo-1613490493576-7fde63acd811?w=800&h=600&fit=crop",
+      "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=800&h=600&fit=crop",
+      "https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=800&h=600&fit=crop",
+      "https://images.unsplash.com/photo-1600566753190-17f0baa2a6c3?w=800&h=600&fit=crop",
+      "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=800&h=600&fit=crop"
+    ]
+  },
+  {
+    "title": "Appartement 2 chambres à Makepe",
+    "description": "Bel appartement de 2 chambres dans le quartier résidentiel de Makepe à Douala. Parfait pour un couple ou une petite famille.\n\nL'appartement offre un salon confortable, une cuisine semi-équipée, deux chambres avec placards, et une salle de bain. Balcon avec vue sur le quartier.\n\nQuartier calme et sécurisé, proche des écoles et supermarchés. Transport facile vers le centre-ville.",
+    "propertyType": "2br",
+    "rentAmount": 120000,
+    "currency": "XAF",
+    "city": "Douala",
+    "neighborhood": "Makepe",
+    "status": "active",
+    "verificationStatus": "approved",
+    "amenities": {
+      "wifi": false,
+      "parking": true,
+      "ac": false,
+      "security": true,
+      "water247": true,
+      "electricity247": false,
+      "furnished": false,
+      "balcony": true,
+      "garden": false
+    },
+    "placeholderImages": [
+      "https://images.unsplash.com/photo-1560185007-cde436f6a4d0?w=800&h=600&fit=crop",
+      "https://images.unsplash.com/photo-1560185008-b033106af5c3?w=800&h=600&fit=crop",
+      "https://images.unsplash.com/photo-1560448075-cbc16bb4af8e?w=800&h=600&fit=crop"
+    ]
+  },
+  {
+    "title": "Maison familiale à Buea",
+    "description": "Grande maison familiale au pied du Mont Cameroun à Buea. Climat frais et agréable toute l'année.\n\nMaison de 4 chambres avec grand salon, salle à manger, cuisine spacieuse, et deux salles de bain. Jardin avec arbres fruitiers et espace pour potager.\n\nQuartier résidentiel calme, idéal pour les familles. Proche de l'Université de Buea et des commerces.",
+    "propertyType": "house",
+    "rentAmount": 180000,
+    "currency": "XAF",
+    "city": "Buea",
+    "neighborhood": "Molyko",
+    "status": "active",
+    "verificationStatus": "approved",
+    "amenities": {
+      "wifi": true,
+      "parking": true,
+      "ac": false,
+      "security": false,
+      "water247": true,
+      "electricity247": false,
+      "furnished": false,
+      "balcony": false,
+      "garden": true
+    },
+    "placeholderImages": [
+      "https://images.unsplash.com/photo-1568605114967-8130f3a36994?w=800&h=600&fit=crop",
+      "https://images.unsplash.com/photo-1570129477492-45c003edd2be?w=800&h=600&fit=crop",
+      "https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=800&h=600&fit=crop",
+      "https://images.unsplash.com/photo-1583608205776-bfd35f0d9f83?w=800&h=600&fit=crop"
+    ]
+  },
+  {
+    "title": "Studio économique à Biyem-Assi",
+    "description": "Studio abordable et fonctionnel à Biyem-Assi, Yaoundé. Parfait pour les étudiants ou jeunes travailleurs avec budget limité.\n\nEspace compact mais bien organisé avec coin cuisine, salle d'eau, et espace de vie. Meublé avec les essentiels.\n\nQuartier vivant avec marchés, restaurants locaux et transport en commun accessible.",
+    "propertyType": "studio",
+    "rentAmount": 45000,
+    "currency": "XAF",
+    "city": "Yaoundé",
+    "neighborhood": "Biyem-Assi",
+    "status": "active",
+    "verificationStatus": "pending",
+    "amenities": {
+      "wifi": false,
+      "parking": false,
+      "ac": false,
+      "security": false,
+      "water247": false,
+      "electricity247": false,
+      "furnished": true,
+      "balcony": false,
+      "garden": false
+    },
+    "placeholderImages": [
+      "https://images.unsplash.com/photo-1536376072261-38c75010e6c9?w=800&h=600&fit=crop",
+      "https://images.unsplash.com/photo-1495433324511-bf8e92934d90?w=800&h=600&fit=crop"
+    ]
+  },
+  {
+    "title": "Appartement standing à Akwa",
+    "description": "Appartement haut standing au cœur d'Akwa, le centre des affaires de Douala. Idéal pour les professionnels et expatriés.\n\nAppartement de 2 chambres entièrement meublé avec goût. Cuisine américaine équipée, salon spacieux, chambres climatisées avec literie de qualité.\n\nImmeuble avec ascenseur, gardiennage 24h/24, et générateur de secours. À deux pas des banques, restaurants et centres commerciaux.",
+    "propertyType": "2br",
+    "rentAmount": 350000,
+    "currency": "XAF",
+    "city": "Douala",
+    "neighborhood": "Akwa",
+    "status": "active",
+    "verificationStatus": "approved",
+    "amenities": {
+      "wifi": true,
+      "parking": true,
+      "ac": true,
+      "security": true,
+      "water247": true,
+      "electricity247": true,
+      "furnished": true,
+      "balcony": true,
+      "garden": false
+    },
+    "placeholderImages": [
+      "https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=800&h=600&fit=crop",
+      "https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=800&h=600&fit=crop",
+      "https://images.unsplash.com/photo-1560185893-a55cbc8c57e8?w=800&h=600&fit=crop",
+      "https://images.unsplash.com/photo-1560185007-cde436f6a4d0?w=800&h=600&fit=crop"
+    ]
+  },
+  {
+    "title": "Chambre simple à Bafoussam",
+    "description": "Chambre individuelle dans une maison partagée à Bafoussam. Solution économique pour les étudiants ou jeunes professionnels.\n\nChambre meublée avec lit, armoire et bureau. Accès aux espaces communs : cuisine, salon et salle de bain partagée.\n\nAmbiance conviviale dans un quartier calme. Proche du marché central et des transports.",
+    "propertyType": "1br",
+    "rentAmount": 35000,
+    "currency": "XAF",
+    "city": "Bafoussam",
+    "neighborhood": "Tamdja",
+    "status": "active",
+    "verificationStatus": "approved",
+    "amenities": {
+      "wifi": true,
+      "parking": false,
+      "ac": false,
+      "security": false,
+      "water247": true,
+      "electricity247": false,
+      "furnished": true,
+      "balcony": false,
+      "garden": false
+    },
+    "placeholderImages": [
+      "https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?w=800&h=600&fit=crop",
+      "https://images.unsplash.com/photo-1522771739844-6a9f6d5f14af?w=800&h=600&fit=crop"
+    ]
+  },
+  {
+    "title": "Duplex moderne à Bonanjo",
+    "description": "Superbe duplex de 3 chambres dans le quartier administratif de Bonanjo à Douala. Architecture moderne et finitions haut de gamme.\n\nRez-de-chaussée : grand salon double hauteur, cuisine équipée, WC visiteurs. Étage : 3 chambres dont une suite parentale avec dressing et salle de bain privée.\n\nTerrasse sur le toit avec vue panoramique. Parking souterrain sécurisé. Quartier prestigieux proche des ministères et ambassades.",
+    "propertyType": "3br",
+    "rentAmount": 500000,
+    "currency": "XAF",
+    "city": "Douala",
+    "neighborhood": "Bonanjo",
+    "status": "active",
+    "verificationStatus": "approved",
+    "amenities": {
+      "wifi": true,
+      "parking": true,
+      "ac": true,
+      "security": true,
+      "water247": true,
+      "electricity247": true,
+      "furnished": false,
+      "balcony": true,
+      "garden": false
+    },
+    "placeholderImages": [
+      "https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=800&h=600&fit=crop",
+      "https://images.unsplash.com/photo-1600566753190-17f0baa2a6c3?w=800&h=600&fit=crop",
+      "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=800&h=600&fit=crop",
+      "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=800&h=600&fit=crop",
+      "https://images.unsplash.com/photo-1613490493576-7fde63acd811?w=800&h=600&fit=crop"
+    ]
+  },
+  {
+    "title": "Appartement 1 chambre à Nlongkak",
+    "description": "Charmant appartement d'une chambre à Nlongkak, quartier central de Yaoundé. Parfait pour célibataire ou jeune couple.\n\nAppartement lumineux avec salon, chambre séparée, cuisine et salle de bain. Bien entretenu avec peinture récente.\n\nExcellent emplacement proche du centre-ville, des commerces et des transports. Quartier animé mais résidentiel.",
+    "propertyType": "1br",
+    "rentAmount": 75000,
+    "currency": "XAF",
+    "city": "Yaoundé",
+    "neighborhood": "Nlongkak",
+    "status": "active",
+    "verificationStatus": "approved",
+    "amenities": {
+      "wifi": false,
+      "parking": false,
+      "ac": false,
+      "security": true,
+      "water247": true,
+      "electricity247": false,
+      "furnished": false,
+      "balcony": true,
+      "garden": false
+    },
+    "placeholderImages": [
+      "https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=800&h=600&fit=crop",
+      "https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=800&h=600&fit=crop",
+      "https://images.unsplash.com/photo-1484154218962-a197022b5858?w=800&h=600&fit=crop"
+    ]
+  },
+  {
+    "title": "Villa avec piscine à Logbessou",
+    "description": "Magnifique villa avec piscine privée à Logbessou, quartier résidentiel de Douala. Idéale pour famille aisée ou diplomate.\n\nVilla de 5 chambres sur terrain de 1000m². Grand salon, salle à manger formelle, cuisine équipée, bureau, et dépendances pour personnel.\n\nJardin paysager avec piscine, barbecue et espace de jeux pour enfants. Gardiennage permanent et groupe électrogène.",
+    "propertyType": "villa",
+    "rentAmount": 850000,
+    "currency": "XAF",
+    "city": "Douala",
+    "neighborhood": "Logbessou",
+    "status": "active",
+    "verificationStatus": "approved",
+    "amenities": {
+      "wifi": true,
+      "parking": true,
+      "ac": true,
+      "security": true,
+      "water247": true,
+      "electricity247": true,
+      "furnished": true,
+      "balcony": true,
+      "garden": true
+    },
+    "placeholderImages": [
+      "https://images.unsplash.com/photo-1613490493576-7fde63acd811?w=800&h=600&fit=crop",
+      "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=800&h=600&fit=crop",
+      "https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=800&h=600&fit=crop",
+      "https://images.unsplash.com/photo-1600566753190-17f0baa2a6c3?w=800&h=600&fit=crop",
+      "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=800&h=600&fit=crop"
+    ]
+  },
+  {
+    "title": "Appartement neuf à Omnisport",
+    "description": "Appartement neuf de 2 chambres dans résidence moderne à Omnisport, Yaoundé. Construction récente avec normes de qualité européennes.\n\nAppartement jamais habité avec salon, cuisine ouverte, 2 chambres climatisées, et salle de bain carrelée. Balcon avec vue dégagée.\n\nRésidence sécurisée avec parking, espaces verts et aire de jeux. Proche du stade Omnisport et centres commerciaux.",
+    "propertyType": "2br",
+    "rentAmount": 150000,
+    "currency": "XAF",
+    "city": "Yaoundé",
+    "neighborhood": "Omnisport",
+    "status": "active",
+    "verificationStatus": "approved",
+    "amenities": {
+      "wifi": false,
+      "parking": true,
+      "ac": true,
+      "security": true,
+      "water247": true,
+      "electricity247": false,
+      "furnished": false,
+      "balcony": true,
+      "garden": false
+    },
+    "placeholderImages": [
+      "https://images.unsplash.com/photo-1560185007-cde436f6a4d0?w=800&h=600&fit=crop",
+      "https://images.unsplash.com/photo-1560185008-b033106af5c3?w=800&h=600&fit=crop",
+      "https://images.unsplash.com/photo-1560448075-cbc16bb4af8e?w=800&h=600&fit=crop",
+      "https://images.unsplash.com/photo-1484154218962-a197022b5858?w=800&h=600&fit=crop"
+    ]
   }
 ]

@@ -1,8 +1,8 @@
 [
   {
-    "clerkId": "user_seed_landlord_1",
-    "email": "landlord1@example.com",
-    "phone": "237699123456",
+    "clerkId": "seed_landlord_001",
+    "email": "jean.kamga@example.com",
+    "phone": "+237690000001",
     "role": "landlord",
     "firstName": "Jean-Pierre",
     "lastName": "Kamga",
@@ -10,13 +10,12 @@
     "emailVerified": true,
     "phoneVerified": true,
     "idVerified": true,
-    "isActive": true,
-    "onboardingCompleted": true
+    "isActive": true
   },
   {
-    "clerkId": "user_seed_landlord_2",
-    "email": "landlord2@example.com",
-    "phone": "237677234567",
+    "clerkId": "seed_landlord_002",
+    "email": "marie.ngobassa@example.com",
+    "phone": "+237670000002",
     "role": "landlord",
     "firstName": "Marie",
     "lastName": "Ngo Bassa",
@@ -24,21 +23,84 @@
     "emailVerified": true,
     "phoneVerified": true,
     "idVerified": true,
-    "isActive": true,
-    "onboardingCompleted": true
+    "isActive": true
   },
   {
-    "clerkId": "user_seed_renter_1",
-    "email": "renter1@example.com",
-    "phone": "237655345678",
-    "role": "renter",
+    "clerkId": "seed_landlord_003",
+    "email": "paul.mbarga@example.com",
+    "phone": "+237655000003",
+    "role": "landlord",
     "firstName": "Paul",
     "lastName": "Mbarga",
+    "languagePreference": "fr",
+    "emailVerified": true,
+    "phoneVerified": false,
+    "idVerified": false,
+    "isActive": true
+  },
+  {
+    "clerkId": "seed_landlord_004",
+    "email": "agnes.fotso@example.com",
+    "phone": "+237699000004",
+    "role": "landlord",
+    "firstName": "Agnès",
+    "lastName": "Fotso",
     "languagePreference": "en",
     "emailVerified": true,
     "phoneVerified": true,
+    "idVerified": true,
+    "isActive": true
+  },
+  {
+    "clerkId": "seed_landlord_005",
+    "email": "emmanuel.tchinda@example.com",
+    "phone": "+237677000005",
+    "role": "landlord",
+    "firstName": "Emmanuel",
+    "lastName": "Tchinda",
+    "languagePreference": "fr",
+    "emailVerified": true,
+    "phoneVerified": true,
     "idVerified": false,
-    "isActive": true,
-    "onboardingCompleted": true
+    "isActive": true
+  },
+  {
+    "clerkId": "seed_renter_001",
+    "email": "sophie.eyenga@example.com",
+    "phone": "+237691000010",
+    "role": "renter",
+    "firstName": "Sophie",
+    "lastName": "Eyenga",
+    "languagePreference": "fr",
+    "emailVerified": true,
+    "phoneVerified": true,
+    "idVerified": true,
+    "isActive": true
+  },
+  {
+    "clerkId": "seed_renter_002",
+    "email": "david.njoya@example.com",
+    "phone": "+237678000011",
+    "role": "renter",
+    "firstName": "David",
+    "lastName": "Njoya",
+    "languagePreference": "en",
+    "emailVerified": true,
+    "phoneVerified": false,
+    "idVerified": false,
+    "isActive": true
+  },
+  {
+    "clerkId": "seed_renter_003",
+    "email": "chantal.meka@example.com",
+    "phone": "+237656000012",
+    "role": "renter",
+    "firstName": "Chantal",
+    "lastName": "Meka",
+    "languagePreference": "fr",
+    "emailVerified": true,
+    "phoneVerified": true,
+    "idVerified": true,
+    "isActive": true
   }
 ]

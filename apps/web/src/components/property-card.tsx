@@ -30,6 +30,7 @@ interface PropertyCardProps {
     city: string;
     neighborhood?: string;
     images?: { url?: string; storageId?: string }[];
+    placeholderImages?: string[];
     status?: string;
     verificationStatus?: string;
     landlordId?: string;
@@ -102,7 +103,10 @@ export function PropertyCard({
   const [imageLoaded, setImageLoaded] = useState(false);
   const [imageError, setImageError] = useState(false);
 
-  const imageUrl = property.images?.[0]?.url || getConsistentImage(property._id);
+  const imageUrl =
+    property.images?.[0]?.url ||
+    property.placeholderImages?.[0] ||
+    getConsistentImage(property._id);
 
   const handleImageError = useCallback(() => {
     setImageError(true);

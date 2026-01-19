@@ -20,8 +20,9 @@
     "test:convex": "cd packages/convex && bunx vitest run",
     "test:web": "cd apps/web && jest",
     "typecheck": "turbo run typecheck",
-    "seed": "npx convex run seed:seed",
-    "seed:reset": "npx convex run seed:reset",
+    "seed": "cd packages/convex && npx convex run seed/index:seed",
+    "seed:reset": "cd packages/convex && npx convex run seed/index:reset",
+    "seed:clear": "cd packages/convex && npx convex run seed/index:clear",
     "prepare": "husky"
   },
   "devDependencies": {

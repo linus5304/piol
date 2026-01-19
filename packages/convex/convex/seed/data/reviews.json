@@ -1,0 +1,72 @@
+[
+  {
+    "propertyIndex": 0,
+    "reviewerRole": "renter",
+    "reviewerIndex": 0,
+    "rating": 5,
+    "comment": "Excellent appartement, très bien situé à Bonapriso. Le propriétaire est très réactif et professionnel. Je recommande vivement!"
+  },
+  {
+    "propertyIndex": 0,
+    "reviewerRole": "renter",
+    "reviewerIndex": 1,
+    "rating": 4,
+    "comment": "Bel appartement spacieux. Seul petit bémol : parfois des coupures d'électricité mais c'est normal à Douala. Sinon très satisfait."
+  },
+  {
+    "propertyIndex": 2,
+    "reviewerRole": "renter",
+    "reviewerIndex": 0,
+    "rating": 5,
+    "comment": "La villa est magnifique! Vue sur la mer incroyable. Parfait pour des vacances en famille. Personnel de maison très serviable."
+  },
+  {
+    "propertyIndex": 2,
+    "reviewerRole": "renter",
+    "reviewerIndex": 2,
+    "rating": 5,
+    "comment": "Un vrai paradis à Kribi. Tout était parfait : la propreté, l'emplacement, les équipements. On reviendra certainement!"
+  },
+  {
+    "propertyIndex": 3,
+    "reviewerRole": "renter",
+    "reviewerIndex": 1,
+    "rating": 4,
+    "comment": "Bon rapport qualité-prix pour Makepe. L'appartement est propre et le quartier est calme. Idéal pour une famille."
+  },
+  {
+    "propertyIndex": 6,
+    "reviewerRole": "renter",
+    "reviewerIndex": 0,
+    "rating": 5,
+    "comment": "Appartement de standing comme décrit. Tout est neuf et moderne. Le générateur fonctionne parfaitement. Service impeccable."
+  },
+  {
+    "propertyIndex": 6,
+    "reviewerRole": "renter",
+    "reviewerIndex": 2,
+    "rating": 4,
+    "comment": "Très bel appartement à Akwa, idéal pour le travail. Le prix est élevé mais la qualité est là. Je recommande."
+  },
+  {
+    "propertyIndex": 8,
+    "reviewerRole": "renter",
+    "reviewerIndex": 1,
+    "rating": 5,
+    "comment": "Duplex exceptionnel à Bonanjo. Finitions haut de gamme et quartier prestigieux. Parfait pour notre famille expatriée."
+  },
+  {
+    "propertyIndex": 9,
+    "reviewerRole": "renter",
+    "reviewerIndex": 0,
+    "rating": 4,
+    "comment": "Petit appartement mais très bien pour un célibataire. Bon emplacement à Nlongkak, proche de tout. Prix raisonnable."
+  },
+  {
+    "propertyIndex": 10,
+    "reviewerRole": "renter",
+    "reviewerIndex": 2,
+    "rating": 5,
+    "comment": "Villa de rêve avec piscine! Les enfants adorent. Sécurité au top et jardin magnifique. Vaut vraiment son prix."
+  }
+]

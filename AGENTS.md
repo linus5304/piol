@@ -36,6 +36,43 @@ bun run dev          # Web + Convex
 bun run dev:convex   # Convex only
 ```
 
+## Testing
+
+```bash
+bun run test         # All tests (Convex + Web)
+bun run test:convex  # Convex query tests (vitest)
+bun run test:web     # Web component tests (jest)
+```
+
+**Before marking a feature done:** Run tests to verify nothing broke.
+
+### Test Patterns
+
+**Convex tests** (`packages/convex/__tests__/`):
+- Use `convex-test` with in-memory database
+- Test queries return correct data shape
+- Test mutations enforce auth/permissions
+
+**Web tests** (`apps/web/src/__tests__/`):
+- Use Jest + React Testing Library
+- Test component rendering with mock data
+- Don't mock Convex — test components in isolation
+
+## Seed Data
+
+```bash
+bun run seed         # Populate database with realistic data
+bun run seed:reset   # Clear and re-seed (fresh start)
+bun run seed:clear   # Just clear seed data
+```
+
+Seed data includes:
+- 12 properties (various cities, types, prices)
+- 8 users (5 landlords, 3 renters)
+- 10 reviews
+
+Use `bun run seed:reset` before manual testing to ensure realistic data.
+
 ## MVP Focus (Web Only)
 
 1. [x] Auth pages exist (sign-up, sign-in)
