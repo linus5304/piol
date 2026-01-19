@@ -11,6 +11,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { api } from '@repo/convex/_generated/api';
+import type { Id } from '@repo/convex/_generated/dataModel';
+import { useMutation } from 'convex/react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
@@ -45,6 +48,11 @@ export default function NewPropertyPage() {
   const [step, setStep] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  // Convex mutations
+  const createProperty = useMutation(api.properties.createProperty);
+  const addPropertyImages = useMutation(api.properties.addPropertyImages);
+  const generateUploadUrl = useMutation(api.files.generateUploadUrl);
+
   // Form state
   const [formData, setFormData] = useState({
     title: '',
@@ -76,15 +84,84 @@ export default function NewPropertyPage() {
     }
   };
 
+  // Upload a single image to Convex storage
+  const uploadImage = async (file: File): Promise<Id<'_storage'>> => {
+    const uploadUrl = await generateUploadUrl();
+    const response = await fetch(uploadUrl, {
+      method: 'POST',
+      headers: { 'Content-Type': file.type },
+      body: file,
+    });
+    if (!response.ok) {
+      throw new Error('Failed to upload image');
+    }
+    const { storageId } = await response.json();
+    return storageId;
+  };
+
+  // Convert amenities array to object format
+  const convertAmenities = (selected: string[]) => {
+    const amenityKeys = [
+      'wifi',
+      'parking',
+      'ac',
+      'security',
+      'water247',
+      'electricity247',
+      'furnished',
+      'balcony',
+      'garden',
+    ] as const;
+    const result: Record<string, boolean> = {};
+    for (const key of amenityKeys) {
+      if (selected.includes(key)) {
+        result[key] = true;
+      }
+    }
+    return result;
+  };
+
   const handleSubmit = async () => {
     setIsSubmitting(true);
     try {
-      // TODO: Submit to Convex
-      console.log('Submitting property:', formData);
+      // 1. Upload images to Convex storage
+      const uploadedImages: { storageId: Id<'_storage'>; order: number }[] = [];
+      for (let i = 0; i < formData.images.length; i++) {
+        const storageId = await uploadImage(formData.images[i]);
+        uploadedImages.push({ storageId, order: i });
+      }
 
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+      // 2. Create property with status 'draft'
+      const propertyId = await createProperty({
+        title: formData.title,
+        description: formData.description || undefined,
+        propertyType: formData.propertyType as
+          | 'studio'
+          | '1br'
+          | '2br'
+          | '3br'
+          | '4br'
+          | 'house'
+          | 'apartment'
+          | 'villa',
+        rentAmount: Number(formData.rentAmount),
+        cautionMonths: Number(formData.cautionMonths),
+        upfrontMonths: Number(formData.upfrontMonths),
+        city: formData.city,
+        neighborhood: formData.neighborhood || undefined,
+        addressLine1: formData.addressLine1 || undefined,
+        amenities: convertAmenities(formData.selectedAmenities),
+      });
 
+      // 3. Add images to property (if any)
+      if (uploadedImages.length > 0) {
+        await addPropertyImages({
+          propertyId,
+          images: uploadedImages,
+        });
+      }
+
+      // 4. Redirect to property list
       router.push('/dashboard/properties');
     } catch (error) {
       console.error('Error creating property:', error);

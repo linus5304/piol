@@ -10,54 +10,10 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { cn } from '@/lib/utils';
+import { api } from '@repo/convex/_generated/api';
+import { useQuery } from 'convex/react';
 import Link from 'next/link';
 import { useState } from 'react';
-
-// Mock landlord properties
-const mockProperties = [
-  {
-    id: '1',
-    title: 'Appartement 2 chambres - Makepe',
-    type: '2br',
-    price: 150000,
-    city: 'Douala',
-    neighborhood: 'Makepe',
-    status: 'active',
-    verificationStatus: 'approved',
-    views: 45,
-    inquiries: 3,
-    createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 30),
-    image: 'https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=400',
-  },
-  {
-    id: '2',
-    title: 'Studio moderne - Bonapriso',
-    type: 'studio',
-    price: 85000,
-    city: 'Douala',
-    neighborhood: 'Bonapriso',
-    status: 'active',
-    verificationStatus: 'pending',
-    views: 12,
-    inquiries: 1,
-    createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 7),
-    image: 'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=400',
-  },
-  {
-    id: '3',
-    title: 'Villa avec jardin - Bonanjo',
-    type: 'villa',
-    price: 500000,
-    city: 'Douala',
-    neighborhood: 'Bonanjo',
-    status: 'draft',
-    verificationStatus: 'not_submitted',
-    views: 0,
-    inquiries: 0,
-    createdAt: new Date(),
-    image: null,
-  },
-];
 
 const statusLabels: Record<string, { label: string; color: string }> = {
   active: { label: 'Actif', color: 'bg-green-100 text-green-800' },
@@ -69,8 +25,8 @@ const statusLabels: Record<string, { label: string; color: string }> = {
 const verificationLabels: Record<string, { label: string; color: string }> = {
   approved: { label: '✓ Vérifié', color: 'text-green-600' },
   pending: { label: '⏳ En attente', color: 'text-yellow-600' },
+  in_progress: { label: '🔍 En cours', color: 'text-blue-600' },
   rejected: { label: '✗ Rejeté', color: 'text-red-600' },
-  not_submitted: { label: '-', color: 'text-gray-400' },
 };
 
 function formatCurrency(amount: number): string {
@@ -81,18 +37,49 @@ export default function PropertiesPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
 
-  const filteredProperties = mockProperties.filter((property) => {
+  // Fetch landlord's properties from Convex
+  const properties = useQuery(api.properties.getMyProperties);
+  const isLoading = properties === undefined;
+
+  const filteredProperties = (properties ?? []).filter((property) => {
     const matchesSearch = property.title.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesStatus = statusFilter === 'all' || property.status === statusFilter;
     return matchesSearch && matchesStatus;
   });
+
+  // Loading skeleton
+  if (isLoading) {
+    return (
+      <div className="space-y-6">
+        <div className="flex items-center justify-between">
+          <div>
+            <div className="h-8 w-48 bg-gray-200 rounded animate-pulse" />
+            <div className="h-4 w-32 bg-gray-200 rounded animate-pulse mt-2" />
+          </div>
+          <div className="h-10 w-40 bg-gray-200 rounded animate-pulse" />
+        </div>
+        <div className="bg-white rounded-lg border divide-y">
+          {[1, 2, 3].map((i) => (
+            <div key={i} className="p-4 flex gap-4">
+              <div className="w-24 h-24 bg-gray-200 rounded-lg animate-pulse" />
+              <div className="flex-1 space-y-2">
+                <div className="h-5 w-64 bg-gray-200 rounded animate-pulse" />
+                <div className="h-4 w-32 bg-gray-200 rounded animate-pulse" />
+                <div className="h-6 w-40 bg-gray-200 rounded animate-pulse" />
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Mes propriétés</h1>
-          <p className="text-gray-600 mt-1">{mockProperties.length} propriété(s) au total</p>
+          <p className="text-gray-600 mt-1">{properties?.length ?? 0} propriété(s) au total</p>
         </div>
         <Link href="/dashboard/properties/new">
           <Button>
@@ -141,84 +128,89 @@ export default function PropertiesPage() {
         </div>
       ) : (
         <div className="bg-white rounded-lg border divide-y">
-          {filteredProperties.map((property) => (
-            <div key={property.id} className="p-4 hover:bg-gray-50 transition-colors">
-              <div className="flex gap-4">
-                {/* Image */}
-                <div className="w-24 h-24 bg-gray-100 rounded-lg overflow-hidden flex-shrink-0">
-                  {property.image ? (
-                    <img
-                      src={property.image}
-                      alt={property.title}
-                      className="w-full h-full object-cover"
-                    />
-                  ) : (
-                    <div className="w-full h-full flex items-center justify-center text-gray-400">
-                      📷
-                    </div>
-                  )}
-                </div>
-
-                {/* Info */}
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-start justify-between">
-                    <div>
-                      <Link
-                        href={`/dashboard/properties/${property.id}`}
-                        className="font-medium text-gray-900 hover:text-[#FF385C]"
-                      >
-                        {property.title}
-                      </Link>
-                      <p className="text-sm text-gray-500">
-                        {property.neighborhood}, {property.city}
-                      </p>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <span
-                        className={cn(
-                          'px-2 py-1 rounded-full text-xs font-medium',
-                          statusLabels[property.status]?.color
-                        )}
-                      >
-                        {statusLabels[property.status]?.label}
-                      </span>
-                      <span
-                        className={cn(
-                          'text-xs',
-                          verificationLabels[property.verificationStatus]?.color
-                        )}
-                      >
-                        {verificationLabels[property.verificationStatus]?.label}
-                      </span>
-                    </div>
+          {filteredProperties.map((property) => {
+            // Get first image URL (placeholder or would need separate query for storage URLs)
+            const imageUrl = property.placeholderImages?.[0] ?? null;
+            return (
+              <div key={property._id} className="p-4 hover:bg-gray-50 transition-colors">
+                <div className="flex gap-4">
+                  {/* Image */}
+                  <div className="w-24 h-24 bg-gray-100 rounded-lg overflow-hidden flex-shrink-0">
+                    {imageUrl ? (
+                      <img
+                        src={imageUrl}
+                        alt={property.title}
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center text-gray-400">
+                        📷
+                      </div>
+                    )}
                   </div>
 
-                  <p className="text-lg font-medium text-[#FF385C] mt-1">
-                    {formatCurrency(property.price)}/mois
-                  </p>
+                  {/* Info */}
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-start justify-between">
+                      <div>
+                        <Link
+                          href={`/dashboard/properties/${property._id}`}
+                          className="font-medium text-gray-900 hover:text-[#FF385C]"
+                        >
+                          {property.title}
+                        </Link>
+                        <p className="text-sm text-gray-500">
+                          {property.neighborhood ? `${property.neighborhood}, ` : ''}
+                          {property.city}
+                        </p>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <span
+                          className={cn(
+                            'px-2 py-1 rounded-full text-xs font-medium',
+                            statusLabels[property.status]?.color
+                          )}
+                        >
+                          {statusLabels[property.status]?.label}
+                        </span>
+                        <span
+                          className={cn(
+                            'text-xs',
+                            verificationLabels[property.verificationStatus]?.color
+                          )}
+                        >
+                          {verificationLabels[property.verificationStatus]?.label}
+                        </span>
+                      </div>
+                    </div>
 
-                  <div className="flex items-center gap-4 mt-2 text-sm text-gray-500">
-                    <span>👁️ {property.views} vues</span>
-                    <span>💬 {property.inquiries} demandes</span>
+                    <p className="text-lg font-medium text-[#FF385C] mt-1">
+                      {formatCurrency(property.rentAmount)}/mois
+                    </p>
+
+                    <p className="text-sm text-gray-500 mt-2">
+                      {property.propertyType} · Créé le{' '}
+                      {new Date(property._creationTime).toLocaleDateString('fr-FR')}
+                    </p>
                   </div>
-                </div>
 
-                {/* Actions */}
-                <div className="flex items-center gap-2">
-                  <Link href={`/dashboard/properties/${property.id}`}>
-                    <Button variant="outline" size="sm">
-                      Modifier
-                    </Button>
-                  </Link>
-                  <Link href={`/properties/${property.id}`}>
-                    <Button variant="ghost" size="sm">
-                      Voir
-                    </Button>
-                  </Link>
+                  {/* Actions */}
+                  <div className="flex items-center gap-2">
+                    <Link href={`/dashboard/properties/${property._id}`}>
+                      <Button variant="outline" size="sm">
+                        Modifier
+                      </Button>
+                    </Link>
+                    <Link href={`/properties/${property._id}`}>
+                      <Button variant="ghost" size="sm">
+                        Voir
+                      </Button>
+                    </Link>
+                  </div>
                 </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       )}
     </div>
