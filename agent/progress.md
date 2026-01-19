@@ -4,6 +4,48 @@ Session history for AI agents working on Piol. Append new entries at the top.
 
 ---
 
+## Session: 2026-01-19 18:30
+
+**Focus**: mvp-4 - Landlord can create property
+**Outcome**: completed
+
+### Done
+- Wired `/dashboard/properties/new` form to Convex mutations:
+  - `createProperty` - creates property with status 'draft'
+  - `generateUploadUrl` - gets presigned URL for image upload
+  - `addPropertyImages` - links uploaded images to property
+- Added `uploadImage` helper function for sequential image uploads
+- Added `convertAmenities` helper to convert UI array format to Convex object format
+- Updated `handleSubmit` to: upload images → create property → link images → redirect
+- Wired `/dashboard/properties` list to Convex:
+  - Uses `getMyProperties` query instead of mock data
+  - Added loading skeleton
+  - Updated data shape mapping (`_id`, `rentAmount`, `_creationTime`)
+  - Fixed verification status labels to match Convex values
+- All acceptance criteria met:
+  - Form submits to Convex ✓
+  - Property created with status 'draft' ✓
+  - Images upload to Convex storage ✓
+  - Redirects to property list ✓
+  - Property appears in dashboard ✓
+
+### Blockers
+- None
+
+### Decisions
+- Images uploaded sequentially (not parallel) to avoid rate limiting
+- Amenities stored as object `{wifi: true}` not array `['wifi']` per Convex schema
+- Dashboard list uses `placeholderImages[0]` for thumbnail (real images need separate URL resolution)
+
+### Files Changed
+- `apps/web/src/app/dashboard/properties/new/page.tsx` - Wired form to Convex
+- `apps/web/src/app/dashboard/properties/page.tsx` - Wired list to Convex
+
+### Next
+- mvp-5: Wire messaging feature (contact button → send message → conversation list)
+
+---
+
 ## Session: 2026-01-19 16:00
 
 **Focus**: mvp-3 - Property detail page at /properties/[id]

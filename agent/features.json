@@ -65,7 +65,7 @@
     {
       "id": "mvp-4",
       "name": "Landlord can create property",
-      "status": "todo",
+      "status": "done",
       "priority": 4,
       "spec": null,
       "acceptance": [
@@ -76,7 +76,7 @@
         "Property appears in landlord's dashboard"
       ],
       "blockers": [],
-      "notes": "Form UI exists at /dashboard/properties/new. Has TODO for Convex integration."
+      "notes": "Wired form to createProperty mutation. Images upload via generateUploadUrl then addPropertyImages. Dashboard properties list now uses getMyProperties query with loading skeleton. Amenities converted from array to object format."
     },
     {
       "id": "mvp-5",
