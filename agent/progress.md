@@ -44,6 +44,18 @@ Session history for AI agents working on Piol. Append new entries at the top.
 ### Next
 - mvp-5: Wire messaging feature (contact button → send message → conversation list)
 
+### Post-session fix
+- Property creation was failing with "Not authenticated" 
+- Root cause: `CLERK_JWT_ISSUER_DOMAIN` not set in Convex Dashboard
+- Fix: Set env var in Convex Dashboard → Settings → Environment Variables
+- Also added: JWT template named "convex" in Clerk Dashboard
+- Added `UserSync` component to ensure Clerk users get created in Convex
+- **Feature verified working after configuration fix**
+
+### Note on branch structure
+- mvp-4 was incorrectly committed to `feat/mvp-2-properties-convex` branch
+- Future features should each get their own branch from `main`
+
 ---
 
 ## Session: 2026-01-19 16:00
