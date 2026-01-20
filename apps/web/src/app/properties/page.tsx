@@ -1,7 +1,7 @@
 'use client';
 
 import { PublicLayout } from '@/components/layouts/public-layout';
-import { PropertyCard } from '@/components/property-card';
+import { PropertyCard } from '@/components/properties';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
