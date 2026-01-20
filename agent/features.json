@@ -65,7 +65,7 @@
     {
       "id": "redesign-4",
       "name": "UI Redesign: Public Pages",
-      "status": "todo",
+      "status": "done",
       "priority": 30,
       "spec": "openspec/changes/refactor-ui-redesign/specs/ui-property-search/spec.md",
       "acceptance": [
@@ -75,7 +75,7 @@
         "PropertyCard updated with minimal design"
       ],
       "blockers": ["redesign-2"],
-      "notes": "Phase 4: Home, /properties (map view), /properties/[id], PropertyCard updates."
+      "notes": "Complete. Created PropertyMap with Leaflet (price markers, popup cards, bounds fitting, hover sync). /properties page now has split view with list and map panels. PropertyCard has image carousel for multiple images. Property detail page gallery uses shadcn Carousel for mobile and fullscreen modal."
     },
     {
       "id": "redesign-5",

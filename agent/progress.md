@@ -4,6 +4,57 @@ Session history for AI agents working on Piol. Append new entries at the top.
 
 ---
 
+## Session: 2026-01-20 14:30
+
+**Focus**: redesign-4 - UI Redesign: Public Pages
+**Outcome**: completed
+
+### Done
+- Created feature branch `feat/redesign-4-public-pages`
+- Created `PropertyMap` component with react-leaflet:
+  - `property-map.tsx`: Wrapper with dynamic import (SSR-safe)
+  - `property-map-content.tsx`: Leaflet implementation with price markers, popup cards, bounds fitting
+  - Price markers show formatted price (e.g., "180k"), highlight on hover
+  - Popup cards show property preview with image, title, location, price
+  - Hover state syncs between map markers and list items
+- Updated `/properties` page with split view layout:
+  - Desktop: 50/50 list panel + map panel
+  - List items highlight on hover (ring around PropertyCard)
+  - PropertyMap integrates with filter results
+  - Empty state when no properties with coordinates
+- Added image carousel to `PropertyCard`:
+  - Navigation arrows (prev/next) appear on hover
+  - Dot indicators at bottom
+  - Carousel works without leaving the property list
+- Updated property detail page gallery:
+  - Mobile carousel uses shadcn Carousel component
+  - Fullscreen modal uses shadcn Carousel component
+  - Carousel state syncs with dot indicators
+- Added Leaflet CSS styles to globals.css for price markers and popups
+
+### Blockers
+- None
+
+### Decisions
+- Used dynamic import for Leaflet (react-leaflet doesn't work with SSR)
+- PropertyMap shows "no properties with coordinates" message when data lacks location
+- Kept desktop grid gallery as-is (not a carousel) since it's already user-friendly
+- Used native arrow buttons for carousel instead of shadcn CarouselPrevious/Next (better positioning)
+
+### Files Changed
+- `apps/web/src/components/properties/property-map.tsx` - New
+- `apps/web/src/components/properties/property-map-content.tsx` - New
+- `apps/web/src/components/properties/index.ts` - Added PropertyMap export
+- `apps/web/src/components/properties/property-card.tsx` - Added image carousel
+- `apps/web/src/app/properties/page.tsx` - Split view with map
+- `apps/web/src/app/properties/[id]/page.tsx` - shadcn Carousel for gallery
+- `apps/web/src/app/globals.css` - Leaflet marker/popup styles
+
+### Next
+- redesign-5: UI Redesign: Renter Dashboard (stats cards, saved grid, payments table, settings with Field)
+
+---
+
 ## Session: 2026-01-19 23:00
 
 **Focus**: redesign-3 - UI Redesign: Messaging Components
