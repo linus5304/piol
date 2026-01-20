@@ -5,7 +5,7 @@
     {
       "id": "redesign-0",
       "name": "UI Redesign: Setup & Preparation",
-      "status": "todo",
+      "status": "done",
       "priority": 26,
       "spec": "openspec/changes/refactor-ui-redesign/specs/ui-branding/spec.md",
       "acceptance": [
@@ -15,7 +15,7 @@
         "bun run build passes with new components"
       ],
       "blockers": [],
-      "notes": "Phase 0: Install deps, add missing shadcn components based on shadcn blocks patterns."
+      "notes": "Complete. Installed leaflet@1.9.4, react-leaflet@5.0.0, @types/leaflet@1.9.21. Created 7 new UI components following shadcn patterns."
     },
     {
       "id": "redesign-1",
