@@ -52,11 +52,11 @@ export default function MessagesPage() {
     return (
       <div className="space-y-6">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Messages</h1>
-          <p className="text-gray-600 mt-1">Gérez vos conversations</p>
+          <h1 className="text-2xl font-bold text-foreground">Messages</h1>
+          <p className="text-muted-foreground mt-1">Gérez vos conversations</p>
         </div>
         <Skeleton className="h-10 w-full max-w-md" />
-        <div className="bg-white rounded-lg border divide-y">
+        <div className="bg-background rounded-lg border divide-y">
           {[1, 2, 3].map((i) => (
             <div key={i} className="flex items-start gap-4 p-4">
               <Skeleton className="h-12 w-12 rounded-full" />
@@ -76,8 +76,8 @@ export default function MessagesPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-gray-900">Messages</h1>
-        <p className="text-gray-600 mt-1">Gérez vos conversations</p>
+        <h1 className="text-2xl font-bold text-foreground">Messages</h1>
+        <p className="text-muted-foreground mt-1">Gérez vos conversations</p>
       </div>
 
       {/* Search */}
@@ -92,12 +92,12 @@ export default function MessagesPage() {
       </div>
 
       {/* Conversations List */}
-      <div className="bg-white rounded-lg border divide-y">
+      <div className="bg-background rounded-lg border divide-y">
         {!filteredConversations || filteredConversations.length === 0 ? (
           <div className="p-8 text-center">
             <div className="text-4xl mb-4">💬</div>
-            <h3 className="text-lg font-medium text-gray-900 mb-1">Aucune conversation</h3>
-            <p className="text-gray-500">
+            <h3 className="text-lg font-medium text-foreground mb-1">Aucune conversation</h3>
+            <p className="text-muted-foreground">
               {searchQuery
                 ? 'Aucune conversation ne correspond à votre recherche'
                 : 'Vos conversations apparaîtront ici'}
@@ -109,34 +109,38 @@ export default function MessagesPage() {
               key={conversation.conversationId}
               href={`/dashboard/messages/${encodeURIComponent(conversation.conversationId)}`}
               className={cn(
-                'flex items-start gap-4 p-4 hover:bg-gray-50 transition-colors',
-                conversation.unreadCount > 0 && 'bg-blue-50/50'
+                'flex items-start gap-4 p-4 hover:bg-muted transition-colors',
+                conversation.unreadCount > 0 && 'bg-primary/5'
               )}
             >
               <Avatar className="h-12 w-12">
                 <AvatarImage src={undefined} />
-                <AvatarFallback className="bg-gray-200 text-gray-600">
+                <AvatarFallback className="bg-muted text-muted-foreground">
                   {getInitials(conversation.otherUser?.firstName, conversation.otherUser?.lastName)}
                 </AvatarFallback>
               </Avatar>
 
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2">
-                  <span className="font-medium text-gray-900">
+                  <span className="font-medium text-foreground">
                     {conversation.otherUser?.firstName || 'Utilisateur'}{' '}
                     {conversation.otherUser?.lastName || ''}
                   </span>
                   {conversation.unreadCount > 0 && (
-                    <span className="w-2 h-2 bg-blue-500 rounded-full" />
+                    <span className="w-2 h-2 bg-primary rounded-full" />
                   )}
                 </div>
                 {conversation.property && (
-                  <p className="text-sm text-gray-500 truncate">{conversation.property.title}</p>
+                  <p className="text-sm text-muted-foreground truncate">
+                    {conversation.property.title}
+                  </p>
                 )}
                 <p
                   className={cn(
                     'text-sm truncate mt-1',
-                    conversation.unreadCount > 0 ? 'text-gray-900 font-medium' : 'text-gray-600'
+                    conversation.unreadCount > 0
+                      ? 'text-foreground font-medium'
+                      : 'text-muted-foreground'
                   )}
                 >
                   {conversation.lastMessage.isFromMe && 'Vous: '}
@@ -144,7 +148,7 @@ export default function MessagesPage() {
                 </p>
               </div>
 
-              <div className="text-xs text-gray-500 whitespace-nowrap">
+              <div className="text-xs text-muted-foreground whitespace-nowrap">
                 {formatTimestamp(conversation.lastMessage.timestamp)}
               </div>
             </Link>

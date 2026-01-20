@@ -67,8 +67,8 @@ export default function SettingsPage() {
   if (!isLoaded) {
     return (
       <div className="space-y-6">
-        <div className="h-8 w-48 bg-gray-200 rounded animate-pulse" />
-        <div className="h-96 bg-gray-200 rounded-lg animate-pulse" />
+        <div className="h-8 w-48 bg-muted rounded animate-pulse" />
+        <div className="h-96 bg-muted rounded-lg animate-pulse" />
       </div>
     );
   }
@@ -76,8 +76,8 @@ export default function SettingsPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-gray-900">Paramètres</h1>
-        <p className="text-gray-600 mt-1">Gérez votre profil et vos préférences</p>
+        <h1 className="text-2xl font-bold text-foreground">Paramètres</h1>
+        <p className="text-muted-foreground mt-1">Gérez votre profil et vos préférences</p>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-6">
@@ -116,9 +116,9 @@ export default function SettingsPage() {
                 type="email"
                 value={user?.primaryEmailAddress?.emailAddress || ''}
                 disabled
-                className="bg-gray-50"
+                className="bg-muted"
               />
-              <p className="text-xs text-gray-500">
+              <p className="text-xs text-muted-foreground">
                 L'email est géré via votre compte de connexion
               </p>
             </div>
@@ -181,29 +181,29 @@ export default function SettingsPage() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="font-medium">Notifications email</p>
-                <p className="text-sm text-gray-500">
+                <p className="text-sm text-muted-foreground">
                   Recevoir des emails pour les nouveaux messages
                 </p>
               </div>
-              <input type="checkbox" defaultChecked className="h-4 w-4 rounded border-gray-300" />
+              <input type="checkbox" defaultChecked className="h-4 w-4 rounded border-border" />
             </div>
             <div className="flex items-center justify-between">
               <div>
                 <p className="font-medium">Alertes de propriétés</p>
-                <p className="text-sm text-gray-500">
+                <p className="text-sm text-muted-foreground">
                   Être notifié des nouvelles propriétés correspondant à vos critères
                 </p>
               </div>
-              <input type="checkbox" defaultChecked className="h-4 w-4 rounded border-gray-300" />
+              <input type="checkbox" defaultChecked className="h-4 w-4 rounded border-border" />
             </div>
             <div className="flex items-center justify-between">
               <div>
                 <p className="font-medium">Newsletter</p>
-                <p className="text-sm text-gray-500">
+                <p className="text-sm text-muted-foreground">
                   Recevoir des conseils et actualités immobilières
                 </p>
               </div>
-              <input type="checkbox" className="h-4 w-4 rounded border-gray-300" />
+              <input type="checkbox" className="h-4 w-4 rounded border-border" />
             </div>
           </CardContent>
         </Card>

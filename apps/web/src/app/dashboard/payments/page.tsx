@@ -50,10 +50,10 @@ const mockPayments = [
 ];
 
 const statusLabels: Record<string, { label: string; color: string }> = {
-  completed: { label: 'Complété', color: 'bg-green-100 text-green-800' },
-  pending: { label: 'En attente', color: 'bg-yellow-100 text-yellow-800' },
-  failed: { label: 'Échoué', color: 'bg-red-100 text-red-800' },
-  processing: { label: 'En cours', color: 'bg-blue-100 text-blue-800' },
+  completed: { label: 'Complété', color: 'bg-success/10 text-success' },
+  pending: { label: 'En attente', color: 'bg-warning/10 text-warning' },
+  failed: { label: 'Échoué', color: 'bg-destructive/10 text-destructive' },
+  processing: { label: 'En cours', color: 'bg-primary/10 text-primary' },
 };
 
 const typeLabels: Record<string, string> = {
@@ -93,8 +93,8 @@ export default function PaymentsPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-gray-900">Paiements</h1>
-        <p className="text-gray-600 mt-1">Historique et gestion de vos paiements</p>
+        <h1 className="text-2xl font-bold text-foreground">Paiements</h1>
+        <p className="text-muted-foreground mt-1">Historique et gestion de vos paiements</p>
       </div>
 
       {/* Stats Cards */}
@@ -141,9 +141,9 @@ export default function PaymentsPage() {
       </div>
 
       {/* Payments List */}
-      <div className="bg-white rounded-lg border">
-        <div className="px-4 py-3 border-b bg-gray-50">
-          <div className="grid grid-cols-12 gap-4 text-sm font-medium text-gray-500">
+      <div className="bg-background rounded-lg border">
+        <div className="px-4 py-3 border-b bg-muted">
+          <div className="grid grid-cols-12 gap-4 text-sm font-medium text-muted-foreground">
             <div className="col-span-4">Transaction</div>
             <div className="col-span-3">Propriété</div>
             <div className="col-span-2">Date</div>
@@ -155,31 +155,31 @@ export default function PaymentsPage() {
         {filteredPayments.length === 0 ? (
           <div className="p-8 text-center">
             <div className="text-4xl mb-4">💳</div>
-            <h3 className="text-lg font-medium text-gray-900 mb-1">Aucun paiement</h3>
-            <p className="text-gray-500">Vos transactions apparaîtront ici</p>
+            <h3 className="text-lg font-medium text-foreground mb-1">Aucun paiement</h3>
+            <p className="text-muted-foreground">Vos transactions apparaîtront ici</p>
           </div>
         ) : (
           <div className="divide-y">
             {filteredPayments.map((payment) => (
-              <div key={payment.id} className="px-4 py-4 hover:bg-gray-50">
+              <div key={payment.id} className="px-4 py-4 hover:bg-muted">
                 <div className="grid grid-cols-12 gap-4 items-center">
                   <div className="col-span-4">
-                    <p className="font-medium text-gray-900">{typeLabels[payment.type]}</p>
-                    <p className="text-sm text-gray-500">
+                    <p className="font-medium text-foreground">{typeLabels[payment.type]}</p>
+                    <p className="text-sm text-muted-foreground">
                       {payment.reference || 'En attente de paiement'}
                     </p>
                     {payment.method && (
-                      <p className="text-xs text-gray-400 mt-1">via {payment.method}</p>
+                      <p className="text-xs text-muted-foreground/70 mt-1">via {payment.method}</p>
                     )}
                   </div>
                   <div className="col-span-3">
-                    <p className="text-sm text-gray-600 truncate">{payment.property}</p>
+                    <p className="text-sm text-muted-foreground truncate">{payment.property}</p>
                   </div>
                   <div className="col-span-2">
-                    <p className="text-sm text-gray-600">{formatDate(payment.date)}</p>
+                    <p className="text-sm text-muted-foreground">{formatDate(payment.date)}</p>
                   </div>
                   <div className="col-span-2 text-right">
-                    <p className="font-medium text-gray-900">{formatCurrency(payment.amount)}</p>
+                    <p className="font-medium text-foreground">{formatCurrency(payment.amount)}</p>
                   </div>
                   <div className="col-span-1">
                     <span
