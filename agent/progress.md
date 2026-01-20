@@ -4,6 +4,42 @@ Session history for AI agents working on Piol. Append new entries at the top.
 
 ---
 
+## Session: 2026-01-19 23:45
+
+**Focus**: Review and complete previous session's uncommitted work
+**Outcome**: completed
+
+### Done
+- Reviewed uncommitted work from previous session
+- Confirmed polish-0 complete (UI Engineer skill + /ui-review command)
+- Confirmed polish-1 complete (globals.css coral theme, tokens already aligned)
+- Confirmed polish-2 partial (/properties page cleaned, /properties/[id] still needs work)
+- Created feature branch `feat/polish-0-1-ui-skill-design-tokens`
+- Verified build passes with new theme
+- Committed feature code and agent state
+
+### Blockers
+- None
+
+### Decisions
+- Previous session did more than features.json reflected; corrected statuses
+- polish-2 left incomplete intentionally—properties/[id] has 49+ hardcoded colors
+
+### Files Changed
+- `.cursor/skills/ui-engineer.md` - New UI Engineer skill
+- `.cursor/commands/ui-review.md` - New /ui-review command
+- `.cursor/rules.md` - Updated with UI rules reference
+- `apps/web/src/app/globals.css` - Coral theme (lime → coral)
+- `apps/web/src/app/properties/page.tsx` - Removed hardcoded colors, console.log
+- `openspec/changes/add-production-polish/` - New proposal
+- `agent/features.json` - Updated polish-1 status to done
+
+### Next
+- Create PR for this branch
+- Continue with polish-2: Fix /properties/[id] hardcoded colors
+
+---
+
 ## Session: 2026-01-19 22:30
 
 **Focus**: prod-2 through prod-5 - Production readiness

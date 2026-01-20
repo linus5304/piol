@@ -4,8 +4,8 @@
 @custom-variant dark (&:is(.dark *));
 
 /* =============================================================================
-   PIOL DESIGN SYSTEM - Catalyst Dark Theme
-   Clean, minimal dark UI inspired by Tailwind Catalyst
+   PIOL DESIGN SYSTEM - Coral Theme
+   Warm, trust-focused UI for housing marketplace (Airbnb-inspired)
    ============================================================================= */
 
 :root {
@@ -23,9 +23,9 @@
     sans-serif
   );
 
-  /* Primary - Lime accent (Catalyst style) */
-  --primary: #84cc16;
-  --primary-foreground: #09090b;
+  /* Primary - Coral accent (Housing marketplace convention) */
+  --primary: #ff385c;
+  --primary-foreground: #ffffff;
 
   /* Background & Foreground - Dark by default */
   --background: #18181b;
@@ -55,70 +55,73 @@
   --destructive: #ef4444;
   --destructive-foreground: #fafafa;
 
-  /* Success */
-  --success: #84cc16;
-  --success-foreground: #09090b;
+  /* Success - Green for verification badges */
+  --success: #008a05;
+  --success-foreground: #ffffff;
 
   /* Border & Input */
   --border: #3f3f46;
   --input: #27272a;
-  --ring: #84cc16;
+  --ring: #ff385c;
 
   /* Charts */
-  --chart-1: #84cc16;
-  --chart-2: #a3e635;
-  --chart-3: #22c55e;
+  --chart-1: #ff385c;
+  --chart-2: #ff5a7d;
+  --chart-3: #008a05;
   --chart-4: #a1a1aa;
   --chart-5: #fafafa;
 
   /* Sidebar - Darker than content */
   --sidebar: #09090b;
   --sidebar-foreground: #fafafa;
-  --sidebar-primary: #84cc16;
-  --sidebar-primary-foreground: #09090b;
+  --sidebar-primary: #ff385c;
+  --sidebar-primary-foreground: #ffffff;
   --sidebar-accent: #27272a;
   --sidebar-accent-foreground: #fafafa;
   --sidebar-border: #27272a;
-  --sidebar-ring: #84cc16;
+  --sidebar-ring: #ff385c;
   --sidebar-muted: #71717a;
 }
 
-/* Light mode override (optional) */
+/* Light mode override */
 .light {
-  --primary: #65a30d;
+  --primary: #e31c5f;
   --primary-foreground: #ffffff;
 
   --background: #ffffff;
-  --foreground: #09090b;
+  --foreground: #222222;
 
   --card: #ffffff;
-  --card-foreground: #09090b;
+  --card-foreground: #222222;
 
   --popover: #ffffff;
-  --popover-foreground: #09090b;
+  --popover-foreground: #222222;
 
-  --secondary: #f4f4f5;
-  --secondary-foreground: #09090b;
+  --secondary: #f7f7f7;
+  --secondary-foreground: #222222;
 
-  --muted: #f4f4f5;
-  --muted-foreground: #71717a;
+  --muted: #f7f7f7;
+  --muted-foreground: #717171;
 
-  --accent: #f4f4f5;
-  --accent-foreground: #09090b;
+  --accent: #f7f7f7;
+  --accent-foreground: #222222;
 
-  --border: #e4e4e7;
-  --input: #e4e4e7;
-  --ring: #65a30d;
+  --border: #dddddd;
+  --input: #dddddd;
+  --ring: #e31c5f;
+
+  --success: #008a05;
+  --success-foreground: #ffffff;
 
   --sidebar: #fafafa;
-  --sidebar-foreground: #09090b;
-  --sidebar-primary: #65a30d;
+  --sidebar-foreground: #222222;
+  --sidebar-primary: #e31c5f;
   --sidebar-primary-foreground: #ffffff;
-  --sidebar-accent: #f4f4f5;
-  --sidebar-accent-foreground: #09090b;
-  --sidebar-border: #e4e4e7;
-  --sidebar-ring: #65a30d;
-  --sidebar-muted: #71717a;
+  --sidebar-accent: #f7f7f7;
+  --sidebar-accent-foreground: #222222;
+  --sidebar-border: #ebebeb;
+  --sidebar-ring: #e31c5f;
+  --sidebar-muted: #717171;
 }
 
 @theme inline {
@@ -200,10 +203,10 @@
     min-width: 44px;
   }
 
-  /* Catalyst-style stat change badges */
+  /* Stat change badges */
   .stat-change-positive {
-    background-color: rgba(132, 204, 22, 0.2);
-    color: #84cc16;
+    background-color: rgba(0, 138, 5, 0.2);
+    color: #008a05;
   }
 
   .stat-change-negative {

@@ -1,7 +1,111 @@
 {
   "version": 1,
-  "lastUpdated": "2026-01-19T22:30:00Z",
+  "lastUpdated": "2026-01-19T23:30:00Z",
   "features": [
+    {
+      "id": "polish-0",
+      "name": "UI Engineer Skill",
+      "status": "done",
+      "priority": 19,
+      "spec": "openspec/changes/add-production-polish/specs/ui-skills/spec.md",
+      "acceptance": [
+        ".cursor/skills/ui-engineer.md created with React/Tailwind/shadcn patterns",
+        "/ui-review command created",
+        ".cursor/rules.md updated with UI rules",
+        "shadcn MCP server documented in skill"
+      ],
+      "blockers": [],
+      "notes": "Complete. Expert UI skill following Vercel agent-skills pattern. Includes design tokens, component patterns, accessibility guidelines, and Piol-specific patterns."
+    },
+    {
+      "id": "polish-1",
+      "name": "Design System Consolidation",
+      "status": "done",
+      "priority": 20,
+      "spec": "openspec/changes/add-production-polish/specs/design-system/spec.md",
+      "acceptance": [
+        "globals.css :root uses coral primary (#FF385C)",
+        "globals.css .light theme variant updated",
+        "packages/ui/tokens aligns with globals.css",
+        "Build passes with new theme"
+      ],
+      "blockers": [],
+      "notes": "Complete. globals.css updated from lime (#84cc16) to coral (#FF385C). Light mode updated. packages/ui/tokens already used coral. Chart colors and sidebar ring colors also updated."
+    },
+    {
+      "id": "polish-2",
+      "name": "Property Pages Cleanup",
+      "status": "todo",
+      "priority": 21,
+      "spec": "openspec/changes/add-production-polish/specs/design-system/spec.md",
+      "acceptance": [
+        "/properties uses bg-primary instead of #FF385C",
+        "/properties/[id] uses bg-background instead of bg-white",
+        "text-neutral-* replaced with semantic colors",
+        "Dark mode renders correctly on both pages"
+      ],
+      "blockers": ["polish-1"],
+      "notes": "Property detail page uses hardcoded bg-white and text-neutral-* throughout."
+    },
+    {
+      "id": "polish-3",
+      "name": "Dashboard Pages Cleanup",
+      "status": "todo",
+      "priority": 22,
+      "spec": "openspec/changes/add-production-polish/specs/design-system/spec.md",
+      "acceptance": [
+        "Messages page uses text-muted-foreground not text-gray-*",
+        "New property form TODO completed",
+        "All console.log statements removed",
+        "All dashboard pages render correctly"
+      ],
+      "blockers": ["polish-1"],
+      "notes": "Messages page uses gray colors. New property form has TODO at line 83."
+    },
+    {
+      "id": "polish-4",
+      "name": "Component Deduplication",
+      "status": "todo",
+      "priority": 23,
+      "spec": "openspec/changes/add-production-polish/specs/design-system/spec.md",
+      "acceptance": [
+        "Single property-card.tsx in /components/properties/",
+        "Duplicate file deleted",
+        "All imports updated",
+        "index.ts exports centralized"
+      ],
+      "blockers": [],
+      "notes": "property-card.tsx exists in both /components/ and /components/properties/"
+    },
+    {
+      "id": "polish-5",
+      "name": "Add Missing shadcn Components",
+      "status": "todo",
+      "priority": 24,
+      "spec": null,
+      "acceptance": [
+        "command component added (search palette)",
+        "calendar component added (visit scheduling)",
+        "carousel component added (property images)",
+        "alert component added (notifications)"
+      ],
+      "blockers": [],
+      "notes": "Use bunx --bun shadcn@latest add <component>"
+    },
+    {
+      "id": "polish-6",
+      "name": "AI Skills Integration",
+      "status": "todo",
+      "priority": 25,
+      "spec": null,
+      "acceptance": [
+        "AI SDK v6 integrated",
+        "Property search skill implemented",
+        "Landlord assistant skill implemented"
+      ],
+      "blockers": ["polish-1", "polish-2", "polish-3", "polish-4"],
+      "notes": "Optional. Add AI-powered features using Vercel AI SDK agent patterns."
+    },
     {
       "id": "prod-1",
       "name": "Sentry error tracking",
