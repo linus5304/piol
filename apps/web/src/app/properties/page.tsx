@@ -188,12 +188,10 @@ export default function PropertiesPage() {
   const handleToggleSave = useCallback(
     async (propertyId: string) => {
       try {
-        const result = await toggleSaveProperty({
+        await toggleSaveProperty({
           propertyId: propertyId as Id<'properties'>,
         });
-        console.log('[Save] Toggle result:', result);
       } catch (error) {
-        console.error('[Save] Failed to toggle save:', error);
         toast.error('Impossible de sauvegarder la propriété. Veuillez réessayer.');
       }
     },
@@ -379,10 +377,7 @@ export default function PropertiesPage() {
                   <Button variant="ghost" onClick={clearAllFilters} className="rounded-xl">
                     {t('filters.clearAll')}
                   </Button>
-                  <Button
-                    onClick={() => setShowFilters(false)}
-                    className="rounded-xl bg-[#FF385C] hover:bg-[#E31C5F]"
-                  >
+                  <Button onClick={() => setShowFilters(false)} className="rounded-xl">
                     {t('filters.showResults', { count: propertiesResult.total })}
                   </Button>
                 </div>
@@ -531,7 +526,7 @@ export default function PropertiesPage() {
       <div className="fixed bottom-6 left-1/2 -translate-x-1/2 md:hidden">
         <Button
           onClick={() => setViewMode(viewMode === 'grid' ? 'map' : 'grid')}
-          className="shadow-lg rounded-full bg-[#FF385C] hover:bg-[#E31C5F]"
+          className="shadow-lg rounded-full"
         >
           {viewMode === 'grid' ? (
             <>

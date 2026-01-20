@@ -12,6 +12,8 @@
 - Convex hooks for data (`useQuery`, `useMutation`)
 - Loading skeletons, error boundaries
 - No hardcoded strings (use i18n)
+- **No hardcoded colors** - use design tokens (`bg-primary`, not `#FF385C`)
+- See `.cursor/skills/ui-engineer.md` for UI patterns
 
 ## Convex
 
