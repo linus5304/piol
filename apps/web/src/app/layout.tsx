@@ -1,5 +1,7 @@
 import { enUS, frFR } from '@clerk/localizations';
 import { ClerkProvider } from '@clerk/nextjs';
+import { Analytics } from '@vercel/analytics/react';
+import { SpeedInsights } from '@vercel/speed-insights/next';
 import type { Metadata, Viewport } from 'next';
 import { NextIntlClientProvider } from 'next-intl';
 import { getLocale, getMessages } from 'next-intl/server';
@@ -75,6 +77,8 @@ export default async function RootLayout({
           <Providers>{children}</Providers>
         </NextIntlClientProvider>
         <Toaster position="top-right" richColors />
+        <Analytics />
+        <SpeedInsights />
       </body>
     </html>
   );
