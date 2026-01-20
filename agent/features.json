@@ -20,7 +20,7 @@
     {
       "id": "redesign-1",
       "name": "UI Redesign: Theme & Branding",
-      "status": "todo",
+      "status": "done",
       "priority": 27,
       "spec": "openspec/changes/refactor-ui-redesign/specs/ui-branding/spec.md",
       "acceptance": [
@@ -30,7 +30,7 @@
         "All hardcoded colors replaced with CSS variables"
       ],
       "blockers": ["redesign-0"],
-      "notes": "Phase 1: Zinc theme, icon logo, favicon, remove hardcoded colors."
+      "notes": "Complete. Zinc theme (light default, dark mode), Home icon logo, icon.svg favicon. Replaced all hardcoded #FF385C/#E31C5F/text-gray-*/bg-gray-* with semantic colors across 14 files."
     },
     {
       "id": "redesign-2",
