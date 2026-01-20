@@ -4,6 +4,43 @@ Session history for AI agents working on Piol. Append new entries at the top.
 
 ---
 
+## Session: 2026-01-19 23:00
+
+**Focus**: redesign-3 - UI Redesign: Messaging Components
+**Outcome**: completed
+
+### Done
+- Created feature branch `feat/redesign-3-messaging`
+- Created `components/messaging/` directory with 3 new components:
+  - `conversation-list.tsx`: Uses Item/ItemGroup pattern, includes search filter, avatar with initials, unread count badges, relative timestamps, empty state with Empty component
+  - `message-thread.tsx`: Header with back navigation and avatar, property context card, message bubbles with sent/received styling (primary bg for sent, muted for received), read status indicators (check/double-check), auto-scroll on new messages, empty state
+  - `message-composer.tsx`: Uses InputGroup pattern with InputGroupInput + InputGroupButton, Enter key to send, disabled state handling, optimistic message clearing with rollback on error
+- Created `components/messaging/index.ts` barrel export
+- Refactored `app/dashboard/messages/page.tsx` to use ConversationList (90% code reduction)
+- Refactored `app/dashboard/messages/[id]/page.tsx` to use MessageThread + MessageComposer (70% code reduction)
+
+### Blockers
+- None
+
+### Decisions
+- Kept components in separate `messaging/` directory rather than `ui/` since they're feature-specific
+- ConversationList includes integrated search — cleaner than separate component
+- MessageThread handles its own loading skeleton — keeps page component simple
+- Used English for UI text (spec didn't specify French, matching codebase direction)
+
+### Files Changed
+- `apps/web/src/components/messaging/conversation-list.tsx` - New
+- `apps/web/src/components/messaging/message-thread.tsx` - New
+- `apps/web/src/components/messaging/message-composer.tsx` - New
+- `apps/web/src/components/messaging/index.ts` - New
+- `apps/web/src/app/dashboard/messages/page.tsx` - Refactored to use ConversationList
+- `apps/web/src/app/dashboard/messages/[id]/page.tsx` - Refactored to use MessageThread + MessageComposer
+
+### Next
+- redesign-4: UI Redesign: Public Pages (home, /properties map view, /properties/[id] carousel, PropertyCard)
+
+---
+
 ## Session: 2026-01-19 22:15
 
 **Focus**: redesign-2 - UI Redesign: Layout Components

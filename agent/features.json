@@ -50,7 +50,7 @@
     {
       "id": "redesign-3",
       "name": "UI Redesign: Messaging Components",
-      "status": "todo",
+      "status": "done",
       "priority": 29,
       "spec": "openspec/changes/refactor-ui-redesign/specs/ui-messaging/spec.md",
       "acceptance": [
@@ -60,7 +60,7 @@
         "Empty states for no conversations"
       ],
       "blockers": ["redesign-2"],
-      "notes": "Phase 3: Conversation list, message thread, message composer components."
+      "notes": "Complete. Created components/messaging/ with ConversationList (Item/ItemGroup pattern, search, unread badges), MessageThread (bubble styling, property context card, auto-scroll), MessageComposer (InputGroup pattern, Enter to send). Updated messages/page.tsx and messages/[id]/page.tsx to use new components."
     },
     {
       "id": "redesign-4",
