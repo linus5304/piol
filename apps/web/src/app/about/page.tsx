@@ -25,8 +25,8 @@ export default function AboutPage() {
         </p>
         <div className="grid md:grid-cols-3 gap-8 mt-12">
           <div className="text-center">
-            <div className="w-14 h-14 bg-[#FF385C]/10 rounded-2xl flex items-center justify-center mx-auto mb-4">
-              <CheckCircle2 className="w-7 h-7 text-[#FF385C]" />
+            <div className="w-14 h-14 bg-primary/10 rounded-2xl flex items-center justify-center mx-auto mb-4">
+              <CheckCircle2 className="w-7 h-7 text-primary" />
             </div>
             <h3 className="text-lg font-semibold mb-2">Propriétés Vérifiées</h3>
             <p className="text-muted-foreground">
@@ -34,8 +34,8 @@ export default function AboutPage() {
             </p>
           </div>
           <div className="text-center">
-            <div className="w-14 h-14 bg-[#FF385C]/10 rounded-2xl flex items-center justify-center mx-auto mb-4">
-              <Shield className="w-7 h-7 text-[#FF385C]" />
+            <div className="w-14 h-14 bg-primary/10 rounded-2xl flex items-center justify-center mx-auto mb-4">
+              <Shield className="w-7 h-7 text-primary" />
             </div>
             <h3 className="text-lg font-semibold mb-2">Paiements Sécurisés</h3>
             <p className="text-muted-foreground">
@@ -43,8 +43,8 @@ export default function AboutPage() {
             </p>
           </div>
           <div className="text-center">
-            <div className="w-14 h-14 bg-[#FF385C]/10 rounded-2xl flex items-center justify-center mx-auto mb-4">
-              <Users className="w-7 h-7 text-[#FF385C]" />
+            <div className="w-14 h-14 bg-primary/10 rounded-2xl flex items-center justify-center mx-auto mb-4">
+              <Users className="w-7 h-7 text-primary" />
             </div>
             <h3 className="text-lg font-semibold mb-2">Support Bilingue</h3>
             <p className="text-muted-foreground">
@@ -75,19 +75,19 @@ export default function AboutPage() {
       <PageSection bordered>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
           <div>
-            <div className="text-4xl font-bold text-[#FF385C]">1,000+</div>
+            <div className="text-4xl font-bold text-primary">1,000+</div>
             <div className="text-muted-foreground mt-1">Propriétés</div>
           </div>
           <div>
-            <div className="text-4xl font-bold text-[#FF385C]">5,000+</div>
+            <div className="text-4xl font-bold text-primary">5,000+</div>
             <div className="text-muted-foreground mt-1">Utilisateurs</div>
           </div>
           <div>
-            <div className="text-4xl font-bold text-[#FF385C]">8</div>
+            <div className="text-4xl font-bold text-primary">8</div>
             <div className="text-muted-foreground mt-1">Villes</div>
           </div>
           <div>
-            <div className="text-4xl font-bold text-[#FF385C]">98%</div>
+            <div className="text-4xl font-bold text-primary">98%</div>
             <div className="text-muted-foreground mt-1">Satisfaction</div>
           </div>
         </div>
@@ -110,7 +110,7 @@ export default function AboutPage() {
               <Button
                 variant="outline"
                 size="lg"
-                className="rounded-xl bg-white/10 text-white border-white/30 hover:bg-white/20"
+                className="rounded-xl bg-primary-foreground/10 text-primary-foreground border-primary-foreground/30 hover:bg-primary-foreground/20"
               >
                 Je suis propriétaire
               </Button>

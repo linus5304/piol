@@ -55,7 +55,7 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: '#FF385C',
+  themeColor: '#18181b',
 };
 
 export default async function RootLayout({
@@ -94,17 +94,17 @@ export default async function RootLayout({
       localization={clerkLocalization}
       appearance={{
         variables: {
-          colorPrimary: '#FF385C',
-          colorBackground: '#FFFFFF',
-          colorText: '#222222',
-          colorTextSecondary: '#717171',
-          borderRadius: '12px',
+          colorPrimary: '#ff385c',
+          colorBackground: '#fafafa',
+          colorText: '#18181b',
+          colorTextSecondary: '#71717a',
+          borderRadius: '8px',
         },
         elements: {
           formButtonPrimary: 'bg-primary hover:bg-primary/90',
           card: 'shadow-lg',
           headerTitle: 'text-2xl font-bold',
-          headerSubtitle: 'text-gray-600',
+          headerSubtitle: 'text-muted-foreground',
         },
       }}
     >

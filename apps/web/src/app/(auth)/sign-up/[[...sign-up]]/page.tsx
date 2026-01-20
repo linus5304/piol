@@ -76,8 +76,8 @@ export default function SignUpPage() {
   return (
     <div className="flex flex-col items-center">
       <div className="mb-8 text-center">
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">Créer un compte</h1>
-        <p className="text-gray-600">
+        <h1 className="text-3xl font-bold text-foreground mb-2">Créer un compte</h1>
+        <p className="text-muted-foreground">
           {role === 'landlord'
             ? 'Rejoignez Piol en tant que propriétaire'
             : 'Trouvez votre prochain logement'}
@@ -91,9 +91,9 @@ export default function SignUpPage() {
             card: 'w-full shadow-xl border-0',
             headerTitle: 'hidden',
             headerSubtitle: 'hidden',
-            socialButtonsBlockButton: 'border border-gray-200 hover:bg-gray-50 transition-colors',
-            formButtonPrimary: 'bg-[#FF385C] hover:bg-[#E31C5F] transition-colors',
-            footerActionLink: 'text-[#FF385C] hover:text-[#E31C5F]',
+            socialButtonsBlockButton: 'border border-border hover:bg-muted transition-colors',
+            formButtonPrimary: 'bg-primary hover:bg-primary/90 transition-colors',
+            footerActionLink: 'text-primary hover:text-primary/90',
           },
         }}
         routing="path"

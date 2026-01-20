@@ -101,7 +101,7 @@ export function Header({ variant = 'default' }: HeaderProps) {
                   >
                     <Avatar className="h-7 w-7">
                       <AvatarImage src={user.imageUrl} alt={userName} />
-                      <AvatarFallback className="bg-gradient-to-br from-[#FF385C] to-[#E31C5F] text-white text-xs">
+                      <AvatarFallback className="bg-primary text-primary-foreground text-xs">
                         {userInitial}
                       </AvatarFallback>
                     </Avatar>
@@ -167,7 +167,7 @@ export function Header({ variant = 'default' }: HeaderProps) {
                 <Link href="/sign-up">
                   <Button
                     size="sm"
-                    className="bg-[#FF385C] hover:bg-[#E31C5F] text-white font-medium"
+                    className="bg-primary hover:bg-primary/90 text-primary-foreground font-medium"
                   >
                     {t('signUp')}
                   </Button>
@@ -194,7 +194,7 @@ export function Header({ variant = 'default' }: HeaderProps) {
                   <div className="flex items-center gap-3 p-4 bg-muted/50 rounded-xl mb-6">
                     <Avatar className="h-10 w-10">
                       <AvatarImage src={user.imageUrl} alt={userName} />
-                      <AvatarFallback className="bg-gradient-to-br from-[#FF385C] to-[#E31C5F] text-white">
+                      <AvatarFallback className="bg-primary text-primary-foreground">
                         {userInitial}
                       </AvatarFallback>
                     </Avatar>
@@ -272,7 +272,7 @@ export function Header({ variant = 'default' }: HeaderProps) {
                         </Button>
                       </Link>
                       <Link href="/sign-up" className="w-full">
-                        <Button className="w-full bg-[#FF385C] hover:bg-[#E31C5F] text-white">
+                        <Button className="w-full bg-primary hover:bg-primary/90 text-primary-foreground">
                           {t('signUp')}
                         </Button>
                       </Link>

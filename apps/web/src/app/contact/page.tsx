@@ -98,7 +98,7 @@ export default function ContactPage() {
 
                   <Button
                     type="submit"
-                    className="w-full rounded-xl bg-[#FF385C] hover:bg-[#E31C5F]"
+                    className="w-full rounded-xl bg-primary hover:bg-primary/90"
                     disabled={isSubmitting}
                   >
                     {isSubmitting ? 'Envoi en cours...' : 'Envoyer le message'}
@@ -113,8 +113,8 @@ export default function ContactPage() {
             <Card className="rounded-xl">
               <CardContent className="p-5">
                 <div className="flex items-start gap-4">
-                  <div className="w-10 h-10 bg-[#FF385C]/10 rounded-xl flex items-center justify-center shrink-0">
-                    <Mail className="w-5 h-5 text-[#FF385C]" />
+                  <div className="w-10 h-10 bg-primary/10 rounded-xl flex items-center justify-center shrink-0">
+                    <Mail className="w-5 h-5 text-primary" />
                   </div>
                   <div>
                     <h3 className="font-semibold">Email</h3>
@@ -128,8 +128,8 @@ export default function ContactPage() {
             <Card className="rounded-xl">
               <CardContent className="p-5">
                 <div className="flex items-start gap-4">
-                  <div className="w-10 h-10 bg-[#FF385C]/10 rounded-xl flex items-center justify-center shrink-0">
-                    <Phone className="w-5 h-5 text-[#FF385C]" />
+                  <div className="w-10 h-10 bg-primary/10 rounded-xl flex items-center justify-center shrink-0">
+                    <Phone className="w-5 h-5 text-primary" />
                   </div>
                   <div>
                     <h3 className="font-semibold">Téléphone</h3>
@@ -158,8 +158,8 @@ export default function ContactPage() {
             <Card className="rounded-xl">
               <CardContent className="p-5">
                 <div className="flex items-start gap-4">
-                  <div className="w-10 h-10 bg-[#FF385C]/10 rounded-xl flex items-center justify-center shrink-0">
-                    <MapPin className="w-5 h-5 text-[#FF385C]" />
+                  <div className="w-10 h-10 bg-primary/10 rounded-xl flex items-center justify-center shrink-0">
+                    <MapPin className="w-5 h-5 text-primary" />
                   </div>
                   <div>
                     <h3 className="font-semibold">Adresse</h3>

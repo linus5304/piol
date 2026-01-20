@@ -1,5 +1,6 @@
 import { cn } from '@/lib/utils';
-import { brand, colors } from '@repo/ui/tokens';
+import { brand } from '@repo/ui/tokens';
+import { Home } from 'lucide-react';
 import Link from 'next/link';
 
 // =============================================================================
@@ -14,23 +15,21 @@ interface LogoProps {
 }
 
 const logoSizes = {
-  sm: { icon: 28, text: 'text-lg' },
-  md: { icon: 36, text: 'text-xl' },
-  lg: { icon: 48, text: 'text-2xl' },
+  sm: { icon: 28, text: 'text-lg', lucide: 14 },
+  md: { icon: 36, text: 'text-xl', lucide: 18 },
+  lg: { icon: 48, text: 'text-2xl', lucide: 24 },
 } as const;
 
 export function Logo({ size = 'md', showText = true, className, asLink = true }: LogoProps) {
-  const { icon, text } = logoSizes[size];
+  const { icon, text, lucide } = logoSizes[size];
 
   const content = (
     <div className={cn('flex items-center gap-2.5', className)}>
       <div
-        className="bg-gradient-to-br from-[#FF385C] to-[#E31C5F] rounded-xl flex items-center justify-center shadow-sm transition-shadow hover:shadow-md"
+        className="bg-zinc-900 dark:bg-zinc-100 rounded-lg flex items-center justify-center shadow-sm transition-shadow hover:shadow-md"
         style={{ width: icon, height: icon }}
       >
-        <span className="text-white font-bold" style={{ fontSize: icon * 0.4 }}>
-          P
-        </span>
+        <Home className="text-white dark:text-zinc-900" size={lucide} strokeWidth={2.5} />
       </div>
       {showText && <span className={cn('font-semibold tracking-tight', text)}>{brand.name}</span>}
     </div>
@@ -57,17 +56,16 @@ interface LogoIconProps {
 }
 
 export function LogoIcon({ size = 36, className }: LogoIconProps) {
+  const lucideSize = size * 0.5;
   return (
     <div
       className={cn(
-        'bg-gradient-to-br from-[#FF385C] to-[#E31C5F] rounded-xl flex items-center justify-center',
+        'bg-zinc-900 dark:bg-zinc-100 rounded-lg flex items-center justify-center',
         className
       )}
       style={{ width: size, height: size }}
     >
-      <span className="text-white font-bold" style={{ fontSize: size * 0.4 }}>
-        P
-      </span>
+      <Home className="text-white dark:text-zinc-900" size={lucideSize} strokeWidth={2.5} />
     </div>
   );
 }
