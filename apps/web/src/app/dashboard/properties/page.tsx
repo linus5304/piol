@@ -60,17 +60,17 @@ const mockProperties = [
 ];
 
 const statusLabels: Record<string, { label: string; color: string }> = {
-  active: { label: 'Actif', color: 'bg-green-100 text-green-800' },
-  draft: { label: 'Brouillon', color: 'bg-gray-100 text-gray-800' },
-  rented: { label: 'Loué', color: 'bg-blue-100 text-blue-800' },
-  inactive: { label: 'Inactif', color: 'bg-yellow-100 text-yellow-800' },
+  active: { label: 'Actif', color: 'bg-success/10 text-success' },
+  draft: { label: 'Brouillon', color: 'bg-muted text-muted-foreground' },
+  rented: { label: 'Loué', color: 'bg-primary/10 text-primary' },
+  inactive: { label: 'Inactif', color: 'bg-warning/10 text-warning' },
 };
 
 const verificationLabels: Record<string, { label: string; color: string }> = {
-  approved: { label: '✓ Vérifié', color: 'text-green-600' },
-  pending: { label: '⏳ En attente', color: 'text-yellow-600' },
-  rejected: { label: '✗ Rejeté', color: 'text-red-600' },
-  not_submitted: { label: '-', color: 'text-gray-400' },
+  approved: { label: '✓ Vérifié', color: 'text-success' },
+  pending: { label: '⏳ En attente', color: 'text-warning' },
+  rejected: { label: '✗ Rejeté', color: 'text-destructive' },
+  not_submitted: { label: '-', color: 'text-muted-foreground' },
 };
 
 function formatCurrency(amount: number): string {
@@ -91,8 +91,10 @@ export default function PropertiesPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Mes propriétés</h1>
-          <p className="text-gray-600 mt-1">{mockProperties.length} propriété(s) au total</p>
+          <h1 className="text-2xl font-bold text-foreground">Mes propriétés</h1>
+          <p className="text-muted-foreground mt-1">
+            {mockProperties.length} propriété(s) au total
+          </p>
         </div>
         <Link href="/dashboard/properties/new">
           <Button>
@@ -127,10 +129,10 @@ export default function PropertiesPage() {
 
       {/* Properties List */}
       {filteredProperties.length === 0 ? (
-        <div className="text-center py-12 bg-white rounded-lg border">
+        <div className="text-center py-12 bg-background rounded-lg border">
           <div className="text-5xl mb-4">🏘️</div>
-          <h3 className="text-lg font-medium text-gray-900 mb-2">Aucune propriété</h3>
-          <p className="text-gray-500 mb-6">
+          <h3 className="text-lg font-medium text-foreground mb-2">Aucune propriété</h3>
+          <p className="text-muted-foreground mb-6">
             {searchQuery || statusFilter !== 'all'
               ? 'Aucune propriété ne correspond à vos filtres'
               : 'Commencez par ajouter votre première propriété'}
@@ -140,12 +142,12 @@ export default function PropertiesPage() {
           </Link>
         </div>
       ) : (
-        <div className="bg-white rounded-lg border divide-y">
+        <div className="bg-background rounded-lg border divide-y">
           {filteredProperties.map((property) => (
-            <div key={property.id} className="p-4 hover:bg-gray-50 transition-colors">
+            <div key={property.id} className="p-4 hover:bg-muted transition-colors">
               <div className="flex gap-4">
                 {/* Image */}
-                <div className="w-24 h-24 bg-gray-100 rounded-lg overflow-hidden flex-shrink-0">
+                <div className="w-24 h-24 bg-muted rounded-lg overflow-hidden flex-shrink-0">
                   {property.image ? (
                     <img
                       src={property.image}
@@ -153,7 +155,7 @@ export default function PropertiesPage() {
                       className="w-full h-full object-cover"
                     />
                   ) : (
-                    <div className="w-full h-full flex items-center justify-center text-gray-400">
+                    <div className="w-full h-full flex items-center justify-center text-muted-foreground">
                       📷
                     </div>
                   )}
@@ -165,11 +167,11 @@ export default function PropertiesPage() {
                     <div>
                       <Link
                         href={`/dashboard/properties/${property.id}`}
-                        className="font-medium text-gray-900 hover:text-[#FF385C]"
+                        className="font-medium text-foreground hover:text-primary"
                       >
                         {property.title}
                       </Link>
-                      <p className="text-sm text-gray-500">
+                      <p className="text-sm text-muted-foreground">
                         {property.neighborhood}, {property.city}
                       </p>
                     </div>
@@ -193,11 +195,11 @@ export default function PropertiesPage() {
                     </div>
                   </div>
 
-                  <p className="text-lg font-medium text-[#FF385C] mt-1">
+                  <p className="text-lg font-medium text-primary mt-1">
                     {formatCurrency(property.price)}/mois
                   </p>
 
-                  <div className="flex items-center gap-4 mt-2 text-sm text-gray-500">
+                  <div className="flex items-center gap-4 mt-2 text-sm text-muted-foreground">
                     <span>👁️ {property.views} vues</span>
                     <span>💬 {property.inquiries} demandes</span>
                   </div>

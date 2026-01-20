@@ -95,7 +95,7 @@ export default function ConversationPage({ params }: { params: Promise<{ id: str
         </div>
 
         {/* Property Preview Skeleton */}
-        <div className="my-4 p-3 bg-gray-50 rounded-lg border">
+        <div className="my-4 p-3 bg-muted rounded-lg border">
           <div className="flex items-center gap-3">
             <Skeleton className="w-16 h-16 rounded-lg" />
             <div className="space-y-2">
@@ -128,12 +128,12 @@ export default function ConversationPage({ params }: { params: Promise<{ id: str
     <div className="flex flex-col h-[calc(100vh-12rem)]">
       {/* Header */}
       <div className="flex items-center gap-4 pb-4 border-b">
-        <Link href="/dashboard/messages" className="text-gray-500 hover:text-gray-700">
+        <Link href="/dashboard/messages" className="text-muted-foreground hover:text-foreground">
           ← Retour
         </Link>
         <div className="flex items-center gap-3 flex-1">
           <Avatar className="h-10 w-10">
-            <AvatarFallback className="bg-gray-200">
+            <AvatarFallback className="bg-muted">
               {getInitials(otherUser?.firstName, otherUser?.lastName)}
             </AvatarFallback>
           </Avatar>
@@ -143,7 +143,7 @@ export default function ConversationPage({ params }: { params: Promise<{ id: str
                 {otherUser?.firstName || 'Utilisateur'} {otherUser?.lastName || ''}
               </span>
             </div>
-            {property && <p className="text-sm text-gray-500">{property.title}</p>}
+            {property && <p className="text-sm text-muted-foreground">{property.title}</p>}
           </div>
         </div>
         {propertyIdFromConversation && (
@@ -157,13 +157,13 @@ export default function ConversationPage({ params }: { params: Promise<{ id: str
 
       {/* Property Preview Card */}
       {property && (
-        <div className="my-4 p-3 bg-gray-50 rounded-lg border">
+        <div className="my-4 p-3 bg-muted rounded-lg border">
           <div className="flex items-center gap-3">
-            <div className="w-16 h-16 bg-gray-200 rounded-lg flex items-center justify-center text-2xl">
+            <div className="w-16 h-16 bg-border rounded-lg flex items-center justify-center text-2xl">
               🏠
             </div>
             <div>
-              <p className="font-medium text-gray-900">{property.title}</p>
+              <p className="font-medium text-foreground">{property.title}</p>
             </div>
           </div>
         </div>
@@ -172,7 +172,7 @@ export default function ConversationPage({ params }: { params: Promise<{ id: str
       {/* Messages */}
       <div className="flex-1 overflow-y-auto space-y-4 py-4">
         {displayMessages.length === 0 ? (
-          <div className="flex items-center justify-center h-full text-gray-500">
+          <div className="flex items-center justify-center h-full text-muted-foreground">
             <p>Aucun message. Commencez la conversation!</p>
           </div>
         ) : (
@@ -184,14 +184,16 @@ export default function ConversationPage({ params }: { params: Promise<{ id: str
               <div
                 className={cn(
                   'max-w-[70%] rounded-2xl px-4 py-2',
-                  message.isFromMe ? 'bg-[#FF385C] text-white' : 'bg-gray-100 text-gray-900'
+                  message.isFromMe
+                    ? 'bg-primary text-primary-foreground'
+                    : 'bg-muted text-foreground'
                 )}
               >
                 <p>{message.messageText}</p>
                 <p
                   className={cn(
                     'text-xs mt-1',
-                    message.isFromMe ? 'text-white/70' : 'text-gray-500'
+                    message.isFromMe ? 'text-primary-foreground/70' : 'text-muted-foreground'
                   )}
                 >
                   {formatTime(message._creationTime)}

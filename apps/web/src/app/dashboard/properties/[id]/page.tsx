@@ -35,12 +35,15 @@ export default function EditPropertyPage({ params }: { params: { id: string } })
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
-          <Link href="/dashboard/properties" className="text-gray-500 hover:text-gray-700">
+          <Link
+            href="/dashboard/properties"
+            className="text-muted-foreground hover:text-foreground"
+          >
             ← Retour
           </Link>
           <div>
-            <h1 className="text-2xl font-bold text-gray-900">Modifier la propriété</h1>
-            <p className="text-gray-600">{mockProperty.title}</p>
+            <h1 className="text-2xl font-bold text-foreground">Modifier la propriété</h1>
+            <p className="text-muted-foreground">{mockProperty.title}</p>
           </div>
         </div>
         <div className="flex gap-2">
@@ -127,7 +130,7 @@ export default function EditPropertyPage({ params }: { params: { id: string } })
             {mockProperty.images.map((image, index) => (
               <div
                 key={image}
-                className="aspect-square bg-gray-100 rounded-lg overflow-hidden relative group"
+                className="aspect-square bg-muted rounded-lg overflow-hidden relative group"
               >
                 <img
                   src={image}
@@ -144,7 +147,7 @@ export default function EditPropertyPage({ params }: { params: { id: string } })
             ))}
             <button
               type="button"
-              className="aspect-square border-2 border-dashed rounded-lg flex items-center justify-center text-gray-400 hover:border-gray-400 hover:text-gray-600 transition-colors"
+              className="aspect-square border-2 border-dashed rounded-lg flex items-center justify-center text-muted-foreground hover:border-border hover:text-foreground transition-colors"
             >
               <span className="text-2xl">+</span>
             </button>

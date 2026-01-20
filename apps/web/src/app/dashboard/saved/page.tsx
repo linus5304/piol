@@ -33,10 +33,9 @@ export default function SavedPropertiesPage() {
   const handleToggleSave = useCallback(
     async (propertyId: string) => {
       try {
-        const result = await toggleSaveProperty({
+        await toggleSaveProperty({
           propertyId: propertyId as Parameters<typeof toggleSaveProperty>[0]['propertyId'],
         });
-        console.log('[Save] Toggle result:', result);
       } catch (error) {
         console.error('[Save] Failed to toggle save:', error);
       }
@@ -48,8 +47,8 @@ export default function SavedPropertiesPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Propriétés sauvegardées</h1>
-          <p className="text-gray-600 mt-1">
+          <h1 className="text-2xl font-bold text-foreground">Propriétés sauvegardées</h1>
+          <p className="text-muted-foreground mt-1">
             {isLoading ? '...' : `${savedProperties.length} propriété(s) dans vos favoris`}
           </p>
         </div>
@@ -70,12 +69,12 @@ export default function SavedPropertiesPage() {
 
       {/* Empty state */}
       {!isLoading && savedProperties.length === 0 && (
-        <div className="text-center py-12 bg-white rounded-lg border">
+        <div className="text-center py-12 bg-background rounded-lg border">
           <div className="w-16 h-16 mx-auto mb-4 bg-muted flex items-center justify-center rounded-full">
             <Heart className="w-8 h-8 text-muted-foreground" />
           </div>
-          <h3 className="text-lg font-medium text-gray-900 mb-2">Aucune propriété sauvegardée</h3>
-          <p className="text-gray-500 mb-6 max-w-md mx-auto">
+          <h3 className="text-lg font-medium text-foreground mb-2">Aucune propriété sauvegardée</h3>
+          <p className="text-muted-foreground mb-6 max-w-md mx-auto">
             Explorez les propriétés disponibles et sauvegardez vos favoris pour les retrouver
             facilement.
           </p>
