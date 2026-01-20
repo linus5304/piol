@@ -1,0 +1,122 @@
+name: Security Review
+
+on:
+  pull_request:
+    types: [opened, synchronize]
+    branches: [main]
+
+jobs:
+  security-scan:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+      security-events: write
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Get PR diff
+        id: diff
+        run: |
+          git diff origin/${{ github.base_ref }}...HEAD > pr_diff.txt
+          echo "diff_size=$(wc -c < pr_diff.txt)" >> $GITHUB_OUTPUT
+
+      - name: Security scan with Claude
+        id: security
+        if: steps.diff.outputs.diff_size != '0'
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: |
+          # Read the diff (truncate if too large)
+          DIFF_CONTENT=$(head -c 100000 pr_diff.txt)
+          
+          # Prepare security-focused prompt
+          PROMPT=$(cat <<'PROMPT_EOF'
+          You are a security expert reviewing code changes for a web application.
+          The application uses:
+          - Next.js 16 with React 19
+          - Convex (serverless database)
+          - Clerk authentication
+          - Mobile money payments (MTN MoMo, Orange Money)
+          
+          Review the following code changes for security issues:
+          
+          ```diff
+          ${DIFF_CONTENT}
+          ```
+          
+          Focus on:
+          1. **Authentication/Authorization**: Missing auth checks, improper access control
+          2. **Input Validation**: SQL injection, XSS, command injection
+          3. **Sensitive Data**: API keys, credentials, PII exposure
+          4. **Dependencies**: Known vulnerable patterns
+          5. **Payment Security**: Issues with payment flow or data handling
+          
+          For each issue found, provide:
+          - Severity: CRITICAL, HIGH, MEDIUM, LOW
+          - File and approximate location
+          - Description of the issue
+          - Recommended fix
+          
+          If no security issues are found, explicitly state that the changes look secure.
+          
+          Format your response in markdown with clear sections.
+          PROMPT_EOF
+          )
+          
+          # Make API call to Claude
+          RESPONSE=$(curl -s https://api.anthropic.com/v1/messages \
+            -H "Content-Type: application/json" \
+            -H "x-api-key: $ANTHROPIC_API_KEY" \
+            -H "anthropic-version: 2023-06-01" \
+            -d "{
+              \"model\": \"claude-sonnet-4-20250514\",
+              \"max_tokens\": 4096,
+              \"messages\": [{
+                \"role\": \"user\",
+                \"content\": $(echo "$PROMPT" | jq -Rs .)
+              }]
+            }")
+          
+          # Extract the response text
+          CLAUDE_RESPONSE=$(echo "$RESPONSE" | jq -r '.content[0].text // "Error: Unable to get security analysis"')
+          
+          # Save to file
+          echo "$CLAUDE_RESPONSE" > security_review.md
+          
+          # Check for critical/high severity issues
+          if echo "$CLAUDE_RESPONSE" | grep -qiE "CRITICAL|HIGH"; then
+            echo "has_issues=true" >> $GITHUB_OUTPUT
+          else
+            echo "has_issues=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Post security review
+        if: steps.diff.outputs.diff_size != '0'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const review = fs.readFileSync('security_review.md', 'utf8');
+            const hasIssues = '${{ steps.security.outputs.has_issues }}' === 'true';
+            
+            const icon = hasIssues ? '⚠️' : '✅';
+            const title = hasIssues ? 'Security Review - Issues Found' : 'Security Review - Passed';
+            
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.payload.pull_request.number,
+              body: `### ${icon} ${title}\n\n${review}\n\n---\n*Automated security scan powered by Claude AI*`
+            });
+
+      - name: Fail on critical issues
+        if: steps.security.outputs.has_issues == 'true'
+        run: |
+          echo "::warning::Security issues detected. Please review the security scan results."
+          # Note: Not failing the build, just warning. Uncomment below to fail:
+          # exit 1
