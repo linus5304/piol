@@ -2,12 +2,21 @@
 
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+} from '@/components/ui/carousel';
 import { cn } from '@/lib/utils';
 import {
   Bath,
   Bed,
   Car,
   CheckCircle,
+  ChevronLeft,
+  ChevronRight,
   Heart,
   ImageOff,
   MapPin,
@@ -109,8 +118,13 @@ export function PropertyCard({
   const isSaved = isSavedProp ?? localSaved;
   const [imageLoaded, setImageLoaded] = useState(false);
   const [imageError, setImageError] = useState(false);
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
-  const imageUrl = property.images?.[0]?.url || getConsistentImage(property._id);
+  // Get all valid image URLs, falling back to placeholder
+  const allImages = property.images?.filter((img) => img.url).map((img) => img.url!) || [];
+  const imageUrls = allImages.length > 0 ? allImages : [getConsistentImage(property._id)];
+  const hasMultipleImages = imageUrls.length > 1;
+  const imageUrl = imageUrls[0];
 
   const handleImageError = useCallback(() => {
     setImageError(true);
@@ -244,10 +258,23 @@ export function PropertyCard({
     );
   }
 
+  // Handle carousel navigation
+  const handlePrevImage = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setCurrentImageIndex((prev) => (prev === 0 ? imageUrls.length - 1 : prev - 1));
+  };
+
+  const handleNextImage = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setCurrentImageIndex((prev) => (prev === imageUrls.length - 1 ? 0 : prev + 1));
+  };
+
   return (
     <Link href={`/properties/${property._id}`} className={cn('group block', className)}>
       <Card className="overflow-hidden card-hover rounded-xl border-0 shadow-sm">
-        {/* Image Container */}
+        {/* Image Container with Carousel */}
         <div className="relative aspect-[4/3] overflow-hidden bg-muted rounded-t-xl">
           {!imageLoaded && <div className="absolute inset-0 bg-muted animate-pulse" />}
 
@@ -257,7 +284,7 @@ export function PropertyCard({
             </div>
           ) : (
             <Image
-              src={imageUrl}
+              src={imageUrls[currentImageIndex]}
               alt={property.title}
               fill
               sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
@@ -265,10 +292,53 @@ export function PropertyCard({
               onLoad={() => setImageLoaded(true)}
               onError={handleImageError}
               className={cn(
-                'object-cover group-hover:scale-105 transition-transform duration-300',
+                'object-cover transition-opacity duration-300',
                 !imageLoaded && 'opacity-0'
               )}
             />
+          )}
+
+          {/* Carousel Navigation - Only show when multiple images */}
+          {hasMultipleImages && (
+            <>
+              {/* Previous Button */}
+              <button
+                type="button"
+                onClick={handlePrevImage}
+                className="absolute left-2 top-1/2 -translate-y-1/2 w-8 h-8 flex items-center justify-center bg-card/90 hover:bg-card rounded-full shadow-sm opacity-0 group-hover:opacity-100 transition-opacity z-10"
+                aria-label="Image précédente"
+              >
+                <ChevronLeft className="w-5 h-5" />
+              </button>
+              {/* Next Button */}
+              <button
+                type="button"
+                onClick={handleNextImage}
+                className="absolute right-12 top-1/2 -translate-y-1/2 w-8 h-8 flex items-center justify-center bg-card/90 hover:bg-card rounded-full shadow-sm opacity-0 group-hover:opacity-100 transition-opacity z-10"
+                aria-label="Image suivante"
+              >
+                <ChevronRight className="w-5 h-5" />
+              </button>
+              {/* Dots Indicator */}
+              <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex items-center gap-1">
+                {imageUrls.map((_, index) => (
+                  <button
+                    type="button"
+                    key={`dot-${property._id}-${index}`}
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      setCurrentImageIndex(index);
+                    }}
+                    className={cn(
+                      'w-1.5 h-1.5 rounded-full transition-all',
+                      index === currentImageIndex ? 'bg-white w-2' : 'bg-white/60'
+                    )}
+                    aria-label={`Image ${index + 1}`}
+                  />
+                ))}
+              </div>
+            </>
           )}
 
           {/* Save Button */}
@@ -276,7 +346,7 @@ export function PropertyCard({
             <button
               type="button"
               onClick={handleSave}
-              className="absolute top-3 right-3 w-9 h-9 flex items-center justify-center bg-card/90 hover:bg-card rounded-full shadow-sm transition-all touch-target"
+              className="absolute top-3 right-3 w-9 h-9 flex items-center justify-center bg-card/90 hover:bg-card rounded-full shadow-sm transition-all touch-target z-10"
               aria-label={isSaved ? 'Retirer des favoris' : 'Ajouter aux favoris'}
             >
               <Heart
@@ -290,7 +360,7 @@ export function PropertyCard({
 
           {/* Verified Badge */}
           {isVerified && (
-            <Badge className="absolute top-3 left-3 rounded-full bg-[#008A05] text-white border-0">
+            <Badge className="absolute top-3 left-3 rounded-full bg-[#008A05] text-white border-0 z-10">
               <CheckCircle className="w-3 h-3 mr-1" />
               Vérifié
             </Badge>

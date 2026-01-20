@@ -227,3 +227,56 @@
     color: #ef4444;
   }
 }
+
+/* =============================================================================
+   LEAFLET MAP STYLES
+   Custom styling for property map markers and popups
+   ============================================================================= */
+
+/* Price marker custom icon */
+.price-marker {
+  background: transparent;
+  border: none;
+}
+
+.price-marker-content {
+  background: white;
+  border: 2px solid var(--foreground);
+  border-radius: 9999px;
+  padding: 4px 10px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--foreground);
+  white-space: nowrap;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  transition: all 0.15s ease;
+}
+
+.price-marker-content.hovered,
+.price-marker-content:hover {
+  background: var(--foreground);
+  color: var(--background);
+  transform: scale(1.1);
+}
+
+/* Leaflet popup customization */
+.leaflet-popup-content-wrapper {
+  padding: 0 !important;
+  overflow: hidden;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+}
+
+.leaflet-popup-content {
+  margin: 0 !important;
+  min-width: 256px;
+}
+
+.leaflet-popup-tip-container {
+  display: none;
+}
+
+/* Remove default Leaflet marker drop shadow */
+.leaflet-marker-icon {
+  filter: none !important;
+}
