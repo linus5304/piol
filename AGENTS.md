@@ -63,15 +63,60 @@ bun run seed:reset  # Clear and re-seed
 
 The seed uses your real user (linus@truesignaldigital.com) as a landlord if it exists in Convex.
 
-## MVP Focus (Web Only)
+## Convex Dev/Prod Switching
+
+Convex uses separate deployments for development and production.
+
+### Development (default)
+
+```bash
+bun run dev:convex   # Runs against dev deployment
+```
+
+Your `.env.local` should have:
+```
+CONVEX_DEPLOYMENT=dev:your-project-name
+NEXT_PUBLIC_CONVEX_URL=https://your-dev-deployment.convex.cloud
+```
+
+### Production
+
+Production deploys happen via CI/CD (see `.github/workflows/convex-deploy.yml`).
+
+To deploy manually:
+```bash
+npx convex deploy --prod
+```
+
+For production, set these in **Convex Dashboard** (not local env):
+- Go to your production deployment
+- Settings → Environment Variables
+- Set `CLERK_JWT_ISSUER_DOMAIN` to your production Clerk domain
+
+### Switching Manually
+
+To test against prod locally (use with caution):
+```bash
+# Set env vars
+export CONVEX_DEPLOYMENT=prod:your-project-name
+export NEXT_PUBLIC_CONVEX_URL=https://your-prod-deployment.convex.cloud
+
+# Or update .env.local temporarily
+```
+
+**Warning:** Local dev against prod will modify production data!
+
+## MVP Status (Web Only)
+
+All MVP features complete:
 
 1. [x] Auth pages exist (sign-up, sign-in)
-2. [ ] User redirected to dashboard after auth
-3. [ ] Browse properties at /properties
-4. [ ] View property detail at /properties/[id]
-5. [ ] Landlord can create property
-6. [ ] User can message landlord
-7. [ ] User can save properties
+2. [x] User redirected to dashboard after auth
+3. [x] Browse properties at /properties
+4. [x] View property detail at /properties/[id]
+5. [x] Landlord can create property
+6. [x] User can message landlord
+7. [x] User can save properties
 
 ## Code Style
 

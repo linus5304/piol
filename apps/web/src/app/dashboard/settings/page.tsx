@@ -12,11 +12,15 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { useSafeUser } from '@/hooks/use-safe-auth';
+import { api } from '@repo/convex/_generated/api';
+import { useMutation } from 'convex/react';
 import { useState } from 'react';
+import { toast } from 'sonner';
 
 export default function SettingsPage() {
   const { user, isLoaded } = useSafeUser();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const updateProfile = useMutation(api.users.updateProfile);
 
   // Form state
   const [firstName, setFirstName] = useState(user?.firstName || '');
@@ -43,12 +47,18 @@ export default function SettingsPage() {
         },
       });
 
-      // TODO: Update Convex user with phone and language preference
+      // Update Convex user with phone and language preference
+      await updateProfile({
+        firstName,
+        lastName,
+        phone: phone || undefined,
+        languagePreference: language,
+      });
 
-      alert('Profil mis à jour avec succès!');
+      toast.success('Profil mis à jour avec succès!');
     } catch (error) {
       console.error('Error updating profile:', error);
-      alert('Erreur lors de la mise à jour du profil');
+      toast.error('Erreur lors de la mise à jour du profil');
     } finally {
       setIsSubmitting(false);
     }

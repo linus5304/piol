@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "lastUpdated": "2026-01-19T21:30:00Z",
+  "lastUpdated": "2026-01-19T22:30:00Z",
   "features": [
     {
       "id": "prod-1",
@@ -22,7 +22,7 @@
     {
       "id": "prod-2",
       "name": "Vercel Analytics",
-      "status": "todo",
+      "status": "done",
       "priority": 11,
       "spec": null,
       "acceptance": [
@@ -32,12 +32,12 @@
         "SpeedInsights component in root layout"
       ],
       "blockers": [],
-      "notes": ""
+      "notes": "Complete. @vercel/analytics@1.6.1 and @vercel/speed-insights@1.3.1 installed. Components added to root layout after Toaster. Tracks page views and Core Web Vitals automatically."
     },
     {
       "id": "prod-3",
       "name": "Fix code TODOs",
-      "status": "todo",
+      "status": "done",
       "priority": 12,
       "spec": null,
       "acceptance": [
@@ -45,12 +45,12 @@
         "Settings form wired to updateProfile mutation"
       ],
       "blockers": [],
-      "notes": ""
+      "notes": "Complete. Toast notification on save error in /properties. Settings form now calls updateProfile mutation with phone and languagePreference. Alerts replaced with toast."
     },
     {
       "id": "prod-4",
       "name": "Claude Code Actions",
-      "status": "todo",
+      "status": "done",
       "priority": 13,
       "spec": null,
       "acceptance": [
@@ -59,12 +59,12 @@
         "ANTHROPIC_API_KEY secret documented"
       ],
       "blockers": [],
-      "notes": ""
+      "notes": "Complete. Added claude-pr-assistant.yml (responds to @claude on PRs) and security-review.yml (auto-scans PRs to main). GitHub secrets documented in .env.example."
     },
     {
       "id": "prod-5",
       "name": "Environment documentation",
-      "status": "todo",
+      "status": "done",
       "priority": 14,
       "spec": null,
       "acceptance": [
@@ -73,7 +73,7 @@
         "GitHub secrets documented (ANTHROPIC_API_KEY, VERCEL_*, CONVEX_*)"
       ],
       "blockers": [],
-      "notes": ""
+      "notes": "Complete. Production setup checklist added to .env.example. Convex dev/prod switching documented in AGENTS.md. GitHub secrets already documented in prod-4."
     },
     {
       "id": "mvp-0",
