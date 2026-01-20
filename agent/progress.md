@@ -4,6 +4,44 @@ Session history for AI agents working on Piol. Append new entries at the top.
 
 ---
 
+## Session: 2026-01-20 01:00
+
+**Focus**: polish-4 - Component Deduplication
+**Outcome**: completed
+
+### Done
+- Created feature branch `feat/polish-4-component-deduplication`
+- Analyzed both property-card.tsx files:
+  - `/components/property-card.tsx` (369 lines): Real component using Convex data model, i18n, amenities, landlord info, variants
+  - `/components/properties/property-card.tsx` (218 lines): Unused prototype with fake data model, never imported anywhere
+- Deleted the unused prototype
+- Moved real PropertyCard to `/components/properties/property-card.tsx`
+- Updated 4 imports to use `@/components/properties` barrel export:
+  - `apps/web/src/app/page.tsx`
+  - `apps/web/src/app/properties/page.tsx`
+  - `apps/web/src/app/dashboard/saved/page.tsx`
+  - `apps/web/src/__tests__/property-card.test.tsx`
+- Removed stale `Property` type export from index.ts
+- Build passes
+
+### Blockers
+- None
+
+### Decisions
+- Kept the Convex-compatible component (obvious choice - the other was dead code)
+- Pre-existing test failures (jsdom config) not addressed - unrelated to this task
+
+### Files Changed
+- `apps/web/src/components/properties/property-card.tsx` - Replaced with real component
+- `apps/web/src/components/properties/index.ts` - Removed stale Property type export
+- `apps/web/src/components/property-card.tsx` - Deleted
+- 4 page files - Import paths updated
+
+### Next
+- polish-5: Add Missing shadcn Components (command, calendar, carousel, alert)
+
+---
+
 ## Session: 2026-01-20 00:00
 
 **Focus**: polish-2 - Property Pages Cleanup

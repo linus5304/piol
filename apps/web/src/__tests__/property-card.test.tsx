@@ -1,4 +1,4 @@
-import { PropertyCard } from '@/components/property-card';
+import { PropertyCard } from '@/components/properties';
 import { render, screen } from '@testing-library/react';
 
 const mockProperty = {

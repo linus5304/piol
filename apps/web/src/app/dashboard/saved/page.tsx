@@ -1,6 +1,6 @@
 'use client';
 
-import { PropertyCard } from '@/components/property-card';
+import { PropertyCard } from '@/components/properties';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { api } from '@repo/convex/_generated/api';
