@@ -77,7 +77,7 @@ export function PageSection({
       className={cn(
         'py-12 md:py-16',
         bg === 'muted' && 'bg-muted/30',
-        bg === 'brand' && 'bg-gradient-to-br from-[#FF385C] to-[#E31C5F] text-white',
+        bg === 'brand' && 'bg-primary text-primary-foreground',
         bordered && 'border-b',
         className
       )}

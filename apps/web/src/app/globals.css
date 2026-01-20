@@ -4,8 +4,9 @@
 @custom-variant dark (&:is(.dark *));
 
 /* =============================================================================
-   PIOL DESIGN SYSTEM - Coral Theme
-   Warm, trust-focused UI for housing marketplace (Airbnb-inspired)
+   PIOL DESIGN SYSTEM - Zinc Theme
+   Clean, professional UI for housing marketplace (GitHub-inspired)
+   Coral accent for CTAs and highlights
    ============================================================================= */
 
 :root {
@@ -23,34 +24,34 @@
     sans-serif
   );
 
-  /* Primary - Coral accent (Housing marketplace convention) */
+  /* Primary - Coral accent (CTAs only) */
   --primary: #ff385c;
   --primary-hover: #e31c5f;
   --primary-foreground: #ffffff;
 
-  /* Background & Foreground - Dark by default */
-  --background: #18181b;
-  --foreground: #fafafa;
+  /* Background & Foreground - Light zinc by default */
+  --background: #fafafa;
+  --foreground: #18181b;
 
   /* Card */
-  --card: #18181b;
-  --card-foreground: #fafafa;
+  --card: #ffffff;
+  --card-foreground: #18181b;
 
   /* Popover */
-  --popover: #27272a;
-  --popover-foreground: #fafafa;
+  --popover: #ffffff;
+  --popover-foreground: #18181b;
 
   /* Secondary */
-  --secondary: #27272a;
-  --secondary-foreground: #fafafa;
+  --secondary: #f4f4f5;
+  --secondary-foreground: #18181b;
 
   /* Muted */
-  --muted: #27272a;
-  --muted-foreground: #a1a1aa;
+  --muted: #f4f4f5;
+  --muted-foreground: #71717a;
 
-  /* Accent */
-  --accent: #27272a;
-  --accent-foreground: #fafafa;
+  /* Accent - Zinc for subtle highlights */
+  --accent: #f4f4f5;
+  --accent-foreground: #18181b;
 
   /* Destructive */
   --destructive: #ef4444;
@@ -65,18 +66,63 @@
   --warning-foreground: #ffffff;
 
   /* Border & Input */
-  --border: #3f3f46;
-  --input: #27272a;
+  --border: #e4e4e7;
+  --input: #e4e4e7;
   --ring: #ff385c;
 
   /* Charts */
   --chart-1: #ff385c;
   --chart-2: #ff5a7d;
   --chart-3: #008a05;
-  --chart-4: #a1a1aa;
-  --chart-5: #fafafa;
+  --chart-4: #71717a;
+  --chart-5: #18181b;
 
-  /* Sidebar - Darker than content */
+  /* Sidebar - Slightly darker */
+  --sidebar: #fafafa;
+  --sidebar-foreground: #18181b;
+  --sidebar-primary: #ff385c;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #f4f4f5;
+  --sidebar-accent-foreground: #18181b;
+  --sidebar-border: #e4e4e7;
+  --sidebar-ring: #ff385c;
+  --sidebar-muted: #71717a;
+}
+
+/* Dark mode override */
+.dark {
+  --primary: #ff385c;
+  --primary-hover: #e31c5f;
+  --primary-foreground: #ffffff;
+
+  --background: #09090b;
+  --foreground: #fafafa;
+
+  --card: #18181b;
+  --card-foreground: #fafafa;
+
+  --popover: #18181b;
+  --popover-foreground: #fafafa;
+
+  --secondary: #27272a;
+  --secondary-foreground: #fafafa;
+
+  --muted: #27272a;
+  --muted-foreground: #a1a1aa;
+
+  --accent: #27272a;
+  --accent-foreground: #fafafa;
+
+  --border: #27272a;
+  --input: #27272a;
+  --ring: #ff385c;
+
+  --success: #22c55e;
+  --success-foreground: #ffffff;
+
+  --warning: #f59e0b;
+  --warning-foreground: #ffffff;
+
   --sidebar: #09090b;
   --sidebar-foreground: #fafafa;
   --sidebar-primary: #ff385c;
@@ -86,51 +132,6 @@
   --sidebar-border: #27272a;
   --sidebar-ring: #ff385c;
   --sidebar-muted: #71717a;
-}
-
-/* Light mode override */
-.light {
-  --primary: #e31c5f;
-  --primary-hover: #c91854;
-  --primary-foreground: #ffffff;
-
-  --background: #ffffff;
-  --foreground: #222222;
-
-  --card: #ffffff;
-  --card-foreground: #222222;
-
-  --popover: #ffffff;
-  --popover-foreground: #222222;
-
-  --secondary: #f7f7f7;
-  --secondary-foreground: #222222;
-
-  --muted: #f7f7f7;
-  --muted-foreground: #717171;
-
-  --accent: #f7f7f7;
-  --accent-foreground: #222222;
-
-  --border: #dddddd;
-  --input: #dddddd;
-  --ring: #e31c5f;
-
-  --success: #008a05;
-  --success-foreground: #ffffff;
-
-  --warning: #d97706;
-  --warning-foreground: #ffffff;
-
-  --sidebar: #fafafa;
-  --sidebar-foreground: #222222;
-  --sidebar-primary: #e31c5f;
-  --sidebar-primary-foreground: #ffffff;
-  --sidebar-accent: #f7f7f7;
-  --sidebar-accent-foreground: #222222;
-  --sidebar-border: #ebebeb;
-  --sidebar-ring: #e31c5f;
-  --sidebar-muted: #717171;
 }
 
 @theme inline {

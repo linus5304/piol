@@ -196,7 +196,7 @@ export function PropertyCard({
                       {property.neighborhood}, {property.city}
                     </span>
                   </div>
-                  <h3 className="font-medium line-clamp-1 group-hover:text-[#FF385C] transition-colors">
+                  <h3 className="font-medium line-clamp-1 group-hover:text-primary transition-colors">
                     {property.title}
                   </h3>
                 </div>
@@ -209,7 +209,7 @@ export function PropertyCard({
                     <Heart
                       className={cn(
                         'w-5 h-5 transition-colors',
-                        isSaved ? 'fill-[#FF385C] text-[#FF385C]' : 'text-muted-foreground'
+                        isSaved ? 'fill-primary text-primary' : 'text-muted-foreground'
                       )}
                     />
                   </button>
@@ -231,7 +231,7 @@ export function PropertyCard({
                   ))}
                 </div>
                 <div>
-                  <span className="font-semibold text-[#FF385C]">
+                  <span className="font-semibold text-primary">
                     {formatCurrency(property.rentAmount)} FCFA
                   </span>
                   <span className="text-muted-foreground text-sm"> /mois</span>
@@ -276,13 +276,13 @@ export function PropertyCard({
             <button
               type="button"
               onClick={handleSave}
-              className="absolute top-3 right-3 w-9 h-9 flex items-center justify-center bg-white/90 hover:bg-white rounded-full shadow-sm transition-all touch-target"
+              className="absolute top-3 right-3 w-9 h-9 flex items-center justify-center bg-card/90 hover:bg-card rounded-full shadow-sm transition-all touch-target"
               aria-label={isSaved ? 'Retirer des favoris' : 'Ajouter aux favoris'}
             >
               <Heart
                 className={cn(
                   'w-5 h-5 transition-colors',
-                  isSaved ? 'fill-[#FF385C] text-[#FF385C]' : 'text-foreground'
+                  isSaved ? 'fill-primary text-primary' : 'text-foreground'
                 )}
               />
             </button>
@@ -309,7 +309,7 @@ export function PropertyCard({
           </div>
 
           {/* Title */}
-          <h3 className="font-medium mt-1 line-clamp-1 group-hover:text-[#FF385C] transition-colors">
+          <h3 className="font-medium mt-1 line-clamp-1 group-hover:text-primary transition-colors">
             {property.title}
           </h3>
 
@@ -344,7 +344,7 @@ export function PropertyCard({
 
           {/* Price */}
           <div className="mt-3 flex items-baseline gap-1">
-            <span className="font-semibold text-lg text-[#FF385C]">
+            <span className="font-semibold text-lg text-primary">
               {formatCurrency(property.rentAmount)} FCFA
             </span>
             <span className="text-muted-foreground text-sm">/mois</span>
@@ -353,7 +353,7 @@ export function PropertyCard({
           {/* Landlord */}
           {landlordName && (
             <div className="flex items-center gap-2 mt-3 pt-3 border-t">
-              <div className="w-7 h-7 bg-gradient-to-br from-[#FF385C] to-[#E31C5F] rounded-full flex items-center justify-center text-xs font-medium text-white">
+              <div className="w-7 h-7 bg-primary rounded-full flex items-center justify-center text-xs font-medium text-primary-foreground">
                 {landlordName.charAt(0)}
               </div>
               <span className="text-xs text-muted-foreground">

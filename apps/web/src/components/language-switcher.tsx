@@ -77,7 +77,7 @@ export function LanguageSwitcher({ variant = 'default' }: LanguageSwitcherProps)
               <span className="text-base">{lang.flag}</span>
               <span className="text-sm">{lang.name}</span>
             </div>
-            {locale === lang.code && <Check className="h-4 w-4 text-[#FF385C]" />}
+            {locale === lang.code && <Check className="h-4 w-4 text-primary" />}
           </DropdownMenuItem>
         ))}
       </DropdownMenuContent>

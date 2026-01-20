@@ -106,7 +106,7 @@ export default function HomePage() {
             <Link href="/properties">
               <Button
                 size="lg"
-                className="h-14 px-8 w-full sm:w-auto rounded-xl bg-[#FF385C] hover:bg-[#E31C5F]"
+                className="h-14 px-8 w-full sm:w-auto rounded-xl bg-primary hover:bg-primary/90"
               >
                 Rechercher
               </Button>
@@ -166,7 +166,7 @@ export default function HomePage() {
         <h2 className="text-2xl font-semibold mb-8 text-center">Comment ça marche</h2>
         <div className="grid md:grid-cols-3 gap-8 max-w-4xl mx-auto">
           <div className="text-center">
-            <div className="w-14 h-14 bg-[#FF385C] text-white flex items-center justify-center mx-auto mb-4 text-xl font-bold rounded-2xl">
+            <div className="w-14 h-14 bg-primary text-primary-foreground flex items-center justify-center mx-auto mb-4 text-xl font-bold rounded-2xl">
               1
             </div>
             <h3 className="font-semibold mb-2">Recherchez</h3>
@@ -175,7 +175,7 @@ export default function HomePage() {
             </p>
           </div>
           <div className="text-center">
-            <div className="w-14 h-14 bg-[#FF385C] text-white flex items-center justify-center mx-auto mb-4 text-xl font-bold rounded-2xl">
+            <div className="w-14 h-14 bg-primary text-primary-foreground flex items-center justify-center mx-auto mb-4 text-xl font-bold rounded-2xl">
               2
             </div>
             <h3 className="font-semibold mb-2">Contactez</h3>
@@ -184,7 +184,7 @@ export default function HomePage() {
             </p>
           </div>
           <div className="text-center">
-            <div className="w-14 h-14 bg-[#FF385C] text-white flex items-center justify-center mx-auto mb-4 text-xl font-bold rounded-2xl">
+            <div className="w-14 h-14 bg-primary text-primary-foreground flex items-center justify-center mx-auto mb-4 text-xl font-bold rounded-2xl">
               3
             </div>
             <h3 className="font-semibold mb-2">Emménagez</h3>
@@ -218,8 +218,8 @@ export default function HomePage() {
         <div className="grid md:grid-cols-3 gap-6 max-w-4xl mx-auto">
           <Card className="rounded-xl">
             <CardContent className="p-6">
-              <div className="w-12 h-12 bg-[#FF385C]/10 rounded-xl flex items-center justify-center mb-4">
-                <CheckCircle2 className="h-6 w-6 text-[#FF385C]" />
+              <div className="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center mb-4">
+                <CheckCircle2 className="h-6 w-6 text-primary" />
               </div>
               <h3 className="font-semibold mb-2">Annonces vérifiées</h3>
               <p className="text-sm text-muted-foreground">
@@ -229,8 +229,8 @@ export default function HomePage() {
           </Card>
           <Card className="rounded-xl">
             <CardContent className="p-6">
-              <div className="w-12 h-12 bg-[#FF385C]/10 rounded-xl flex items-center justify-center mb-4">
-                <Shield className="h-6 w-6 text-[#FF385C]" />
+              <div className="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center mb-4">
+                <Shield className="h-6 w-6 text-primary" />
               </div>
               <h3 className="font-semibold mb-2">Paiement sécurisé</h3>
               <p className="text-sm text-muted-foreground">
@@ -240,8 +240,8 @@ export default function HomePage() {
           </Card>
           <Card className="rounded-xl">
             <CardContent className="p-6">
-              <div className="w-12 h-12 bg-[#FF385C]/10 rounded-xl flex items-center justify-center mb-4">
-                <Smartphone className="h-6 w-6 text-[#FF385C]" />
+              <div className="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center mb-4">
+                <Smartphone className="h-6 w-6 text-primary" />
               </div>
               <h3 className="font-semibold mb-2">Support bilingue</h3>
               <p className="text-sm text-muted-foreground">
@@ -269,7 +269,7 @@ export default function HomePage() {
               <Button
                 size="lg"
                 variant="outline"
-                className="w-full sm:w-auto rounded-xl border-white/30 text-white hover:bg-white/10 bg-white/5"
+                className="w-full sm:w-auto rounded-xl border-primary-foreground/30 text-primary-foreground hover:bg-primary-foreground/10 bg-primary-foreground/5"
               >
                 Je suis propriétaire
               </Button>
