@@ -35,7 +35,7 @@
     {
       "id": "redesign-2",
       "name": "UI Redesign: Layout Components",
-      "status": "todo",
+      "status": "done",
       "priority": 28,
       "spec": "openspec/changes/refactor-ui-redesign/specs/ui-layout/spec.md",
       "acceptance": [
@@ -45,7 +45,7 @@
         "Layout switcher detects user role"
       ],
       "blockers": ["redesign-1"],
-      "notes": "Phase 2: Public layout, renter tab layout, landlord sidebar layout."
+      "notes": "Complete. Created dashboard-tabs.tsx for tab navigation and renter-dashboard-layout.tsx. Dashboard layout.tsx now detects user role and renders appropriate layout. Public layout container max-width set to max-w-7xl."
     },
     {
       "id": "redesign-3",
