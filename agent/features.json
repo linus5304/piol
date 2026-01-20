@@ -65,7 +65,7 @@
     {
       "id": "polish-4",
       "name": "Component Deduplication",
-      "status": "todo",
+      "status": "done",
       "priority": 23,
       "spec": "openspec/changes/add-production-polish/specs/design-system/spec.md",
       "acceptance": [
@@ -75,7 +75,7 @@
         "index.ts exports centralized"
       ],
       "blockers": [],
-      "notes": "property-card.tsx exists in both /components/ and /components/properties/"
+      "notes": "Complete. Deleted unused prototype in /components/properties/ (different data model, never imported). Moved real PropertyCard to /components/properties/. Updated 4 imports to use @/components/properties barrel export. Removed stale Property type export from index.ts."
     },
     {
       "id": "polish-5",
