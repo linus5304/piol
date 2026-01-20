@@ -80,7 +80,7 @@
     {
       "id": "polish-5",
       "name": "Add Missing shadcn Components",
-      "status": "todo",
+      "status": "done",
       "priority": 24,
       "spec": null,
       "acceptance": [
@@ -90,7 +90,7 @@
         "alert component added (notifications)"
       ],
       "blockers": [],
-      "notes": "Use bunx --bun shadcn@latest add <component>"
+      "notes": "Complete. Added components.json config and installed command (cmdk), calendar (react-day-picker), carousel (embla-carousel), and alert components via shadcn CLI. Build verified."
     },
     {
       "id": "polish-6",

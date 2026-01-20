@@ -4,6 +4,43 @@ Session history for AI agents working on Piol. Append new entries at the top.
 
 ---
 
+## Session: 2026-01-19 21:40
+
+**Focus**: polish-5 - Add Missing shadcn Components
+**Outcome**: completed
+
+### Done
+- Created feature branch `feat/polish-5-shadcn-components`
+- Created `components.json` config file for shadcn CLI (was missing)
+- Added 4 shadcn components via CLI:
+  - `command` - cmdk-based search/command palette
+  - `calendar` - react-day-picker for date selection
+  - `carousel` - embla-carousel for property images
+  - `alert` - notification banners
+- CLI also updated `dialog.tsx` and `button.tsx` with latest versions
+- Build verified passing
+
+### Blockers
+- None
+
+### Decisions
+- Created components.json with new-york style, RSC enabled, Tailwind v4 config
+- Used defaults for icon library (lucide)
+
+### Files Changed
+- `apps/web/components.json` - New shadcn config
+- `apps/web/src/components/ui/command.tsx` - New
+- `apps/web/src/components/ui/calendar.tsx` - New
+- `apps/web/src/components/ui/carousel.tsx` - New
+- `apps/web/src/components/ui/alert.tsx` - New
+- `apps/web/src/components/ui/dialog.tsx` - Updated by CLI
+- `apps/web/src/components/ui/button.tsx` - Updated by CLI
+
+### Next
+- polish-6: AI Skills Integration (optional - may skip/defer)
+
+---
+
 ## Session: 2026-01-20 01:00
 
 **Focus**: polish-4 - Component Deduplication
