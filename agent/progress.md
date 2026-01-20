@@ -4,6 +4,47 @@ Session history for AI agents working on Piol. Append new entries at the top.
 
 ---
 
+## Session: 2026-01-20 00:00
+
+**Focus**: polish-2 - Property Pages Cleanup
+**Outcome**: completed
+
+### Done
+- Created feature branch `feat/polish-2-property-pages-cleanup` from `feat/polish-0-1-ui-skill-design-tokens`
+- Added `--primary-hover` token to globals.css (dark: #e31c5f, light: #c91854)
+- Replaced all hardcoded colors in `/properties/[id]/page.tsx`:
+  - `bg-white` → `bg-background` (page backgrounds, header, mobile bar)
+  - `text-neutral-900` → `text-foreground` (11 occurrences)
+  - `text-neutral-600/500/400` → `text-muted-foreground` (17 occurrences)
+  - `text-neutral-700` → `text-foreground` (2 occurrences)
+  - `bg-neutral-100` → `bg-muted` (3 occurrences)
+  - `bg-neutral-200` → `bg-border` (4 occurrences)
+  - `bg-neutral-50` → `bg-muted` (1 occurrence)
+  - `border-neutral-200/300` → `border-border` (8 occurrences)
+  - `text-verified` → `text-success` (4 occurrences)
+- Kept `bg-white` for gallery controls (image overlay contrast)
+- Build passes with all changes
+
+### Blockers
+- GitHub CLI auth mismatch (linustruesignal vs linus5304) - cannot create PRs
+
+### Decisions
+- Gallery buttons on images keep white background for visibility over dark images
+- Added primary-hover token rather than changing existing hover patterns
+- `prose-neutral` left as-is (typography preset, not hardcoded color)
+
+### Files Changed
+- `apps/web/src/app/globals.css` - Added --primary-hover token
+- `apps/web/src/app/properties/[id]/page.tsx` - All hardcoded colors replaced
+- `agent/features.json` - Updated polish-2 status to done
+- `agent/scratchpad.md` - Updated context for next session
+
+### Next
+- Fix gh cli auth (`gh auth login`) to create PRs
+- Continue with polish-3: Dashboard Pages Cleanup (messages page gray colors, form TODO)
+
+---
+
 ## Session: 2026-01-19 23:45
 
 **Focus**: Review and complete previous session's uncommitted work

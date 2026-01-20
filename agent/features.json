@@ -35,7 +35,7 @@
     {
       "id": "polish-2",
       "name": "Property Pages Cleanup",
-      "status": "todo",
+      "status": "done",
       "priority": 21,
       "spec": "openspec/changes/add-production-polish/specs/design-system/spec.md",
       "acceptance": [
@@ -44,8 +44,8 @@
         "text-neutral-* replaced with semantic colors",
         "Dark mode renders correctly on both pages"
       ],
-      "blockers": ["polish-1"],
-      "notes": "Property detail page uses hardcoded bg-white and text-neutral-* throughout."
+      "blockers": [],
+      "notes": "Complete. Replaced all hardcoded colors: bg-white→bg-background (page/header/mobile bar), text-neutral-*→text-foreground/text-muted-foreground, bg-neutral-*→bg-muted/bg-border, text-verified→text-success. Added --primary-hover token to globals.css. Gallery controls kept white for image overlay contrast."
     },
     {
       "id": "polish-3",

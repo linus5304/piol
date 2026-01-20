@@ -143,14 +143,16 @@ export default function PropertyDetailPage({
   // Not found state
   if (property === null) {
     return (
-      <div className="min-h-screen bg-white">
+      <div className="min-h-screen bg-background">
         <Header />
         <div className="max-w-7xl mx-auto px-4 py-16 text-center">
-          <div className="w-24 h-24 mx-auto mb-6 rounded-full bg-neutral-100 flex items-center justify-center">
-            <ImageOff className="w-12 h-12 text-neutral-400" />
+          <div className="w-24 h-24 mx-auto mb-6 rounded-full bg-muted flex items-center justify-center">
+            <ImageOff className="w-12 h-12 text-muted-foreground" />
           </div>
-          <h1 className="text-2xl font-semibold text-neutral-900 mb-2">Propriété introuvable</h1>
-          <p className="text-neutral-600 mb-8">Cette propriété n'existe pas ou a été supprimée.</p>
+          <h1 className="text-2xl font-semibold text-foreground mb-2">Propriété introuvable</h1>
+          <p className="text-muted-foreground mb-8">
+            Cette propriété n'existe pas ou a été supprimée.
+          </p>
           <Link href="/properties">
             <Button>Voir toutes les propriétés</Button>
           </Link>
@@ -176,7 +178,7 @@ export default function PropertyDetailPage({
   const totalEntry = property.rentAmount * (property.cautionMonths + property.upfrontMonths);
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-background">
       <Header />
 
       {/* Image Gallery */}
@@ -330,14 +332,12 @@ export default function PropertyDetailPage({
         {/* Title Section */}
         <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4 mb-8">
           <div>
-            <h1 className="text-2xl md:text-3xl font-semibold text-neutral-900">
-              {property.title}
-            </h1>
-            <div className="flex flex-wrap items-center gap-x-4 gap-y-2 mt-2 text-neutral-600">
+            <h1 className="text-2xl md:text-3xl font-semibold text-foreground">{property.title}</h1>
+            <div className="flex flex-wrap items-center gap-x-4 gap-y-2 mt-2 text-muted-foreground">
               {property.reviews.averageRating && (
                 <span className="flex items-center gap-1">
                   <Star className="w-4 h-4 fill-amber-400 text-amber-400" />
-                  <span className="font-medium text-neutral-900">
+                  <span className="font-medium text-foreground">
                     {property.reviews.averageRating.toFixed(1)}
                   </span>
                   <span>({property.reviews.count} avis)</span>
@@ -349,7 +349,7 @@ export default function PropertyDetailPage({
                 {property.city}
               </span>
               {property.verificationStatus === 'approved' && (
-                <span className="flex items-center gap-1 text-verified">
+                <span className="flex items-center gap-1 text-success">
                   <BadgeCheck className="w-4 h-4" />
                   Vérifié
                 </span>
@@ -357,11 +357,7 @@ export default function PropertyDetailPage({
             </div>
           </div>
           <div className="flex items-center gap-3">
-            <Button
-              variant="outline"
-              size="sm"
-              className="flex items-center gap-2 border-neutral-300"
-            >
+            <Button variant="outline" size="sm" className="flex items-center gap-2 border-border">
               <Share2 className="w-4 h-4" />
               <span>Partager</span>
             </Button>
@@ -370,7 +366,7 @@ export default function PropertyDetailPage({
               size="sm"
               onClick={() => setIsSaved(!isSaved)}
               className={cn(
-                'flex items-center gap-2 border-neutral-300',
+                'flex items-center gap-2 border-border',
                 isSaved && 'text-primary border-primary'
               )}
             >
@@ -384,32 +380,32 @@ export default function PropertyDetailPage({
           {/* Main Content */}
           <div className="lg:col-span-2 space-y-10">
             {/* Property Stats */}
-            <div className="flex flex-wrap items-center gap-6 pb-6 border-b border-neutral-200">
+            <div className="flex flex-wrap items-center gap-6 pb-6 border-b border-border">
               <div className="text-center">
-                <div className="text-2xl font-semibold text-neutral-900">
+                <div className="text-2xl font-semibold text-foreground">
                   {propertyTypeLabels[property.propertyType] || property.propertyType}
                 </div>
-                <div className="text-sm text-neutral-600">Type</div>
+                <div className="text-sm text-muted-foreground">Type</div>
               </div>
-              <div className="w-px h-10 bg-neutral-200" />
+              <div className="w-px h-10 bg-border" />
               <div className="text-center">
-                <div className="text-2xl font-semibold text-neutral-900">
+                <div className="text-2xl font-semibold text-foreground">
                   {property.cautionMonths}
                 </div>
-                <div className="text-sm text-neutral-600">Mois de caution</div>
+                <div className="text-sm text-muted-foreground">Mois de caution</div>
               </div>
-              <div className="w-px h-10 bg-neutral-200" />
+              <div className="w-px h-10 bg-border" />
               <div className="text-center">
-                <div className="text-2xl font-semibold text-neutral-900">
+                <div className="text-2xl font-semibold text-foreground">
                   {property.upfrontMonths}
                 </div>
-                <div className="text-sm text-neutral-600">Mois d'avance</div>
+                <div className="text-sm text-muted-foreground">Mois d'avance</div>
               </div>
             </div>
 
             {/* Landlord Preview */}
             {property.landlord && (
-              <div className="flex items-center justify-between py-6 border-b border-neutral-200">
+              <div className="flex items-center justify-between py-6 border-b border-border">
                 <div className="flex items-center gap-4">
                   <Avatar className="h-14 w-14 border-2 border-white shadow-md">
                     <AvatarImage src={property.landlord.profileImageUrl || undefined} />
@@ -420,14 +416,14 @@ export default function PropertyDetailPage({
                   </Avatar>
                   <div>
                     <div className="flex items-center gap-2">
-                      <span className="font-medium text-neutral-900">
+                      <span className="font-medium text-foreground">
                         Proposé par {property.landlord.firstName || 'Propriétaire'}
                       </span>
                       {property.landlord.idVerified && (
-                        <BadgeCheck className="w-5 h-5 text-verified" />
+                        <BadgeCheck className="w-5 h-5 text-success" />
                       )}
                     </div>
-                    <p className="text-sm text-neutral-500">
+                    <p className="text-sm text-muted-foreground">
                       Publié le {formatDate(property._creationTime)}
                     </p>
                   </div>
@@ -438,14 +434,14 @@ export default function PropertyDetailPage({
             {/* Description */}
             {property.description && (
               <div>
-                <h2 className="text-xl font-semibold text-neutral-900 mb-4">
+                <h2 className="text-xl font-semibold text-foreground mb-4">
                   À propos de ce logement
                 </h2>
                 <div className="prose prose-neutral max-w-none">
                   {property.description.split('\n\n').map((paragraph: string) => (
                     <p
                       key={paragraph.slice(0, 50)}
-                      className="text-neutral-600 mb-4 whitespace-pre-line leading-relaxed"
+                      className="text-muted-foreground mb-4 whitespace-pre-line leading-relaxed"
                     >
                       {paragraph}
                     </p>
@@ -456,8 +452,8 @@ export default function PropertyDetailPage({
 
             {/* Amenities */}
             {enabledAmenities.length > 0 && (
-              <div className="pt-6 border-t border-neutral-200">
-                <h2 className="text-xl font-semibold text-neutral-900 mb-6">
+              <div className="pt-6 border-t border-border">
+                <h2 className="text-xl font-semibold text-foreground mb-6">
                   Ce que propose ce logement
                 </h2>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -467,10 +463,10 @@ export default function PropertyDetailPage({
                     const Icon = amenity.icon;
                     return (
                       <div key={amenityKey} className="flex items-center gap-4 py-3">
-                        <div className="w-10 h-10 rounded-lg bg-neutral-100 flex items-center justify-center">
-                          <Icon className="w-5 h-5 text-neutral-700" />
+                        <div className="w-10 h-10 rounded-lg bg-muted flex items-center justify-center">
+                          <Icon className="w-5 h-5 text-foreground" />
                         </div>
-                        <span className="text-neutral-700">{amenity.label}</span>
+                        <span className="text-foreground">{amenity.label}</span>
                       </div>
                     );
                   })}
@@ -479,16 +475,16 @@ export default function PropertyDetailPage({
             )}
 
             {/* Location */}
-            <div className="pt-6 border-t border-neutral-200">
-              <h2 className="text-xl font-semibold text-neutral-900 mb-4">Où vous serez</h2>
-              <p className="text-neutral-600 mb-4">
+            <div className="pt-6 border-t border-border">
+              <h2 className="text-xl font-semibold text-foreground mb-4">Où vous serez</h2>
+              <p className="text-muted-foreground mb-4">
                 {property.neighborhood ? `${property.neighborhood}, ` : ''}
                 {property.city}
                 {property.addressLine1 && <> — {property.addressLine1}</>}
               </p>
-              <div className="bg-neutral-100 rounded-2xl h-64 flex items-center justify-center">
-                <div className="text-center text-neutral-500">
-                  <MapPin className="w-12 h-12 mx-auto mb-3 text-neutral-400" />
+              <div className="bg-muted rounded-2xl h-64 flex items-center justify-center">
+                <div className="text-center text-muted-foreground">
+                  <MapPin className="w-12 h-12 mx-auto mb-3 text-muted-foreground" />
                   <p className="font-medium">Carte interactive</p>
                   <p className="text-sm">Bientôt disponible</p>
                 </div>
@@ -500,21 +496,21 @@ export default function PropertyDetailPage({
           <div className="lg:col-span-1">
             <div className="sticky top-24 space-y-6">
               {/* Pricing Card */}
-              <Card className="shadow-xl border-neutral-200 rounded-2xl overflow-hidden">
+              <Card className="shadow-xl border-border rounded-2xl overflow-hidden">
                 <CardContent className="p-6">
                   <div className="mb-6">
                     <div className="flex items-baseline gap-1">
-                      <span className="text-3xl font-semibold text-neutral-900">
+                      <span className="text-3xl font-semibold text-foreground">
                         {formatCurrency(property.rentAmount)}
                       </span>
-                      <span className="text-neutral-500">{property.currency}</span>
+                      <span className="text-muted-foreground">{property.currency}</span>
                     </div>
-                    <span className="text-neutral-500">/mois</span>
+                    <span className="text-muted-foreground">/mois</span>
                   </div>
 
                   <div className="space-y-3 mb-6">
                     <div className="flex justify-between text-sm">
-                      <span className="text-neutral-600">
+                      <span className="text-muted-foreground">
                         Caution ({property.cautionMonths} mois)
                       </span>
                       <span className="font-medium">
@@ -523,7 +519,7 @@ export default function PropertyDetailPage({
                       </span>
                     </div>
                     <div className="flex justify-between text-sm">
-                      <span className="text-neutral-600">
+                      <span className="text-muted-foreground">
                         Avance ({property.upfrontMonths} mois)
                       </span>
                       <span className="font-medium">
@@ -531,7 +527,7 @@ export default function PropertyDetailPage({
                         {property.currency}
                       </span>
                     </div>
-                    <div className="h-px bg-neutral-200 my-3" />
+                    <div className="h-px bg-border my-3" />
                     <div className="flex justify-between font-semibold text-lg">
                       <span>Total à l'entrée</span>
                       <span>
@@ -550,7 +546,7 @@ export default function PropertyDetailPage({
                         <MessageCircle className="w-4 h-4 mr-2" />
                         Contacter le propriétaire
                       </Button>
-                      <Button variant="outline" className="w-full border-neutral-300" size="lg">
+                      <Button variant="outline" className="w-full border-border" size="lg">
                         <Calendar className="w-4 h-4 mr-2" />
                         Planifier une visite
                       </Button>
@@ -566,7 +562,7 @@ export default function PropertyDetailPage({
                     </Link>
                   )}
 
-                  <p className="text-xs text-center text-neutral-500 mt-4">
+                  <p className="text-xs text-center text-muted-foreground mt-4">
                     🔒 Vos informations sont protégées
                   </p>
                 </CardContent>
@@ -574,7 +570,7 @@ export default function PropertyDetailPage({
 
               {/* Landlord Card */}
               {property.landlord && (
-                <Card className="border-neutral-200 rounded-2xl">
+                <Card className="border-border rounded-2xl">
                   <CardContent className="p-6">
                     <div className="flex items-center gap-4 mb-4">
                       <Avatar className="h-16 w-16 border-2 border-white shadow-md">
@@ -590,13 +586,13 @@ export default function PropertyDetailPage({
                             {property.landlord.firstName} {property.landlord.lastName}
                           </span>
                           {property.landlord.idVerified && (
-                            <BadgeCheck className="w-5 h-5 text-verified" />
+                            <BadgeCheck className="w-5 h-5 text-success" />
                           )}
                         </div>
                         {property.reviews.count > 0 && (
-                          <div className="flex items-center gap-1 text-sm text-neutral-500">
+                          <div className="flex items-center gap-1 text-sm text-muted-foreground">
                             <Star className="w-4 h-4 fill-amber-400 text-amber-400" />
-                            <span className="font-medium text-neutral-900">
+                            <span className="font-medium text-foreground">
                               {property.reviews.averageRating?.toFixed(1)}
                             </span>
                             <span>• {property.reviews.count} avis</span>
@@ -607,7 +603,7 @@ export default function PropertyDetailPage({
 
                     <div className="mt-4 space-y-2">
                       {property.landlord.idVerified && (
-                        <div className="flex items-center gap-2 text-sm text-verified">
+                        <div className="flex items-center gap-2 text-sm text-success">
                           <BadgeCheck className="w-4 h-4" />
                           <span>Identité vérifiée</span>
                         </div>
@@ -646,17 +642,17 @@ export default function PropertyDetailPage({
       </main>
 
       {/* Mobile Bottom Bar */}
-      <div className="lg:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-neutral-200 p-4 z-40">
+      <div className="lg:hidden fixed bottom-0 left-0 right-0 bg-background border-t border-border p-4 z-40">
         <div className="flex items-center justify-between">
           <div>
             <div className="flex items-baseline gap-1">
-              <span className="text-xl font-semibold text-neutral-900">
+              <span className="text-xl font-semibold text-foreground">
                 {formatCurrency(property.rentAmount)}
               </span>
-              <span className="text-neutral-500 text-sm">{property.currency}/mois</span>
+              <span className="text-muted-foreground text-sm">{property.currency}/mois</span>
             </div>
             {property.reviews.count > 0 && (
-              <div className="flex items-center gap-1 text-sm text-neutral-500">
+              <div className="flex items-center gap-1 text-sm text-muted-foreground">
                 <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
                 <span>{property.reviews.averageRating?.toFixed(1)}</span>
                 <span>({property.reviews.count})</span>
@@ -694,14 +690,14 @@ export default function PropertyDetailPage({
           </DialogHeader>
 
           {/* Property Preview */}
-          <div className="flex items-center gap-3 p-3 bg-neutral-50 rounded-lg">
+          <div className="flex items-center gap-3 p-3 bg-muted rounded-lg">
             <img
               src={images[0]}
               alt={property.title}
               className="w-16 h-16 object-cover rounded-lg"
             />
             <div className="flex-1 min-w-0">
-              <p className="font-medium text-neutral-900 truncate">{property.title}</p>
+              <p className="font-medium text-foreground truncate">{property.title}</p>
               <p className="text-sm text-primary font-medium">
                 {formatCurrency(property.rentAmount)} {property.currency}/mois
               </p>
@@ -746,7 +742,7 @@ export default function PropertyDetailPage({
 
 function Header() {
   return (
-    <header className="bg-white border-b border-neutral-200 sticky top-0 z-40">
+    <header className="bg-background border-b border-border sticky top-0 z-40">
       <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
         <Link href="/" className="flex items-center gap-2">
           <span className="text-2xl">🏠</span>
@@ -755,7 +751,7 @@ function Header() {
         <div className="flex items-center gap-4">
           <Link
             href="/properties"
-            className="flex items-center gap-2 text-neutral-600 hover:text-neutral-900 transition-colors"
+            className="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors"
           >
             <ArrowLeft className="w-4 h-4" />
             <span className="hidden sm:inline">Retour aux propriétés</span>
@@ -768,7 +764,7 @@ function Header() {
 
 function PropertyDetailSkeleton() {
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-background">
       <Header />
 
       {/* Image Gallery Skeleton */}
@@ -795,7 +791,7 @@ function PropertyDetailSkeleton() {
         <div className="grid lg:grid-cols-3 gap-8 lg:gap-12">
           <div className="lg:col-span-2 space-y-10">
             {/* Stats Skeleton */}
-            <div className="flex gap-6 pb-6 border-b border-neutral-200">
+            <div className="flex gap-6 pb-6 border-b border-border">
               <div className="text-center">
                 <Skeleton className="h-8 w-20 mb-1" />
                 <Skeleton className="h-4 w-16" />
@@ -811,7 +807,7 @@ function PropertyDetailSkeleton() {
             </div>
 
             {/* Landlord Skeleton */}
-            <div className="flex items-center gap-4 py-6 border-b border-neutral-200">
+            <div className="flex items-center gap-4 py-6 border-b border-border">
               <Skeleton className="h-14 w-14 rounded-full" />
               <div>
                 <Skeleton className="h-5 w-40 mb-2" />
@@ -828,7 +824,7 @@ function PropertyDetailSkeleton() {
             </div>
 
             {/* Amenities Skeleton */}
-            <div className="pt-6 border-t border-neutral-200">
+            <div className="pt-6 border-t border-border">
               <Skeleton className="h-6 w-64 mb-6" />
               <div className="grid grid-cols-2 gap-4">
                 {[1, 2, 3, 4].map((i) => (
@@ -843,7 +839,7 @@ function PropertyDetailSkeleton() {
 
           {/* Sidebar Skeleton */}
           <div className="lg:col-span-1">
-            <Card className="shadow-xl border-neutral-200 rounded-2xl">
+            <Card className="shadow-xl border-border rounded-2xl">
               <CardContent className="p-6">
                 <Skeleton className="h-10 w-40 mb-2" />
                 <Skeleton className="h-4 w-20 mb-6" />

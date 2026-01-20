@@ -25,6 +25,7 @@
 
   /* Primary - Coral accent (Housing marketplace convention) */
   --primary: #ff385c;
+  --primary-hover: #e31c5f;
   --primary-foreground: #ffffff;
 
   /* Background & Foreground - Dark by default */
@@ -86,6 +87,7 @@
 /* Light mode override */
 .light {
   --primary: #e31c5f;
+  --primary-hover: #c91854;
   --primary-foreground: #ffffff;
 
   --background: #ffffff;
@@ -134,6 +136,7 @@
   --color-popover: var(--popover);
   --color-popover-foreground: var(--popover-foreground);
   --color-primary: var(--primary);
+  --color-primary-hover: var(--primary-hover);
   --color-primary-foreground: var(--primary-foreground);
   --color-secondary: var(--secondary);
   --color-secondary-foreground: var(--secondary-foreground);
