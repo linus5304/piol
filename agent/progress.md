@@ -4,6 +4,35 @@ Session history for AI agents working on Piol. Append new entries at the top.
 
 ---
 
+## Session: 2026-01-19 22:00
+
+**Focus**: prod-2 - Vercel Analytics
+**Outcome**: completed
+
+### Done
+- Created feature branch `feat/prod-2-vercel-analytics`
+- Installed `@vercel/analytics@1.6.1` and `@vercel/speed-insights@1.3.1`
+- Added Analytics and SpeedInsights components to root layout
+- Verified build passes
+
+### Blockers
+- None
+
+### Decisions
+- Components placed after Toaster in root layout
+- Uses `@vercel/analytics/react` for client-side analytics
+- Uses `@vercel/speed-insights/next` for Next.js-optimized speed insights
+
+### Files Changed
+- `apps/web/src/app/layout.tsx` - Added imports and components
+- `apps/web/package.json` - Added dependencies
+- `bun.lock` - Updated lockfile
+
+### Next
+- prod-3: Fix code TODOs (toast on save error, settings form)
+
+---
+
 ## Session: 2026-01-19 21:30
 
 **Focus**: prod-1 - Sentry error tracking

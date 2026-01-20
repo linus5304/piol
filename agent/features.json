@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "lastUpdated": "2026-01-19T21:30:00Z",
+  "lastUpdated": "2026-01-19T22:00:00Z",
   "features": [
     {
       "id": "prod-1",
@@ -22,7 +22,7 @@
     {
       "id": "prod-2",
       "name": "Vercel Analytics",
-      "status": "todo",
+      "status": "done",
       "priority": 11,
       "spec": null,
       "acceptance": [
@@ -32,7 +32,7 @@
         "SpeedInsights component in root layout"
       ],
       "blockers": [],
-      "notes": ""
+      "notes": "Complete. @vercel/analytics@1.6.1 and @vercel/speed-insights@1.3.1 installed. Components added to root layout after Toaster. Tracks page views and Core Web Vitals automatically."
     },
     {
       "id": "prod-3",
