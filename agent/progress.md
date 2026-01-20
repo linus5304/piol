@@ -4,6 +4,49 @@ Session history for AI agents working on Piol. Append new entries at the top.
 
 ---
 
+## Session: 2026-01-19 22:15
+
+**Focus**: redesign-2 - UI Redesign: Layout Components
+**Outcome**: completed
+
+### Done
+- Created feature branch `feat/redesign-2-layouts`
+- Created `components/dashboard-tabs.tsx` with horizontal tab navigation:
+  - Icons for each tab (Home, Saved, Messages, Payments, Settings)
+  - Active state styling with primary border
+  - Mobile-friendly with horizontal scroll
+- Created `components/layouts/renter-dashboard-layout.tsx`:
+  - Simple header with logo and user menu dropdown
+  - Tab navigation below header
+  - Logout functionality
+- Updated `app/dashboard/layout.tsx`:
+  - Detects user role from `unsafeMetadata.role`
+  - Renders RenterDashboardLayout for renters (tab-based)
+  - Renders existing SidebarProvider layout for landlords
+  - Loading spinner while auth is loading
+- Updated `layouts/public-layout.tsx`:
+  - Container max-width set to `max-w-7xl`
+  - Responsive padding: px-4 md:px-6 lg:px-8
+
+### Blockers
+- None
+
+### Decisions
+- Renter default role (if no role set) — keeps backward compatibility
+- Renter layout has no sidebar, just tabs — cleaner UX for renters
+- Landlords keep sidebar — need access to property management features
+
+### Files Changed
+- `apps/web/src/components/dashboard-tabs.tsx` - New
+- `apps/web/src/components/layouts/renter-dashboard-layout.tsx` - New
+- `apps/web/src/components/layouts/public-layout.tsx` - Updated container
+- `apps/web/src/app/dashboard/layout.tsx` - Role detection logic
+
+### Next
+- redesign-3: UI Redesign: Messaging Components (ConversationList, MessageThread, MessageComposer)
+
+---
+
 ## Session: 2026-01-19 21:40
 
 **Focus**: polish-5 - Add Missing shadcn Components
