@@ -1,13 +1,149 @@
 {
   "version": 1,
-  "lastUpdated": "2026-01-20T00:30:00Z",
+  "lastUpdated": "2026-01-20T12:00:00Z",
   "features": [
+    {
+      "id": "redesign-0",
+      "name": "UI Redesign: Setup & Preparation",
+      "status": "todo",
+      "priority": 26,
+      "spec": "openspec/changes/refactor-ui-redesign/specs/ui-branding/spec.md",
+      "acceptance": [
+        "add-production-polish archived",
+        "leaflet & react-leaflet installed",
+        "Item, Field, InputGroup, Empty, kbd, spinner, native-select components created",
+        "bun run build passes with new components"
+      ],
+      "blockers": [],
+      "notes": "Phase 0: Install deps, add missing shadcn components based on shadcn blocks patterns."
+    },
+    {
+      "id": "redesign-1",
+      "name": "UI Redesign: Theme & Branding",
+      "status": "todo",
+      "priority": 27,
+      "spec": "openspec/changes/refactor-ui-redesign/specs/ui-branding/spec.md",
+      "acceptance": [
+        "globals.css uses zinc color palette",
+        "Logo uses Lucide Home icon",
+        "Favicon created and configured",
+        "All hardcoded colors replaced with CSS variables"
+      ],
+      "blockers": ["redesign-0"],
+      "notes": "Phase 1: Zinc theme, icon logo, favicon, remove hardcoded colors."
+    },
+    {
+      "id": "redesign-2",
+      "name": "UI Redesign: Layout Components",
+      "status": "todo",
+      "priority": 28,
+      "spec": "openspec/changes/refactor-ui-redesign/specs/ui-layout/spec.md",
+      "acceptance": [
+        "Public layout updated with consistent header/footer",
+        "Renter dashboard uses tab-based navigation",
+        "Landlord dashboard uses sidebar navigation",
+        "Layout switcher detects user role"
+      ],
+      "blockers": ["redesign-1"],
+      "notes": "Phase 2: Public layout, renter tab layout, landlord sidebar layout."
+    },
+    {
+      "id": "redesign-3",
+      "name": "UI Redesign: Messaging Components",
+      "status": "todo",
+      "priority": 29,
+      "spec": "openspec/changes/refactor-ui-redesign/specs/ui-messaging/spec.md",
+      "acceptance": [
+        "ConversationList uses Item/ItemGroup pattern",
+        "MessageThread with sent/received bubble styling",
+        "MessageComposer with InputGroup pattern",
+        "Empty states for no conversations"
+      ],
+      "blockers": ["redesign-2"],
+      "notes": "Phase 3: Conversation list, message thread, message composer components."
+    },
+    {
+      "id": "redesign-4",
+      "name": "UI Redesign: Public Pages",
+      "status": "todo",
+      "priority": 30,
+      "spec": "openspec/changes/refactor-ui-redesign/specs/ui-property-search/spec.md",
+      "acceptance": [
+        "Home page redesigned with zinc theme",
+        "Properties page with interactive map view",
+        "Property detail page with gallery carousel",
+        "PropertyCard updated with minimal design"
+      ],
+      "blockers": ["redesign-2"],
+      "notes": "Phase 4: Home, /properties (map view), /properties/[id], PropertyCard updates."
+    },
+    {
+      "id": "redesign-5",
+      "name": "UI Redesign: Renter Dashboard",
+      "status": "todo",
+      "priority": 31,
+      "spec": "openspec/changes/refactor-ui-redesign/specs/ui-layout/spec.md",
+      "acceptance": [
+        "Renter home with stats cards",
+        "Saved properties page with grid",
+        "Messages page with ConversationList",
+        "Payments page with history table",
+        "Settings page with Field components"
+      ],
+      "blockers": ["redesign-3"],
+      "notes": "Phase 5: All renter dashboard pages with tab layout."
+    },
+    {
+      "id": "redesign-6",
+      "name": "UI Redesign: Landlord Dashboard",
+      "status": "todo",
+      "priority": 32,
+      "spec": "openspec/changes/refactor-ui-redesign/specs/ui-layout/spec.md",
+      "acceptance": [
+        "Landlord home with revenue stats",
+        "Properties list with status badges",
+        "Multi-step property form with FieldSet",
+        "Messages integrated with property context"
+      ],
+      "blockers": ["redesign-3"],
+      "notes": "Phase 6: All landlord dashboard pages with sidebar layout."
+    },
+    {
+      "id": "redesign-7",
+      "name": "UI Redesign: Static & Auth Pages",
+      "status": "todo",
+      "priority": 33,
+      "spec": "openspec/changes/refactor-ui-redesign/specs/ui-branding/spec.md",
+      "acceptance": [
+        "About, Contact, Terms, Privacy pages styled",
+        "Auth pages (sign-in, sign-up) styled with Clerk",
+        "Onboarding page with FieldGroup"
+      ],
+      "blockers": ["redesign-1"],
+      "notes": "Phase 7: All static and auth pages with consistent styling."
+    },
+    {
+      "id": "redesign-8",
+      "name": "UI Redesign: Final Polish & Testing",
+      "status": "todo",
+      "priority": 34,
+      "spec": null,
+      "acceptance": [
+        "All loading skeletons match new designs",
+        "All empty states use Empty component",
+        "Error boundaries added",
+        "bun run build & test pass",
+        "Lighthouse 90+ performance"
+      ],
+      "blockers": ["redesign-4", "redesign-5", "redesign-6", "redesign-7"],
+      "notes": "Phase 8: Loading states, empty states, error boundaries, code cleanup, testing, PR."
+    },
     {
       "id": "polish-0",
       "name": "UI Engineer Skill",
       "status": "done",
       "priority": 19,
-      "spec": "openspec/changes/add-production-polish/specs/ui-skills/spec.md",
+      "spec": "openspec/changes/archive/2026-01-20-add-production-polish/specs/ui-skills/spec.md",
       "acceptance": [
         ".cursor/skills/ui-engineer.md created with React/Tailwind/shadcn patterns",
         "/ui-review command created",
@@ -22,7 +158,7 @@
       "name": "Design System Consolidation",
       "status": "done",
       "priority": 20,
-      "spec": "openspec/changes/add-production-polish/specs/design-system/spec.md",
+      "spec": "openspec/changes/archive/2026-01-20-add-production-polish/specs/design-system/spec.md",
       "acceptance": [
         "globals.css :root uses coral primary (#FF385C)",
         "globals.css .light theme variant updated",
@@ -37,7 +173,7 @@
       "name": "Property Pages Cleanup",
       "status": "done",
       "priority": 21,
-      "spec": "openspec/changes/add-production-polish/specs/design-system/spec.md",
+      "spec": "openspec/changes/archive/2026-01-20-add-production-polish/specs/design-system/spec.md",
       "acceptance": [
         "/properties uses bg-primary instead of #FF385C",
         "/properties/[id] uses bg-background instead of bg-white",
@@ -52,7 +188,7 @@
       "name": "Dashboard Pages Cleanup",
       "status": "done",
       "priority": 22,
-      "spec": "openspec/changes/add-production-polish/specs/design-system/spec.md",
+      "spec": "openspec/changes/archive/2026-01-20-add-production-polish/specs/design-system/spec.md",
       "acceptance": [
         "Messages page uses text-muted-foreground not text-gray-*",
         "New property form TODO completed",
@@ -67,7 +203,7 @@
       "name": "Component Deduplication",
       "status": "done",
       "priority": 23,
-      "spec": "openspec/changes/add-production-polish/specs/design-system/spec.md",
+      "spec": "openspec/changes/archive/2026-01-20-add-production-polish/specs/design-system/spec.md",
       "acceptance": [
         "Single property-card.tsx in /components/properties/",
         "Duplicate file deleted",
@@ -96,15 +232,15 @@
       "id": "polish-6",
       "name": "AI Skills Integration",
       "status": "todo",
-      "priority": 25,
+      "priority": 99,
       "spec": null,
       "acceptance": [
         "AI SDK v6 integrated",
         "Property search skill implemented",
         "Landlord assistant skill implemented"
       ],
-      "blockers": ["polish-1", "polish-2", "polish-3", "polish-4"],
-      "notes": "Optional. Add AI-powered features using Vercel AI SDK agent patterns."
+      "blockers": ["redesign-8"],
+      "notes": "Optional. Deferred until after UI redesign. Add AI-powered features using Vercel AI SDK agent patterns."
     },
     {
       "id": "prod-1",
