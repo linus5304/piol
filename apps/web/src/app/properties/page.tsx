@@ -33,6 +33,7 @@ import {
 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { useCallback, useMemo, useState } from 'react';
+import { toast } from 'sonner';
 
 const cities = ['Douala', 'Yaoundé', 'Bafoussam', 'Buea', 'Kribi', 'Limbé', 'Bamenda', 'Garoua'];
 
@@ -193,7 +194,7 @@ export default function PropertiesPage() {
         console.log('[Save] Toggle result:', result);
       } catch (error) {
         console.error('[Save] Failed to toggle save:', error);
-        // TODO: Show toast notification to user
+        toast.error('Impossible de sauvegarder la propriété. Veuillez réessayer.');
       }
     },
     [toggleSaveProperty]
