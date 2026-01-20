@@ -4,6 +4,41 @@ Session history for AI agents working on Piol. Append new entries at the top.
 
 ---
 
+## Session: 2026-01-19 22:30
+
+**Focus**: prod-2 through prod-5 - Production readiness
+**Outcome**: completed
+
+### Done
+- **prod-2**: Installed @vercel/analytics and @vercel/speed-insights, added to root layout
+- **prod-3**: Added toast on save error, wired settings form to updateProfile mutation
+- **prod-4**: Created Claude PR Assistant and Security Review GitHub workflows
+- **prod-5**: Added Convex dev/prod switching docs, production setup checklist
+
+### Blockers
+- None
+
+### Decisions
+- All production features on single branch (feat/prod-2-vercel-analytics) for easier review
+- Security review workflow warns but doesn't fail build on issues
+- Production docs added to existing files (.env.example, AGENTS.md) rather than new files
+
+### Files Changed
+- `apps/web/src/app/layout.tsx` - Vercel Analytics components
+- `apps/web/src/app/properties/page.tsx` - Toast on save error
+- `apps/web/src/app/dashboard/settings/page.tsx` - updateProfile mutation
+- `.github/workflows/claude-pr-assistant.yml` - New workflow
+- `.github/workflows/security-review.yml` - New workflow
+- `.env.example` - Production setup and GitHub secrets docs
+- `AGENTS.md` - Convex dev/prod switching, MVP status update
+
+### Next
+- Production readiness complete!
+- Create PR for this branch
+- Post-production: payments integration, property verification
+
+---
+
 ## Session: 2026-01-19 22:00
 
 **Focus**: prod-2 - Vercel Analytics
