@@ -54,6 +54,11 @@ export const getConversations = query({
         // Get property if exists
         const property = lastMessage.propertyId ? await ctx.db.get(lastMessage.propertyId) : null;
 
+        // Convert profile image storage ID to URL
+        const otherUserImageUrl = otherUser?.profileImageId
+          ? await ctx.storage.getUrl(otherUser.profileImageId)
+          : null;
+
         return {
           conversationId,
           otherUser: otherUser
@@ -61,7 +66,7 @@ export const getConversations = query({
                 _id: otherUser._id,
                 firstName: otherUser.firstName,
                 lastName: otherUser.lastName,
-                profileImageId: otherUser.profileImageId,
+                imageUrl: otherUserImageUrl,
               }
             : null,
           property: property
