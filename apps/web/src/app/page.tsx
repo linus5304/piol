@@ -81,32 +81,32 @@ export default function HomePage() {
   return (
     <PublicLayout>
       {/* Hero Section */}
-      <PageSection bordered className="py-16 md:py-24">
+      <PageSection bordered className="py-20 md:py-28">
         <div className="max-w-3xl">
-          <Badge variant="secondary" className="mb-4 rounded-full">
+          <Badge variant="secondary" className="mb-6 rounded-full px-4 py-1.5 text-sm">
             Plateforme de location au Cameroun
           </Badge>
-          <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight mb-6">
-            Trouvez votre prochain logement
+          <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight mb-6 text-balance">
+            Trouvez votre prochain <span className="text-primary">logement</span>
           </h1>
-          <p className="text-lg text-muted-foreground mb-8 max-w-xl">
+          <p className="text-lead mb-10 max-w-xl">
             Annonces vérifiées, paiement sécurisé par Mobile Money. De Douala à Yaoundé, trouvez le
             logement idéal.
           </p>
 
           {/* Search Bar */}
-          <div className="flex flex-col sm:flex-row gap-2 mb-8">
+          <div className="flex flex-col sm:flex-row gap-3 mb-10">
             <div className="relative flex-1">
               <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
               <Input
                 placeholder="Rechercher par ville ou quartier..."
-                className="pl-12 h-14 text-base rounded-xl"
+                className="pl-12 h-14 text-base rounded-xl border-border/50 bg-card shadow-sm focus:shadow-md transition-shadow"
               />
             </div>
             <Link href="/properties">
               <Button
                 size="lg"
-                className="h-14 px-8 w-full sm:w-auto rounded-xl bg-primary hover:bg-primary/90"
+                className="h-14 px-8 w-full sm:w-auto rounded-xl bg-primary hover:bg-primary/90 shadow-md hover:shadow-lg transition-shadow"
               >
                 Rechercher
               </Button>
@@ -114,18 +114,18 @@ export default function HomePage() {
           </div>
 
           {/* Stats */}
-          <div className="flex flex-wrap gap-8">
+          <div className="flex flex-wrap gap-10 pt-2">
             <div>
-              <div className="text-3xl font-bold">1,000+</div>
-              <div className="text-sm text-muted-foreground">Logements</div>
+              <div className="text-3xl font-bold tabular-nums">1,000+</div>
+              <div className="text-sm text-muted-foreground mt-0.5">Logements</div>
             </div>
             <div>
-              <div className="text-3xl font-bold">5,000+</div>
-              <div className="text-sm text-muted-foreground">Utilisateurs</div>
+              <div className="text-3xl font-bold tabular-nums">5,000+</div>
+              <div className="text-sm text-muted-foreground mt-0.5">Utilisateurs</div>
             </div>
             <div>
-              <div className="text-3xl font-bold">98%</div>
-              <div className="text-sm text-muted-foreground">Satisfaction</div>
+              <div className="text-3xl font-bold tabular-nums">98%</div>
+              <div className="text-sm text-muted-foreground mt-0.5">Satisfaction</div>
             </div>
           </div>
         </div>
@@ -133,25 +133,28 @@ export default function HomePage() {
 
       {/* Cities Section */}
       <PageSection bordered>
-        <div className="flex items-center justify-between mb-6">
-          <h2 className="text-xl font-semibold">Villes populaires</h2>
+        <div className="flex items-center justify-between mb-8">
+          <h2 className="text-2xl font-semibold tracking-tight">Villes populaires</h2>
           <Link
             href="/properties"
-            className="text-sm text-muted-foreground hover:text-foreground flex items-center gap-1"
+            className="text-sm font-medium text-muted-foreground hover:text-foreground flex items-center gap-1 group"
           >
-            Voir tout <ArrowRight className="h-4 w-4" />
+            Voir tout{' '}
+            <ArrowRight className="h-4 w-4 group-hover:translate-x-0.5 transition-transform" />
           </Link>
         </div>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           {cities.map((city) => (
             <Link key={city.name} href={`/properties?city=${city.name}`}>
-              <Card className="hover:shadow-card transition-all cursor-pointer rounded-xl">
-                <CardContent className="p-4 flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <MapPin className="h-4 w-4 text-muted-foreground" />
-                    <span className="font-medium">{city.name}</span>
+              <Card className="card-hover cursor-pointer rounded-xl border-border/50 bg-card">
+                <CardContent className="p-5 flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-lg bg-muted flex items-center justify-center">
+                      <MapPin className="h-5 w-5 text-muted-foreground" />
+                    </div>
+                    <span className="font-semibold">{city.name}</span>
                   </div>
-                  <Badge variant="secondary" className="rounded-full">
+                  <Badge variant="secondary" className="rounded-full text-xs px-2.5">
                     {city.count}
                   </Badge>
                 </CardContent>
@@ -163,32 +166,37 @@ export default function HomePage() {
 
       {/* How It Works */}
       <PageSection bg="muted" bordered>
-        <h2 className="text-2xl font-semibold mb-8 text-center">Comment ça marche</h2>
+        <div className="text-center mb-10">
+          <h2 className="text-2xl font-bold tracking-tight md:text-3xl">Comment ça marche</h2>
+          <p className="text-muted-foreground mt-2 max-w-lg mx-auto">
+            Trouvez votre logement idéal en 3 étapes simples
+          </p>
+        </div>
         <div className="grid md:grid-cols-3 gap-8 max-w-4xl mx-auto">
-          <div className="text-center">
-            <div className="w-14 h-14 bg-primary text-primary-foreground flex items-center justify-center mx-auto mb-4 text-xl font-bold rounded-2xl">
+          <div className="text-center group">
+            <div className="w-16 h-16 bg-primary text-primary-foreground flex items-center justify-center mx-auto mb-5 text-2xl font-bold rounded-2xl shadow-lg group-hover:scale-105 transition-transform">
               1
             </div>
-            <h3 className="font-semibold mb-2">Recherchez</h3>
-            <p className="text-sm text-muted-foreground">
+            <h3 className="font-semibold text-lg mb-2">Recherchez</h3>
+            <p className="text-sm text-muted-foreground leading-relaxed">
               Filtrez par ville, prix et type de logement
             </p>
           </div>
-          <div className="text-center">
-            <div className="w-14 h-14 bg-primary text-primary-foreground flex items-center justify-center mx-auto mb-4 text-xl font-bold rounded-2xl">
+          <div className="text-center group">
+            <div className="w-16 h-16 bg-primary text-primary-foreground flex items-center justify-center mx-auto mb-5 text-2xl font-bold rounded-2xl shadow-lg group-hover:scale-105 transition-transform">
               2
             </div>
-            <h3 className="font-semibold mb-2">Contactez</h3>
-            <p className="text-sm text-muted-foreground">
+            <h3 className="font-semibold text-lg mb-2">Contactez</h3>
+            <p className="text-sm text-muted-foreground leading-relaxed">
               Discutez avec les propriétaires vérifiés
             </p>
           </div>
-          <div className="text-center">
-            <div className="w-14 h-14 bg-primary text-primary-foreground flex items-center justify-center mx-auto mb-4 text-xl font-bold rounded-2xl">
+          <div className="text-center group">
+            <div className="w-16 h-16 bg-primary text-primary-foreground flex items-center justify-center mx-auto mb-5 text-2xl font-bold rounded-2xl shadow-lg group-hover:scale-105 transition-transform">
               3
             </div>
-            <h3 className="font-semibold mb-2">Emménagez</h3>
-            <p className="text-sm text-muted-foreground">
+            <h3 className="font-semibold text-lg mb-2">Emménagez</h3>
+            <p className="text-sm text-muted-foreground leading-relaxed">
               Payez par Mobile Money et récupérez vos clés
             </p>
           </div>
@@ -197,11 +205,15 @@ export default function HomePage() {
 
       {/* Featured Properties */}
       <PageSection bordered>
-        <div className="flex items-center justify-between mb-8">
-          <h2 className="text-2xl font-semibold">Annonces à la une</h2>
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
+          <div>
+            <h2 className="text-2xl font-bold tracking-tight md:text-3xl">Annonces à la une</h2>
+            <p className="text-muted-foreground mt-1">Les logements les plus populaires</p>
+          </div>
           <Link href="/properties">
-            <Button variant="outline" size="sm" className="rounded-xl">
-              Voir tout <ArrowRight className="ml-2 h-4 w-4" />
+            <Button variant="outline" className="rounded-xl group">
+              Voir tout{' '}
+              <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-0.5 transition-transform" />
             </Button>
           </Link>
         </div>
@@ -214,37 +226,42 @@ export default function HomePage() {
 
       {/* Features Section */}
       <PageSection bg="muted" bordered>
-        <h2 className="text-2xl font-semibold mb-8 text-center">Pourquoi Piol</h2>
+        <div className="text-center mb-10">
+          <h2 className="text-2xl font-bold tracking-tight md:text-3xl">Pourquoi Piol</h2>
+          <p className="text-muted-foreground mt-2 max-w-lg mx-auto">
+            La plateforme de confiance pour votre recherche de logement
+          </p>
+        </div>
         <div className="grid md:grid-cols-3 gap-6 max-w-4xl mx-auto">
-          <Card className="rounded-xl">
+          <Card className="rounded-2xl border-border/50 card-hover">
             <CardContent className="p-6">
-              <div className="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center mb-4">
-                <CheckCircle2 className="h-6 w-6 text-primary" />
+              <div className="w-14 h-14 bg-primary/10 rounded-xl flex items-center justify-center mb-5">
+                <CheckCircle2 className="h-7 w-7 text-primary" />
               </div>
-              <h3 className="font-semibold mb-2">Annonces vérifiées</h3>
-              <p className="text-sm text-muted-foreground">
+              <h3 className="font-semibold text-lg mb-2">Annonces vérifiées</h3>
+              <p className="text-sm text-muted-foreground leading-relaxed">
                 Chaque annonce est vérifiée par notre équipe pour garantir son authenticité.
               </p>
             </CardContent>
           </Card>
-          <Card className="rounded-xl">
+          <Card className="rounded-2xl border-border/50 card-hover">
             <CardContent className="p-6">
-              <div className="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center mb-4">
-                <Shield className="h-6 w-6 text-primary" />
+              <div className="w-14 h-14 bg-primary/10 rounded-xl flex items-center justify-center mb-5">
+                <Shield className="h-7 w-7 text-primary" />
               </div>
-              <h3 className="font-semibold mb-2">Paiement sécurisé</h3>
-              <p className="text-sm text-muted-foreground">
+              <h3 className="font-semibold text-lg mb-2">Paiement sécurisé</h3>
+              <p className="text-sm text-muted-foreground leading-relaxed">
                 Payez en toute sécurité via Mobile Money (MTN, Orange).
               </p>
             </CardContent>
           </Card>
-          <Card className="rounded-xl">
+          <Card className="rounded-2xl border-border/50 card-hover">
             <CardContent className="p-6">
-              <div className="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center mb-4">
-                <Smartphone className="h-6 w-6 text-primary" />
+              <div className="w-14 h-14 bg-primary/10 rounded-xl flex items-center justify-center mb-5">
+                <Smartphone className="h-7 w-7 text-primary" />
               </div>
-              <h3 className="font-semibold mb-2">Support bilingue</h3>
-              <p className="text-sm text-muted-foreground">
+              <h3 className="font-semibold text-lg mb-2">Support bilingue</h3>
+              <p className="text-sm text-muted-foreground leading-relaxed">
                 Assistance en français et anglais disponible 7j/7.
               </p>
             </CardContent>
@@ -254,14 +271,20 @@ export default function HomePage() {
 
       {/* CTA Section */}
       <PageSection bg="brand">
-        <div className="text-center max-w-2xl mx-auto">
-          <h2 className="text-2xl md:text-3xl font-bold mb-4">Prêt à trouver votre logement ?</h2>
-          <p className="text-white/80 mb-8">
+        <div className="text-center max-w-2xl mx-auto py-4">
+          <h2 className="text-2xl md:text-4xl font-bold mb-4 tracking-tight">
+            Prêt à trouver votre logement ?
+          </h2>
+          <p className="text-white/80 mb-10 text-lg">
             Rejoignez des milliers d'utilisateurs qui ont trouvé leur chez-eux avec Piol.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link href="/sign-up">
-              <Button size="lg" variant="secondary" className="w-full sm:w-auto rounded-xl">
+              <Button
+                size="lg"
+                variant="secondary"
+                className="w-full sm:w-auto rounded-xl px-8 h-12 text-base shadow-lg hover:shadow-xl transition-shadow"
+              >
                 Créer un compte
               </Button>
             </Link>
@@ -269,7 +292,7 @@ export default function HomePage() {
               <Button
                 size="lg"
                 variant="outline"
-                className="w-full sm:w-auto rounded-xl border-primary-foreground/30 text-primary-foreground hover:bg-primary-foreground/10 bg-primary-foreground/5"
+                className="w-full sm:w-auto rounded-xl px-8 h-12 text-base border-primary-foreground/30 text-primary-foreground hover:bg-primary-foreground/10 bg-primary-foreground/5"
               >
                 Je suis propriétaire
               </Button>

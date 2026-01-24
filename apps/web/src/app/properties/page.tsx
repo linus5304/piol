@@ -1,10 +1,9 @@
 'use client';
 
 import { PublicLayout } from '@/components/layouts/public-layout';
-import { PropertyCard } from '@/components/properties';
+import { PropertyCard, PropertyMap } from '@/components/properties';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import {
   Select,
@@ -85,6 +84,10 @@ type PropertyWithLandlord = {
   verificationStatus?: string;
   status?: string;
   images?: { url?: string; storageId?: string }[];
+  location?: {
+    latitude: number;
+    longitude: number;
+  };
   amenities?: {
     wifi?: boolean;
     parking?: boolean;
@@ -131,6 +134,7 @@ export default function PropertiesPage() {
   const [showFilters, setShowFilters] = useState(false);
   const [viewMode, setViewMode] = useState<'grid' | 'map'>('grid');
   const [sortBy, setSortBy] = useState('newest');
+  const [hoveredPropertyId, setHoveredPropertyId] = useState<string | null>(null);
 
   // Ensure user exists in Convex when authenticated
   useEnsureUser();
@@ -482,7 +486,8 @@ export default function PropertiesPage() {
           </div>
         ) : (
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 h-[calc(100vh-300px)]">
-            <div className="overflow-y-auto space-y-4 pr-4">
+            {/* Property List Panel */}
+            <div className="overflow-y-auto space-y-4 pr-2 lg:pr-4">
               {/* Loading skeletons for horizontal view */}
               {propertiesResult.isLoading &&
                 Array.from({ length: 4 }).map((_, i) => (
@@ -493,21 +498,39 @@ export default function PropertiesPage() {
               {/* Property cards */}
               {!propertiesResult.isLoading &&
                 propertiesResult.properties.map((property) => (
-                  <PropertyCard
+                  <div
                     key={property._id}
-                    property={property}
-                    variant="horizontal"
-                    isSaved={savedPropertyIdSet.has(property._id as Id<'properties'>)}
-                    onToggleSave={handleToggleSave}
-                  />
+                    onMouseEnter={() => setHoveredPropertyId(property._id)}
+                    onMouseLeave={() => setHoveredPropertyId(null)}
+                    className={`transition-all rounded-xl ${
+                      hoveredPropertyId === property._id ? 'ring-2 ring-primary' : ''
+                    }`}
+                  >
+                    <PropertyCard
+                      property={property}
+                      variant="horizontal"
+                      isSaved={savedPropertyIdSet.has(property._id as Id<'properties'>)}
+                      onToggleSave={handleToggleSave}
+                    />
+                  </div>
                 ))}
+
+              {/* Empty state in list */}
+              {!propertiesResult.isLoading && propertiesResult.properties.length === 0 && (
+                <div className="text-center py-12">
+                  <Search className="w-8 h-8 text-muted-foreground mx-auto mb-3" />
+                  <p className="text-muted-foreground">{t('properties.noResults')}</p>
+                </div>
+              )}
             </div>
-            <Card className="flex items-center justify-center rounded-xl">
-              <CardContent className="text-center">
-                <MapIcon className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
-                <p className="text-muted-foreground">{t('properties.mapComingSoon')}</p>
-              </CardContent>
-            </Card>
+
+            {/* Map Panel */}
+            <PropertyMap
+              properties={propertiesResult.properties}
+              hoveredPropertyId={hoveredPropertyId}
+              onPropertyHover={setHoveredPropertyId}
+              className="h-full min-h-[400px] lg:min-h-0"
+            />
           </div>
         )}
 

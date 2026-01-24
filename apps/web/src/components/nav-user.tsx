@@ -1,7 +1,7 @@
 'use client';
 
 import { isClerkConfigured, useSafeClerk } from '@/hooks/use-safe-auth';
-import { Bell, CreditCard, LogOut, MoreVertical, User } from 'lucide-react';
+import { CreditCard, LogOut, MoreVertical, User } from 'lucide-react';
 import Link from 'next/link';
 
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -94,12 +94,6 @@ export function NavUser({
                 <Link href="/dashboard/payments" className="cursor-pointer">
                   <CreditCard className="mr-2 h-4 w-4" />
                   Paiements
-                </Link>
-              </DropdownMenuItem>
-              <DropdownMenuItem asChild>
-                <Link href="/dashboard/notifications" className="cursor-pointer">
-                  <Bell className="mr-2 h-4 w-4" />
-                  Notifications
                 </Link>
               </DropdownMenuItem>
             </DropdownMenuGroup>

@@ -4,6 +4,12 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import {
+  Carousel,
+  type CarouselApi,
+  CarouselContent,
+  CarouselItem,
+} from '@/components/ui/carousel';
+import {
   Dialog,
   DialogContent,
   DialogDescription,
@@ -44,7 +50,7 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { use, useState } from 'react';
+import { use, useEffect, useState } from 'react';
 
 const amenityConfig: Record<string, { label: string; icon: React.ElementType }> = {
   wifi: { label: 'WiFi inclus', icon: Wifi },
@@ -102,6 +108,36 @@ export default function PropertyDetailPage({
   const [showContactDialog, setShowContactDialog] = useState(false);
   const [messageText, setMessageText] = useState('');
   const [isSending, setIsSending] = useState(false);
+  const [mobileCarouselApi, setMobileCarouselApi] = useState<CarouselApi>();
+  const [galleryCarouselApi, setGalleryCarouselApi] = useState<CarouselApi>();
+
+  // Sync carousel with selectedImage state
+  useEffect(() => {
+    if (mobileCarouselApi) {
+      mobileCarouselApi.scrollTo(selectedImage);
+    }
+  }, [selectedImage, mobileCarouselApi]);
+
+  useEffect(() => {
+    if (galleryCarouselApi) {
+      galleryCarouselApi.scrollTo(selectedImage);
+    }
+  }, [selectedImage, galleryCarouselApi]);
+
+  // Update selectedImage when carousel scrolls
+  useEffect(() => {
+    if (!mobileCarouselApi) return;
+    mobileCarouselApi.on('select', () => {
+      setSelectedImage(mobileCarouselApi.selectedScrollSnap());
+    });
+  }, [mobileCarouselApi]);
+
+  useEffect(() => {
+    if (!galleryCarouselApi) return;
+    galleryCarouselApi.on('select', () => {
+      setSelectedImage(galleryCarouselApi.selectedScrollSnap());
+    });
+  }, [galleryCarouselApi]);
 
   const sendMessage = useMutation(api.messages.sendMessage);
 
@@ -236,19 +272,34 @@ export default function PropertyDetailPage({
         </div>
 
         {/* Mobile Carousel */}
-        <div className="md:hidden relative h-[300px]">
-          <img
-            src={images[selectedImage] || images[0]}
-            alt={property.title}
-            className="w-full h-full object-cover"
-          />
+        <div className="md:hidden relative">
+          <Carousel
+            setApi={setMobileCarouselApi}
+            className="w-full"
+            opts={{ loop: images.length > 1 }}
+          >
+            <CarouselContent className="-ml-0">
+              {images.map((image: string, index: number) => (
+                <CarouselItem key={`mobile-${image}`} className="pl-0">
+                  <div className="relative h-[300px]">
+                    <img
+                      src={image}
+                      alt={`${property.title} - Vue ${index + 1}`}
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                </CarouselItem>
+              ))}
+            </CarouselContent>
+          </Carousel>
+          {/* Navigation Controls */}
           {images.length > 1 && (
             <>
-              <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex items-center gap-1.5">
+              <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex items-center gap-1.5 z-10">
                 {images.map((image: string, index: number) => (
                   <button
                     type="button"
-                    key={image}
+                    key={`dot-${image}`}
                     onClick={() => setSelectedImage(index)}
                     className={cn(
                       'w-2 h-2 rounded-full transition-all',
@@ -259,15 +310,15 @@ export default function PropertyDetailPage({
               </div>
               <button
                 type="button"
-                onClick={() => setSelectedImage(Math.max(0, selectedImage - 1))}
-                className="absolute left-4 top-1/2 -translate-y-1/2 w-8 h-8 bg-white/90 rounded-full flex items-center justify-center shadow-lg"
+                onClick={() => mobileCarouselApi?.scrollPrev()}
+                className="absolute left-4 top-1/2 -translate-y-1/2 w-8 h-8 bg-white/90 rounded-full flex items-center justify-center shadow-lg z-10"
               >
                 <ChevronLeft className="w-5 h-5" />
               </button>
               <button
                 type="button"
-                onClick={() => setSelectedImage(Math.min(images.length - 1, selectedImage + 1))}
-                className="absolute right-4 top-1/2 -translate-y-1/2 w-8 h-8 bg-white/90 rounded-full flex items-center justify-center shadow-lg"
+                onClick={() => mobileCarouselApi?.scrollNext()}
+                className="absolute right-4 top-1/2 -translate-y-1/2 w-8 h-8 bg-white/90 rounded-full flex items-center justify-center shadow-lg z-10"
               >
                 <ChevronRight className="w-5 h-5" />
               </button>
@@ -279,7 +330,7 @@ export default function PropertyDetailPage({
       {/* Full Screen Gallery Modal */}
       {showGallery && (
         <div className="fixed inset-0 z-50 bg-black">
-          <div className="absolute top-4 right-4 z-10">
+          <div className="absolute top-4 right-4 z-20">
             <button
               type="button"
               onClick={() => setShowGallery(false)}
@@ -288,32 +339,48 @@ export default function PropertyDetailPage({
               <X className="w-5 h-5" />
             </button>
           </div>
-          <div className="h-full flex items-center justify-center p-4">
+          <div className="h-full flex items-center justify-center">
+            <Carousel
+              setApi={setGalleryCarouselApi}
+              className="w-full h-full"
+              opts={{ loop: images.length > 1, startIndex: selectedImage }}
+            >
+              <CarouselContent className="-ml-0 h-full">
+                {images.map((image: string, index: number) => (
+                  <CarouselItem
+                    key={`gallery-${image}`}
+                    className="pl-0 h-full flex items-center justify-center"
+                  >
+                    <img
+                      src={image}
+                      alt={`${property.title} - Vue ${index + 1}`}
+                      className="max-h-[90vh] max-w-[90vw] object-contain"
+                    />
+                  </CarouselItem>
+                ))}
+              </CarouselContent>
+            </Carousel>
+            {/* Navigation buttons */}
             <button
               type="button"
-              onClick={() => setSelectedImage(Math.max(0, selectedImage - 1))}
-              className="absolute left-4 w-12 h-12 bg-white/10 hover:bg-white/20 rounded-full flex items-center justify-center text-white transition-colors"
+              onClick={() => galleryCarouselApi?.scrollPrev()}
+              className="absolute left-4 w-12 h-12 bg-white/10 hover:bg-white/20 rounded-full flex items-center justify-center text-white transition-colors z-10"
             >
               <ChevronLeft className="w-6 h-6" />
             </button>
-            <img
-              src={images[selectedImage]}
-              alt={`Gallery view ${selectedImage + 1}`}
-              className="max-h-[90vh] max-w-[90vw] object-contain"
-            />
             <button
               type="button"
-              onClick={() => setSelectedImage(Math.min(images.length - 1, selectedImage + 1))}
-              className="absolute right-4 w-12 h-12 bg-white/10 hover:bg-white/20 rounded-full flex items-center justify-center text-white transition-colors"
+              onClick={() => galleryCarouselApi?.scrollNext()}
+              className="absolute right-4 w-12 h-12 bg-white/10 hover:bg-white/20 rounded-full flex items-center justify-center text-white transition-colors z-10"
             >
               <ChevronRight className="w-6 h-6" />
             </button>
           </div>
-          <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex items-center gap-2">
+          <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex items-center gap-2 z-10">
             {images.map((image: string, index: number) => (
               <button
                 type="button"
-                key={image}
+                key={`gallery-dot-${image}`}
                 onClick={() => setSelectedImage(index)}
                 className={cn(
                   'w-2.5 h-2.5 rounded-full transition-all',
@@ -322,7 +389,7 @@ export default function PropertyDetailPage({
               />
             ))}
           </div>
-          <div className="absolute bottom-4 right-4 text-white/80 text-sm">
+          <div className="absolute bottom-4 right-4 text-white/80 text-sm z-10">
             {selectedImage + 1} / {images.length}
           </div>
         </div>

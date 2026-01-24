@@ -188,6 +188,7 @@
   }
   body {
     @apply bg-background text-foreground antialiased;
+    font-feature-settings: "ss01", "ss02", "cv01";
   }
 
   html {
@@ -197,6 +198,71 @@
   :focus-visible {
     outline: 2px solid var(--ring);
     outline-offset: 2px;
+  }
+
+  /* Typography - Headings */
+  h1,
+  .h1 {
+    @apply text-3xl font-bold tracking-tight md:text-4xl lg:text-5xl;
+    line-height: 1.1;
+  }
+
+  h2,
+  .h2 {
+    @apply text-2xl font-semibold tracking-tight md:text-3xl;
+    line-height: 1.2;
+  }
+
+  h3,
+  .h3 {
+    @apply text-xl font-semibold tracking-tight md:text-2xl;
+    line-height: 1.25;
+  }
+
+  h4,
+  .h4 {
+    @apply text-lg font-semibold;
+    line-height: 1.3;
+  }
+
+  h5,
+  .h5 {
+    @apply text-base font-semibold;
+    line-height: 1.4;
+  }
+
+  h6,
+  .h6 {
+    @apply text-sm font-semibold;
+    line-height: 1.4;
+  }
+
+  /* Body text defaults */
+  p {
+    @apply leading-relaxed;
+  }
+
+  /* Better link defaults */
+  a:not([class]) {
+    @apply text-primary underline-offset-4 hover:underline;
+  }
+
+  /* Better list defaults */
+  ul:not([class]),
+  ol:not([class]) {
+    @apply ml-4 list-outside;
+  }
+
+  ul:not([class]) {
+    @apply list-disc;
+  }
+
+  ol:not([class]) {
+    @apply list-decimal;
+  }
+
+  li:not([class]) {
+    @apply my-1;
   }
 }
 
@@ -226,4 +292,146 @@
     background-color: rgba(239, 68, 68, 0.2);
     color: #ef4444;
   }
+
+  /* Modern card hover effect with lift */
+  .card-hover {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+  .card-hover:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 24px -8px rgba(0, 0, 0, 0.12), 0 4px 8px -4px rgba(0, 0, 0, 0.08);
+  }
+
+  /* Subtle card style */
+  .card-subtle {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-xl);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+  }
+
+  /* Image gradient overlay for text readability */
+  .image-overlay-gradient {
+    position: relative;
+  }
+  .image-overlay-gradient::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to top, rgba(0, 0, 0, 0.3) 0%, transparent 40%);
+    pointer-events: none;
+  }
+
+  /* Typography utilities */
+  .text-balance {
+    text-wrap: balance;
+  }
+
+  .text-pretty {
+    text-wrap: pretty;
+  }
+
+  /* Lead text - larger intro paragraphs */
+  .text-lead {
+    @apply text-lg text-muted-foreground md:text-xl;
+    line-height: 1.6;
+  }
+
+  /* Small text */
+  .text-small {
+    @apply text-sm text-muted-foreground;
+  }
+
+  /* Muted text */
+  .text-subtle {
+    @apply text-muted-foreground;
+  }
+
+  /* Section titles (uppercase small labels) */
+  .text-section-label {
+    @apply text-xs font-semibold uppercase tracking-wider text-muted-foreground;
+  }
+
+  /* Price text styling */
+  .text-price {
+    @apply font-bold tabular-nums;
+  }
+
+  /* Stat numbers (large display numbers) */
+  .text-stat {
+    @apply text-4xl font-bold tabular-nums tracking-tight md:text-5xl;
+  }
+
+  /* Mono text for codes/IDs */
+  .text-mono {
+    @apply font-mono text-sm;
+  }
+
+  /* Truncate with ellipsis - multi-line */
+  .line-clamp-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .line-clamp-3 {
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+}
+
+/* =============================================================================
+   LEAFLET MAP STYLES
+   Custom styling for property map markers and popups
+   ============================================================================= */
+
+/* Price marker custom icon */
+.price-marker {
+  background: transparent;
+  border: none;
+}
+
+.price-marker-content {
+  background: white;
+  border: 2px solid var(--foreground);
+  border-radius: 9999px;
+  padding: 4px 10px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--foreground);
+  white-space: nowrap;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  transition: all 0.15s ease;
+}
+
+.price-marker-content.hovered,
+.price-marker-content:hover {
+  background: var(--foreground);
+  color: var(--background);
+  transform: scale(1.1);
+}
+
+/* Leaflet popup customization */
+.leaflet-popup-content-wrapper {
+  padding: 0 !important;
+  overflow: hidden;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+}
+
+.leaflet-popup-content {
+  margin: 0 !important;
+  min-width: 256px;
+}
+
+.leaflet-popup-tip-container {
+  display: none;
+}
+
+/* Remove default Leaflet marker drop shadow */
+.leaflet-marker-icon {
+  filter: none !important;
 }
