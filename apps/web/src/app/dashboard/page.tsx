@@ -95,14 +95,17 @@ export default function DashboardPage() {
   const firstName = user?.firstName || 'Utilisateur';
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-8 pb-8">
       {/* Greeting + Time Filter */}
-      <div className="flex items-center justify-between px-4 lg:px-6">
-        <h1 className="text-2xl font-semibold tracking-tight">
-          {getGreeting()}, {firstName}
-        </h1>
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between px-4 lg:px-6">
+        <div>
+          <h1 className="text-2xl font-bold tracking-tight md:text-3xl">
+            {getGreeting()}, {firstName}
+          </h1>
+          <p className="text-muted-foreground mt-1">Voici un aperçu de votre activité</p>
+        </div>
         <Select defaultValue="last-week">
-          <SelectTrigger className="w-[160px]">
+          <SelectTrigger className="w-[180px] bg-card">
             <SelectValue placeholder="Période" />
           </SelectTrigger>
           <SelectContent>
@@ -115,21 +118,31 @@ export default function DashboardPage() {
       </div>
 
       {/* Stats Cards */}
-      <SectionCards role={role as 'renter' | 'landlord'} />
+      <div className="px-4 lg:px-6">
+        <SectionCards role={role as 'renter' | 'landlord'} />
+      </div>
 
       {/* Recent Orders Table */}
       {role === 'landlord' && (
-        <div className="px-4 lg:px-6">
-          <h2 className="text-sm font-medium text-muted-foreground mb-4">Transactions récentes</h2>
-          <div className="rounded-lg border border-border overflow-hidden">
+        <div className="px-4 lg:px-6 space-y-4">
+          <h2 className="text-section-label">Transactions récentes</h2>
+          <div className="rounded-xl border border-border/50 bg-card overflow-hidden shadow-sm">
             <Table>
               <TableHeader>
-                <TableRow className="border-b border-border hover:bg-transparent">
-                  <TableHead className="text-muted-foreground font-medium">N° commande</TableHead>
-                  <TableHead className="text-muted-foreground font-medium">Date</TableHead>
-                  <TableHead className="text-muted-foreground font-medium">Client</TableHead>
-                  <TableHead className="text-muted-foreground font-medium">Propriété</TableHead>
-                  <TableHead className="text-muted-foreground font-medium text-right">
+                <TableRow className="border-b border-border/50 bg-muted/30 hover:bg-muted/30">
+                  <TableHead className="text-muted-foreground font-semibold text-xs uppercase tracking-wider">
+                    N° commande
+                  </TableHead>
+                  <TableHead className="text-muted-foreground font-semibold text-xs uppercase tracking-wider">
+                    Date
+                  </TableHead>
+                  <TableHead className="text-muted-foreground font-semibold text-xs uppercase tracking-wider">
+                    Client
+                  </TableHead>
+                  <TableHead className="text-muted-foreground font-semibold text-xs uppercase tracking-wider">
+                    Propriété
+                  </TableHead>
+                  <TableHead className="text-muted-foreground font-semibold text-xs uppercase tracking-wider text-right">
                     Montant
                   </TableHead>
                   <TableHead className="w-10" />
@@ -137,13 +150,16 @@ export default function DashboardPage() {
               </TableHeader>
               <TableBody>
                 {recentOrders.map((order) => (
-                  <TableRow key={order.id} className="border-b border-border last:border-0">
-                    <TableCell className="font-medium">{order.id}</TableCell>
+                  <TableRow
+                    key={order.id}
+                    className="border-b border-border/50 last:border-0 hover:bg-muted/50 transition-colors"
+                  >
+                    <TableCell className="font-mono text-sm">{order.id}</TableCell>
                     <TableCell className="text-muted-foreground">{order.date}</TableCell>
-                    <TableCell>{order.customer}</TableCell>
+                    <TableCell className="font-medium">{order.customer}</TableCell>
                     <TableCell>
-                      <div className="flex items-center gap-2">
-                        <div className="relative h-6 w-6 overflow-hidden rounded">
+                      <div className="flex items-center gap-3">
+                        <div className="relative h-8 w-8 overflow-hidden rounded-lg bg-muted">
                           <Image
                             src={order.propertyImage}
                             alt={order.property}
@@ -154,9 +170,11 @@ export default function DashboardPage() {
                         <span>{order.property}</span>
                       </div>
                     </TableCell>
-                    <TableCell className="text-right">{order.amount}</TableCell>
+                    <TableCell className="text-right font-semibold tabular-nums">
+                      {order.amount}
+                    </TableCell>
                     <TableCell>
-                      <Button variant="ghost" size="icon" className="h-8 w-8">
+                      <Button variant="ghost" size="icon" className="h-8 w-8 rounded-lg">
                         <MoreHorizontal className="h-4 w-4" />
                       </Button>
                     </TableCell>
@@ -170,19 +188,25 @@ export default function DashboardPage() {
 
       {/* Renter: Recent Activity */}
       {role === 'renter' && (
-        <div className="px-4 lg:px-6">
-          <h2 className="text-sm font-medium text-muted-foreground mb-4">Activité récente</h2>
-          <div className="rounded-lg border border-border overflow-hidden">
+        <div className="px-4 lg:px-6 space-y-4">
+          <h2 className="text-section-label">Activité récente</h2>
+          <div className="rounded-xl border border-border/50 bg-card overflow-hidden shadow-sm">
             <Table>
               <TableHeader>
-                <TableRow className="border-b border-border hover:bg-transparent">
-                  <TableHead className="text-muted-foreground font-medium">Propriété</TableHead>
-                  <TableHead className="text-muted-foreground font-medium">
+                <TableRow className="border-b border-border/50 bg-muted/30 hover:bg-muted/30">
+                  <TableHead className="text-muted-foreground font-semibold text-xs uppercase tracking-wider">
+                    Propriété
+                  </TableHead>
+                  <TableHead className="text-muted-foreground font-semibold text-xs uppercase tracking-wider">
                     Date de visite
                   </TableHead>
-                  <TableHead className="text-muted-foreground font-medium">Propriétaire</TableHead>
-                  <TableHead className="text-muted-foreground font-medium">Statut</TableHead>
-                  <TableHead className="text-muted-foreground font-medium text-right">
+                  <TableHead className="text-muted-foreground font-semibold text-xs uppercase tracking-wider">
+                    Propriétaire
+                  </TableHead>
+                  <TableHead className="text-muted-foreground font-semibold text-xs uppercase tracking-wider">
+                    Statut
+                  </TableHead>
+                  <TableHead className="text-muted-foreground font-semibold text-xs uppercase tracking-wider text-right">
                     Prix
                   </TableHead>
                   <TableHead className="w-10" />
@@ -190,10 +214,13 @@ export default function DashboardPage() {
               </TableHeader>
               <TableBody>
                 {recentOrders.slice(0, 3).map((order) => (
-                  <TableRow key={order.id} className="border-b border-border last:border-0">
+                  <TableRow
+                    key={order.id}
+                    className="border-b border-border/50 last:border-0 hover:bg-muted/50 transition-colors"
+                  >
                     <TableCell>
-                      <div className="flex items-center gap-2">
-                        <div className="relative h-6 w-6 overflow-hidden rounded">
+                      <div className="flex items-center gap-3">
+                        <div className="relative h-8 w-8 overflow-hidden rounded-lg bg-muted">
                           <Image
                             src={order.propertyImage}
                             alt={order.property}
@@ -207,13 +234,15 @@ export default function DashboardPage() {
                     <TableCell className="text-muted-foreground">{order.date}</TableCell>
                     <TableCell>{order.customer}</TableCell>
                     <TableCell>
-                      <span className="inline-flex items-center rounded px-2 py-0.5 text-xs font-medium bg-primary/20 text-primary">
+                      <span className="inline-flex items-center rounded-md px-2 py-1 text-xs font-medium bg-primary/10 text-primary">
                         Consulté
                       </span>
                     </TableCell>
-                    <TableCell className="text-right">{order.amount}</TableCell>
+                    <TableCell className="text-right font-semibold tabular-nums">
+                      {order.amount}
+                    </TableCell>
                     <TableCell>
-                      <Button variant="ghost" size="icon" className="h-8 w-8">
+                      <Button variant="ghost" size="icon" className="h-8 w-8 rounded-lg">
                         <MoreHorizontal className="h-4 w-4" />
                       </Button>
                     </TableCell>

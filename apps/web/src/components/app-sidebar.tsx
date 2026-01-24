@@ -18,7 +18,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import type * as React from 'react';
 
-import { LogoIcon } from '@/components/brand';
+import { Logo } from '@/components/brand';
 import { NavMain } from '@/components/nav-main';
 import { NavSecondary } from '@/components/nav-secondary';
 import { NavUser } from '@/components/nav-user';
@@ -35,8 +35,6 @@ import {
   SidebarMenuItem,
   SidebarSeparator,
 } from '@/components/ui/sidebar';
-import { brand } from '@repo/ui/tokens';
-
 const renterNavigation = [
   {
     title: 'Accueil',
@@ -124,13 +122,8 @@ export function AppSidebar({
       <SidebarHeader>
         <SidebarMenu>
           <SidebarMenuItem>
-            <SidebarMenuButton asChild size="lg" className="data-[slot=sidebar-menu-button]:!p-2">
-              <Link href="/" className="flex items-center gap-2">
-                <div className="flex h-8 w-8 items-center justify-center rounded-md bg-primary text-primary-foreground">
-                  <LogoIcon size={18} className="shrink-0" />
-                </div>
-                <span className="text-base font-semibold">{brand.name}</span>
-              </Link>
+            <SidebarMenuButton asChild size="lg" className="data-[slot=sidebar-menu-button]:!p-1.5">
+              <Logo size="sm" />
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>
