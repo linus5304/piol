@@ -11,7 +11,7 @@ out/
 *.tsbuildinfo
 
 # Convex
-convex/_generated/
+**/convex/_generated/
 
 # Environment files
 .env
@@ -62,6 +62,9 @@ ios/
 
 # Agent harness (ephemeral session context)
 agent/scratchpad.md
+agent/PROMPT.generated.md
+agent/.ralph-stop
+agent/ralph.log
 
 # Secrets
 secrets/
