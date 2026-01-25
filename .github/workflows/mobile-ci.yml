@@ -4,14 +4,18 @@ on:
   push:
     branches: [main, develop]
     paths:
-      - 'mobile/**'
-      - 'convex/**'
+      - 'apps/mobile/**'
+      - 'packages/convex/**'
+      - 'packages/ui/**'
+      - 'packages/types/**'
       - '.github/workflows/mobile-ci.yml'
   pull_request:
     branches: [main, develop]
     paths:
-      - 'mobile/**'
-      - 'convex/**'
+      - 'apps/mobile/**'
+      - 'packages/convex/**'
+      - 'packages/ui/**'
+      - 'packages/types/**'
       - '.github/workflows/mobile-ci.yml'
 
 jobs:
@@ -27,11 +31,10 @@ jobs:
 
       - name: Install dependencies
         run: bun install
-        working-directory: mobile
 
       - name: Run lint
         run: bun run lint
-        working-directory: mobile
+        working-directory: apps/mobile
 
   test:
     runs-on: ubuntu-latest
@@ -46,16 +49,15 @@ jobs:
 
       - name: Install dependencies
         run: bun install
-        working-directory: mobile
 
       - name: Run tests
         run: bun run test --coverage
-        working-directory: mobile
+        working-directory: apps/mobile
 
       - name: Upload coverage
         uses: codecov/codecov-action@v4
         with:
-          files: mobile/coverage/lcov.info
+          files: apps/mobile/coverage/lcov.info
           flags: mobile
           fail_ci_if_error: false
 
@@ -79,11 +81,10 @@ jobs:
 
       - name: Install dependencies
         run: bun install
-        working-directory: mobile
 
       - name: Build Android APK (preview)
         run: eas build --platform android --profile preview --non-interactive
-        working-directory: mobile
+        working-directory: apps/mobile
         env:
           EXPO_PUBLIC_CONVEX_URL: ${{ secrets.CONVEX_URL }}
 
@@ -107,11 +108,10 @@ jobs:
 
       - name: Install dependencies
         run: bun install
-        working-directory: mobile
 
       - name: Build iOS (preview)
         run: eas build --platform ios --profile preview --non-interactive
-        working-directory: mobile
+        working-directory: apps/mobile
         env:
           EXPO_PUBLIC_CONVEX_URL: ${{ secrets.CONVEX_URL }}
 
@@ -131,9 +131,8 @@ jobs:
 
       - name: Submit to App Store
         run: eas submit --platform ios --latest --non-interactive
-        working-directory: mobile
+        working-directory: apps/mobile
 
       - name: Submit to Play Store
         run: eas submit --platform android --latest --non-interactive
-        working-directory: mobile
-
+        working-directory: apps/mobile
