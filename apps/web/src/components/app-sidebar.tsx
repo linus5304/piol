@@ -35,6 +35,7 @@ import {
   SidebarSeparator,
 } from '@/components/ui/sidebar';
 import { Skeleton } from '@/components/ui/skeleton';
+
 const renterNavigation = [
   {
     title: 'Accueil',
