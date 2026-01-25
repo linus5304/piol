@@ -305,6 +305,34 @@ export const getProperty = query({
       return null;
     }
 
+    // Check if user has permission to view non-active properties
+    const identity = await ctx.auth.getUserIdentity();
+    const publicStatuses = ['active', 'verified'];
+
+    if (!publicStatuses.includes(property.status)) {
+      // Property is not public - check authorization
+      if (!identity) {
+        return null; // Not authenticated, can't view draft/archived properties
+      }
+
+      const user = await ctx.db
+        .query('users')
+        .withIndex('by_clerk_id', (q) => q.eq('clerkId', identity.subject))
+        .unique();
+
+      if (!user) {
+        return null;
+      }
+
+      // Allow access if: owner, admin, or verifier
+      const isOwner = property.landlordId === user._id;
+      const isAdminOrVerifier = user.role === 'admin' || user.role === 'verifier';
+
+      if (!isOwner && !isAdminOrVerifier) {
+        return null; // Not authorized to view this property
+      }
+    }
+
     const landlord = await ctx.db.get(property.landlordId);
 
     // Get reviews for this property
