@@ -11,9 +11,13 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { api } from '@repo/convex/_generated/api';
+import { useMutation } from 'convex/react';
+import { Loader2 } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
+import { toast } from 'sonner';
 
 const propertyTypes = [
   { value: 'studio', label: 'Studio' },
@@ -24,11 +28,13 @@ const propertyTypes = [
   { value: 'apartment', label: 'Appartement' },
   { value: 'house', label: 'Maison' },
   { value: 'villa', label: 'Villa' },
-];
+] as const;
+
+type PropertyType = (typeof propertyTypes)[number]['value'];
 
 const cities = ['Douala', 'Yaoundé', 'Bafoussam', 'Buea', 'Kribi', 'Limbe', 'Bamenda'];
 
-const amenities = [
+const amenitiesList = [
   { id: 'wifi', label: 'WiFi', icon: '📶' },
   { id: 'parking', label: 'Parking', icon: '🚗' },
   { id: 'ac', label: 'Climatisation', icon: '❄️' },
@@ -38,33 +44,38 @@ const amenities = [
   { id: 'furnished', label: 'Meublé', icon: '🛋️' },
   { id: 'balcony', label: 'Balcon', icon: '🌅' },
   { id: 'garden', label: 'Jardin', icon: '🌳' },
-];
+] as const;
+
+type AmenityId = (typeof amenitiesList)[number]['id'];
 
 export default function NewPropertyPage() {
   const router = useRouter();
   const [step, setStep] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isSavingDraft, setIsSavingDraft] = useState(false);
+
+  const createProperty = useMutation(api.properties.createProperty);
 
   // Form state
   const [formData, setFormData] = useState({
     title: '',
     description: '',
-    propertyType: '',
+    propertyType: '' as PropertyType | '',
     city: '',
     neighborhood: '',
     addressLine1: '',
     rentAmount: '',
     cautionMonths: '2',
     upfrontMonths: '6',
-    selectedAmenities: [] as string[],
+    selectedAmenities: [] as AmenityId[],
     images: [] as File[],
   });
 
-  const updateForm = (field: string, value: string | string[] | File[]) => {
+  const updateForm = (field: string, value: string | AmenityId[] | File[]) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
-  const toggleAmenity = (amenityId: string) => {
+  const toggleAmenity = (amenityId: AmenityId) => {
     const current = formData.selectedAmenities;
     if (current.includes(amenityId)) {
       updateForm(
@@ -76,18 +87,43 @@ export default function NewPropertyPage() {
     }
   };
 
-  const handleSubmit = async () => {
-    setIsSubmitting(true);
+  const handleSubmit = async (saveAsDraft = false) => {
+    if (saveAsDraft) {
+      setIsSavingDraft(true);
+    } else {
+      setIsSubmitting(true);
+    }
+
     try {
-      // Note: Full Convex integration requires image upload handling first
-      // For now, create property with placeholder images
-      await new Promise((resolve) => setTimeout(resolve, 500));
+      // Convert amenities to object format
+      const amenities: Record<string, boolean> = {};
+      for (const amenity of amenitiesList) {
+        amenities[amenity.id] = formData.selectedAmenities.includes(amenity.id);
+      }
+
+      await createProperty({
+        title: formData.title,
+        description: formData.description || undefined,
+        propertyType: formData.propertyType as PropertyType,
+        city: formData.city,
+        neighborhood: formData.neighborhood || undefined,
+        addressLine1: formData.addressLine1 || undefined,
+        rentAmount: Number(formData.rentAmount),
+        cautionMonths: Number(formData.cautionMonths),
+        upfrontMonths: Number(formData.upfrontMonths),
+        amenities,
+      });
+
+      toast.success(
+        saveAsDraft ? 'Brouillon enregistré avec succès' : 'Propriété créée avec succès'
+      );
       router.push('/dashboard/properties');
     } catch (error) {
       console.error('Error creating property:', error);
-      alert('Erreur lors de la création de la propriété');
+      toast.error('Erreur lors de la création de la propriété');
     } finally {
       setIsSubmitting(false);
+      setIsSavingDraft(false);
     }
   };
 
@@ -138,7 +174,7 @@ export default function NewPropertyPage() {
                 value={formData.description}
                 onChange={(e) => updateForm('description', e.target.value)}
                 placeholder="Décrivez votre propriété en détail..."
-                className="w-full min-h-[120px] px-3 py-2 border rounded-md"
+                className="w-full min-h-[120px] px-3 py-2 border rounded-md resize-none"
               />
             </div>
 
@@ -275,7 +311,7 @@ export default function NewPropertyPage() {
             <div className="space-y-3">
               <Label>Équipements et commodités</Label>
               <div className="grid grid-cols-3 gap-3">
-                {amenities.map((amenity) => (
+                {amenitiesList.map((amenity) => (
                   <button
                     key={amenity.id}
                     type="button"
@@ -337,6 +373,9 @@ export default function NewPropertyPage() {
                   <span>Sélectionner des photos</span>
                 </Button>
               </label>
+              <p className="text-xs text-muted-foreground mt-4">
+                Les photos pourront être ajoutées après la création de l'annonce
+              </p>
             </div>
 
             {formData.images.length > 0 && (
@@ -361,11 +400,17 @@ export default function NewPropertyPage() {
               <h4 className="font-medium">Récapitulatif</h4>
               <p className="text-sm text-muted-foreground">{formData.title}</p>
               <p className="text-sm text-muted-foreground">
-                {formData.neighborhood}, {formData.city}
+                {formData.neighborhood ? `${formData.neighborhood}, ` : ''}
+                {formData.city}
               </p>
               <p className="text-sm font-medium text-primary">
                 {Number(formData.rentAmount).toLocaleString('fr-FR')} FCFA/mois
               </p>
+              {formData.selectedAmenities.length > 0 && (
+                <p className="text-sm text-muted-foreground">
+                  {formData.selectedAmenities.length} équipement(s) sélectionné(s)
+                </p>
+              )}
             </div>
 
             <div className="flex justify-between">
@@ -373,11 +418,20 @@ export default function NewPropertyPage() {
                 Précédent
               </Button>
               <div className="flex gap-2">
-                <Button variant="outline" disabled={isSubmitting}>
+                <Button
+                  variant="outline"
+                  disabled={isSubmitting || isSavingDraft}
+                  onClick={() => handleSubmit(true)}
+                >
+                  {isSavingDraft && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
                   Enregistrer brouillon
                 </Button>
-                <Button onClick={handleSubmit} disabled={isSubmitting}>
-                  {isSubmitting ? 'Publication...' : "Publier l'annonce"}
+                <Button
+                  onClick={() => handleSubmit(false)}
+                  disabled={isSubmitting || isSavingDraft}
+                >
+                  {isSubmitting && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+                  {isSubmitting ? 'Création...' : "Créer l'annonce"}
                 </Button>
               </div>
             </div>

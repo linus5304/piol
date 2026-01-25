@@ -713,3 +713,238 @@ export const archiveProperty = mutation({
     return args.propertyId;
   },
 });
+
+// Get featured properties for home page (public)
+export const getFeaturedProperties = query({
+  args: {
+    limit: v.optional(v.number()),
+  },
+  handler: async (ctx, args) => {
+    const limit = args.limit ?? 6;
+
+    // Get active, verified properties
+    const properties = await ctx.db
+      .query('properties')
+      .withIndex('by_status', (q) => q.eq('status', 'active'))
+      .collect();
+
+    // Filter for verified properties and sort by newest
+    const verifiedProperties = properties
+      .filter((p) => p.verificationStatus === 'approved')
+      .sort((a, b) => b._creationTime - a._creationTime)
+      .slice(0, limit);
+
+    // Get landlord info and resolve image URLs
+    const propertiesWithDetails = await Promise.all(
+      verifiedProperties.map(async (property) => {
+        const landlord = await ctx.db.get(property.landlordId);
+
+        // Resolve image URLs
+        const imageUrls = property.images
+          ? await Promise.all(
+              property.images.map(async (image) => {
+                const url = await ctx.storage.getUrl(image.storageId);
+                return { url, order: image.order };
+              })
+            )
+          : [];
+
+        const sortedImages = imageUrls.filter((img) => img.url).sort((a, b) => a.order - b.order);
+
+        return {
+          _id: property._id,
+          title: property.title,
+          propertyType: property.propertyType,
+          rentAmount: property.rentAmount,
+          currency: property.currency,
+          city: property.city,
+          neighborhood: property.neighborhood,
+          imageUrl: sortedImages[0]?.url ?? property.placeholderImages?.[0] ?? null,
+          placeholderImages: property.placeholderImages,
+          verificationStatus: property.verificationStatus,
+          _creationTime: property._creationTime,
+          landlord: landlord
+            ? {
+                _id: landlord._id,
+                firstName: landlord.firstName,
+                lastName: landlord.lastName,
+                idVerified: landlord.idVerified,
+              }
+            : null,
+        };
+      })
+    );
+
+    return propertiesWithDetails;
+  },
+});
+
+// Get city statistics (public)
+export const getCityStats = query({
+  args: {},
+  handler: async (ctx) => {
+    // Get all active properties
+    const properties = await ctx.db
+      .query('properties')
+      .withIndex('by_status', (q) => q.eq('status', 'active'))
+      .collect();
+
+    // Count properties per city
+    const cityCountMap = new Map<string, number>();
+    for (const property of properties) {
+      const count = cityCountMap.get(property.city) ?? 0;
+      cityCountMap.set(property.city, count + 1);
+    }
+
+    // Convert to array and sort by count
+    const cityStats = Array.from(cityCountMap.entries())
+      .map(([city, count]) => ({ city, count }))
+      .sort((a, b) => b.count - a.count);
+
+    return cityStats;
+  },
+});
+
+// Get properties pending verification (admin/verifier only)
+export const getPendingVerification = query({
+  args: {},
+  handler: async (ctx) => {
+    const identity = await ctx.auth.getUserIdentity();
+    if (!identity) {
+      return [];
+    }
+
+    const user = await ctx.db
+      .query('users')
+      .withIndex('by_clerk_id', (q) => q.eq('clerkId', identity.subject))
+      .unique();
+
+    if (!user || (user.role !== 'admin' && user.role !== 'verifier')) {
+      return [];
+    }
+
+    // Get properties pending verification
+    const properties = await ctx.db
+      .query('properties')
+      .withIndex('by_status', (q) => q.eq('status', 'pending_verification'))
+      .collect();
+
+    // Get landlord info for each property
+    const propertiesWithLandlord = await Promise.all(
+      properties.map(async (property) => {
+        const landlord = await ctx.db.get(property.landlordId);
+        return {
+          ...property,
+          landlord: landlord
+            ? {
+                _id: landlord._id,
+                firstName: landlord.firstName,
+                lastName: landlord.lastName,
+              }
+            : null,
+        };
+      })
+    );
+
+    return propertiesWithLandlord.sort((a, b) => b._creationTime - a._creationTime);
+  },
+});
+
+// Toggle property status (landlord can activate/deactivate)
+export const togglePropertyStatus = mutation({
+  args: {
+    propertyId: v.id('properties'),
+    active: v.boolean(),
+  },
+  handler: async (ctx, args) => {
+    const identity = await ctx.auth.getUserIdentity();
+    if (!identity) {
+      throw new Error('Not authenticated');
+    }
+
+    const user = await ctx.db
+      .query('users')
+      .withIndex('by_clerk_id', (q) => q.eq('clerkId', identity.subject))
+      .unique();
+
+    if (!user) {
+      throw new Error('User not found');
+    }
+
+    const property = await ctx.db.get(args.propertyId);
+    if (!property) {
+      throw new Error('Property not found');
+    }
+
+    if (property.landlordId !== user._id && user.role !== 'admin') {
+      throw new Error('Unauthorized');
+    }
+
+    // Only allow toggling for verified properties
+    if (property.verificationStatus !== 'approved') {
+      throw new Error('Property must be verified before it can be activated');
+    }
+
+    const newStatus = args.active ? 'active' : 'draft';
+    const updates: Record<string, unknown> = { status: newStatus };
+
+    if (args.active && !property.publishedAt) {
+      updates.publishedAt = Date.now();
+    }
+
+    await ctx.db.patch(args.propertyId, updates);
+    return args.propertyId;
+  },
+});
+
+// Remove image from property
+export const removePropertyImage = mutation({
+  args: {
+    propertyId: v.id('properties'),
+    storageId: v.id('_storage'),
+  },
+  handler: async (ctx, args) => {
+    const identity = await ctx.auth.getUserIdentity();
+    if (!identity) {
+      throw new Error('Not authenticated');
+    }
+
+    const user = await ctx.db
+      .query('users')
+      .withIndex('by_clerk_id', (q) => q.eq('clerkId', identity.subject))
+      .unique();
+
+    if (!user) {
+      throw new Error('User not found');
+    }
+
+    const property = await ctx.db.get(args.propertyId);
+    if (!property) {
+      throw new Error('Property not found');
+    }
+
+    if (property.landlordId !== user._id && user.role !== 'admin') {
+      throw new Error('Unauthorized');
+    }
+
+    if (!property.images) {
+      return args.propertyId;
+    }
+
+    // Filter out the image to remove
+    const updatedImages = property.images.filter((img) => img.storageId !== args.storageId);
+
+    // Reorder remaining images
+    const reorderedImages = updatedImages.map((img, index) => ({
+      ...img,
+      order: index,
+    }));
+
+    await ctx.db.patch(args.propertyId, { images: reorderedImages });
+
+    // Delete the file from storage
+    await ctx.storage.delete(args.storageId);
+
+    return args.propertyId;
+  },
+});

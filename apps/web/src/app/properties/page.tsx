@@ -31,7 +31,8 @@ import {
   X,
 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
-import { useCallback, useMemo, useState } from 'react';
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
+import { Suspense, useCallback, useMemo, useState } from 'react';
 import { toast } from 'sonner';
 
 const cities = ['Douala', 'Yaoundé', 'Bafoussam', 'Buea', 'Kribi', 'Limbé', 'Bamenda', 'Garoua'];
@@ -125,16 +126,62 @@ function PropertyCardSkeleton() {
   );
 }
 
-export default function PropertiesPage() {
+function PropertiesPageContent() {
   const t = useTranslations();
-  const [searchQuery, setSearchQuery] = useState('');
-  const [selectedCity, setSelectedCity] = useState<string | undefined>();
-  const [selectedCategory, setSelectedCategory] = useState('all');
-  const [priceRange, setPriceRange] = useState('all');
+  const searchParams = useSearchParams();
+  const router = useRouter();
+  const pathname = usePathname();
+
+  // Read filter state from URL params
+  const searchQuery = searchParams.get('q') ?? '';
+  const selectedCity = searchParams.get('city') ?? undefined;
+  const selectedCategory = searchParams.get('type') ?? 'all';
+  const priceRange = searchParams.get('price') ?? 'all';
+  const sortBy = searchParams.get('sort') ?? 'newest';
+  const viewMode = (searchParams.get('view') as 'grid' | 'map') ?? 'grid';
+
+  // Local state for UI-only (not persisted in URL)
   const [showFilters, setShowFilters] = useState(false);
-  const [viewMode, setViewMode] = useState<'grid' | 'map'>('grid');
-  const [sortBy, setSortBy] = useState('newest');
   const [hoveredPropertyId, setHoveredPropertyId] = useState<string | null>(null);
+
+  // Update URL params helper
+  const updateParams = useCallback(
+    (updates: Record<string, string | null>) => {
+      const params = new URLSearchParams(searchParams.toString());
+      for (const [key, value] of Object.entries(updates)) {
+        if (value === null || value === '' || value === 'all') {
+          params.delete(key);
+        } else {
+          params.set(key, value);
+        }
+      }
+      router.replace(`${pathname}?${params.toString()}`, { scroll: false });
+    },
+    [searchParams, router, pathname]
+  );
+
+  // Setter functions that update URL
+  const setSearchQuery = useCallback(
+    (value: string) => updateParams({ q: value || null }),
+    [updateParams]
+  );
+  const setSelectedCity = useCallback(
+    (value: string | undefined) => updateParams({ city: value ?? null }),
+    [updateParams]
+  );
+  const setSelectedCategory = useCallback(
+    (value: string) => updateParams({ type: value }),
+    [updateParams]
+  );
+  const setPriceRange = useCallback(
+    (value: string) => updateParams({ price: value }),
+    [updateParams]
+  );
+  const setSortBy = useCallback((value: string) => updateParams({ sort: value }), [updateParams]);
+  const setViewMode = useCallback(
+    (value: 'grid' | 'map') => updateParams({ view: value === 'grid' ? null : value }),
+    [updateParams]
+  );
 
   // Ensure user exists in Convex when authenticated
   useEnsureUser();
@@ -266,12 +313,9 @@ export default function PropertiesPage() {
     priceRange !== 'all' ? priceRange : null,
   ].filter(Boolean).length;
 
-  const clearAllFilters = () => {
-    setSearchQuery('');
-    setSelectedCity(undefined);
-    setSelectedCategory('all');
-    setPriceRange('all');
-  };
+  const clearAllFilters = useCallback(() => {
+    router.replace(pathname, { scroll: false });
+  }, [router, pathname]);
 
   return (
     <PublicLayout showFooter={false}>
@@ -565,5 +609,40 @@ export default function PropertiesPage() {
         </Button>
       </div>
     </PublicLayout>
+  );
+}
+
+// Loading skeleton for Suspense fallback
+function PropertiesPageSkeleton() {
+  return (
+    <PublicLayout showFooter={false}>
+      <div className="border-b bg-background sticky top-16 z-40">
+        <div className="container mx-auto px-4 py-4">
+          <Skeleton className="h-10 w-full mb-4 rounded-xl" />
+          <div className="flex gap-2">
+            {Array.from({ length: 5 }).map((_, i) => (
+              // biome-ignore lint/suspicious/noArrayIndexKey: static skeleton
+              <Skeleton key={`cat-${i}`} className="h-8 w-24 rounded-lg" />
+            ))}
+          </div>
+        </div>
+      </div>
+      <div className="container mx-auto px-4 py-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          {Array.from({ length: 8 }).map((_, i) => (
+            // biome-ignore lint/suspicious/noArrayIndexKey: static skeleton
+            <PropertyCardSkeleton key={`prop-${i}`} />
+          ))}
+        </div>
+      </div>
+    </PublicLayout>
+  );
+}
+
+export default function PropertiesPage() {
+  return (
+    <Suspense fallback={<PropertiesPageSkeleton />}>
+      <PropertiesPageContent />
+    </Suspense>
   );
 }

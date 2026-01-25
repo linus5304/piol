@@ -432,3 +432,221 @@ export const getUsersByRole = query({
     }));
   },
 });
+
+// List all users (admin only)
+export const listUsers = query({
+  args: {
+    limit: v.optional(v.number()),
+  },
+  handler: async (ctx, args) => {
+    const identity = await ctx.auth.getUserIdentity();
+    if (!identity) {
+      return [];
+    }
+
+    const currentUser = await ctx.db
+      .query('users')
+      .withIndex('by_clerk_id', (q) => q.eq('clerkId', identity.subject))
+      .unique();
+
+    if (!currentUser || currentUser.role !== 'admin') {
+      return [];
+    }
+
+    const users = await ctx.db
+      .query('users')
+      .order('desc')
+      .take(args.limit ?? 100);
+
+    // Return user data (some fields excluded for security)
+    return users.map((user) => ({
+      _id: user._id,
+      email: user.email,
+      phone: user.phone,
+      firstName: user.firstName,
+      lastName: user.lastName,
+      role: user.role,
+      isActive: user.isActive,
+      idVerified: user.idVerified,
+      profileImageUrl: user.profileImageUrl,
+      _creationTime: user._creationTime,
+    }));
+  },
+});
+
+// Get admin-specific stats
+export const getAdminStats = query({
+  args: {},
+  handler: async (ctx) => {
+    const identity = await ctx.auth.getUserIdentity();
+    if (!identity) {
+      return null;
+    }
+
+    const currentUser = await ctx.db
+      .query('users')
+      .withIndex('by_clerk_id', (q) => q.eq('clerkId', identity.subject))
+      .unique();
+
+    if (!currentUser || currentUser.role !== 'admin') {
+      return null;
+    }
+
+    // Count users
+    const allUsers = await ctx.db.query('users').collect();
+    const totalUsers = allUsers.length;
+
+    // Count new users this month
+    const now = Date.now();
+    const thirtyDaysAgo = now - 30 * 24 * 60 * 60 * 1000;
+    const newUsersThisMonth = allUsers.filter((u) => u._creationTime >= thirtyDaysAgo).length;
+
+    // Count properties
+    const allProperties = await ctx.db.query('properties').collect();
+    const totalProperties = allProperties.length;
+    const activeProperties = allProperties.filter((p) => p.status === 'active').length;
+    const pendingVerifications = allProperties.filter(
+      (p) => p.verificationStatus === 'pending'
+    ).length;
+
+    // Count transactions
+    const allTransactions = await ctx.db.query('transactions').collect();
+    const totalTransactions = allTransactions
+      .filter((t) => t.paymentStatus === 'completed')
+      .reduce((sum, t) => sum + t.amount, 0);
+
+    return {
+      totalUsers,
+      newUsersThisMonth,
+      totalProperties,
+      activeProperties,
+      pendingVerifications,
+      totalTransactions,
+    };
+  },
+});
+
+// Toggle user active status (admin only)
+export const toggleUserStatus = mutation({
+  args: {
+    userId: v.id('users'),
+    isActive: v.boolean(),
+  },
+  handler: async (ctx, args) => {
+    const identity = await ctx.auth.getUserIdentity();
+    if (!identity) {
+      throw new Error('Not authenticated');
+    }
+
+    const currentUser = await ctx.db
+      .query('users')
+      .withIndex('by_clerk_id', (q) => q.eq('clerkId', identity.subject))
+      .unique();
+
+    if (!currentUser || currentUser.role !== 'admin') {
+      throw new Error('Unauthorized: Admin access required');
+    }
+
+    // Don't allow deactivating yourself
+    if (args.userId === currentUser._id && !args.isActive) {
+      throw new Error('Cannot deactivate your own account');
+    }
+
+    await ctx.db.patch(args.userId, { isActive: args.isActive });
+    return args.userId;
+  },
+});
+
+// Get dashboard stats for current user (role-specific)
+export const getDashboardStats = query({
+  args: {},
+  handler: async (ctx) => {
+    const identity = await ctx.auth.getUserIdentity();
+    if (!identity) {
+      return null;
+    }
+
+    const user = await ctx.db
+      .query('users')
+      .withIndex('by_clerk_id', (q) => q.eq('clerkId', identity.subject))
+      .unique();
+
+    if (!user) {
+      return null;
+    }
+
+    if (user.role === 'landlord') {
+      // Landlord stats: properties, revenue, inquiries
+      const properties = await ctx.db
+        .query('properties')
+        .withIndex('by_landlord', (q) => q.eq('landlordId', user._id))
+        .collect();
+
+      const activeProperties = properties.filter((p) => p.status === 'active').length;
+      const draftProperties = properties.filter((p) => p.status === 'draft').length;
+      const pendingVerification = properties.filter(
+        (p) => p.status === 'pending_verification'
+      ).length;
+
+      // Get transactions for revenue
+      const transactions = await ctx.db
+        .query('transactions')
+        .withIndex('by_landlord', (q) => q.eq('landlordId', user._id))
+        .collect();
+
+      const completedTransactions = transactions.filter((t) => t.paymentStatus === 'completed');
+      const totalRevenue = completedTransactions.reduce((sum, t) => sum + t.amount, 0);
+      const pendingPayments = transactions.filter(
+        (t) => t.paymentStatus === 'pending' || t.paymentStatus === 'processing'
+      ).length;
+
+      // Get unread messages (inquiries)
+      const messages = await ctx.db
+        .query('messages')
+        .withIndex('by_recipient', (q) => q.eq('recipientId', user._id))
+        .collect();
+      const unreadMessages = messages.filter((m) => !m.isRead).length;
+
+      return {
+        role: 'landlord' as const,
+        totalProperties: properties.length,
+        activeProperties,
+        draftProperties,
+        pendingVerification,
+        totalRevenue,
+        pendingPayments,
+        unreadMessages,
+        completedTransactions: completedTransactions.length,
+      };
+    }
+
+    // Renter stats: favorites, messages, applications
+    const savedProperties = await ctx.db
+      .query('savedProperties')
+      .withIndex('by_user', (q) => q.eq('userId', user._id))
+      .collect();
+
+    const messages = await ctx.db
+      .query('messages')
+      .withIndex('by_recipient', (q) => q.eq('recipientId', user._id))
+      .collect();
+    const unreadMessages = messages.filter((m) => !m.isRead).length;
+
+    const transactions = await ctx.db
+      .query('transactions')
+      .withIndex('by_renter', (q) => q.eq('renterId', user._id))
+      .collect();
+
+    const totalSpent = transactions
+      .filter((t) => t.paymentStatus === 'completed')
+      .reduce((sum, t) => sum + t.amount, 0);
+
+    return {
+      role: 'renter' as const,
+      savedProperties: savedProperties.length,
+      unreadMessages,
+      totalTransactions: transactions.length,
+      totalSpent,
+    };
+  },
+});

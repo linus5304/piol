@@ -1,22 +1,21 @@
 'use client';
 
 import { useSafeUser } from '@/hooks/use-safe-auth';
+import { api } from '@repo/convex/_generated/api';
+import { useQuery } from 'convex/react';
 import {
   Building2,
-  CreditCard,
   Heart,
   HelpCircle,
   Home,
-  LayoutDashboard,
   MessageSquare,
-  Plus,
-  Search,
   Settings,
   Sparkles,
 } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import type * as React from 'react';
+import { useMemo } from 'react';
 
 import { Logo } from '@/components/brand';
 import { NavMain } from '@/components/nav-main';
@@ -35,6 +34,7 @@ import {
   SidebarMenuItem,
   SidebarSeparator,
 } from '@/components/ui/sidebar';
+import { Skeleton } from '@/components/ui/skeleton';
 const renterNavigation = [
   {
     title: 'Accueil',
@@ -81,13 +81,6 @@ const landlordNavigation = [
   },
 ];
 
-// Sample recent properties (like "Upcoming Events" in Catalyst)
-const recentProperties = [
-  { title: 'Appartement Bastos', url: '/dashboard/properties/1' },
-  { title: 'Villa Bonanjo', url: '/dashboard/properties/2' },
-  { title: 'Studio Akwa', url: '/dashboard/properties/3' },
-];
-
 const secondaryNavigation = [
   {
     title: 'Support',
@@ -110,6 +103,18 @@ export function AppSidebar({
 
   const role = (user?.unsafeMetadata?.role as 'renter' | 'landlord') || 'renter';
   const navItems = role === 'landlord' ? landlordNavigation : renterNavigation;
+
+  // Fetch real properties for landlords
+  const myProperties = useQuery(api.properties.getMyProperties, role === 'landlord' ? {} : 'skip');
+
+  // Transform to recent properties list (show latest 3)
+  const recentProperties = useMemo(() => {
+    if (!myProperties) return null;
+    return myProperties.slice(0, 3).map((p) => ({
+      title: p.title,
+      url: `/dashboard/properties/${p._id}`,
+    }));
+  }, [myProperties]);
 
   const userData = {
     name: user?.fullName || user?.firstName || 'Utilisateur',
@@ -139,15 +144,38 @@ export function AppSidebar({
             </SidebarGroupLabel>
             <SidebarGroupContent>
               <SidebarMenu>
-                {recentProperties.map((property) => (
-                  <SidebarMenuItem key={property.title}>
-                    <SidebarMenuButton asChild>
-                      <Link href={property.url}>
-                        <span>{property.title}</span>
-                      </Link>
-                    </SidebarMenuButton>
+                {recentProperties === null ? (
+                  // Loading state
+                  <>
+                    <SidebarMenuItem>
+                      <Skeleton className="h-8 w-full rounded-md" />
+                    </SidebarMenuItem>
+                    <SidebarMenuItem>
+                      <Skeleton className="h-8 w-full rounded-md" />
+                    </SidebarMenuItem>
+                    <SidebarMenuItem>
+                      <Skeleton className="h-8 w-full rounded-md" />
+                    </SidebarMenuItem>
+                  </>
+                ) : recentProperties.length === 0 ? (
+                  // Empty state
+                  <SidebarMenuItem>
+                    <span className="text-sm text-muted-foreground px-2 py-1">
+                      Aucune propriété
+                    </span>
                   </SidebarMenuItem>
-                ))}
+                ) : (
+                  // Property list
+                  recentProperties.map((property) => (
+                    <SidebarMenuItem key={property.url}>
+                      <SidebarMenuButton asChild>
+                        <Link href={property.url}>
+                          <span className="truncate">{property.title}</span>
+                        </Link>
+                      </SidebarMenuButton>
+                    </SidebarMenuItem>
+                  ))
+                )}
               </SidebarMenu>
             </SidebarGroupContent>
           </SidebarGroup>

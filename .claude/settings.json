@@ -1,0 +1,35 @@
+{
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash(git commit*)",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bun run typecheck && bun run lint:fix"
+          }
+        ]
+      },
+      {
+        "matcher": "Bash(git push*main*|git push*--force*)",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "echo '⚠️  WARNING: Pushing to main or force push detected. Confirm this is intentional.' && exit 1"
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "biome check --write \"$CLAUDE_FILE_PATH\" 2>/dev/null || true"
+          }
+        ]
+      }
+    ]
+  }
+}
