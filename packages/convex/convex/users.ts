@@ -1,5 +1,10 @@
 import { v } from 'convex/values';
 import { internalMutation, mutation, query } from './_generated/server';
+import {
+  getCurrentUser as getAuthUser,
+  getCurrentUserOrNull as getAuthUserOrNull,
+} from './utils/auth';
+import { assertAdmin, assertAdminOrVerifier, hasRole } from './utils/authorization';
 
 // ============================================================================
 // Internal mutations for Clerk webhook
@@ -271,19 +276,7 @@ export const updateProfile = mutation({
     profileImageId: v.optional(v.id('_storage')),
   },
   handler: async (ctx, args) => {
-    const identity = await ctx.auth.getUserIdentity();
-    if (!identity) {
-      throw new Error('Not authenticated');
-    }
-
-    const user = await ctx.db
-      .query('users')
-      .withIndex('by_clerk_id', (q) => q.eq('clerkId', identity.subject))
-      .unique();
-
-    if (!user) {
-      throw new Error('User not found');
-    }
+    const { user } = await getAuthUser(ctx);
 
     await ctx.db.patch(user._id, {
       ...(args.firstName !== undefined && { firstName: args.firstName }),
@@ -305,19 +298,7 @@ export const completeOnboarding = mutation({
     languagePreference: v.union(v.literal('fr'), v.literal('en')),
   },
   handler: async (ctx, args) => {
-    const identity = await ctx.auth.getUserIdentity();
-    if (!identity) {
-      throw new Error('Not authenticated');
-    }
-
-    const user = await ctx.db
-      .query('users')
-      .withIndex('by_clerk_id', (q) => q.eq('clerkId', identity.subject))
-      .unique();
-
-    if (!user) {
-      throw new Error('User not found');
-    }
+    const { user } = await getAuthUser(ctx);
 
     await ctx.db.patch(user._id, {
       role: args.role,
@@ -342,19 +323,8 @@ export const updateUserRole = mutation({
     ),
   },
   handler: async (ctx, args) => {
-    const identity = await ctx.auth.getUserIdentity();
-    if (!identity) {
-      throw new Error('Not authenticated');
-    }
-
-    const currentUser = await ctx.db
-      .query('users')
-      .withIndex('by_clerk_id', (q) => q.eq('clerkId', identity.subject))
-      .unique();
-
-    if (!currentUser || currentUser.role !== 'admin') {
-      throw new Error('Unauthorized: Admin access required');
-    }
+    const { user: currentUser } = await getAuthUser(ctx);
+    assertAdmin(currentUser.role);
 
     // Get the target user to check their current role
     const targetUser = await ctx.db.get(args.userId);
@@ -388,19 +358,8 @@ export const verifyUserId = mutation({
     verified: v.boolean(),
   },
   handler: async (ctx, args) => {
-    const identity = await ctx.auth.getUserIdentity();
-    if (!identity) {
-      throw new Error('Not authenticated');
-    }
-
-    const currentUser = await ctx.db
-      .query('users')
-      .withIndex('by_clerk_id', (q) => q.eq('clerkId', identity.subject))
-      .unique();
-
-    if (!currentUser || (currentUser.role !== 'admin' && currentUser.role !== 'verifier')) {
-      throw new Error('Unauthorized: Admin or verifier access required');
-    }
+    const { user: currentUser } = await getAuthUser(ctx);
+    assertAdminOrVerifier(currentUser.role);
 
     await ctx.db.patch(args.userId, { idVerified: args.verified });
     return args.userId;
@@ -419,17 +378,8 @@ export const getUsersByRole = query({
     limit: v.optional(v.number()),
   },
   handler: async (ctx, args) => {
-    const identity = await ctx.auth.getUserIdentity();
-    if (!identity) {
-      return [];
-    }
-
-    const currentUser = await ctx.db
-      .query('users')
-      .withIndex('by_clerk_id', (q) => q.eq('clerkId', identity.subject))
-      .unique();
-
-    if (!currentUser || currentUser.role !== 'admin') {
+    const result = await getAuthUserOrNull(ctx);
+    if (!result || !hasRole(result.user.role, ['admin'])) {
       return [];
     }
 
@@ -459,17 +409,8 @@ export const listUsers = query({
     limit: v.optional(v.number()),
   },
   handler: async (ctx, args) => {
-    const identity = await ctx.auth.getUserIdentity();
-    if (!identity) {
-      return [];
-    }
-
-    const currentUser = await ctx.db
-      .query('users')
-      .withIndex('by_clerk_id', (q) => q.eq('clerkId', identity.subject))
-      .unique();
-
-    if (!currentUser || currentUser.role !== 'admin') {
+    const result = await getAuthUserOrNull(ctx);
+    if (!result || !hasRole(result.user.role, ['admin'])) {
       return [];
     }
 
@@ -498,17 +439,8 @@ export const listUsers = query({
 export const getAdminStats = query({
   args: {},
   handler: async (ctx) => {
-    const identity = await ctx.auth.getUserIdentity();
-    if (!identity) {
-      return null;
-    }
-
-    const currentUser = await ctx.db
-      .query('users')
-      .withIndex('by_clerk_id', (q) => q.eq('clerkId', identity.subject))
-      .unique();
-
-    if (!currentUser || currentUser.role !== 'admin') {
+    const result = await getAuthUserOrNull(ctx);
+    if (!result || !hasRole(result.user.role, ['admin'])) {
       return null;
     }
 
@@ -553,19 +485,8 @@ export const toggleUserStatus = mutation({
     isActive: v.boolean(),
   },
   handler: async (ctx, args) => {
-    const identity = await ctx.auth.getUserIdentity();
-    if (!identity) {
-      throw new Error('Not authenticated');
-    }
-
-    const currentUser = await ctx.db
-      .query('users')
-      .withIndex('by_clerk_id', (q) => q.eq('clerkId', identity.subject))
-      .unique();
-
-    if (!currentUser || currentUser.role !== 'admin') {
-      throw new Error('Unauthorized: Admin access required');
-    }
+    const { user: currentUser } = await getAuthUser(ctx);
+    assertAdmin(currentUser.role);
 
     // Don't allow deactivating yourself
     if (args.userId === currentUser._id && !args.isActive) {
@@ -581,19 +502,12 @@ export const toggleUserStatus = mutation({
 export const getDashboardStats = query({
   args: {},
   handler: async (ctx) => {
-    const identity = await ctx.auth.getUserIdentity();
-    if (!identity) {
+    const result = await getAuthUserOrNull(ctx);
+    if (!result) {
       return null;
     }
 
-    const user = await ctx.db
-      .query('users')
-      .withIndex('by_clerk_id', (q) => q.eq('clerkId', identity.subject))
-      .unique();
-
-    if (!user) {
-      return null;
-    }
+    const { user } = result;
 
     if (user.role === 'landlord') {
       // Landlord stats: properties, revenue, inquiries

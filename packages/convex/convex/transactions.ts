@@ -1,5 +1,7 @@
 import { v } from 'convex/values';
 import { internalMutation, mutation, query } from './_generated/server';
+import { getCurrentUser, getCurrentUserOrNull } from './utils/auth';
+import { hasRole, isOwnerOrAdmin } from './utils/authorization';
 
 // Generate unique transaction reference
 function generateTransactionReference(): string {
@@ -24,20 +26,12 @@ export const getMyTransactions = query({
     limit: v.optional(v.number()),
   },
   handler: async (ctx, args) => {
-    const identity = await ctx.auth.getUserIdentity();
-    if (!identity) {
+    const result = await getCurrentUserOrNull(ctx);
+    if (!result) {
       return [];
     }
 
-    const user = await ctx.db
-      .query('users')
-      .withIndex('by_clerk_id', (q) => q.eq('clerkId', identity.subject))
-      .unique();
-
-    if (!user) {
-      return [];
-    }
-
+    const { user } = result;
     const limit = args.limit ?? 50;
 
     // Get transactions based on role
@@ -104,31 +98,21 @@ export const getMyTransactions = query({
 export const getTransaction = query({
   args: { transactionId: v.id('transactions') },
   handler: async (ctx, args) => {
-    const identity = await ctx.auth.getUserIdentity();
-    if (!identity) {
+    const result = await getCurrentUserOrNull(ctx);
+    if (!result) {
       return null;
     }
 
-    const user = await ctx.db
-      .query('users')
-      .withIndex('by_clerk_id', (q) => q.eq('clerkId', identity.subject))
-      .unique();
-
-    if (!user) {
-      return null;
-    }
+    const { user } = result;
 
     const transaction = await ctx.db.get(args.transactionId);
     if (!transaction) {
       return null;
     }
 
-    // Check authorization
-    if (
-      transaction.renterId !== user._id &&
-      transaction.landlordId !== user._id &&
-      user.role !== 'admin'
-    ) {
+    // Check authorization (renter, landlord, or admin can view)
+    const isParty = transaction.renterId === user._id || transaction.landlordId === user._id;
+    if (!isParty && !hasRole(user.role, ['admin'])) {
       return null;
     }
 
@@ -199,19 +183,7 @@ export const createTransaction = mutation({
     payerPhone: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
-    const identity = await ctx.auth.getUserIdentity();
-    if (!identity) {
-      throw new Error('Not authenticated');
-    }
-
-    const user = await ctx.db
-      .query('users')
-      .withIndex('by_clerk_id', (q) => q.eq('clerkId', identity.subject))
-      .unique();
-
-    if (!user) {
-      throw new Error('User not found');
-    }
+    const { user } = await getCurrentUser(ctx);
 
     // Verify property exists
     const property = await ctx.db.get(args.propertyId);
@@ -317,19 +289,7 @@ export const releaseEscrow = mutation({
     transactionId: v.id('transactions'),
   },
   handler: async (ctx, args) => {
-    const identity = await ctx.auth.getUserIdentity();
-    if (!identity) {
-      throw new Error('Not authenticated');
-    }
-
-    const user = await ctx.db
-      .query('users')
-      .withIndex('by_clerk_id', (q) => q.eq('clerkId', identity.subject))
-      .unique();
-
-    if (!user) {
-      throw new Error('User not found');
-    }
+    const { user } = await getCurrentUser(ctx);
 
     const transaction = await ctx.db.get(args.transactionId);
     if (!transaction) {
@@ -337,7 +297,7 @@ export const releaseEscrow = mutation({
     }
 
     // Check authorization (landlord or admin can release)
-    if (transaction.landlordId !== user._id && user.role !== 'admin') {
+    if (!isOwnerOrAdmin(transaction.landlordId, user._id, user.role)) {
       throw new Error('Unauthorized');
     }
 
@@ -370,19 +330,7 @@ export const requestRefund = mutation({
     reason: v.string(),
   },
   handler: async (ctx, args) => {
-    const identity = await ctx.auth.getUserIdentity();
-    if (!identity) {
-      throw new Error('Not authenticated');
-    }
-
-    const user = await ctx.db
-      .query('users')
-      .withIndex('by_clerk_id', (q) => q.eq('clerkId', identity.subject))
-      .unique();
-
-    if (!user) {
-      throw new Error('User not found');
-    }
+    const { user } = await getCurrentUser(ctx);
 
     const transaction = await ctx.db.get(args.transactionId);
     if (!transaction) {
@@ -428,17 +376,8 @@ export const getTransactionStats = query({
     endDate: v.optional(v.number()),
   },
   handler: async (ctx, args) => {
-    const identity = await ctx.auth.getUserIdentity();
-    if (!identity) {
-      return null;
-    }
-
-    const user = await ctx.db
-      .query('users')
-      .withIndex('by_clerk_id', (q) => q.eq('clerkId', identity.subject))
-      .unique();
-
-    if (!user || user.role !== 'admin') {
+    const result = await getCurrentUserOrNull(ctx);
+    if (!result || !hasRole(result.user.role, ['admin'])) {
       return null;
     }
 
