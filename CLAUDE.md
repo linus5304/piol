@@ -209,6 +209,37 @@ When user says "autonomous mode", "full auto", or similar:
 4. Always run typecheck + lint before considering task done
 5. Update agent/features.json and progress.md when complete
 
+## Auto-Ship Mode
+
+When user says "auto-ship", "ship it", "commit and deploy", or similar after completing a feature/fix:
+
+**Automatically perform the full deployment pipeline:**
+
+1. **Verify** - Run `bunx biome check --write . && bun run typecheck`
+2. **Branch** - `git checkout -b feat/<feature-name>` or `fix/<fix-name>`
+3. **Commit** - Stage and commit with conventional commit format
+4. **Push** - `git push -u origin <branch>`
+5. **PR** - `gh pr create --title "<title>" --body "<summary>"`
+6. **Merge** - `gh pr merge <pr-number> --squash --delete-branch`
+7. **Deploy** - Convex auto-deploys on merge to main via GitHub Actions
+
+**Trigger phrases:**
+- "ship it" / "auto-ship" / "deploy"
+- "commit, PR, merge" / "full pipeline"
+- "proceed with deployment"
+
+**Commit message format:**
+```
+<type>(<scope>): <description>
+
+<body>
+
+Co-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>
+```
+
+Types: `feat`, `fix`, `chore`, `docs`, `refactor`
+Scopes: `web`, `convex`, `mobile`, `agent`
+
 ### Prompting Patterns for UI Work
 
 **Pattern 1: Task + Constraints + Verification (Recommended)**
