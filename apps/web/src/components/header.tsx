@@ -2,6 +2,7 @@
 
 import { Logo } from '@/components/brand';
 import { LanguageSwitcher } from '@/components/language-switcher';
+import { ThemeToggle } from '@/components/theme-toggle';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import {
@@ -61,7 +62,7 @@ export function Header({ variant = 'default' }: HeaderProps) {
       )}
     >
       <div className="container mx-auto px-4">
-        <div className="flex h-16 items-center justify-between">
+        <div className="flex h-14 items-center justify-between">
           {/* Logo */}
           <Logo size="md" />
 
@@ -85,6 +86,7 @@ export function Header({ variant = 'default' }: HeaderProps) {
 
           {/* Right Section */}
           <div className="flex items-center gap-2">
+            <ThemeToggle />
             <LanguageSwitcher />
 
             {/* Auth Section */}

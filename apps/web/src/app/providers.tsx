@@ -5,6 +5,7 @@ import { useAuth } from '@clerk/nextjs';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ConvexProvider, ConvexReactClient } from 'convex/react';
 import { ConvexProviderWithClerk } from 'convex/react-clerk';
+import { ThemeProvider } from 'next-themes';
 import { type ReactNode, useMemo, useState } from 'react';
 
 export function Providers({ children }: { children: ReactNode }) {
@@ -30,21 +31,29 @@ export function Providers({ children }: { children: ReactNode }) {
 
   // If no Convex URL, render without Convex provider
   if (!convex) {
-    return <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>;
+    return (
+      <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
+        <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
+      </ThemeProvider>
+    );
   }
 
   // If Clerk is not configured, use plain ConvexProvider without auth
   if (!isClerkConfigured) {
     return (
-      <ConvexProvider client={convex}>
-        <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
-      </ConvexProvider>
+      <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
+        <ConvexProvider client={convex}>
+          <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
+        </ConvexProvider>
+      </ThemeProvider>
     );
   }
 
   return (
-    <ConvexProviderWithClerk client={convex} useAuth={useAuth}>
-      <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
-    </ConvexProviderWithClerk>
+    <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
+      <ConvexProviderWithClerk client={convex} useAuth={useAuth}>
+        <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
+      </ConvexProviderWithClerk>
+    </ThemeProvider>
   );
 }

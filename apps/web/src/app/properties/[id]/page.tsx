@@ -1,5 +1,6 @@
 'use client';
 
+import { Header } from '@/components/header';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -26,7 +27,6 @@ import type { Id } from '@repo/convex/_generated/dataModel';
 import { useMutation, useQuery } from 'convex/react';
 import {
   Armchair,
-  ArrowLeft,
   BadgeCheck,
   Calendar,
   Car,
@@ -395,7 +395,7 @@ export default function PropertyDetailPage({
         </div>
       )}
 
-      <main className="max-w-7xl mx-auto px-4 py-8">
+      <main className="max-w-7xl mx-auto px-4 pt-6 pb-24 lg:pb-8">
         {/* Title Section */}
         <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4 mb-8">
           <div>
@@ -561,13 +561,13 @@ export default function PropertyDetailPage({
 
           {/* Sidebar */}
           <div className="lg:col-span-1">
-            <div className="sticky top-24 space-y-6">
+            <div className="sticky top-20 space-y-6">
               {/* Pricing Card */}
               <Card className="shadow-xl border-border rounded-2xl overflow-hidden">
                 <CardContent className="p-6">
                   <div className="mb-6">
                     <div className="flex items-baseline gap-1">
-                      <span className="text-3xl font-semibold text-foreground">
+                      <span className="text-3xl font-semibold text-foreground font-mono tabular-nums">
                         {formatCurrency(property.rentAmount)}
                       </span>
                       <span className="text-muted-foreground">{property.currency}</span>
@@ -580,7 +580,7 @@ export default function PropertyDetailPage({
                       <span className="text-muted-foreground">
                         Caution ({property.cautionMonths} mois)
                       </span>
-                      <span className="font-medium">
+                      <span className="font-medium font-mono tabular-nums">
                         {formatCurrency(property.rentAmount * property.cautionMonths)}{' '}
                         {property.currency}
                       </span>
@@ -589,7 +589,7 @@ export default function PropertyDetailPage({
                       <span className="text-muted-foreground">
                         Avance ({property.upfrontMonths} mois)
                       </span>
-                      <span className="font-medium">
+                      <span className="font-medium font-mono tabular-nums">
                         {formatCurrency(property.rentAmount * property.upfrontMonths)}{' '}
                         {property.currency}
                       </span>
@@ -597,7 +597,7 @@ export default function PropertyDetailPage({
                     <div className="h-px bg-border my-3" />
                     <div className="flex justify-between font-semibold text-lg">
                       <span>Total à l'entrée</span>
-                      <span>
+                      <span className="font-mono tabular-nums">
                         {formatCurrency(totalEntry)} {property.currency}
                       </span>
                     </div>
@@ -709,11 +709,11 @@ export default function PropertyDetailPage({
       </main>
 
       {/* Mobile Bottom Bar */}
-      <div className="lg:hidden fixed bottom-0 left-0 right-0 bg-background border-t border-border p-4 z-40">
+      <div className="lg:hidden fixed bottom-0 left-0 right-0 bg-background border-t border-border px-4 pt-4 pb-[max(1rem,env(safe-area-inset-bottom))] z-40">
         <div className="flex items-center justify-between">
           <div>
             <div className="flex items-baseline gap-1">
-              <span className="text-xl font-semibold text-foreground">
+              <span className="text-xl font-semibold text-foreground font-mono tabular-nums">
                 {formatCurrency(property.rentAmount)}
               </span>
               <span className="text-muted-foreground text-sm">{property.currency}/mois</span>
@@ -765,7 +765,7 @@ export default function PropertyDetailPage({
             />
             <div className="flex-1 min-w-0">
               <p className="font-medium text-foreground truncate">{property.title}</p>
-              <p className="text-sm text-primary font-medium">
+              <p className="text-sm text-primary font-medium font-mono tabular-nums">
                 {formatCurrency(property.rentAmount)} {property.currency}/mois
               </p>
             </div>
@@ -804,28 +804,6 @@ export default function PropertyDetailPage({
         </DialogContent>
       </Dialog>
     </div>
-  );
-}
-
-function Header() {
-  return (
-    <header className="bg-background border-b border-border sticky top-0 z-40">
-      <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
-        <Link href="/" className="flex items-center gap-2">
-          <span className="text-2xl">🏠</span>
-          <span className="text-xl font-bold text-primary">Piol</span>
-        </Link>
-        <div className="flex items-center gap-4">
-          <Link
-            href="/properties"
-            className="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors"
-          >
-            <ArrowLeft className="w-4 h-4" />
-            <span className="hidden sm:inline">Retour aux propriétés</span>
-          </Link>
-        </div>
-      </div>
-    </header>
   );
 }
 

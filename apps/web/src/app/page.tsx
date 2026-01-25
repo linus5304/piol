@@ -6,77 +6,23 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
+import { Skeleton } from '@/components/ui/skeleton';
+import { api } from '@repo/convex/_generated/api';
+import { useQuery } from 'convex/react';
 import { ArrowRight, CheckCircle2, MapPin, Search, Shield, Smartphone } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import Link from 'next/link';
-
-// Featured properties data
-const featuredProperties = [
-  {
-    _id: 'feat-1',
-    title: 'Appartement Moderne à Bonapriso',
-    propertyType: '2br' as const,
-    rentAmount: 180000,
-    currency: 'XAF',
-    city: 'Douala',
-    neighborhood: 'Bonapriso',
-    images: [
-      { url: 'https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=800&h=600&fit=crop' },
-    ],
-    status: 'active' as const,
-    verificationStatus: 'approved' as const,
-    landlordId: 'landlord-1',
-    landlordName: 'Jean-Pierre K.',
-    landlordVerified: true,
-  },
-  {
-    _id: 'feat-2',
-    title: 'Studio Étudiant à Ngoa-Ekelle',
-    propertyType: 'studio' as const,
-    rentAmount: 45000,
-    currency: 'XAF',
-    city: 'Yaoundé',
-    neighborhood: 'Ngoa-Ekelle',
-    images: [
-      { url: 'https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=800&h=600&fit=crop' },
-    ],
-    status: 'active' as const,
-    verificationStatus: 'approved' as const,
-    landlordId: 'landlord-2',
-    landlordName: 'Marie N.',
-    landlordVerified: true,
-  },
-  {
-    _id: 'feat-3',
-    title: 'Villa Familiale avec Jardin',
-    propertyType: 'villa' as const,
-    rentAmount: 350000,
-    currency: 'XAF',
-    city: 'Douala',
-    neighborhood: 'Bonanjo',
-    images: [
-      { url: 'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=800&h=600&fit=crop' },
-    ],
-    status: 'active' as const,
-    verificationStatus: 'approved' as const,
-    landlordId: 'landlord-3',
-    landlordName: 'Paul M.',
-    landlordVerified: true,
-  },
-];
-
-// Cities data
-const cities = [
-  { name: 'Douala', count: '450+' },
-  { name: 'Yaoundé', count: '380+' },
-  { name: 'Buea', count: '120+' },
-  { name: 'Kribi', count: '85+' },
-];
 
 export default function HomePage() {
   const t = useTranslations('home');
   const tNav = useTranslations('nav');
   const tFooter = useTranslations('footer');
+
+  // Fetch featured properties from Convex
+  const featuredProperties = useQuery(api.properties.getFeaturedProperties, { limit: 3 });
+
+  // Fetch city statistics from Convex
+  const cityStats = useQuery(api.properties.getCityStats);
 
   return (
     <PublicLayout>
@@ -144,23 +90,58 @@ export default function HomePage() {
           </Link>
         </div>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          {cities.map((city) => (
-            <Link key={city.name} href={`/properties?city=${city.name}`}>
-              <Card className="card-hover cursor-pointer rounded-xl border-border/50 bg-card">
-                <CardContent className="p-5 flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-lg bg-muted flex items-center justify-center">
-                      <MapPin className="h-5 w-5 text-muted-foreground" />
+          {cityStats === undefined ? (
+            // Loading skeleton
+            <>
+              {[1, 2, 3, 4].map((i) => (
+                <Card key={i} className="rounded-xl border-border/50 bg-card">
+                  <CardContent className="p-5 flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <Skeleton className="w-10 h-10 rounded-lg" />
+                      <Skeleton className="h-5 w-20" />
                     </div>
-                    <span className="font-semibold">{city.name}</span>
-                  </div>
-                  <Badge variant="secondary" className="rounded-full text-xs px-2.5">
-                    {city.count}
-                  </Badge>
-                </CardContent>
-              </Card>
-            </Link>
-          ))}
+                    <Skeleton className="h-5 w-10 rounded-full" />
+                  </CardContent>
+                </Card>
+              ))}
+            </>
+          ) : cityStats && cityStats.length > 0 ? (
+            cityStats.slice(0, 4).map((city: { city: string; count: number }) => (
+              <Link key={city.city} href={`/properties?city=${city.city}`}>
+                <Card className="card-hover cursor-pointer rounded-xl border-border/50 bg-card">
+                  <CardContent className="p-5 flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-lg bg-muted flex items-center justify-center">
+                        <MapPin className="h-5 w-5 text-muted-foreground" />
+                      </div>
+                      <span className="font-semibold">{city.city}</span>
+                    </div>
+                    <Badge variant="secondary" className="rounded-full text-xs px-2.5">
+                      {city.count}
+                    </Badge>
+                  </CardContent>
+                </Card>
+              </Link>
+            ))
+          ) : (
+            // Fallback cities when no data
+            <>
+              {['Douala', 'Yaoundé', 'Buea', 'Kribi'].map((city) => (
+                <Link key={city} href={`/properties?city=${city}`}>
+                  <Card className="card-hover cursor-pointer rounded-xl border-border/50 bg-card">
+                    <CardContent className="p-5 flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-lg bg-muted flex items-center justify-center">
+                          <MapPin className="h-5 w-5 text-muted-foreground" />
+                        </div>
+                        <span className="font-semibold">{city}</span>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </Link>
+              ))}
+            </>
+          )}
         </div>
       </PageSection>
 
@@ -218,9 +199,66 @@ export default function HomePage() {
           </Link>
         </div>
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {featuredProperties.map((property) => (
-            <PropertyCard key={property._id} property={property} />
-          ))}
+          {featuredProperties === undefined ? (
+            // Loading skeleton
+            <>
+              {[1, 2, 3].map((i) => (
+                <Card key={i} className="rounded-2xl overflow-hidden border-border/50">
+                  <Skeleton className="aspect-[4/3]" />
+                  <div className="p-4 space-y-3">
+                    <Skeleton className="h-5 w-3/4" />
+                    <Skeleton className="h-4 w-1/2" />
+                    <Skeleton className="h-6 w-32" />
+                  </div>
+                </Card>
+              ))}
+            </>
+          ) : featuredProperties && featuredProperties.length > 0 ? (
+            featuredProperties.map((property: (typeof featuredProperties)[number]) => (
+              <PropertyCard
+                key={property._id}
+                property={{
+                  _id: property._id,
+                  title: property.title,
+                  propertyType: property.propertyType as
+                    | 'studio'
+                    | '1br'
+                    | '2br'
+                    | '3br'
+                    | '4br'
+                    | 'house'
+                    | 'villa'
+                    | 'apartment',
+                  rentAmount: property.rentAmount,
+                  currency: property.currency,
+                  city: property.city,
+                  neighborhood: property.neighborhood ?? undefined,
+                  images: property.imageUrl ? [{ url: property.imageUrl }] : undefined,
+                  status: 'active' as const,
+                  verificationStatus: property.verificationStatus as
+                    | 'pending'
+                    | 'in_progress'
+                    | 'approved'
+                    | 'rejected',
+                  landlordId: property.landlord?._id ?? '',
+                  landlordName: property.landlord
+                    ? `${property.landlord.firstName} ${property.landlord.lastName ?? ''}`.trim()
+                    : undefined,
+                  landlordVerified: property.landlord?.idVerified ?? false,
+                }}
+              />
+            ))
+          ) : (
+            // Empty state
+            <div className="col-span-3 text-center py-12">
+              <p className="text-muted-foreground">
+                Aucune annonce pour le moment.{' '}
+                <Link href="/properties" className="text-primary hover:underline">
+                  Voir toutes les propriétés
+                </Link>
+              </p>
+            </div>
+          )}
         </div>
       </PageSection>
 

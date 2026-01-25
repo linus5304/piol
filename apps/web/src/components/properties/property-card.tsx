@@ -270,7 +270,7 @@ export function PropertyCard({
                   ))}
                 </div>
                 <div className="text-right">
-                  <span className="font-bold text-foreground">
+                  <span className="font-bold text-foreground font-mono tabular-nums">
                     {formatCurrency(property.rentAmount)}
                   </span>
                   <span className="text-muted-foreground text-sm"> FCFA/mois</span>
@@ -462,7 +462,7 @@ export function PropertyCard({
 
           {/* Price */}
           <div className="pt-2 flex items-baseline gap-1 border-t border-border/50">
-            <span className="font-bold text-lg text-foreground">
+            <span className="font-bold text-lg text-foreground font-mono tabular-nums">
               {formatCurrency(property.rentAmount)}
             </span>
             <span className="text-sm text-muted-foreground">FCFA/mois</span>

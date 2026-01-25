@@ -102,13 +102,15 @@ export default function PaymentsPage() {
         <Card>
           <CardHeader className="pb-2">
             <CardDescription>Total payé</CardDescription>
-            <CardTitle className="text-2xl text-green-600">{formatCurrency(totalPaid)}</CardTitle>
+            <CardTitle className="text-2xl text-green-600 font-mono tabular-nums">
+              {formatCurrency(totalPaid)}
+            </CardTitle>
           </CardHeader>
         </Card>
         <Card>
           <CardHeader className="pb-2">
             <CardDescription>En attente</CardDescription>
-            <CardTitle className="text-2xl text-yellow-600">
+            <CardTitle className="text-2xl text-yellow-600 font-mono tabular-nums">
               {formatCurrency(pendingAmount)}
             </CardTitle>
           </CardHeader>
@@ -116,7 +118,7 @@ export default function PaymentsPage() {
         <Card>
           <CardHeader className="pb-2">
             <CardDescription>Prochaine échéance</CardDescription>
-            <CardTitle className="text-2xl">
+            <CardTitle className="text-2xl font-mono tabular-nums">
               {pendingAmount > 0 ? formatCurrency(pendingAmount) : '-'}
             </CardTitle>
           </CardHeader>
@@ -165,7 +167,7 @@ export default function PaymentsPage() {
                 <div className="grid grid-cols-12 gap-4 items-center">
                   <div className="col-span-4">
                     <p className="font-medium text-foreground">{typeLabels[payment.type]}</p>
-                    <p className="text-sm text-muted-foreground">
+                    <p className="text-sm text-muted-foreground font-mono">
                       {payment.reference || 'En attente de paiement'}
                     </p>
                     {payment.method && (
@@ -179,7 +181,9 @@ export default function PaymentsPage() {
                     <p className="text-sm text-muted-foreground">{formatDate(payment.date)}</p>
                   </div>
                   <div className="col-span-2 text-right">
-                    <p className="font-medium text-foreground">{formatCurrency(payment.amount)}</p>
+                    <p className="font-medium text-foreground font-mono tabular-nums">
+                      {formatCurrency(payment.amount)}
+                    </p>
                   </div>
                   <div className="col-span-1">
                     <span

@@ -2,27 +2,16 @@ import { enUS, frFR } from '@clerk/localizations';
 import { ClerkProvider } from '@clerk/nextjs';
 import { Analytics } from '@vercel/analytics/react';
 import { SpeedInsights } from '@vercel/speed-insights/next';
+import { GeistMono } from 'geist/font/mono';
+import { GeistSans } from 'geist/font/sans';
 import type { Metadata, Viewport } from 'next';
 import { NextIntlClientProvider } from 'next-intl';
 import { getLocale, getMessages } from 'next-intl/server';
-import { JetBrains_Mono, Nunito_Sans } from 'next/font/google';
 import './globals.css';
 import { ConnectionStatus } from '@/components/connection-status';
 import { Toaster } from '@/components/ui/sonner';
 import { env, isClerkConfigured } from '@/lib/env';
 import { Providers } from './providers';
-
-// Nunito Sans - warmer, more approachable font
-const nunitoSans = Nunito_Sans({
-  variable: '--font-sans',
-  subsets: ['latin'],
-  weight: ['400', '500', '600', '700', '800'],
-});
-
-const jetbrainsMono = JetBrains_Mono({
-  variable: '--font-mono',
-  subsets: ['latin'],
-});
 
 export const metadata: Metadata = {
   title: `${env.NEXT_PUBLIC_APP_NAME} - Cameroon Housing Marketplace`,
@@ -71,7 +60,7 @@ export default async function RootLayout({
 
   const content = (
     <html lang={locale} suppressHydrationWarning>
-      <body className={`${nunitoSans.variable} ${jetbrainsMono.variable} font-sans antialiased`}>
+      <body className={`${GeistSans.variable} ${GeistMono.variable} font-sans antialiased`}>
         <NextIntlClientProvider messages={messages}>
           <ConnectionStatus />
           <Providers>{children}</Providers>

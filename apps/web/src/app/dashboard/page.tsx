@@ -19,53 +19,10 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { useSafeUser } from '@/hooks/use-safe-auth';
+import { api } from '@repo/convex/_generated/api';
+import { useQuery } from 'convex/react';
 import { MoreHorizontal } from 'lucide-react';
-import Image from 'next/image';
 import Link from 'next/link';
-
-// Sample recent orders/transactions data
-const recentOrders = [
-  {
-    id: '3000',
-    date: '9 mai 2024',
-    customer: 'Jean Kamga',
-    property: 'Appartement Bastos',
-    propertyImage: '/placeholder.svg',
-    amount: '150 000 FCFA',
-  },
-  {
-    id: '3001',
-    date: '5 mai 2024',
-    customer: 'Marie Njoya',
-    property: 'Villa Bonanjo',
-    propertyImage: '/placeholder.svg',
-    amount: '350 000 FCFA',
-  },
-  {
-    id: '3002',
-    date: '28 avr 2024',
-    customer: 'Paul Fotso',
-    property: 'Studio Akwa',
-    propertyImage: '/placeholder.svg',
-    amount: '75 000 FCFA',
-  },
-  {
-    id: '3003',
-    date: '23 avr 2024',
-    customer: 'Sophie Biya',
-    property: 'Appartement Bastos',
-    propertyImage: '/placeholder.svg',
-    amount: '150 000 FCFA',
-  },
-  {
-    id: '3004',
-    date: '18 avr 2024',
-    customer: 'André Mbarga',
-    property: 'Maison Omnisport',
-    propertyImage: '/placeholder.svg',
-    amount: '200 000 FCFA',
-  },
-];
 
 function getGreeting() {
   const hour = new Date().getHours();
@@ -74,8 +31,34 @@ function getGreeting() {
   return 'Bonsoir';
 }
 
+function formatDate(timestamp: number): string {
+  return new Date(timestamp).toLocaleDateString('fr-FR', {
+    day: 'numeric',
+    month: 'short',
+    year: 'numeric',
+  });
+}
+
+function formatCurrency(amount: number): string {
+  return `${new Intl.NumberFormat('fr-FR').format(amount)} FCFA`;
+}
+
+const paymentStatusLabels: Record<string, { label: string; color: string }> = {
+  completed: { label: 'Payé', color: 'bg-success/10 text-success' },
+  pending: { label: 'En attente', color: 'bg-warning/10 text-warning' },
+  processing: { label: 'En cours', color: 'bg-primary/10 text-primary' },
+  failed: { label: 'Échoué', color: 'bg-destructive/10 text-destructive' },
+  refunded: { label: 'Remboursé', color: 'bg-muted text-muted-foreground' },
+};
+
 export default function DashboardPage() {
   const { user, isLoaded } = useSafeUser();
+
+  // Fetch dashboard stats
+  const dashboardStats = useQuery(api.users.getDashboardStats);
+
+  // Fetch recent transactions (for landlords)
+  const transactions = useQuery(api.transactions.getMyTransactions, { limit: 5 });
 
   if (!isLoaded) {
     return (
@@ -93,6 +76,22 @@ export default function DashboardPage() {
 
   const role = (user?.unsafeMetadata?.role as string) || 'renter';
   const firstName = user?.firstName || 'Utilisateur';
+
+  // Prepare stats for SectionCards based on role
+  const stats =
+    dashboardStats?.role === 'landlord'
+      ? {
+          revenue: dashboardStats.totalRevenue ?? 0,
+          properties: dashboardStats.activeProperties ?? 0,
+          messages: dashboardStats.unreadMessages ?? 0,
+          views: 0, // We don't track views yet
+        }
+      : {
+          favorites: dashboardStats?.savedProperties ?? 0,
+          searches: 0, // We don't track searches yet
+          messages: dashboardStats?.unreadMessages ?? 0,
+          views: 0, // We don't track views yet
+        };
 
   return (
     <div className="space-y-8 pb-8">
@@ -119,69 +118,91 @@ export default function DashboardPage() {
 
       {/* Stats Cards */}
       <div className="px-4 lg:px-6">
-        <SectionCards role={role as 'renter' | 'landlord'} />
+        <SectionCards role={role as 'renter' | 'landlord'} stats={stats} />
       </div>
 
-      {/* Recent Orders Table */}
+      {/* Recent Transactions Table (Landlord) */}
       {role === 'landlord' && (
         <div className="px-4 lg:px-6 space-y-4">
-          <h2 className="text-section-label">Transactions récentes</h2>
+          <div className="flex items-center justify-between">
+            <h2 className="text-section-label">Transactions récentes</h2>
+            <Link
+              href="/dashboard/payments"
+              className="text-sm font-medium text-muted-foreground hover:text-foreground"
+            >
+              Voir tout →
+            </Link>
+          </div>
           <div className="rounded-xl border border-border/50 bg-card overflow-hidden shadow-sm">
-            <Table>
-              <TableHeader>
-                <TableRow className="border-b border-border/50 bg-muted/30 hover:bg-muted/30">
-                  <TableHead className="text-muted-foreground font-semibold text-xs uppercase tracking-wider">
-                    N° commande
-                  </TableHead>
-                  <TableHead className="text-muted-foreground font-semibold text-xs uppercase tracking-wider">
-                    Date
-                  </TableHead>
-                  <TableHead className="text-muted-foreground font-semibold text-xs uppercase tracking-wider">
-                    Client
-                  </TableHead>
-                  <TableHead className="text-muted-foreground font-semibold text-xs uppercase tracking-wider">
-                    Propriété
-                  </TableHead>
-                  <TableHead className="text-muted-foreground font-semibold text-xs uppercase tracking-wider text-right">
-                    Montant
-                  </TableHead>
-                  <TableHead className="w-10" />
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {recentOrders.map((order) => (
-                  <TableRow
-                    key={order.id}
-                    className="border-b border-border/50 last:border-0 hover:bg-muted/50 transition-colors"
-                  >
-                    <TableCell className="font-mono text-sm">{order.id}</TableCell>
-                    <TableCell className="text-muted-foreground">{order.date}</TableCell>
-                    <TableCell className="font-medium">{order.customer}</TableCell>
-                    <TableCell>
-                      <div className="flex items-center gap-3">
-                        <div className="relative h-8 w-8 overflow-hidden rounded-lg bg-muted">
-                          <Image
-                            src={order.propertyImage}
-                            alt={order.property}
-                            fill
-                            className="object-cover"
-                          />
-                        </div>
-                        <span>{order.property}</span>
-                      </div>
-                    </TableCell>
-                    <TableCell className="text-right font-semibold tabular-nums">
-                      {order.amount}
-                    </TableCell>
-                    <TableCell>
-                      <Button variant="ghost" size="icon" className="h-8 w-8 rounded-lg">
-                        <MoreHorizontal className="h-4 w-4" />
-                      </Button>
-                    </TableCell>
-                  </TableRow>
+            {transactions === undefined ? (
+              // Loading skeleton
+              <div className="p-4 space-y-4">
+                {[1, 2, 3].map((i) => (
+                  <Skeleton key={i} className="h-12 w-full" />
                 ))}
-              </TableBody>
-            </Table>
+              </div>
+            ) : transactions && transactions.length > 0 ? (
+              <Table>
+                <TableHeader>
+                  <TableRow className="border-b border-border/50 bg-muted/30 hover:bg-muted/30">
+                    <TableHead className="text-muted-foreground font-semibold text-xs uppercase tracking-wider">
+                      Date
+                    </TableHead>
+                    <TableHead className="text-muted-foreground font-semibold text-xs uppercase tracking-wider">
+                      Locataire
+                    </TableHead>
+                    <TableHead className="text-muted-foreground font-semibold text-xs uppercase tracking-wider">
+                      Type
+                    </TableHead>
+                    <TableHead className="text-muted-foreground font-semibold text-xs uppercase tracking-wider">
+                      Statut
+                    </TableHead>
+                    <TableHead className="text-muted-foreground font-semibold text-xs uppercase tracking-wider text-right">
+                      Montant
+                    </TableHead>
+                    <TableHead className="w-10" />
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {transactions.map((transaction: (typeof transactions)[number]) => (
+                    <TableRow
+                      key={transaction._id}
+                      className="border-b border-border/50 last:border-0 hover:bg-muted/50 transition-colors"
+                    >
+                      <TableCell className="text-muted-foreground">
+                        {formatDate(transaction._creationTime)}
+                      </TableCell>
+                      <TableCell className="font-medium">
+                        {transaction.renter
+                          ? `${transaction.renter.firstName} ${transaction.renter.lastName ?? ''}`.trim()
+                          : 'Inconnu'}
+                      </TableCell>
+                      <TableCell className="capitalize">{transaction.type}</TableCell>
+                      <TableCell>
+                        <span
+                          className={`inline-flex items-center rounded-md px-2 py-1 text-xs font-medium ${paymentStatusLabels[transaction.paymentStatus]?.color ?? 'bg-muted'}`}
+                        >
+                          {paymentStatusLabels[transaction.paymentStatus]?.label ??
+                            transaction.paymentStatus}
+                        </span>
+                      </TableCell>
+                      <TableCell className="text-right font-semibold font-mono tabular-nums">
+                        {formatCurrency(transaction.amount)}
+                      </TableCell>
+                      <TableCell>
+                        <Button variant="ghost" size="icon" className="h-8 w-8 rounded-lg">
+                          <MoreHorizontal className="h-4 w-4" />
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            ) : (
+              <div className="text-center py-12 text-muted-foreground">
+                <p>Aucune transaction pour le moment</p>
+              </div>
+            )}
           </div>
         </div>
       )}
@@ -189,67 +210,74 @@ export default function DashboardPage() {
       {/* Renter: Recent Activity */}
       {role === 'renter' && (
         <div className="px-4 lg:px-6 space-y-4">
-          <h2 className="text-section-label">Activité récente</h2>
+          <div className="flex items-center justify-between">
+            <h2 className="text-section-label">Activité récente</h2>
+            <Link
+              href="/dashboard/payments"
+              className="text-sm font-medium text-muted-foreground hover:text-foreground"
+            >
+              Voir tout →
+            </Link>
+          </div>
           <div className="rounded-xl border border-border/50 bg-card overflow-hidden shadow-sm">
-            <Table>
-              <TableHeader>
-                <TableRow className="border-b border-border/50 bg-muted/30 hover:bg-muted/30">
-                  <TableHead className="text-muted-foreground font-semibold text-xs uppercase tracking-wider">
-                    Propriété
-                  </TableHead>
-                  <TableHead className="text-muted-foreground font-semibold text-xs uppercase tracking-wider">
-                    Date de visite
-                  </TableHead>
-                  <TableHead className="text-muted-foreground font-semibold text-xs uppercase tracking-wider">
-                    Propriétaire
-                  </TableHead>
-                  <TableHead className="text-muted-foreground font-semibold text-xs uppercase tracking-wider">
-                    Statut
-                  </TableHead>
-                  <TableHead className="text-muted-foreground font-semibold text-xs uppercase tracking-wider text-right">
-                    Prix
-                  </TableHead>
-                  <TableHead className="w-10" />
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {recentOrders.slice(0, 3).map((order) => (
-                  <TableRow
-                    key={order.id}
-                    className="border-b border-border/50 last:border-0 hover:bg-muted/50 transition-colors"
-                  >
-                    <TableCell>
-                      <div className="flex items-center gap-3">
-                        <div className="relative h-8 w-8 overflow-hidden rounded-lg bg-muted">
-                          <Image
-                            src={order.propertyImage}
-                            alt={order.property}
-                            fill
-                            className="object-cover"
-                          />
-                        </div>
-                        <span className="font-medium">{order.property}</span>
-                      </div>
-                    </TableCell>
-                    <TableCell className="text-muted-foreground">{order.date}</TableCell>
-                    <TableCell>{order.customer}</TableCell>
-                    <TableCell>
-                      <span className="inline-flex items-center rounded-md px-2 py-1 text-xs font-medium bg-primary/10 text-primary">
-                        Consulté
-                      </span>
-                    </TableCell>
-                    <TableCell className="text-right font-semibold tabular-nums">
-                      {order.amount}
-                    </TableCell>
-                    <TableCell>
-                      <Button variant="ghost" size="icon" className="h-8 w-8 rounded-lg">
-                        <MoreHorizontal className="h-4 w-4" />
-                      </Button>
-                    </TableCell>
-                  </TableRow>
+            {transactions === undefined ? (
+              // Loading skeleton
+              <div className="p-4 space-y-4">
+                {[1, 2, 3].map((i) => (
+                  <Skeleton key={i} className="h-12 w-full" />
                 ))}
-              </TableBody>
-            </Table>
+              </div>
+            ) : transactions && transactions.length > 0 ? (
+              <Table>
+                <TableHeader>
+                  <TableRow className="border-b border-border/50 bg-muted/30 hover:bg-muted/30">
+                    <TableHead className="text-muted-foreground font-semibold text-xs uppercase tracking-wider">
+                      Date
+                    </TableHead>
+                    <TableHead className="text-muted-foreground font-semibold text-xs uppercase tracking-wider">
+                      Type
+                    </TableHead>
+                    <TableHead className="text-muted-foreground font-semibold text-xs uppercase tracking-wider">
+                      Statut
+                    </TableHead>
+                    <TableHead className="text-muted-foreground font-semibold text-xs uppercase tracking-wider text-right">
+                      Montant
+                    </TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {transactions.slice(0, 3).map((transaction: (typeof transactions)[number]) => (
+                    <TableRow
+                      key={transaction._id}
+                      className="border-b border-border/50 last:border-0 hover:bg-muted/50 transition-colors"
+                    >
+                      <TableCell className="text-muted-foreground">
+                        {formatDate(transaction._creationTime)}
+                      </TableCell>
+                      <TableCell className="font-medium capitalize">{transaction.type}</TableCell>
+                      <TableCell>
+                        <span
+                          className={`inline-flex items-center rounded-md px-2 py-1 text-xs font-medium ${paymentStatusLabels[transaction.paymentStatus]?.color ?? 'bg-muted'}`}
+                        >
+                          {paymentStatusLabels[transaction.paymentStatus]?.label ??
+                            transaction.paymentStatus}
+                        </span>
+                      </TableCell>
+                      <TableCell className="text-right font-semibold font-mono tabular-nums">
+                        {formatCurrency(transaction.amount)}
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            ) : (
+              <div className="text-center py-12 text-muted-foreground">
+                <p>Aucune activité pour le moment</p>
+                <Link href="/properties" className="text-primary hover:underline mt-2 inline-block">
+                  Découvrir les propriétés
+                </Link>
+              </div>
+            )}
           </div>
         </div>
       )}
