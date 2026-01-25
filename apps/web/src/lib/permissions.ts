@@ -10,6 +10,23 @@
 
 export type UserRole = 'renter' | 'landlord' | 'admin' | 'verifier';
 
+/**
+ * Valid user roles for runtime validation
+ */
+export const VALID_ROLES: readonly UserRole[] = [
+  'renter',
+  'landlord',
+  'admin',
+  'verifier',
+] as const;
+
+/**
+ * Type guard to validate if a value is a valid UserRole
+ */
+export function isValidRole(role: unknown): role is UserRole {
+  return typeof role === 'string' && VALID_ROLES.includes(role as UserRole);
+}
+
 export type Permission =
   // Property permissions
   | 'property:create'
@@ -136,10 +153,11 @@ export const ROLE_LABELS: Record<UserRole, string> = {
 
 /**
  * Get role badge colors for UI
+ * Using semantic design tokens instead of hardcoded Tailwind colors
  */
 export const ROLE_COLORS: Record<UserRole, string> = {
-  renter: 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200',
-  landlord: 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200',
-  verifier: 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200',
-  admin: 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200',
+  renter: 'bg-primary/10 text-primary',
+  landlord: 'bg-success/10 text-success',
+  verifier: 'bg-accent text-accent-foreground',
+  admin: 'bg-destructive/10 text-destructive',
 } as const;

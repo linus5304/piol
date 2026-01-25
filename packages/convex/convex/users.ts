@@ -356,6 +356,26 @@ export const updateUserRole = mutation({
       throw new Error('Unauthorized: Admin access required');
     }
 
+    // Get the target user to check their current role
+    const targetUser = await ctx.db.get(args.userId);
+    if (!targetUser) {
+      throw new Error('User not found');
+    }
+
+    // Prevent demoting admins (including self-demotion)
+    if (targetUser.role === 'admin' && args.role !== 'admin') {
+      throw new Error(
+        'Cannot change admin role. Admins must be demoted through a different process.'
+      );
+    }
+
+    // Prevent promoting to admin through this endpoint (require separate process)
+    if (targetUser.role !== 'admin' && args.role === 'admin') {
+      throw new Error(
+        'Cannot promote to admin through this endpoint. Use the admin promotion process.'
+      );
+    }
+
     await ctx.db.patch(args.userId, { role: args.role });
     return args.userId;
   },

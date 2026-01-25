@@ -67,7 +67,7 @@ function PropertyPopupCard({ property }: { property: Property }) {
         <div className="relative h-32">
           <img src={imageUrl} alt={property.title} className="w-full h-full object-cover" />
           {isVerified && (
-            <Badge className="absolute top-2 left-2 rounded-full bg-[#008A05] text-white border-0 text-xs">
+            <Badge className="absolute top-2 left-2 rounded-full bg-success text-success-foreground border-0 text-xs">
               <CheckCircle className="w-3 h-3 mr-1" />
               Vérifié
             </Badge>

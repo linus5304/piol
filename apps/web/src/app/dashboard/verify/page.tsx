@@ -112,7 +112,7 @@ function VerifyDashboardContent() {
           <h1 className="text-2xl font-bold tracking-tight md:text-3xl">Vérifications</h1>
           <p className="text-muted-foreground mt-1">Gérer les vérifications de propriétés</p>
         </div>
-        <Badge className="bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200 w-fit">
+        <Badge className="bg-accent text-accent-foreground w-fit">
           <Shield className="w-3 h-3 mr-1" />
           Vérificateur
         </Badge>
