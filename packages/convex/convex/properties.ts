@@ -1,5 +1,14 @@
 import { v } from 'convex/values';
 import { mutation, query } from './_generated/server';
+import { getCurrentUser, getCurrentUserOrNull } from './utils/auth';
+import {
+  assertAdminOrVerifier,
+  assertLandlordOrAdmin,
+  assertOwner,
+  hasRole,
+  isOwnerOrAdmin,
+} from './utils/authorization';
+import { enrichPropertiesWithLandlord } from './utils/data';
 
 // Property type definition for reuse
 const propertyTypeValidator = v.union(
@@ -110,22 +119,7 @@ export const listProperties = query({
     const paginatedProperties = properties.slice(startIndex, startIndex + limit);
 
     // Get landlord info for each property
-    const propertiesWithLandlord = await Promise.all(
-      paginatedProperties.map(async (property) => {
-        const landlord = await ctx.db.get(property.landlordId);
-        return {
-          ...property,
-          landlord: landlord
-            ? {
-                _id: landlord._id,
-                firstName: landlord.firstName,
-                lastName: landlord.lastName,
-                idVerified: landlord.idVerified,
-              }
-            : null,
-        };
-      })
-    );
+    const propertiesWithLandlord = await enrichPropertiesWithLandlord(paginatedProperties, ctx);
 
     return {
       properties: propertiesWithLandlord,
@@ -275,22 +269,7 @@ export const searchProperties = query({
       .take(limit);
 
     // Get landlord info for each property
-    const propertiesWithLandlord = await Promise.all(
-      searchResults.map(async (property) => {
-        const landlord = await ctx.db.get(property.landlordId);
-        return {
-          ...property,
-          landlord: landlord
-            ? {
-                _id: landlord._id,
-                firstName: landlord.firstName,
-                lastName: landlord.lastName,
-                idVerified: landlord.idVerified,
-              }
-            : null,
-        };
-      })
-    );
+    const propertiesWithLandlord = await enrichPropertiesWithLandlord(searchResults, ctx);
 
     return propertiesWithLandlord;
   },
@@ -392,23 +371,14 @@ export const getProperty = query({
 export const getMyProperties = query({
   args: {},
   handler: async (ctx) => {
-    const identity = await ctx.auth.getUserIdentity();
-    if (!identity) {
-      return [];
-    }
-
-    const user = await ctx.db
-      .query('users')
-      .withIndex('by_clerk_id', (q) => q.eq('clerkId', identity.subject))
-      .unique();
-
-    if (!user) {
+    const result = await getCurrentUserOrNull(ctx);
+    if (!result) {
       return [];
     }
 
     const properties = await ctx.db
       .query('properties')
-      .withIndex('by_landlord', (q) => q.eq('landlordId', user._id))
+      .withIndex('by_landlord', (q) => q.eq('landlordId', result.user._id))
       .collect();
 
     return properties.sort((a, b) => b._creationTime - a._creationTime);
@@ -438,23 +408,8 @@ export const createProperty = mutation({
     amenities: amenitiesValidator,
   },
   handler: async (ctx, args) => {
-    const identity = await ctx.auth.getUserIdentity();
-    if (!identity) {
-      throw new Error('Not authenticated');
-    }
-
-    const user = await ctx.db
-      .query('users')
-      .withIndex('by_clerk_id', (q) => q.eq('clerkId', identity.subject))
-      .unique();
-
-    if (!user) {
-      throw new Error('User not found');
-    }
-
-    if (user.role !== 'landlord' && user.role !== 'admin') {
-      throw new Error('Only landlords can create property listings');
-    }
+    const { user } = await getCurrentUser(ctx);
+    assertLandlordOrAdmin(user.role);
 
     // Create searchable text
     const searchText = [
@@ -512,19 +467,7 @@ export const updateProperty = mutation({
     amenities: amenitiesValidator,
   },
   handler: async (ctx, args) => {
-    const identity = await ctx.auth.getUserIdentity();
-    if (!identity) {
-      throw new Error('Not authenticated');
-    }
-
-    const user = await ctx.db
-      .query('users')
-      .withIndex('by_clerk_id', (q) => q.eq('clerkId', identity.subject))
-      .unique();
-
-    if (!user) {
-      throw new Error('User not found');
-    }
+    const { user } = await getCurrentUser(ctx);
 
     const property = await ctx.db.get(args.propertyId);
     if (!property) {
@@ -532,9 +475,7 @@ export const updateProperty = mutation({
     }
 
     // Check ownership
-    if (property.landlordId !== user._id && user.role !== 'admin') {
-      throw new Error('Unauthorized: You can only update your own properties');
-    }
+    assertOwner(property.landlordId, user._id, user.role);
 
     // Build update object
     const updates: Record<string, unknown> = {};
@@ -583,28 +524,14 @@ export const addPropertyImages = mutation({
     ),
   },
   handler: async (ctx, args) => {
-    const identity = await ctx.auth.getUserIdentity();
-    if (!identity) {
-      throw new Error('Not authenticated');
-    }
-
-    const user = await ctx.db
-      .query('users')
-      .withIndex('by_clerk_id', (q) => q.eq('clerkId', identity.subject))
-      .unique();
-
-    if (!user) {
-      throw new Error('User not found');
-    }
+    const { user } = await getCurrentUser(ctx);
 
     const property = await ctx.db.get(args.propertyId);
     if (!property) {
       throw new Error('Property not found');
     }
 
-    if (property.landlordId !== user._id && user.role !== 'admin') {
-      throw new Error('Unauthorized');
-    }
+    assertOwner(property.landlordId, user._id, user.role);
 
     const existingImages = property.images ?? [];
     const newImages = [...existingImages, ...args.images];
@@ -618,28 +545,14 @@ export const addPropertyImages = mutation({
 export const submitForVerification = mutation({
   args: { propertyId: v.id('properties') },
   handler: async (ctx, args) => {
-    const identity = await ctx.auth.getUserIdentity();
-    if (!identity) {
-      throw new Error('Not authenticated');
-    }
-
-    const user = await ctx.db
-      .query('users')
-      .withIndex('by_clerk_id', (q) => q.eq('clerkId', identity.subject))
-      .unique();
-
-    if (!user) {
-      throw new Error('User not found');
-    }
+    const { user } = await getCurrentUser(ctx);
 
     const property = await ctx.db.get(args.propertyId);
     if (!property) {
       throw new Error('Property not found');
     }
 
-    if (property.landlordId !== user._id) {
-      throw new Error('Unauthorized');
-    }
+    assertOwner(property.landlordId, user._id, user.role, { allowAdmin: false });
 
     if (property.status !== 'draft') {
       throw new Error('Property can only be submitted from draft status');
@@ -676,19 +589,8 @@ export const updatePropertyStatus = mutation({
     ),
   },
   handler: async (ctx, args) => {
-    const identity = await ctx.auth.getUserIdentity();
-    if (!identity) {
-      throw new Error('Not authenticated');
-    }
-
-    const user = await ctx.db
-      .query('users')
-      .withIndex('by_clerk_id', (q) => q.eq('clerkId', identity.subject))
-      .unique();
-
-    if (!user || (user.role !== 'admin' && user.role !== 'verifier')) {
-      throw new Error('Unauthorized');
-    }
+    const { user } = await getCurrentUser(ctx);
+    assertAdminOrVerifier(user.role);
 
     const updates: Record<string, unknown> = { status: args.status };
 
@@ -714,28 +616,14 @@ export const updatePropertyStatus = mutation({
 export const archiveProperty = mutation({
   args: { propertyId: v.id('properties') },
   handler: async (ctx, args) => {
-    const identity = await ctx.auth.getUserIdentity();
-    if (!identity) {
-      throw new Error('Not authenticated');
-    }
-
-    const user = await ctx.db
-      .query('users')
-      .withIndex('by_clerk_id', (q) => q.eq('clerkId', identity.subject))
-      .unique();
-
-    if (!user) {
-      throw new Error('User not found');
-    }
+    const { user } = await getCurrentUser(ctx);
 
     const property = await ctx.db.get(args.propertyId);
     if (!property) {
       throw new Error('Property not found');
     }
 
-    if (property.landlordId !== user._id && user.role !== 'admin') {
-      throw new Error('Unauthorized');
-    }
+    assertOwner(property.landlordId, user._id, user.role);
 
     await ctx.db.patch(args.propertyId, { status: 'archived' });
     return args.propertyId;
@@ -837,17 +725,8 @@ export const getCityStats = query({
 export const getPendingVerification = query({
   args: {},
   handler: async (ctx) => {
-    const identity = await ctx.auth.getUserIdentity();
-    if (!identity) {
-      return [];
-    }
-
-    const user = await ctx.db
-      .query('users')
-      .withIndex('by_clerk_id', (q) => q.eq('clerkId', identity.subject))
-      .unique();
-
-    if (!user || (user.role !== 'admin' && user.role !== 'verifier')) {
+    const result = await getCurrentUserOrNull(ctx);
+    if (!result || !hasRole(result.user.role, ['admin', 'verifier'])) {
       return [];
     }
 
@@ -858,21 +737,7 @@ export const getPendingVerification = query({
       .collect();
 
     // Get landlord info for each property
-    const propertiesWithLandlord = await Promise.all(
-      properties.map(async (property) => {
-        const landlord = await ctx.db.get(property.landlordId);
-        return {
-          ...property,
-          landlord: landlord
-            ? {
-                _id: landlord._id,
-                firstName: landlord.firstName,
-                lastName: landlord.lastName,
-              }
-            : null,
-        };
-      })
-    );
+    const propertiesWithLandlord = await enrichPropertiesWithLandlord(properties, ctx);
 
     return propertiesWithLandlord.sort((a, b) => b._creationTime - a._creationTime);
   },
@@ -885,28 +750,14 @@ export const togglePropertyStatus = mutation({
     active: v.boolean(),
   },
   handler: async (ctx, args) => {
-    const identity = await ctx.auth.getUserIdentity();
-    if (!identity) {
-      throw new Error('Not authenticated');
-    }
-
-    const user = await ctx.db
-      .query('users')
-      .withIndex('by_clerk_id', (q) => q.eq('clerkId', identity.subject))
-      .unique();
-
-    if (!user) {
-      throw new Error('User not found');
-    }
+    const { user } = await getCurrentUser(ctx);
 
     const property = await ctx.db.get(args.propertyId);
     if (!property) {
       throw new Error('Property not found');
     }
 
-    if (property.landlordId !== user._id && user.role !== 'admin') {
-      throw new Error('Unauthorized');
-    }
+    assertOwner(property.landlordId, user._id, user.role);
 
     // Only allow toggling for verified properties
     if (property.verificationStatus !== 'approved') {
@@ -932,28 +783,14 @@ export const removePropertyImage = mutation({
     storageId: v.id('_storage'),
   },
   handler: async (ctx, args) => {
-    const identity = await ctx.auth.getUserIdentity();
-    if (!identity) {
-      throw new Error('Not authenticated');
-    }
-
-    const user = await ctx.db
-      .query('users')
-      .withIndex('by_clerk_id', (q) => q.eq('clerkId', identity.subject))
-      .unique();
-
-    if (!user) {
-      throw new Error('User not found');
-    }
+    const { user } = await getCurrentUser(ctx);
 
     const property = await ctx.db.get(args.propertyId);
     if (!property) {
       throw new Error('Property not found');
     }
 
-    if (property.landlordId !== user._id && user.role !== 'admin') {
-      throw new Error('Unauthorized');
-    }
+    assertOwner(property.landlordId, user._id, user.role);
 
     if (!property.images) {
       return args.propertyId;

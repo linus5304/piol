@@ -25,26 +25,38 @@ export const list = query({
 ```
 
 ## Mutations
+
+Use utility functions from `./utils/auth` and `./utils/authorization`:
+
 ```typescript
+import { getCurrentUser } from './utils/auth';
+import { assertOwner, assertLandlordOrAdmin } from './utils/authorization';
+
 export const create = mutation({
   args: { title: v.string() },
   handler: async (ctx, args) => {
-    // 1. Auth check FIRST
-    const identity = await ctx.auth.getUserIdentity();
-    if (!identity) throw new Error('Not authenticated');
+    // 1. Get authenticated user (throws if not authenticated)
+    const { user } = await getCurrentUser(ctx);
 
-    // 2. Get user
-    const user = await ctx.db
-      .query('users')
-      .withIndex('by_clerk_id', q => q.eq('clerkId', identity.subject))
-      .unique();
-    if (!user) throw new Error('User not found');
+    // 2. Optional: Check role if needed
+    assertLandlordOrAdmin(user.role);
 
     // 3. Insert
     return await ctx.db.insert('tableName', { ...args, userId: user._id });
   },
 });
 ```
+
+### Auth Utilities (`./utils/auth.ts`)
+- `getCurrentUser(ctx)` - Returns `{ identity, user }`, throws if not authenticated
+- `getCurrentUserOrNull(ctx)` - Returns `{ identity, user }` or null (for queries)
+
+### Authorization Utilities (`./utils/authorization.ts`)
+- `assertOwner(resourceOwnerId, userId, userRole)` - Throws if not owner/admin
+- `assertRole(userRole, ['admin', 'verifier'])` - Throws if not one of roles
+- `assertAdmin(userRole)` / `assertAdminOrVerifier(userRole)` / `assertLandlordOrAdmin(userRole)`
+- `hasRole(userRole, ['admin'])` - Returns boolean (for queries)
+- `isOwnerOrAdmin(ownerId, userId, userRole)` - Returns boolean
 
 ## Verification
 ```bash

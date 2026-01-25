@@ -1,5 +1,7 @@
 import { v } from 'convex/values';
 import { mutation, query } from './_generated/server';
+import { getCurrentUser, getCurrentUserOrNull } from './utils/auth';
+import { assertAdminOrVerifier, hasRole, isOwnerOrAdmin } from './utils/authorization';
 
 // Get pending verifications (for verifiers)
 export const getPendingVerifications = query({
@@ -7,17 +9,8 @@ export const getPendingVerifications = query({
     city: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
-    const identity = await ctx.auth.getUserIdentity();
-    if (!identity) {
-      return [];
-    }
-
-    const user = await ctx.db
-      .query('users')
-      .withIndex('by_clerk_id', (q) => q.eq('clerkId', identity.subject))
-      .unique();
-
-    if (!user || (user.role !== 'verifier' && user.role !== 'admin')) {
+    const result = await getCurrentUserOrNull(ctx);
+    if (!result || !hasRole(result.user.role, ['admin', 'verifier'])) {
       return [];
     }
 
@@ -81,20 +74,12 @@ export const getMyVerifications = query({
     ),
   },
   handler: async (ctx, args) => {
-    const identity = await ctx.auth.getUserIdentity();
-    if (!identity) {
+    const result = await getCurrentUserOrNull(ctx);
+    if (!result || !hasRole(result.user.role, ['admin', 'verifier'])) {
       return [];
     }
 
-    const user = await ctx.db
-      .query('users')
-      .withIndex('by_clerk_id', (q) => q.eq('clerkId', identity.subject))
-      .unique();
-
-    if (!user || (user.role !== 'verifier' && user.role !== 'admin')) {
-      return [];
-    }
-
+    const { user } = result;
     let verifications = await ctx.db
       .query('verifications')
       .withIndex('by_verifier', (q) => q.eq('verifierId', user._id))
@@ -141,19 +126,12 @@ export const getMyVerifications = query({
 export const getVerification = query({
   args: { verificationId: v.id('verifications') },
   handler: async (ctx, args) => {
-    const identity = await ctx.auth.getUserIdentity();
-    if (!identity) {
+    const result = await getCurrentUserOrNull(ctx);
+    if (!result) {
       return null;
     }
 
-    const user = await ctx.db
-      .query('users')
-      .withIndex('by_clerk_id', (q) => q.eq('clerkId', identity.subject))
-      .unique();
-
-    if (!user) {
-      return null;
-    }
+    const { user } = result;
 
     const verification = await ctx.db.get(args.verificationId);
     if (!verification) {
@@ -167,7 +145,7 @@ export const getVerification = query({
     }
 
     const isAuthorized =
-      user.role === 'admin' || user.role === 'verifier' || property.landlordId === user._id;
+      hasRole(user.role, ['admin', 'verifier']) || property.landlordId === user._id;
 
     if (!isAuthorized) {
       return null;
@@ -211,19 +189,8 @@ export const claimVerification = mutation({
     ),
   },
   handler: async (ctx, args) => {
-    const identity = await ctx.auth.getUserIdentity();
-    if (!identity) {
-      throw new Error('Not authenticated');
-    }
-
-    const user = await ctx.db
-      .query('users')
-      .withIndex('by_clerk_id', (q) => q.eq('clerkId', identity.subject))
-      .unique();
-
-    if (!user || (user.role !== 'verifier' && user.role !== 'admin')) {
-      throw new Error('Unauthorized: Verifier access required');
-    }
+    const { user } = await getCurrentUser(ctx);
+    assertAdminOrVerifier(user.role);
 
     const property = await ctx.db.get(args.propertyId);
     if (!property) {
@@ -296,19 +263,8 @@ export const updateVerification = mutation({
     ),
   },
   handler: async (ctx, args) => {
-    const identity = await ctx.auth.getUserIdentity();
-    if (!identity) {
-      throw new Error('Not authenticated');
-    }
-
-    const user = await ctx.db
-      .query('users')
-      .withIndex('by_clerk_id', (q) => q.eq('clerkId', identity.subject))
-      .unique();
-
-    if (!user || (user.role !== 'verifier' && user.role !== 'admin')) {
-      throw new Error('Unauthorized');
-    }
+    const { user } = await getCurrentUser(ctx);
+    assertAdminOrVerifier(user.role);
 
     const verification = await ctx.db.get(args.verificationId);
     if (!verification) {
@@ -316,7 +272,7 @@ export const updateVerification = mutation({
     }
 
     // Only assigned verifier or admin can update
-    if (verification.verifierId !== user._id && user.role !== 'admin') {
+    if (!isOwnerOrAdmin(verification.verifierId, user._id, user.role)) {
       throw new Error('Unauthorized: Not assigned to this verification');
     }
 
@@ -348,26 +304,15 @@ export const completeVerification = mutation({
     notes: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
-    const identity = await ctx.auth.getUserIdentity();
-    if (!identity) {
-      throw new Error('Not authenticated');
-    }
-
-    const user = await ctx.db
-      .query('users')
-      .withIndex('by_clerk_id', (q) => q.eq('clerkId', identity.subject))
-      .unique();
-
-    if (!user || (user.role !== 'verifier' && user.role !== 'admin')) {
-      throw new Error('Unauthorized');
-    }
+    const { user } = await getCurrentUser(ctx);
+    assertAdminOrVerifier(user.role);
 
     const verification = await ctx.db.get(args.verificationId);
     if (!verification) {
       throw new Error('Verification not found');
     }
 
-    if (verification.verifierId !== user._id && user.role !== 'admin') {
+    if (!isOwnerOrAdmin(verification.verifierId, user._id, user.role)) {
       throw new Error('Unauthorized: Not assigned to this verification');
     }
 
@@ -424,17 +369,8 @@ export const completeVerification = mutation({
 export const getVerificationStats = query({
   args: {},
   handler: async (ctx) => {
-    const identity = await ctx.auth.getUserIdentity();
-    if (!identity) {
-      return null;
-    }
-
-    const user = await ctx.db
-      .query('users')
-      .withIndex('by_clerk_id', (q) => q.eq('clerkId', identity.subject))
-      .unique();
-
-    if (!user || user.role !== 'admin') {
+    const result = await getCurrentUserOrNull(ctx);
+    if (!result || !hasRole(result.user.role, ['admin'])) {
       return null;
     }
 

@@ -1,23 +1,17 @@
 import { v } from 'convex/values';
 import { mutation, query } from './_generated/server';
+import { getCurrentUser, getCurrentUserOrNull } from './utils/auth';
 
 // Get all conversations for current user
 export const getConversations = query({
   args: {},
   handler: async (ctx) => {
-    const identity = await ctx.auth.getUserIdentity();
-    if (!identity) {
+    const result = await getCurrentUserOrNull(ctx);
+    if (!result) {
       return [];
     }
 
-    const user = await ctx.db
-      .query('users')
-      .withIndex('by_clerk_id', (q) => q.eq('clerkId', identity.subject))
-      .unique();
-
-    if (!user) {
-      return [];
-    }
+    const { user } = result;
 
     // Get all messages where user is sender or recipient
     const sentMessages = await ctx.db
@@ -98,20 +92,12 @@ export const getMessages = query({
     cursor: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
-    const identity = await ctx.auth.getUserIdentity();
-    if (!identity) {
+    const result = await getCurrentUserOrNull(ctx);
+    if (!result) {
       return { messages: [], nextCursor: null };
     }
 
-    const user = await ctx.db
-      .query('users')
-      .withIndex('by_clerk_id', (q) => q.eq('clerkId', identity.subject))
-      .unique();
-
-    if (!user) {
-      return { messages: [], nextCursor: null };
-    }
-
+    const { user } = result;
     const limit = args.limit ?? 50;
 
     const messages = await ctx.db
@@ -162,19 +148,7 @@ export const sendMessage = mutation({
     messageText: v.string(),
   },
   handler: async (ctx, args) => {
-    const identity = await ctx.auth.getUserIdentity();
-    if (!identity) {
-      throw new Error('Not authenticated');
-    }
-
-    const user = await ctx.db
-      .query('users')
-      .withIndex('by_clerk_id', (q) => q.eq('clerkId', identity.subject))
-      .unique();
-
-    if (!user) {
-      throw new Error('User not found');
-    }
+    const { user } = await getCurrentUser(ctx);
 
     // Generate conversation ID (sorted user IDs for consistency)
     const sortedIds = [user._id, args.recipientId].sort();
@@ -211,19 +185,7 @@ export const markMessagesAsRead = mutation({
     conversationId: v.string(),
   },
   handler: async (ctx, args) => {
-    const identity = await ctx.auth.getUserIdentity();
-    if (!identity) {
-      throw new Error('Not authenticated');
-    }
-
-    const user = await ctx.db
-      .query('users')
-      .withIndex('by_clerk_id', (q) => q.eq('clerkId', identity.subject))
-      .unique();
-
-    if (!user) {
-      throw new Error('User not found');
-    }
+    const { user } = await getCurrentUser(ctx);
 
     const messages = await ctx.db
       .query('messages')
@@ -243,23 +205,14 @@ export const markMessagesAsRead = mutation({
 export const getUnreadCount = query({
   args: {},
   handler: async (ctx) => {
-    const identity = await ctx.auth.getUserIdentity();
-    if (!identity) {
-      return 0;
-    }
-
-    const user = await ctx.db
-      .query('users')
-      .withIndex('by_clerk_id', (q) => q.eq('clerkId', identity.subject))
-      .unique();
-
-    if (!user) {
+    const result = await getCurrentUserOrNull(ctx);
+    if (!result) {
       return 0;
     }
 
     const unreadMessages = await ctx.db
       .query('messages')
-      .withIndex('by_recipient', (q) => q.eq('recipientId', user._id))
+      .withIndex('by_recipient', (q) => q.eq('recipientId', result.user._id))
       .filter((q) => q.eq(q.field('isRead'), false))
       .collect();
 
