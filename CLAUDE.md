@@ -169,45 +169,28 @@ git worktree remove ../piol-feature-x
 
 Each worktree is a separate Claude Code session context.
 
-## OpenSpec (Spec-Driven Development)
-
-For new features, breaking changes, or architecture shifts, use OpenSpec:
-
-1. Read `openspec/AGENTS.md` for the full workflow
-2. Create proposals in `openspec/changes/<change-id>/`
-3. Run `openspec validate <change-id> --strict --no-interactive`
-
-Skip proposals for: bug fixes, typos, dependency updates, config changes.
-
-## Agent Harness
-
-Session-based workflow for AI agents. Key files:
-
-- `agent/features.json` - MVP backlog with status
-- `agent/progress.md` - Session history (append-only)
-- `agent/scratchpad.md` - Current working context (gitignored)
-- `agent/init.sh` - Run at session start
-
-### Session Workflow
-
-```bash
-./agent/init.sh             # Start of session - see context
-# Work on ONE feature only
-# Update agent/scratchpad.md with decisions
-# When done, update agent/features.json status to "done"
-# Append entry to agent/progress.md
-# Commit: feature code first, then agent state separately
-```
-
 ## Autonomous Mode
 
-When user says "autonomous mode", "full auto", or similar:
+When user says "autonomous mode" or "full auto":
 
-1. Don't ask clarifying questions - make reasonable decisions
-2. Document decisions in code comments or agent/scratchpad.md
-3. If blocked, try 2 alternative approaches before asking
-4. Always run typecheck + lint before considering task done
-5. Update agent/features.json and progress.md when complete
+1. Read `agent/spec.md` thoroughly
+2. Read `agent/implementation_plan.md`
+3. Pick highest leverage unchecked task
+4. Complete the task
+5. Write a test to verify (if applicable)
+6. Check the box [x] in implementation_plan.md
+7. Use /commit for logical units of work
+8. Repeat until all boxes checked
+9. Say "DONE - ready for review"
+
+### Files
+- `agent/spec.md` - Feature requirements
+- `agent/implementation_plan.md` - Task checklist
+- `agent/prompt.md` - Static instructions
+
+### Session Management
+Start NEW session: DONE reached, context slow, spec changed, after ship
+Stay SAME session: Tasks unchecked, still progressing
 
 ## Auto-Ship Mode
 
@@ -279,19 +262,18 @@ After each phase, show what you built before continuing.
 
 **Pattern 4: Full Autonomous**
 ```
-I'm stepping away. Complete these from agent/features.json:
-- [feature-id-1]
-- [feature-id-2]
+I'm stepping away. Work through agent/implementation_plan.md:
 
-For each:
-1. Read the feature spec
-2. Explore related code first
-3. Implement following existing patterns
+1. Read agent/spec.md for context
+2. Pick highest leverage unchecked task
+3. Complete it following existing patterns
 4. Run typecheck and lint
-5. Update features.json status to "done"
-6. Append summary to progress.md
+5. Check the box [x] in implementation_plan.md
+6. Use /commit for logical units
+7. Repeat until all boxes checked
+8. Say "DONE - ready for review"
 
-Don't ask questions - make reasonable decisions and document them.
+Make reasonable decisions and document them.
 ```
 
 ### Daily Development Prompt Template
@@ -340,3 +322,84 @@ Create a JWT template named `convex` in Clerk Dashboard with default claims.
 - `apps/web/src/app/layout.tsx` - Root layout with providers
 - `turbo.json` - Turborepo task configuration
 - `biome.json` - Linter/formatter configuration
+
+## Compound Engineering (Nightly Loop)
+
+Autonomous nightly development based on Ryan Carson's compound engineering approach.
+
+### Schedule
+
+| Time | Job | Description |
+|------|-----|-------------|
+| 5:00 PM | Caffeinate | Keeps Mac awake for 9 hours |
+| 10:30 PM | Daily Review | Extracts learnings from Claude sessions |
+| 11:00 PM | Auto-Compound | Implements top task from implementation_plan.md |
+
+### Scripts
+
+```bash
+scripts/compound/
+├── daily-compound-review.sh   # Learning extraction
+├── auto-compound.sh           # Main implementation loop
+├── analyze-report.sh          # Task parser
+├── loop.sh                    # Iterative Claude wrapper
+├── notify.sh                  # macOS/Discord notifications
+└── COMPOUND_PROMPT.md         # Claude instructions
+```
+
+### Manual Trigger
+
+```bash
+# Test notification
+./scripts/compound/notify.sh "Test message"
+
+# Parse next task
+./scripts/compound/analyze-report.sh agent/implementation_plan.md
+
+# Run single iteration (creates branch, doesn't auto-merge)
+./scripts/compound/auto-compound.sh 1
+
+# Run full loop (5 iterations)
+./scripts/compound/auto-compound.sh
+```
+
+### Enable/Disable Scheduled Jobs
+
+```bash
+# Enable all jobs
+launchctl load ~/Library/LaunchAgents/com.piol.caffeinate.plist
+launchctl load ~/Library/LaunchAgents/com.piol.daily-compound-review.plist
+launchctl load ~/Library/LaunchAgents/com.piol.auto-compound.plist
+
+# Check status
+launchctl list | grep piol
+
+# Disable jobs
+launchctl unload ~/Library/LaunchAgents/com.piol.auto-compound.plist
+launchctl unload ~/Library/LaunchAgents/com.piol.daily-compound-review.plist
+launchctl unload ~/Library/LaunchAgents/com.piol.caffeinate.plist
+```
+
+### Log Files
+
+- `/tmp/piol-compound-review.log` - Learning extraction logs
+- `/tmp/piol-auto-compound.log` - Implementation loop logs
+- `/tmp/piol-caffeinate.log` - Caffeinate logs
+- `agent/progress.md` - Loop progress tracking
+- `agent/compound-learnings.md` - Extracted learnings
+
+### Discord Notifications
+
+Set `DISCORD_WEBHOOK_URL` environment variable for Discord notifications:
+
+```bash
+export DISCORD_WEBHOOK_URL="https://discord.com/api/webhooks/..."
+```
+
+### Safety Guardrails
+
+- Always creates feature branches (never pushes to main)
+- Runs typecheck/lint before committing
+- Creates draft PRs for human review
+- Max 5 iterations per night
+- Aborts if working directory is dirty
