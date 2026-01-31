@@ -5,9 +5,35 @@ import { StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { PropertyCard } from '../../components/PropertyCard';
 
+// Type for saved property items returned from Convex
+interface SavedPropertyItem {
+  _id: string;
+  _creationTime: number;
+  userId: string;
+  propertyId: string;
+  property: {
+    _id: string;
+    title: string;
+    propertyType: string;
+    rentAmount: number;
+    currency: string;
+    city: string;
+    neighborhood?: string;
+    images?: Array<{ storageId: string; url?: string; order: number }>;
+    status?: string;
+    verificationStatus?: string;
+    landlord: {
+      _id: string;
+      firstName?: string;
+      lastName?: string;
+      idVerified: boolean;
+    } | null;
+  };
+}
+
 // Conditionally import Convex
-let api: any = null;
-let useQuery: any = () => undefined;
+let api: unknown = null;
+let useQuery: (query: unknown) => SavedPropertyItem[] | undefined = () => undefined;
 
 try {
   api = require('../../convex/_generated/api').api;
@@ -22,7 +48,12 @@ export default function SavedScreen() {
   const router = useRouter();
 
   // Use Convex if available, returns empty array in demo mode
-  const savedProperties = api ? useQuery(api.savedProperties.getSavedProperties) : [];
+  const savedProperties: SavedPropertyItem[] | undefined = api
+    ? useQuery(
+        (api as { savedProperties: { getSavedProperties: unknown } }).savedProperties
+          .getSavedProperties
+      )
+    : [];
 
   const handlePropertyPress = (propertyId: string) => {
     router.push(`/property/${propertyId}`);
@@ -37,7 +68,7 @@ export default function SavedScreen() {
         </Text>
       </View>
 
-      <FlashList
+      <FlashList<SavedPropertyItem>
         data={savedProperties ?? []}
         renderItem={({ item }) => (
           <PropertyCard
@@ -46,7 +77,6 @@ export default function SavedScreen() {
             showSaveButton
           />
         )}
-        estimatedItemSize={280}
         ListEmptyComponent={
           <View style={styles.emptyState}>
             <Text style={styles.emptyEmoji}>❤️</Text>
