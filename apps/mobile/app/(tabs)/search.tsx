@@ -7,9 +7,32 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { PropertyCard } from '../../components/PropertyCard';
 import { useDebounce } from '../../hooks/useDebounce';
 
+// Type for property items (search results and mock data)
+interface PropertyItem {
+  _id: string;
+  title: string;
+  propertyType: string;
+  rentAmount: number;
+  currency: string;
+  city: string;
+  neighborhood?: string;
+  images?: Array<{ storageId: string; url?: string; order: number }>;
+  status?: string;
+  verificationStatus?: string;
+  landlord?: {
+    _id: string;
+    firstName?: string;
+    lastName?: string;
+    idVerified: boolean;
+  } | null;
+}
+
 // Conditionally import Convex
-let api: any = null;
-let useQuery: any = () => undefined;
+let api: unknown = null;
+let useQuery: (
+  query: unknown,
+  args?: { searchQuery: string; city?: string; limit: number }
+) => PropertyItem[] | undefined = () => undefined;
 
 try {
   api = require('../../convex/_generated/api').api;
@@ -20,7 +43,7 @@ try {
 }
 
 // Mock data for demo mode
-const mockSearchResults = [
+const mockSearchResults: PropertyItem[] = [
   {
     _id: '1',
     title: 'Beautiful Studio in Bonapriso',
@@ -54,17 +77,20 @@ export default function SearchScreen() {
   const debouncedQuery = useDebounce(searchQuery, 300);
 
   // Use Convex if available
-  const convexResults =
+  const convexResults: PropertyItem[] | undefined =
     api && debouncedQuery.length >= 2
-      ? useQuery(api.properties.searchProperties, {
-          searchQuery: debouncedQuery,
-          city: selectedCity,
-          limit: 30,
-        })
+      ? useQuery(
+          (api as { properties: { searchProperties: unknown } }).properties.searchProperties,
+          {
+            searchQuery: debouncedQuery,
+            city: selectedCity,
+            limit: 30,
+          }
+        )
       : undefined;
 
   // For demo mode, filter mock data based on search query
-  const demoResults =
+  const demoResults: PropertyItem[] =
     debouncedQuery.length >= 2
       ? mockSearchResults.filter(
           (p) =>
@@ -74,7 +100,7 @@ export default function SearchScreen() {
         )
       : [];
 
-  const searchResults = api ? convexResults : demoResults;
+  const searchResults: PropertyItem[] | undefined = api ? convexResults : demoResults;
 
   const cities = ['Douala', 'Yaoundé', 'Bafoussam', 'Buea', 'Kribi'];
 
@@ -122,12 +148,11 @@ export default function SearchScreen() {
         ))}
       </View>
 
-      <FlashList
+      <FlashList<PropertyItem>
         data={searchResults ?? []}
         renderItem={({ item }) => (
           <PropertyCard property={item} onPress={() => handlePropertyPress(item._id)} />
         )}
-        estimatedItemSize={280}
         ListEmptyComponent={
           <View style={styles.emptyState}>
             <Text style={styles.emptyText}>

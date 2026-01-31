@@ -5,9 +5,30 @@ import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { formatRelativeTime } from '../../lib/utils';
 
+// Type for conversation items returned from Convex
+interface ConversationItem {
+  conversationId: string;
+  otherUser: {
+    _id: string;
+    firstName?: string;
+    lastName?: string;
+    imageUrl?: string | null;
+  } | null;
+  property: {
+    _id: string;
+    title: string;
+  } | null;
+  lastMessage: {
+    text: string;
+    timestamp: number;
+    isFromMe: boolean;
+  };
+  unreadCount: number;
+}
+
 // Conditionally import Convex
-let api: any = null;
-let useQuery: any = () => undefined;
+let api: unknown = null;
+let useQuery: (query: unknown) => ConversationItem[] | undefined = () => undefined;
 
 try {
   api = require('../../convex/_generated/api').api;
@@ -22,10 +43,12 @@ export default function MessagesScreen() {
   const router = useRouter();
 
   // Use Convex if available, returns empty array in demo mode
-  const conversations = api ? useQuery(api.messages.getConversations) : [];
+  const conversations: ConversationItem[] | undefined = api
+    ? useQuery((api as { messages: { getConversations: unknown } }).messages.getConversations)
+    : [];
 
   const handleConversationPress = (conversationId: string) => {
-    router.push(`/chat/${conversationId}` as any);
+    router.push(`/chat/${conversationId}` as const);
   };
 
   return (
@@ -34,7 +57,7 @@ export default function MessagesScreen() {
         <Text style={styles.title}>{t('messages.title')}</Text>
       </View>
 
-      <FlashList
+      <FlashList<ConversationItem>
         data={conversations ?? []}
         renderItem={({ item }) => (
           <Pressable
@@ -73,7 +96,6 @@ export default function MessagesScreen() {
             )}
           </Pressable>
         )}
-        estimatedItemSize={80}
         ListEmptyComponent={
           <View style={styles.emptyState}>
             <Text style={styles.emptyEmoji}>💬</Text>
