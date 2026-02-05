@@ -6,6 +6,7 @@ const deployKey = process.env.CONVEX_DEPLOY_KEY || '';
 const isProdKey = deployKey.startsWith('prod:');
 const isPreviewKey = deployKey.startsWith('preview:');
 const buildCmd = 'turbo run build --filter=@repo/web';
+const convexDeployCmd = `cd packages/convex && npx convex deploy --cmd "cd ../.. && ${buildCmd}"`;
 
 function run(cmd) {
   execSync(cmd, { stdio: 'inherit' });
@@ -22,7 +23,7 @@ if (vercelEnv === 'production') {
   if (!deployKey) {
     buildOnly('CONVEX_DEPLOY_KEY not set for production; skipping convex deploy.');
   } else {
-    run(`npx convex deploy --cmd "${buildCmd}"`);
+    run(convexDeployCmd);
   }
 } else {
   if (!deployKey) {
@@ -30,6 +31,6 @@ if (vercelEnv === 'production') {
   } else if (isProdKey) {
     buildOnly(`Detected production deploy key in ${vercelEnv} build; skipping convex deploy.`);
   } else {
-    run(`npx convex deploy --cmd "${buildCmd}"`);
+    run(convexDeployCmd);
   }
 }
