@@ -62,6 +62,7 @@ export const updateUserFromClerk = internalMutation({
     lastName: v.optional(v.string()),
     profileImageUrl: v.optional(v.string()),
     phone: v.optional(v.string()),
+    role: v.optional(v.union(v.literal('renter'), v.literal('landlord'))),
   },
   handler: async (ctx, args) => {
     const user = await ctx.db
@@ -74,12 +75,17 @@ export const updateUserFromClerk = internalMutation({
       return null;
     }
 
+    const canUpdateRole = Boolean(
+      args.role && (user.role === 'renter' || user.role === 'landlord')
+    );
+
     await ctx.db.patch(user._id, {
       ...(args.email && { email: args.email }),
       ...(args.firstName !== undefined && { firstName: args.firstName }),
       ...(args.lastName !== undefined && { lastName: args.lastName }),
       ...(args.profileImageUrl !== undefined && { profileImageUrl: args.profileImageUrl }),
       ...(args.phone !== undefined && { phone: args.phone }),
+      ...(canUpdateRole && { role: args.role }),
     });
 
     console.log(`Updated user ${user._id} from Clerk`);
