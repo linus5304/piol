@@ -44,6 +44,8 @@ export default function EditPropertyPage({ params }: { params: Promise<{ id: str
   const [isUpdating, setIsUpdating] = useState(false);
   const [isToggling, setIsToggling] = useState(false);
   const [isArchiving, setIsArchiving] = useState(false);
+  const [isUploadingImages, setIsUploadingImages] = useState(false);
+  const [removingImageId, setRemovingImageId] = useState<Id<'_storage'> | null>(null);
 
   const property = useQuery(
     api.properties.getProperty,
@@ -54,6 +56,9 @@ export default function EditPropertyPage({ params }: { params: Promise<{ id: str
   const togglePropertyStatus = useMutation(api.properties.togglePropertyStatus);
   const archiveProperty = useMutation(api.properties.archiveProperty);
   const submitForVerification = useMutation(api.properties.submitForVerification);
+  const generateUploadUrl = useMutation(api.files.generateUploadUrl);
+  const addPropertyImages = useMutation(api.properties.addPropertyImages);
+  const removePropertyImage = useMutation(api.properties.removePropertyImage);
 
   // Form state
   const [formData, setFormData] = useState({
@@ -62,6 +67,8 @@ export default function EditPropertyPage({ params }: { params: Promise<{ id: str
     rentAmount: '',
     cautionMonths: '',
     upfrontMonths: '',
+    latitude: '',
+    longitude: '',
   });
 
   // Update form when property loads
@@ -73,6 +80,8 @@ export default function EditPropertyPage({ params }: { params: Promise<{ id: str
         rentAmount: property.rentAmount.toString(),
         cautionMonths: property.cautionMonths.toString(),
         upfrontMonths: property.upfrontMonths.toString(),
+        latitude: property.location?.latitude?.toString() ?? '',
+        longitude: property.location?.longitude?.toString() ?? '',
       });
     }
   }, [property]);
@@ -82,11 +91,35 @@ export default function EditPropertyPage({ params }: { params: Promise<{ id: str
 
     setIsUpdating(true);
     try {
+      const hasLatitude = formData.latitude.trim().length > 0;
+      const hasLongitude = formData.longitude.trim().length > 0;
+
+      if ((hasLatitude && !hasLongitude) || (!hasLatitude && hasLongitude)) {
+        toast.error('Veuillez renseigner la latitude et la longitude.');
+        return;
+      }
+
+      const latitude = Number(formData.latitude);
+      const longitude = Number(formData.longitude);
+      if (
+        hasLatitude &&
+        hasLongitude &&
+        (!Number.isFinite(latitude) || !Number.isFinite(longitude))
+      ) {
+        toast.error('Coordonnees invalides.');
+        return;
+      }
+      const location =
+        hasLatitude && hasLongitude && Number.isFinite(latitude) && Number.isFinite(longitude)
+          ? { latitude, longitude }
+          : undefined;
+
       await updateProperty({
         propertyId: property._id,
         title: formData.title,
         description: formData.description || undefined,
         rentAmount: Number(formData.rentAmount),
+        location,
       });
       toast.success('Propriété mise à jour');
     } catch (error) {
@@ -94,6 +127,58 @@ export default function EditPropertyPage({ params }: { params: Promise<{ id: str
       toast.error('Erreur lors de la mise à jour');
     } finally {
       setIsUpdating(false);
+    }
+  };
+
+  const handleAddImages = async (files: FileList | null) => {
+    if (!property || !files || files.length === 0) return;
+
+    setIsUploadingImages(true);
+    try {
+      const fileArray = Array.from(files);
+      const existingCount = property.images?.length ?? 0;
+      const uploaded = [];
+
+      for (const [index, file] of fileArray.entries()) {
+        const uploadUrl = await generateUploadUrl();
+        const response = await fetch(uploadUrl, {
+          method: 'POST',
+          headers: {
+            'Content-Type': file.type || 'application/octet-stream',
+          },
+          body: file,
+        });
+
+        if (!response.ok) {
+          throw new Error('Upload failed');
+        }
+
+        const { storageId } = (await response.json()) as { storageId: Id<'_storage'> };
+        uploaded.push({ storageId, order: existingCount + index });
+      }
+
+      await addPropertyImages({ propertyId: property._id, images: uploaded });
+      toast.success('Photos ajoutées');
+    } catch (error) {
+      console.error('Error uploading images:', error);
+      toast.error("Erreur lors de l'upload des photos");
+    } finally {
+      setIsUploadingImages(false);
+    }
+  };
+
+  const handleRemoveImage = async (storageId: Id<'_storage'>) => {
+    if (!property) return;
+
+    setRemovingImageId(storageId);
+    try {
+      await removePropertyImage({ propertyId: property._id, storageId });
+      toast.success('Photo supprimée');
+    } catch (error) {
+      console.error('Error removing image:', error);
+      toast.error('Erreur lors de la suppression');
+    } finally {
+      setRemovingImageId(null);
     }
   };
 
@@ -204,9 +289,15 @@ export default function EditPropertyPage({ params }: { params: Promise<{ id: str
   const images =
     property.imageUrls && property.imageUrls.length > 0
       ? property.imageUrls
-          .map((img: { url: string | null; order: number }) => img.url)
-          .filter((url: string | null): url is string => url !== null)
-      : property.placeholderImages || [];
+          .map((img: { url: string | null; order: number; storageId: Id<'_storage'> }) => ({
+            url: img.url,
+            storageId: img.storageId,
+          }))
+          .filter((img: { url: string | null }) => Boolean(img.url))
+      : (property.placeholderImages || []).map((url: string) => ({
+          url,
+          storageId: undefined,
+        }));
 
   return (
     <div className="space-y-6">
@@ -333,6 +424,34 @@ export default function EditPropertyPage({ params }: { params: Promise<{ id: str
               />
             </div>
           </div>
+
+          <div className="grid gap-4 md:grid-cols-2">
+            <div className="space-y-2">
+              <Label htmlFor="latitude">Latitude</Label>
+              <Input
+                id="latitude"
+                type="number"
+                step="any"
+                value={formData.latitude}
+                onChange={(e) => setFormData((prev) => ({ ...prev, latitude: e.target.value }))}
+                placeholder="3.848"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="longitude">Longitude</Label>
+              <Input
+                id="longitude"
+                type="number"
+                step="any"
+                value={formData.longitude}
+                onChange={(e) => setFormData((prev) => ({ ...prev, longitude: e.target.value }))}
+                placeholder="11.5021"
+              />
+            </div>
+          </div>
+          <p className="text-xs text-muted-foreground">
+            Ajoutez des coordonnees pour afficher la propriete sur la carte.
+          </p>
         </CardContent>
       </Card>
 
@@ -347,35 +466,67 @@ export default function EditPropertyPage({ params }: { params: Promise<{ id: str
             <div className="text-center py-8 text-muted-foreground">
               <div className="text-4xl mb-4">📷</div>
               <p>Aucune photo pour le moment</p>
+              <label
+                htmlFor="property-photo-upload"
+                className="mt-4 inline-flex items-center justify-center rounded-md border border-dashed px-4 py-2 text-sm text-muted-foreground hover:text-foreground hover:border-border transition-colors cursor-pointer"
+              >
+                {isUploadingImages ? (
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                ) : (
+                  <span>Ajouter des photos</span>
+                )}
+              </label>
             </div>
           ) : (
             <div className="grid grid-cols-4 gap-4">
-              {images.map((image: string, index: number) => (
-                <div
-                  key={image}
-                  className="aspect-square bg-muted rounded-lg overflow-hidden relative group"
-                >
-                  <img
-                    src={image}
-                    alt={`Property ${index + 1}`}
-                    className="w-full h-full object-cover"
-                  />
-                  <button
-                    type="button"
-                    className="absolute top-2 right-2 w-8 h-8 bg-destructive text-destructive-foreground rounded-full opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center"
+              {images.map(
+                (
+                  image: { url: string | null; storageId?: Id<'_storage'> | undefined },
+                  index: number
+                ) => (
+                  <div
+                    key={`${image.storageId ?? image.url}-${index}`}
+                    className="aspect-square bg-muted rounded-lg overflow-hidden relative group"
                   >
-                    <Trash2 className="w-4 h-4" />
-                  </button>
-                </div>
-              ))}
-              <button
-                type="button"
-                className="aspect-square border-2 border-dashed rounded-lg flex items-center justify-center text-muted-foreground hover:border-border hover:text-foreground transition-colors"
+                    <img
+                      src={image.url ?? ''}
+                      alt={`Property ${index + 1}`}
+                      className="w-full h-full object-cover"
+                    />
+                    {image.storageId && (
+                      <button
+                        type="button"
+                        onClick={() => handleRemoveImage(image.storageId as Id<'_storage'>)}
+                        disabled={removingImageId === image.storageId}
+                        className="absolute top-2 right-2 w-8 h-8 bg-destructive text-destructive-foreground rounded-full opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center disabled:opacity-50"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    )}
+                  </div>
+                )
+              )}
+              <label
+                htmlFor="property-photo-upload"
+                className="aspect-square border-2 border-dashed rounded-lg flex items-center justify-center text-muted-foreground hover:border-border hover:text-foreground transition-colors cursor-pointer"
               >
-                <span className="text-2xl">+</span>
-              </button>
+                {isUploadingImages ? (
+                  <Loader2 className="w-5 h-5 animate-spin" />
+                ) : (
+                  <span className="text-2xl">+</span>
+                )}
+              </label>
             </div>
           )}
+          <input
+            id="property-photo-upload"
+            type="file"
+            multiple
+            accept="image/*"
+            className="hidden"
+            onChange={(e) => handleAddImages(e.target.files)}
+            disabled={isUploadingImages}
+          />
         </CardContent>
       </Card>
 
