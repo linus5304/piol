@@ -46,6 +46,8 @@ http.route({
 
     const eventType = eventData.type;
     const userData = eventData.data;
+    const rawRole = userData?.unsafe_metadata?.role;
+    const normalizedRole = rawRole === 'renter' || rawRole === 'landlord' ? rawRole : undefined;
 
     console.log(`Received Clerk webhook: ${eventType}`);
 
@@ -59,7 +61,7 @@ http.route({
             lastName: userData.last_name || undefined,
             profileImageUrl: userData.image_url || undefined,
             phone: userData.phone_numbers?.[0]?.phone_number || undefined,
-            role: (userData.unsafe_metadata?.role as 'renter' | 'landlord') || 'renter',
+            role: normalizedRole ?? 'renter',
           });
           break;
 
@@ -71,6 +73,7 @@ http.route({
             lastName: userData.last_name || undefined,
             profileImageUrl: userData.image_url || undefined,
             phone: userData.phone_numbers?.[0]?.phone_number || undefined,
+            role: normalizedRole,
           });
           break;
 
