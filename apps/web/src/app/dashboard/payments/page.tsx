@@ -9,51 +9,18 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { Skeleton } from '@/components/ui/skeleton';
 import { cn } from '@/lib/utils';
-import { useState } from 'react';
-
-// Mock payment data
-const mockPayments = [
-  {
-    id: '1',
-    type: 'rent_payment',
-    amount: 150000,
-    currency: 'XAF',
-    status: 'completed',
-    property: 'Appartement 2 chambres - Makepe',
-    date: new Date(Date.now() - 1000 * 60 * 60 * 24 * 5),
-    method: 'MTN MoMo',
-    reference: 'TXN-2024-001234',
-  },
-  {
-    id: '2',
-    type: 'deposit',
-    amount: 300000,
-    currency: 'XAF',
-    status: 'completed',
-    property: 'Appartement 2 chambres - Makepe',
-    date: new Date(Date.now() - 1000 * 60 * 60 * 24 * 30),
-    method: 'Orange Money',
-    reference: 'TXN-2024-001100',
-  },
-  {
-    id: '3',
-    type: 'rent_payment',
-    amount: 150000,
-    currency: 'XAF',
-    status: 'pending',
-    property: 'Appartement 2 chambres - Makepe',
-    date: new Date(),
-    method: null,
-    reference: null,
-  },
-];
+import { api } from '@repo/convex/_generated/api';
+import { useQuery } from 'convex/react';
+import { useMemo, useState } from 'react';
 
 const statusLabels: Record<string, { label: string; color: string }> = {
   completed: { label: 'Complété', color: 'bg-success/10 text-success' },
   pending: { label: 'En attente', color: 'bg-warning/10 text-warning' },
-  failed: { label: 'Échoué', color: 'bg-destructive/10 text-destructive' },
   processing: { label: 'En cours', color: 'bg-primary/10 text-primary' },
+  failed: { label: 'Échoué', color: 'bg-destructive/10 text-destructive' },
+  refunded: { label: 'Remboursé', color: 'bg-muted text-muted-foreground' },
 };
 
 const typeLabels: Record<string, string> = {
@@ -63,12 +30,19 @@ const typeLabels: Record<string, string> = {
   refund: 'Remboursement',
 };
 
+const methodLabels: Record<string, string> = {
+  mtn_momo: 'MTN MoMo',
+  orange_money: 'Orange Money',
+  bank_transfer: 'Virement bancaire',
+  cash: 'Espèces',
+};
+
 function formatCurrency(amount: number): string {
   return `${new Intl.NumberFormat('fr-FR').format(amount)} FCFA`;
 }
 
-function formatDate(date: Date): string {
-  return date.toLocaleDateString('fr-FR', {
+function formatDate(timestamp: number): string {
+  return new Date(timestamp).toLocaleDateString('fr-FR', {
     day: 'numeric',
     month: 'long',
     year: 'numeric',
@@ -77,17 +51,20 @@ function formatDate(date: Date): string {
 
 export default function PaymentsPage() {
   const [filter, setFilter] = useState<string>('all');
+  const transactions = useQuery(api.transactions.getMyTransactions, { limit: 100 });
 
-  const filteredPayments = mockPayments.filter(
-    (payment) => filter === 'all' || payment.status === filter
-  );
+  const filteredPayments = useMemo(() => {
+    if (!transactions) return [];
+    if (filter === 'all') return transactions;
+    return transactions.filter((payment) => payment.paymentStatus === filter);
+  }, [transactions, filter]);
 
-  const totalPaid = mockPayments
-    .filter((p) => p.status === 'completed')
+  const totalPaid = (transactions ?? [])
+    .filter((p) => p.paymentStatus === 'completed')
     .reduce((sum, p) => sum + p.amount, 0);
 
-  const pendingAmount = mockPayments
-    .filter((p) => p.status === 'pending')
+  const pendingAmount = (transactions ?? [])
+    .filter((p) => p.paymentStatus === 'pending' || p.paymentStatus === 'processing')
     .reduce((sum, p) => sum + p.amount, 0);
 
   return (
@@ -135,7 +112,9 @@ export default function PaymentsPage() {
             <SelectItem value="all">Tous les paiements</SelectItem>
             <SelectItem value="completed">Complétés</SelectItem>
             <SelectItem value="pending">En attente</SelectItem>
+            <SelectItem value="processing">En cours</SelectItem>
             <SelectItem value="failed">Échoués</SelectItem>
+            <SelectItem value="refunded">Remboursés</SelectItem>
           </SelectContent>
         </Select>
 
@@ -154,7 +133,13 @@ export default function PaymentsPage() {
           </div>
         </div>
 
-        {filteredPayments.length === 0 ? (
+        {transactions === undefined ? (
+          <div className="p-6 space-y-3">
+            {[1, 2, 3].map((i) => (
+              <Skeleton key={i} className="h-10 w-full" />
+            ))}
+          </div>
+        ) : filteredPayments.length === 0 ? (
           <div className="p-8 text-center">
             <div className="text-4xl mb-4">💳</div>
             <h3 className="text-lg font-medium text-foreground mb-1">Aucun paiement</h3>
@@ -163,22 +148,28 @@ export default function PaymentsPage() {
         ) : (
           <div className="divide-y">
             {filteredPayments.map((payment) => (
-              <div key={payment.id} className="px-4 py-4 hover:bg-muted">
+              <div key={payment._id} className="px-4 py-4 hover:bg-muted">
                 <div className="grid grid-cols-12 gap-4 items-center">
                   <div className="col-span-4">
-                    <p className="font-medium text-foreground">{typeLabels[payment.type]}</p>
-                    <p className="text-sm text-muted-foreground font-mono">
-                      {payment.reference || 'En attente de paiement'}
+                    <p className="font-medium text-foreground">
+                      {typeLabels[payment.transactionType]}
                     </p>
-                    {payment.method && (
-                      <p className="text-xs text-muted-foreground/70 mt-1">via {payment.method}</p>
-                    )}
+                    <p className="text-sm text-muted-foreground font-mono">
+                      {payment.transactionReference}
+                    </p>
+                    <p className="text-xs text-muted-foreground/70 mt-1">
+                      via {methodLabels[payment.paymentMethod] ?? payment.paymentMethod}
+                    </p>
                   </div>
                   <div className="col-span-3">
-                    <p className="text-sm text-muted-foreground truncate">{payment.property}</p>
+                    <p className="text-sm text-muted-foreground truncate">
+                      {payment.property?.title ?? 'Propriété supprimée'}
+                    </p>
                   </div>
                   <div className="col-span-2">
-                    <p className="text-sm text-muted-foreground">{formatDate(payment.date)}</p>
+                    <p className="text-sm text-muted-foreground">
+                      {formatDate(payment._creationTime)}
+                    </p>
                   </div>
                   <div className="col-span-2 text-right">
                     <p className="font-medium text-foreground font-mono tabular-nums">
@@ -189,10 +180,10 @@ export default function PaymentsPage() {
                     <span
                       className={cn(
                         'inline-flex items-center px-2 py-1 rounded-full text-xs font-medium',
-                        statusLabels[payment.status]?.color
+                        statusLabels[payment.paymentStatus]?.color
                       )}
                     >
-                      {statusLabels[payment.status]?.label}
+                      {statusLabels[payment.paymentStatus]?.label ?? payment.paymentStatus}
                     </span>
                   </div>
                 </div>
