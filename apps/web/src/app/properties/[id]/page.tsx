@@ -51,6 +51,7 @@ import {
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { use, useEffect, useState } from 'react';
+import { toast } from 'sonner';
 
 const amenityConfig: Record<string, { label: string; icon: React.ElementType }> = {
   wifi: { label: 'WiFi inclus', icon: Wifi },
@@ -110,6 +111,7 @@ export default function PropertyDetailPage({
   const [isSending, setIsSending] = useState(false);
   const [mobileCarouselApi, setMobileCarouselApi] = useState<CarouselApi>();
   const [galleryCarouselApi, setGalleryCarouselApi] = useState<CarouselApi>();
+  const toggleSaveProperty = useMutation(api.savedProperties.toggleSaveProperty);
 
   // Sync carousel with selectedImage state
   useEffect(() => {
@@ -141,6 +143,17 @@ export default function PropertyDetailPage({
 
   const sendMessage = useMutation(api.messages.sendMessage);
 
+  const savedStatus = useQuery(
+    api.savedProperties.isPropertySaved,
+    id && id.length > 0 ? { propertyId: id as Id<'properties'> } : 'skip'
+  );
+
+  useEffect(() => {
+    if (savedStatus !== undefined) {
+      setIsSaved(savedStatus);
+    }
+  }, [savedStatus]);
+
   const handleSendMessage = async () => {
     if (!messageText.trim() || !property?.landlord?._id) return;
 
@@ -161,6 +174,26 @@ export default function PropertyDetailPage({
       console.error('Failed to send message:', error);
     } finally {
       setIsSending(false);
+    }
+  };
+
+  const handleToggleSave = async () => {
+    if (!property?._id) return;
+
+    if (!isSignedIn) {
+      router.push('/sign-in');
+      return;
+    }
+
+    const nextSaved = !isSaved;
+    setIsSaved(nextSaved);
+
+    try {
+      await toggleSaveProperty({ propertyId: property._id });
+    } catch (error) {
+      console.error('Failed to toggle save:', error);
+      setIsSaved(!nextSaved);
+      toast.error('Impossible de sauvegarder la propriété. Veuillez réessayer.');
     }
   };
 
@@ -431,7 +464,7 @@ export default function PropertyDetailPage({
             <Button
               variant="outline"
               size="sm"
-              onClick={() => setIsSaved(!isSaved)}
+              onClick={handleToggleSave}
               className={cn(
                 'flex items-center gap-2 border-border',
                 isSaved && 'text-primary border-primary'
