@@ -408,10 +408,13 @@
 }
 
 .price-marker-content.hovered,
-.price-marker-content:hover {
-  background: var(--foreground);
-  color: var(--background);
-  transform: scale(1.1);
+.price-marker-content:hover,
+.price-marker-content.selected {
+  background: var(--primary);
+  border-color: var(--primary);
+  color: var(--primary-foreground);
+  transform: scale(1.12);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.2);
 }
 
 /* Leaflet popup customization */

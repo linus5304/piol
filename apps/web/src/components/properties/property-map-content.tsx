@@ -25,12 +25,15 @@ L.Icon.Default.mergeOptions({
 });
 
 // Custom price marker icon
-function createPriceIcon(price: number, isHovered = false): L.DivIcon {
+function createPriceIcon(price: number, isHovered = false, isSelected = false): L.DivIcon {
   const formattedPrice = formatCurrency(price);
+  const isActive = isHovered || isSelected;
   return L.divIcon({
     className: 'price-marker',
     html: `
-      <div class="price-marker-content ${isHovered ? 'hovered' : ''}">
+      <div class="price-marker-content ${isActive ? 'hovered' : ''} ${
+        isSelected ? 'selected' : ''
+      }">
         ${formattedPrice}
       </div>
     `,
@@ -134,7 +137,11 @@ export function PropertyMapContent({
           <Marker
             key={property._id}
             position={[property.location.latitude, property.location.longitude]}
-            icon={createPriceIcon(property.rentAmount, hoveredPropertyId === property._id)}
+            icon={createPriceIcon(
+              property.rentAmount,
+              hoveredPropertyId === property._id,
+              selectedPropertyId === property._id
+            )}
             eventHandlers={{
               click: () => {
                 setSelectedPropertyId(property._id);

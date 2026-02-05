@@ -12,6 +12,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { api } from '@repo/convex/_generated/api';
+import type { Id } from '@repo/convex/_generated/dataModel';
 import { useMutation } from 'convex/react';
 import { Loader2 } from 'lucide-react';
 import Link from 'next/link';
@@ -55,6 +56,8 @@ export default function NewPropertyPage() {
   const [isSavingDraft, setIsSavingDraft] = useState(false);
 
   const createProperty = useMutation(api.properties.createProperty);
+  const generateUploadUrl = useMutation(api.files.generateUploadUrl);
+  const addPropertyImages = useMutation(api.properties.addPropertyImages);
 
   // Form state
   const [formData, setFormData] = useState({
@@ -64,6 +67,8 @@ export default function NewPropertyPage() {
     city: '',
     neighborhood: '',
     addressLine1: '',
+    latitude: '',
+    longitude: '',
     rentAmount: '',
     cautionMonths: '2',
     upfrontMonths: '6',
@@ -87,6 +92,32 @@ export default function NewPropertyPage() {
     }
   };
 
+  const uploadImages = async (propertyId: Id<'properties'>, files: File[]) => {
+    const uploaded = [];
+
+    for (const [index, file] of files.entries()) {
+      const uploadUrl = await generateUploadUrl();
+      const response = await fetch(uploadUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': file.type || 'application/octet-stream',
+        },
+        body: file,
+      });
+
+      if (!response.ok) {
+        throw new Error('Upload failed');
+      }
+
+      const { storageId } = (await response.json()) as { storageId: Id<'_storage'> };
+      uploaded.push({ storageId, order: index });
+    }
+
+    if (uploaded.length > 0) {
+      await addPropertyImages({ propertyId, images: uploaded });
+    }
+  };
+
   const handleSubmit = async (saveAsDraft = false) => {
     if (saveAsDraft) {
       setIsSavingDraft(true);
@@ -95,13 +126,36 @@ export default function NewPropertyPage() {
     }
 
     try {
+      const hasLatitude = formData.latitude.trim().length > 0;
+      const hasLongitude = formData.longitude.trim().length > 0;
+
+      if ((hasLatitude && !hasLongitude) || (!hasLatitude && hasLongitude)) {
+        toast.error('Veuillez renseigner la latitude et la longitude.');
+        return;
+      }
+
+      const latitude = Number(formData.latitude);
+      const longitude = Number(formData.longitude);
+      if (
+        hasLatitude &&
+        hasLongitude &&
+        (!Number.isFinite(latitude) || !Number.isFinite(longitude))
+      ) {
+        toast.error('Coordonnees invalides.');
+        return;
+      }
+      const location =
+        hasLatitude && hasLongitude && Number.isFinite(latitude) && Number.isFinite(longitude)
+          ? { latitude, longitude }
+          : undefined;
+
       // Convert amenities to object format
       const amenities: Record<string, boolean> = {};
       for (const amenity of amenitiesList) {
         amenities[amenity.id] = formData.selectedAmenities.includes(amenity.id);
       }
 
-      await createProperty({
+      const propertyId = await createProperty({
         title: formData.title,
         description: formData.description || undefined,
         propertyType: formData.propertyType as PropertyType,
@@ -112,7 +166,17 @@ export default function NewPropertyPage() {
         cautionMonths: Number(formData.cautionMonths),
         upfrontMonths: Number(formData.upfrontMonths),
         amenities,
+        location,
       });
+
+      if (formData.images.length > 0) {
+        try {
+          await uploadImages(propertyId, formData.images);
+        } catch (error) {
+          console.error('Error uploading images:', error);
+          toast.error("Les photos n'ont pas pu être ajoutées.");
+        }
+      }
 
       toast.success(
         saveAsDraft ? 'Brouillon enregistré avec succès' : 'Propriété créée avec succès'
@@ -236,6 +300,34 @@ export default function NewPropertyPage() {
                 />
               </div>
             </div>
+
+            <div className="grid gap-4 md:grid-cols-2">
+              <div className="space-y-2">
+                <Label htmlFor="latitude">Latitude</Label>
+                <Input
+                  id="latitude"
+                  type="number"
+                  step="any"
+                  value={formData.latitude}
+                  onChange={(e) => updateForm('latitude', e.target.value)}
+                  placeholder="3.848"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="longitude">Longitude</Label>
+                <Input
+                  id="longitude"
+                  type="number"
+                  step="any"
+                  value={formData.longitude}
+                  onChange={(e) => updateForm('longitude', e.target.value)}
+                  placeholder="11.5021"
+                />
+              </div>
+            </div>
+            <p className="text-xs text-muted-foreground">
+              Ajoutez des coordonnees pour afficher la propriete sur la carte.
+            </p>
 
             <div className="flex justify-end">
               <Button
@@ -374,7 +466,7 @@ export default function NewPropertyPage() {
                 </Button>
               </label>
               <p className="text-xs text-muted-foreground mt-4">
-                Les photos pourront être ajoutées après la création de l'annonce
+                Les photos seront ajoutees lors de la creation de l'annonce
               </p>
             </div>
 
