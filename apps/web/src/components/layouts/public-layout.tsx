@@ -7,7 +7,7 @@ import { cn } from '@/lib/utils';
 interface PublicLayoutProps {
   children: React.ReactNode;
   /** Header variant */
-  headerVariant?: 'default' | 'transparent';
+  headerVariant?: 'default' | 'transparent' | 'bordered';
   /** Footer variant */
   footerVariant?: 'default' | 'minimal' | 'dark';
   /** Additional class names for main content */

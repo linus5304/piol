@@ -33,7 +33,11 @@
     "logout": "Déconnexion",
     "login": "Connexion",
     "register": "S'inscrire",
-    "becomeHost": "Devenir propriétaire"
+    "becomeHost": "Devenir propriétaire",
+    "explore": "Explorer",
+    "howItWorks": "Comment ça marche",
+    "forLandlords": "Pour les propriétaires",
+    "getStarted": "Commencer"
   },
   "home": {
     "heroTitle": "Trouvez votre",
@@ -68,7 +72,14 @@
     "priceAsc": "Prix croissant",
     "priceDesc": "Prix décroissant",
     "clearAll": "Effacer tout",
-    "showResults": "Afficher {count} résultats"
+    "showResults": "Afficher {count} résultats",
+    "allPrices": "Tous les prix",
+    "under50k": "Moins de 50 000 FCFA",
+    "range50to100k": "50 000 – 100 000 FCFA",
+    "range100to200k": "100 000 – 200 000 FCFA",
+    "range200to500k": "200 000 – 500 000 FCFA",
+    "above500k": "Plus de 500 000 FCFA",
+    "city": "Ville"
   },
   "properties": {
     "title": "Propriétés disponibles",
@@ -76,7 +87,7 @@
     "resultsCount": "{count} propriété(s) trouvée(s)",
     "found": "propriété(s) trouvée(s)",
     "noResults": "Aucune propriété trouvée",
-    "noResultsDescription": "Essayez de modifier vos filtres ou revenez plus tard.",
+    "noResultsDescription": "Essayez de modifier vos filtres ou recherchez dans une autre zone.",
     "noProperties": "Aucune propriété trouvée",
     "tryDifferentFilters": "Essayez de modifier vos filtres ou revenez plus tard.",
     "allCities": "Toutes les villes",
@@ -102,7 +113,12 @@
     "safetyTip3": "Ne partagez jamais vos informations bancaires",
     "mapComingSoon": "Carte interactive bientôt disponible",
     "showMap": "Afficher la carte",
-    "showList": "Afficher la liste"
+    "showList": "Afficher la liste",
+    "browseByCity": "Parcourir par ville",
+    "cantFind": "Vous ne trouvez pas ce qu'il vous faut ?",
+    "cantFindDesc": "Notre équipe peut vous aider à trouver la propriété idéale. Contactez-nous ou publiez votre annonce.",
+    "contactUs": "Contactez-nous",
+    "listYourProperty": "Publiez votre annonce"
   },
   "categories": {
     "all": "Tous",
@@ -252,12 +268,34 @@
     "viewFaq": "Voir la FAQ"
   },
   "footer": {
-    "description": "La plateforme de location immobilière la plus fiable au Cameroun.",
+    "description": "La marketplace immobilière vérifiée du Cameroun. Chaque annonce visitée, chaque propriétaire confirmé, chaque paiement sécurisé.",
     "quickLinks": "Liens rapides",
     "legal": "Légal",
-    "privacy": "Confidentialité",
-    "terms": "Conditions",
-    "copyright": "Tous droits réservés."
+    "privacy": "Politique de confidentialité",
+    "terms": "Conditions d'utilisation",
+    "copyright": "Tous droits réservés.",
+    "product": "Produit",
+    "company": "Entreprise",
+    "support": "Support",
+    "citiesWeServe": "Villes desservies",
+    "madeInCameroon": "Fait avec fierté au Cameroun",
+    "exploreListings": "Explorer les annonces",
+    "howItWorks": "Comment ça marche",
+    "forLandlords": "Pour les propriétaires",
+    "aboutUs": "À propos",
+    "contactUs": "Contact",
+    "careers": "Carrières",
+    "helpCenter": "Centre d'aide",
+    "safetyTips": "Conseils de sécurité",
+    "faq": "FAQ"
+  },
+  "auth": {
+    "tagline": "Arrêtez de louer à l'aveugle.",
+    "description": "Chaque logement sur Piol est visité et vérifié. Vraies photos, vrais prix, paiements Mobile Money sécurisés.",
+    "backToHome": "Retour à l'accueil",
+    "verified": "vérifiés sur le terrain",
+    "rating": "note utilisateurs",
+    "listings": "annonces"
   },
   "language": {
     "fr": "Français",
