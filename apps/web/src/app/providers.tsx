@@ -32,7 +32,7 @@ export function Providers({ children }: { children: ReactNode }) {
   // If no Convex URL, render without Convex provider
   if (!convex) {
     return (
-      <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
+      <ThemeProvider attribute="class" defaultTheme="dark" enableSystem disableTransitionOnChange>
         <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
       </ThemeProvider>
     );
@@ -41,7 +41,7 @@ export function Providers({ children }: { children: ReactNode }) {
   // If Clerk is not configured, use plain ConvexProvider without auth
   if (!isClerkConfigured) {
     return (
-      <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
+      <ThemeProvider attribute="class" defaultTheme="dark" enableSystem disableTransitionOnChange>
         <ConvexProvider client={convex}>
           <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
         </ConvexProvider>
@@ -50,7 +50,7 @@ export function Providers({ children }: { children: ReactNode }) {
   }
 
   return (
-    <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
+    <ThemeProvider attribute="class" defaultTheme="dark" enableSystem disableTransitionOnChange>
       <ConvexProviderWithClerk client={convex} useAuth={useAuth}>
         <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
       </ConvexProviderWithClerk>

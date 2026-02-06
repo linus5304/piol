@@ -357,7 +357,7 @@ export default function EditPropertyPage({ params }: { params: Promise<{ id: str
         <Card>
           <CardHeader className="pb-2">
             <CardDescription>Loyer</CardDescription>
-            <CardTitle className="text-2xl text-primary">
+            <CardTitle className="text-2xl text-primary font-mono tabular-nums">
               {property.rentAmount.toLocaleString('fr-FR')} FCFA
             </CardTitle>
           </CardHeader>

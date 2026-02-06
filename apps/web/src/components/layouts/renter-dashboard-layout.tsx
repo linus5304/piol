@@ -41,7 +41,7 @@ export function RenterDashboardLayout({ children, className }: RenterDashboardLa
     <div className="min-h-screen flex flex-col bg-background">
       {/* Simple Header */}
       <header className="sticky top-0 z-50 border-b bg-background/95 backdrop-blur-md">
-        <div className="flex h-14 items-center justify-between px-4 md:px-6">
+        <div className="mx-auto w-full max-w-7xl flex h-14 items-center justify-between px-4 sm:px-6 lg:px-8">
           <Logo size="sm" />
 
           {/* User Menu */}
@@ -101,7 +101,9 @@ export function RenterDashboardLayout({ children, className }: RenterDashboardLa
       <DashboardTabs />
 
       {/* Main Content */}
-      <main className={cn('flex-1 px-4 md:px-6 lg:px-8 py-6', className)}>{children}</main>
+      <main className={cn('flex-1 mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8 py-6', className)}>
+        {children}
+      </main>
     </div>
   );
 }

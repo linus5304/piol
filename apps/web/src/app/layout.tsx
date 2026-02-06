@@ -2,16 +2,29 @@ import { enUS, frFR } from '@clerk/localizations';
 import { ClerkProvider } from '@clerk/nextjs';
 import { Analytics } from '@vercel/analytics/react';
 import { SpeedInsights } from '@vercel/speed-insights/next';
-import { GeistMono } from 'geist/font/mono';
-import { GeistSans } from 'geist/font/sans';
 import type { Metadata, Viewport } from 'next';
 import { NextIntlClientProvider } from 'next-intl';
 import { getLocale, getMessages } from 'next-intl/server';
+import { JetBrains_Mono, Plus_Jakarta_Sans } from 'next/font/google';
 import './globals.css';
 import { ConnectionStatus } from '@/components/connection-status';
 import { Toaster } from '@/components/ui/sonner';
 import { env, isClerkConfigured } from '@/lib/env';
 import { Providers } from './providers';
+
+const plusJakarta = Plus_Jakarta_Sans({
+  subsets: ['latin'],
+  weight: ['400', '500', '600', '700', '800'],
+  variable: '--font-plus-jakarta',
+  display: 'swap',
+});
+
+const jetbrainsMono = JetBrains_Mono({
+  subsets: ['latin'],
+  weight: ['400', '500', '600', '700'],
+  variable: '--font-jetbrains',
+  display: 'swap',
+});
 
 export const metadata: Metadata = {
   title: `${env.NEXT_PUBLIC_APP_NAME} - Cameroon Housing Marketplace`,
@@ -44,7 +57,7 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: '#18181b',
+  themeColor: '#0C1222',
 };
 
 export default async function RootLayout({
@@ -59,8 +72,12 @@ export default async function RootLayout({
   const clerkLocalization = locale === 'en' ? enUS : frFR;
 
   const content = (
-    <html lang={locale} suppressHydrationWarning>
-      <body className={`${GeistSans.variable} ${GeistMono.variable} font-sans antialiased`}>
+    <html
+      lang={locale}
+      className={`${plusJakarta.variable} ${jetbrainsMono.variable}`}
+      suppressHydrationWarning
+    >
+      <body className="font-sans antialiased">
         <NextIntlClientProvider messages={messages}>
           <ConnectionStatus />
           <Providers>{children}</Providers>
@@ -83,10 +100,10 @@ export default async function RootLayout({
       localization={clerkLocalization}
       appearance={{
         variables: {
-          colorPrimary: '#ff385c',
-          colorBackground: '#fafafa',
-          colorText: '#18181b',
-          colorTextSecondary: '#71717a',
+          colorPrimary: '#E8A838',
+          colorBackground: '#141E33',
+          colorText: '#F1F1F1',
+          colorTextSecondary: '#8B95A8',
           borderRadius: '8px',
         },
         elements: {

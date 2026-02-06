@@ -320,8 +320,8 @@ function PropertiesPageContent() {
   return (
     <PublicLayout showFooter={false}>
       {/* Search & Filters */}
-      <div className="border-b bg-background sticky top-16 z-40">
-        <div className="container mx-auto px-4 py-4">
+      <div className="border-b border-border dusk-surface-blur sticky top-14 z-40">
+        <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8 py-4">
           {/* Search Bar */}
           <div className="flex gap-2 mb-4">
             <div className="relative flex-1">
@@ -331,14 +331,14 @@ function PropertiesPageContent() {
                 placeholder={t('search.placeholder')}
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10 rounded-xl"
+                className="pl-10 rounded-xl border-border bg-card"
               />
             </div>
             <Select
               value={selectedCity ?? 'all'}
               onValueChange={(v) => setSelectedCity(v === 'all' ? undefined : v)}
             >
-              <SelectTrigger className="w-40 hidden sm:flex rounded-xl">
+              <SelectTrigger className="w-40 hidden sm:flex rounded-xl border-border">
                 <MapPin className="h-4 w-4 mr-2" />
                 <SelectValue placeholder={t('search.allCities')} />
               </SelectTrigger>
@@ -354,12 +354,14 @@ function PropertiesPageContent() {
             <Button
               variant="outline"
               onClick={() => setShowFilters(!showFilters)}
-              className={`rounded-xl ${activeFiltersCount > 0 ? 'border-foreground' : ''}`}
+              className={`rounded-xl border-border ${activeFiltersCount > 0 ? 'border-primary text-primary' : ''}`}
             >
               <SlidersHorizontal className="h-4 w-4" />
               <span className="hidden sm:inline ml-2">{t('filters.title')}</span>
               {activeFiltersCount > 0 && (
-                <Badge className="ml-2 rounded-full">{activeFiltersCount}</Badge>
+                <Badge className="ml-2 rounded-full bg-primary text-primary-foreground">
+                  {activeFiltersCount}
+                </Badge>
               )}
             </Button>
           </div>
@@ -374,10 +376,10 @@ function PropertiesPageContent() {
                   type="button"
                   key={category.value}
                   onClick={() => setSelectedCategory(category.value)}
-                  className={`flex items-center gap-2 px-4 py-2 text-sm font-medium whitespace-nowrap transition-colors touch-target rounded-lg ${
+                  className={`flex items-center gap-2 px-4 py-2 text-sm font-medium whitespace-nowrap transition-all touch-target rounded-lg ${
                     isActive
-                      ? 'bg-foreground text-background'
-                      : 'text-muted-foreground hover:text-foreground hover:bg-muted'
+                      ? 'bg-primary text-primary-foreground'
+                      : 'text-muted-foreground hover:text-foreground hover:bg-accent'
                   }`}
                 >
                   <Icon className="w-4 h-4" />
@@ -390,13 +392,16 @@ function PropertiesPageContent() {
 
         {/* Extended Filters */}
         {showFilters && (
-          <div className="border-t">
-            <div className="container mx-auto px-4 py-4">
+          <div className="border-t border-border">
+            <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8 py-4">
               <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                 <div>
                   <span className="block text-sm font-medium mb-2">{t('filters.priceRange')}</span>
                   <Select value={priceRange} onValueChange={setPriceRange}>
-                    <SelectTrigger className="rounded-xl" aria-label={t('filters.priceRange')}>
+                    <SelectTrigger
+                      className="rounded-xl border-border"
+                      aria-label={t('filters.priceRange')}
+                    >
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
@@ -411,7 +416,10 @@ function PropertiesPageContent() {
                 <div>
                   <span className="block text-sm font-medium mb-2">{t('filters.sortBy')}</span>
                   <Select value={sortBy} onValueChange={setSortBy}>
-                    <SelectTrigger className="rounded-xl" aria-label={t('filters.sortBy')}>
+                    <SelectTrigger
+                      className="rounded-xl border-border"
+                      aria-label={t('filters.sortBy')}
+                    >
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
@@ -425,7 +433,10 @@ function PropertiesPageContent() {
                   <Button variant="ghost" onClick={clearAllFilters} className="rounded-xl">
                     {t('filters.clearAll')}
                   </Button>
-                  <Button onClick={() => setShowFilters(false)} className="rounded-xl">
+                  <Button
+                    onClick={() => setShowFilters(false)}
+                    className="rounded-xl bg-primary text-primary-foreground hover:bg-primary-hover"
+                  >
                     {t('filters.showResults', { count: propertiesResult.total })}
                   </Button>
                 </div>
@@ -435,16 +446,16 @@ function PropertiesPageContent() {
         )}
       </div>
 
-      <div className="container mx-auto px-4 py-6">
+      <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8 py-6">
         {/* Results Header */}
         <div className="flex items-center justify-between mb-6">
           <div>
-            <h1 className="text-xl font-semibold">
+            <h1 className="text-xl font-bold tracking-tight">
               {selectedCity
                 ? t('properties.inCity', { city: selectedCity })
                 : t('properties.title')}
             </h1>
-            <p className="text-sm text-muted-foreground mt-1">
+            <p className="text-sm text-muted-foreground mt-1 font-mono">
               {t('properties.resultsCount', { count: propertiesResult.total })}
             </p>
           </div>
@@ -472,18 +483,18 @@ function PropertiesPageContent() {
                 )}
               </div>
             )}
-            <div className="flex rounded-xl border overflow-hidden">
+            <div className="flex rounded-xl border border-border overflow-hidden">
               <button
                 type="button"
                 onClick={() => setViewMode('grid')}
-                className={`p-2 ${viewMode === 'grid' ? 'bg-muted' : 'hover:bg-muted'}`}
+                className={`p-2 transition-colors ${viewMode === 'grid' ? 'bg-accent text-foreground' : 'hover:bg-accent/50 text-muted-foreground'}`}
               >
                 <Grid3X3 className="w-4 h-4" />
               </button>
               <button
                 type="button"
                 onClick={() => setViewMode('map')}
-                className={`p-2 ${viewMode === 'map' ? 'bg-muted' : 'hover:bg-muted'}`}
+                className={`p-2 transition-colors ${viewMode === 'map' ? 'bg-accent text-foreground' : 'hover:bg-accent/50 text-muted-foreground'}`}
               >
                 <MapIcon className="w-4 h-4" />
               </button>
@@ -515,14 +526,18 @@ function PropertiesPageContent() {
             {/* Empty state */}
             {!propertiesResult.isLoading && propertiesResult.properties.length === 0 && (
               <div className="col-span-full text-center py-16">
-                <div className="w-16 h-16 mx-auto mb-6 bg-muted flex items-center justify-center rounded-2xl">
-                  <Search className="w-8 h-8 text-muted-foreground" />
+                <div className="w-16 h-16 mx-auto mb-6 dusk-accent-badge flex items-center justify-center rounded-2xl">
+                  <Search className="w-8 h-8" />
                 </div>
-                <h3 className="text-lg font-semibold mb-2">{t('properties.noResults')}</h3>
+                <h3 className="text-lg font-bold mb-2">{t('properties.noResults')}</h3>
                 <p className="text-muted-foreground mb-6 max-w-md mx-auto">
                   {t('properties.noResultsDescription')}
                 </p>
-                <Button variant="outline" onClick={clearAllFilters} className="rounded-xl">
+                <Button
+                  variant="outline"
+                  onClick={clearAllFilters}
+                  className="rounded-xl border-border"
+                >
                   {t('filters.clearAll')}
                 </Button>
               </div>
@@ -590,10 +605,10 @@ function PropertiesPageContent() {
       </div>
 
       {/* Floating Map Button - Mobile */}
-      <div className="fixed bottom-6 left-1/2 -translate-x-1/2 md:hidden">
+      <div className="fixed bottom-6 left-1/2 -translate-x-1/2 md:hidden z-50">
         <Button
           onClick={() => setViewMode(viewMode === 'grid' ? 'map' : 'grid')}
-          className="shadow-lg rounded-full"
+          className="shadow-lg rounded-full bg-primary text-primary-foreground hover:bg-primary-hover"
         >
           {viewMode === 'grid' ? (
             <>
@@ -617,7 +632,7 @@ function PropertiesPageSkeleton() {
   return (
     <PublicLayout showFooter={false}>
       <div className="border-b bg-background sticky top-16 z-40">
-        <div className="container mx-auto px-4 py-4">
+        <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8 py-4">
           <Skeleton className="h-10 w-full mb-4 rounded-xl" />
           <div className="flex gap-2">
             {Array.from({ length: 5 }).map((_, i) => (
@@ -627,7 +642,7 @@ function PropertiesPageSkeleton() {
           </div>
         </div>
       </div>
-      <div className="container mx-auto px-4 py-6">
+      <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8 py-6">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
           {Array.from({ length: 8 }).map((_, i) => (
             // biome-ignore lint/suspicious/noArrayIndexKey: static skeleton

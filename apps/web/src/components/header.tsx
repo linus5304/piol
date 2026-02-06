@@ -61,7 +61,7 @@ export function Header({ variant = 'default' }: HeaderProps) {
           : 'bg-background/95 border-border'
       )}
     >
-      <div className="container mx-auto px-4">
+      <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="flex h-14 items-center justify-between">
           {/* Logo */}
           <Logo size="md" />

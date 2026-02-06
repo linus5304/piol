@@ -79,7 +79,7 @@ export default function PaymentsPage() {
         <Card>
           <CardHeader className="pb-2">
             <CardDescription>Total payé</CardDescription>
-            <CardTitle className="text-2xl text-green-600 font-mono tabular-nums">
+            <CardTitle className="text-2xl text-success font-mono tabular-nums">
               {formatCurrency(totalPaid)}
             </CardTitle>
           </CardHeader>
@@ -87,7 +87,7 @@ export default function PaymentsPage() {
         <Card>
           <CardHeader className="pb-2">
             <CardDescription>En attente</CardDescription>
-            <CardTitle className="text-2xl text-yellow-600 font-mono tabular-nums">
+            <CardTitle className="text-2xl text-warning font-mono tabular-nums">
               {formatCurrency(pendingAmount)}
             </CardTitle>
           </CardHeader>
