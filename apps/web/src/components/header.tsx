@@ -15,7 +15,13 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
-import { type UserRole, getUserNav, mainNav, userNavSettings } from '@/config/navigation';
+import {
+  type NavItem,
+  type UserRole,
+  getUserNav,
+  mainNav,
+  userNavSettings,
+} from '@/config/navigation';
 import { isClerkConfigured, useSafeClerk, useSafeUser } from '@/hooks/use-safe-auth';
 import { cn } from '@/lib/utils';
 import { ChevronDown, LogOut, Menu, Settings } from 'lucide-react';
@@ -24,10 +30,11 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 
 interface HeaderProps {
-  variant?: 'default' | 'transparent';
+  variant?: 'default' | 'transparent' | 'bordered';
+  navItems?: NavItem[];
 }
 
-export function Header({ variant = 'default' }: HeaderProps) {
+export function Header({ variant = 'default', navItems }: HeaderProps) {
   const t = useTranslations('nav');
   const pathname = usePathname();
   const { user, isLoaded, isSignedIn } = useSafeUser();
@@ -52,23 +59,32 @@ export function Header({ variant = 'default' }: HeaderProps) {
     }
   };
 
+  const activeNavItems = navItems || mainNav;
+
   return (
     <header
       className={cn(
-        'sticky top-0 z-50 w-full border-b backdrop-blur-md transition-all duration-200',
+        'sticky top-0 z-50 w-full transition-all duration-200',
         variant === 'transparent'
-          ? 'bg-background/80 border-border/50'
-          : 'bg-background/95 border-border'
+          ? 'border-b bg-background/80 border-border/50 backdrop-blur-md'
+          : variant === 'bordered'
+            ? 'border-b bg-background/95 border-border backdrop-blur-md'
+            : 'dusk-surface-blur'
       )}
     >
       <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div className="flex h-14 items-center justify-between">
+        <div
+          className={cn(
+            'flex items-center justify-between',
+            variant === 'bordered' ? 'h-14' : 'py-4'
+          )}
+        >
           {/* Logo */}
           <Logo size="md" />
 
           {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center gap-1">
-            {mainNav.map((item) => (
+            {activeNavItems.map((item) => (
               <Link
                 key={item.href}
                 href={item.href}
@@ -210,7 +226,7 @@ export function Header({ variant = 'default' }: HeaderProps) {
                 )}
 
                 <nav className="flex flex-col gap-1">
-                  {mainNav.map((item) => {
+                  {activeNavItems.map((item) => {
                     const Icon = item.icon;
                     return (
                       <Link

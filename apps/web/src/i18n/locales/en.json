@@ -33,7 +33,11 @@
     "logout": "Logout",
     "login": "Sign In",
     "register": "Sign Up",
-    "becomeHost": "Become a Host"
+    "becomeHost": "Become a Host",
+    "explore": "Explore",
+    "howItWorks": "How it works",
+    "forLandlords": "For landlords",
+    "getStarted": "Get started"
   },
   "home": {
     "heroTitle": "Find your",
@@ -68,7 +72,14 @@
     "priceAsc": "Price: Low to High",
     "priceDesc": "Price: High to Low",
     "clearAll": "Clear all",
-    "showResults": "Show {count} results"
+    "showResults": "Show {count} results",
+    "allPrices": "All prices",
+    "under50k": "Under 50,000 FCFA",
+    "range50to100k": "50,000 – 100,000 FCFA",
+    "range100to200k": "100,000 – 200,000 FCFA",
+    "range200to500k": "200,000 – 500,000 FCFA",
+    "above500k": "500,000+ FCFA",
+    "city": "City"
   },
   "properties": {
     "title": "Available properties",
@@ -76,7 +87,7 @@
     "resultsCount": "{count} property(ies) found",
     "found": "property(ies) found",
     "noResults": "No properties found",
-    "noResultsDescription": "Try adjusting your filters or check back later.",
+    "noResultsDescription": "Try adjusting your filters or search for a different area.",
     "noProperties": "No properties found",
     "tryDifferentFilters": "Try adjusting your filters or check back later.",
     "allCities": "All cities",
@@ -102,7 +113,12 @@
     "safetyTip3": "Never share your banking information",
     "mapComingSoon": "Interactive map coming soon",
     "showMap": "Show map",
-    "showList": "Show list"
+    "showList": "Show list",
+    "browseByCity": "Browse by city",
+    "cantFind": "Can't find what you need?",
+    "cantFindDesc": "Our team can help you find the perfect property. Contact us or list your own.",
+    "contactUs": "Contact us",
+    "listYourProperty": "List your property"
   },
   "categories": {
     "all": "All",
@@ -252,12 +268,34 @@
     "viewFaq": "View FAQ"
   },
   "footer": {
-    "description": "The most trusted rental platform in Cameroon.",
+    "description": "Cameroon's verified housing marketplace. Every listing visited, every landlord confirmed, every payment secured.",
     "quickLinks": "Quick links",
     "legal": "Legal",
-    "privacy": "Privacy",
-    "terms": "Terms",
-    "copyright": "All rights reserved."
+    "privacy": "Privacy policy",
+    "terms": "Terms of service",
+    "copyright": "All rights reserved.",
+    "product": "Product",
+    "company": "Company",
+    "support": "Support",
+    "citiesWeServe": "Cities we serve",
+    "madeInCameroon": "Made with pride in Cameroon",
+    "exploreListings": "Explore listings",
+    "howItWorks": "How it works",
+    "forLandlords": "For landlords",
+    "aboutUs": "About us",
+    "contactUs": "Contact",
+    "careers": "Careers",
+    "helpCenter": "Help center",
+    "safetyTips": "Safety tips",
+    "faq": "FAQ"
+  },
+  "auth": {
+    "tagline": "Stop renting blind.",
+    "description": "Every home on Piol is visited and verified. Real photos, real prices, secure mobile money payments.",
+    "backToHome": "Back to home",
+    "verified": "verified on-ground",
+    "rating": "user rating",
+    "listings": "listings"
   },
   "language": {
     "fr": "Français",

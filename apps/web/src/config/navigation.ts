@@ -37,6 +37,25 @@ export interface NavSection {
 // Public pages navigation
 // =============================================================================
 
+export const homepageNav: NavItem[] = [
+  {
+    href: '/properties',
+    label: 'Explore',
+    labelKey: 'nav.explore',
+    icon: Search,
+  },
+  {
+    href: '#how-it-works',
+    label: 'How it works',
+    labelKey: 'nav.howItWorks',
+  },
+  {
+    href: '/sign-up?role=landlord',
+    label: 'For landlords',
+    labelKey: 'nav.forLandlords',
+  },
+];
+
 export const mainNav: NavItem[] = [
   {
     href: '/properties',
@@ -171,18 +190,24 @@ export const sidebarNavLandlord: NavSection[] = [
 // =============================================================================
 
 export const footerNav = {
-  quickLinks: [
-    { href: '/properties', label: 'Propriétés', labelKey: 'nav.properties' },
-    { href: '/about', label: 'À propos', labelKey: 'nav.about' },
-    { href: '/contact', label: 'Contact', labelKey: 'nav.contact' },
+  product: [
+    { href: '/properties', label: 'Explorer les annonces', labelKey: 'footer.exploreListings' },
+    { href: '/#how-it-works', label: 'Comment ça marche', labelKey: 'footer.howItWorks' },
+    {
+      href: '/sign-up?role=landlord',
+      label: 'Pour les propriétaires',
+      labelKey: 'footer.forLandlords',
+    },
   ],
-  legal: [
-    { href: '/privacy', label: 'Confidentialité', labelKey: 'footer.privacy' },
-    { href: '/terms', label: 'Conditions', labelKey: 'footer.terms' },
+  company: [
+    { href: '/about', label: 'À propos', labelKey: 'footer.aboutUs' },
+    { href: '/contact', label: 'Contact', labelKey: 'footer.contactUs' },
+    { href: '/careers', label: 'Carrières', labelKey: 'footer.careers' },
   ],
   support: [
-    { href: '/help', label: "Centre d'aide", labelKey: 'footer.help' },
-    { href: '/faq', label: 'FAQ', labelKey: 'footer.faq' },
+    { href: '/help', label: "Centre d'aide", labelKey: 'footer.helpCenter' },
+    { href: '/help', label: 'Conseils de sécurité', labelKey: 'footer.safetyTips' },
+    { href: '/help', label: 'FAQ', labelKey: 'footer.faq' },
   ],
 };
 
