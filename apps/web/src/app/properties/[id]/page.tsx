@@ -214,7 +214,7 @@ export default function PropertyDetailPage({
     return (
       <div className="min-h-screen bg-background">
         <Header />
-        <div className="max-w-7xl mx-auto px-4 py-16 text-center">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 text-center">
           <div className="w-24 h-24 mx-auto mb-6 rounded-full bg-muted flex items-center justify-center">
             <ImageOff className="w-12 h-12 text-muted-foreground" />
           </div>
@@ -253,7 +253,7 @@ export default function PropertyDetailPage({
       {/* Image Gallery */}
       <div className="relative">
         {/* Desktop Grid Gallery */}
-        <div className="hidden md:grid grid-cols-4 grid-rows-2 gap-2 max-w-7xl mx-auto px-4 py-4 h-[480px]">
+        <div className="hidden md:grid grid-cols-4 grid-rows-2 gap-2 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 h-[480px]">
           <button
             type="button"
             className="col-span-2 row-span-2 relative rounded-l-2xl overflow-hidden cursor-pointer group"
@@ -296,7 +296,7 @@ export default function PropertyDetailPage({
             <button
               type="button"
               onClick={() => setShowGallery(true)}
-              className="absolute bottom-8 right-8 flex items-center gap-2 px-4 py-2 bg-white rounded-lg shadow-lg hover:scale-105 transition-transform text-sm font-medium"
+              className="absolute bottom-8 right-8 flex items-center gap-2 px-4 py-2 bg-card border border-border rounded-lg shadow-lg hover:scale-105 transition-transform text-sm font-medium"
             >
               <span>📷</span>
               Voir les {images.length} photos
@@ -428,7 +428,7 @@ export default function PropertyDetailPage({
         </div>
       )}
 
-      <main className="max-w-7xl mx-auto px-4 pt-6 pb-24 lg:pb-8">
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 pb-24 lg:pb-8">
         {/* Title Section */}
         <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4 mb-8">
           <div>
@@ -436,7 +436,7 @@ export default function PropertyDetailPage({
             <div className="flex flex-wrap items-center gap-x-4 gap-y-2 mt-2 text-muted-foreground">
               {property.reviews.averageRating && (
                 <span className="flex items-center gap-1">
-                  <Star className="w-4 h-4 fill-amber-400 text-amber-400" />
+                  <Star className="w-4 h-4 fill-primary text-primary" />
                   <span className="font-medium text-foreground">
                     {property.reviews.averageRating.toFixed(1)}
                   </span>
@@ -691,7 +691,7 @@ export default function PropertyDetailPage({
                         </div>
                         {property.reviews.count > 0 && (
                           <div className="flex items-center gap-1 text-sm text-muted-foreground">
-                            <Star className="w-4 h-4 fill-amber-400 text-amber-400" />
+                            <Star className="w-4 h-4 fill-primary text-primary" />
                             <span className="font-medium text-foreground">
                               {property.reviews.averageRating?.toFixed(1)}
                             </span>
@@ -714,23 +714,23 @@ export default function PropertyDetailPage({
               )}
 
               {/* Safety Tips */}
-              <Card className="bg-gradient-to-br from-blue-50 to-indigo-50 border-blue-100 rounded-2xl">
+              <Card className="dusk-info-card rounded-2xl">
                 <CardContent className="p-6">
                   <div className="flex items-center gap-2 mb-4">
-                    <Shield className="w-5 h-5 text-blue-600" />
-                    <h4 className="font-semibold text-blue-900">Conseils de sécurité</h4>
+                    <Shield className="w-5 h-5 text-primary" />
+                    <h4 className="font-semibold">Conseils de sécurité</h4>
                   </div>
-                  <ul className="space-y-3 text-sm text-blue-800">
+                  <ul className="space-y-3 text-sm text-muted-foreground">
                     <li className="flex items-start gap-2">
-                      <span className="text-blue-600">•</span>
+                      <span className="text-primary">•</span>
                       <span>Visitez toujours la propriété avant de payer</span>
                     </li>
                     <li className="flex items-start gap-2">
-                      <span className="text-blue-600">•</span>
+                      <span className="text-primary">•</span>
                       <span>Utilisez Piol pour vos paiements sécurisés</span>
                     </li>
                     <li className="flex items-start gap-2">
-                      <span className="text-blue-600">•</span>
+                      <span className="text-primary">•</span>
                       <span>Ne partagez jamais vos informations bancaires</span>
                     </li>
                   </ul>
@@ -742,7 +742,7 @@ export default function PropertyDetailPage({
       </main>
 
       {/* Mobile Bottom Bar */}
-      <div className="lg:hidden fixed bottom-0 left-0 right-0 bg-background border-t border-border px-4 pt-4 pb-[max(1rem,env(safe-area-inset-bottom))] z-40">
+      <div className="lg:hidden fixed bottom-0 left-0 right-0 bg-background border-t border-border px-4 sm:px-6 pt-4 pb-[max(1rem,env(safe-area-inset-bottom))] z-40">
         <div className="flex items-center justify-between">
           <div>
             <div className="flex items-baseline gap-1">
@@ -753,7 +753,7 @@ export default function PropertyDetailPage({
             </div>
             {property.reviews.count > 0 && (
               <div className="flex items-center gap-1 text-sm text-muted-foreground">
-                <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
+                <Star className="w-3.5 h-3.5 fill-primary text-primary" />
                 <span>{property.reviews.averageRating?.toFixed(1)}</span>
                 <span>({property.reviews.count})</span>
               </div>
@@ -846,7 +846,7 @@ function PropertyDetailSkeleton() {
       <Header />
 
       {/* Image Gallery Skeleton */}
-      <div className="hidden md:grid grid-cols-4 grid-rows-2 gap-2 max-w-7xl mx-auto px-4 py-4 h-[480px]">
+      <div className="hidden md:grid grid-cols-4 grid-rows-2 gap-2 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 h-[480px]">
         <Skeleton className="col-span-2 row-span-2 rounded-l-2xl" />
         <Skeleton className="rounded-tr-2xl" />
         <Skeleton />
@@ -859,7 +859,7 @@ function PropertyDetailSkeleton() {
         <Skeleton className="h-[300px] w-full" />
       </div>
 
-      <main className="max-w-7xl mx-auto px-4 py-8">
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Title Skeleton */}
         <div className="mb-8">
           <Skeleton className="h-9 w-3/4 mb-2" />

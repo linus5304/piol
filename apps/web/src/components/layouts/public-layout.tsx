@@ -48,7 +48,7 @@ export function PublicLayout({
       <main
         className={cn(
           'flex-1',
-          containerized && 'container mx-auto max-w-7xl px-4 md:px-6 lg:px-8 py-8',
+          containerized && 'mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8 py-8',
           className
         )}
       >
@@ -88,7 +88,7 @@ export function PageSection({
         className
       )}
     >
-      <div className="container mx-auto max-w-7xl px-4 md:px-6 lg:px-8">{children}</div>
+      <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8">{children}</div>
     </section>
   );
 }

@@ -4,139 +4,130 @@
 @custom-variant dark (&:is(.dark *));
 
 /* =============================================================================
-   PIOL DESIGN SYSTEM - Zinc Theme
-   Clean, professional UI for housing marketplace (GitHub-inspired)
-   Coral accent for CTAs and highlights
+   PIOL DESIGN SYSTEM - Dusk Theme
+   Deep navy + warm amber/gold — premium, trust-focused aesthetic
+   Amber accent for CTAs and highlights
    ============================================================================= */
 
 :root {
   /* Border Radius */
   --radius: 0.5rem;
 
-  /* Font */
-  --font-sans: var(
-    --font-geist-sans,
-    system-ui,
-    -apple-system,
-    BlinkMacSystemFont,
-    "Segoe UI",
-    Roboto,
-    sans-serif
-  );
+  /* Primary - Amber accent (CTAs only) */
+  --primary: #e8a838;
+  --primary-hover: #d49a2e;
+  --primary-foreground: #0c1222;
 
-  /* Primary - Coral accent (CTAs only) */
-  --primary: #ff385c;
-  --primary-hover: #e31c5f;
-  --primary-foreground: #ffffff;
-
-  /* Background & Foreground - Light zinc by default */
-  --background: #fafafa;
-  --foreground: #18181b;
+  /* Background & Foreground - Navy-tinted light */
+  --background: #f8f9fc;
+  --foreground: #0c1222;
 
   /* Card */
   --card: #ffffff;
-  --card-foreground: #18181b;
+  --card-foreground: #0c1222;
 
   /* Popover */
   --popover: #ffffff;
-  --popover-foreground: #18181b;
+  --popover-foreground: #0c1222;
 
   /* Secondary */
-  --secondary: #f4f4f5;
-  --secondary-foreground: #18181b;
+  --secondary: #eef0f5;
+  --secondary-foreground: #0c1222;
 
   /* Muted */
-  --muted: #f4f4f5;
-  --muted-foreground: #71717a;
+  --muted: #eef0f5;
+  --muted-foreground: #6b7280;
 
-  /* Accent - Zinc for subtle highlights */
-  --accent: #f4f4f5;
-  --accent-foreground: #18181b;
+  /* Accent - Navy-tinted for subtle highlights */
+  --accent: #eef0f5;
+  --accent-foreground: #0c1222;
 
   /* Destructive */
   --destructive: #ef4444;
   --destructive-foreground: #fafafa;
 
-  /* Success - Green for verification badges */
-  --success: #008a05;
-  --success-foreground: #ffffff;
+  /* Success - Emerald green */
+  --success: #34d399;
+  --success-foreground: #0c1222;
 
-  /* Warning - Yellow/amber for pending states */
-  --warning: #d97706;
-  --warning-foreground: #ffffff;
+  /* Warning - Amber for pending states */
+  --warning: #e8a838;
+  --warning-foreground: #0c1222;
 
   /* Border & Input */
-  --border: #e4e4e7;
-  --input: #e4e4e7;
-  --ring: #ff385c;
+  --border: #d5dae5;
+  --input: #d5dae5;
+  --ring: #e8a838;
 
   /* Charts */
-  --chart-1: #ff385c;
-  --chart-2: #ff5a7d;
-  --chart-3: #008a05;
-  --chart-4: #71717a;
-  --chart-5: #18181b;
+  --chart-1: #e8a838;
+  --chart-2: #f0be5e;
+  --chart-3: #34d399;
+  --chart-4: #6b7280;
+  --chart-5: #0c1222;
 
-  /* Sidebar - Slightly darker */
-  --sidebar: #fafafa;
-  --sidebar-foreground: #18181b;
-  --sidebar-primary: #ff385c;
-  --sidebar-primary-foreground: #ffffff;
-  --sidebar-accent: #f4f4f5;
-  --sidebar-accent-foreground: #18181b;
-  --sidebar-border: #e4e4e7;
-  --sidebar-ring: #ff385c;
-  --sidebar-muted: #71717a;
+  /* Sidebar - Navy-tinted light */
+  --sidebar: #f8f9fc;
+  --sidebar-foreground: #0c1222;
+  --sidebar-primary: #e8a838;
+  --sidebar-primary-foreground: #0c1222;
+  --sidebar-accent: #eef0f5;
+  --sidebar-accent-foreground: #0c1222;
+  --sidebar-border: #d5dae5;
+  --sidebar-ring: #e8a838;
+  --sidebar-muted: #6b7280;
 }
 
-/* Dark mode override */
+/* Dark mode override — v7 Dusk palette */
 .dark {
-  --primary: #ff385c;
-  --primary-hover: #e31c5f;
-  --primary-foreground: #ffffff;
+  --primary: #e8a838;
+  --primary-hover: #d49a2e;
+  --primary-foreground: #0c1222;
 
-  --background: #09090b;
-  --foreground: #fafafa;
+  --background: #0c1222;
+  --foreground: #f1f1f1;
 
-  --card: #18181b;
-  --card-foreground: #fafafa;
+  --card: #141e33;
+  --card-foreground: #f1f1f1;
 
-  --popover: #18181b;
-  --popover-foreground: #fafafa;
+  --popover: #141e33;
+  --popover-foreground: #f1f1f1;
 
-  --secondary: #27272a;
-  --secondary-foreground: #fafafa;
+  --secondary: #1a2744;
+  --secondary-foreground: #f1f1f1;
 
-  --muted: #27272a;
-  --muted-foreground: #a1a1aa;
+  --muted: #1a2744;
+  --muted-foreground: #8b95a8;
 
-  --accent: #27272a;
-  --accent-foreground: #fafafa;
+  --accent: #1a2744;
+  --accent-foreground: #f1f1f1;
 
-  --border: #27272a;
-  --input: #27272a;
-  --ring: #ff385c;
+  --border: #1e2a42;
+  --input: #1e2a42;
+  --ring: #e8a838;
 
-  --success: #22c55e;
-  --success-foreground: #ffffff;
+  --success: #34d399;
+  --success-foreground: #0c1222;
 
-  --warning: #f59e0b;
-  --warning-foreground: #ffffff;
+  --warning: #e8a838;
+  --warning-foreground: #0c1222;
 
-  --sidebar: #09090b;
-  --sidebar-foreground: #fafafa;
-  --sidebar-primary: #ff385c;
-  --sidebar-primary-foreground: #ffffff;
-  --sidebar-accent: #27272a;
-  --sidebar-accent-foreground: #fafafa;
-  --sidebar-border: #27272a;
-  --sidebar-ring: #ff385c;
-  --sidebar-muted: #71717a;
+  --sidebar: #0c1222;
+  --sidebar-foreground: #f1f1f1;
+  --sidebar-primary: #e8a838;
+  --sidebar-primary-foreground: #0c1222;
+  --sidebar-accent: #1a2744;
+  --sidebar-accent-foreground: #f1f1f1;
+  --sidebar-border: #1e2a42;
+  --sidebar-ring: #e8a838;
+  --sidebar-muted: #8b95a8;
 }
 
 @theme inline {
-  --font-sans: var(--font-sans);
-  --font-mono: var(--font-mono);
+  --font-sans: var(--font-plus-jakarta), "Plus Jakarta Sans", system-ui, -apple-system,
+    BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-mono: var(--font-jetbrains), "JetBrains Mono", ui-monospace, "SF Mono", Monaco,
+    "Cascadia Mono", monospace;
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-card: var(--card);
@@ -198,6 +189,11 @@
   :focus-visible {
     outline: 2px solid var(--ring);
     outline-offset: 2px;
+  }
+
+  /* font-body alias — matches v7 convention, resolves to Plus Jakarta Sans */
+  .font-body {
+    font-family: var(--font-sans);
   }
 
   /* Typography - Headings */
@@ -284,8 +280,8 @@
 
   /* Stat change badges */
   .stat-change-positive {
-    background-color: rgba(0, 138, 5, 0.2);
-    color: #008a05;
+    background-color: rgba(52, 211, 153, 0.2);
+    color: #34d399;
   }
 
   .stat-change-negative {
@@ -380,6 +376,284 @@
     -webkit-line-clamp: 3;
     -webkit-box-orient: vertical;
     overflow: hidden;
+  }
+
+  /* ==========================================================================
+     DUSK THEME COMPONENT CLASSES
+     Reusable component styles for the v7 Dusk design system.
+     Use these instead of inline styles with hardcoded hex values.
+     ========================================================================== */
+
+  /* Dusk card — subtle border glow on hover */
+  .dusk-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  }
+  .dusk-card:hover {
+    border-color: color-mix(in srgb, var(--primary) 27%, transparent);
+    box-shadow: 0 0 24px color-mix(in srgb, var(--primary) 6%, transparent);
+  }
+
+  /* Dusk interactive row — used in feed lists */
+  .dusk-row {
+    border-bottom: 1px solid var(--border);
+    transition: background-color 0.15s ease;
+  }
+  .dusk-row:hover {
+    background-color: var(--accent);
+  }
+  .dusk-row:last-child {
+    border-bottom: none;
+  }
+
+  /* Dusk pill/tag — monospace uppercase micro-label */
+  .dusk-tag {
+    display: inline-block;
+    padding: 2px 10px;
+    border: 1px solid var(--border);
+    border-radius: 9999px;
+    font-size: 11px;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+  }
+
+  /* Dusk primary CTA button */
+  .dusk-btn-amber {
+    background: var(--primary);
+    color: var(--primary-foreground);
+    font-weight: 700;
+    padding: 12px 28px;
+    border-radius: 8px;
+    transition: background-color 0.2s ease, transform 0.15s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .dusk-btn-amber:hover {
+    background: var(--primary-hover);
+    transform: translateY(-1px);
+  }
+
+  /* Dusk custom scrollbar */
+  .dusk-scroll::-webkit-scrollbar {
+    height: 4px;
+  }
+  .dusk-scroll::-webkit-scrollbar-track {
+    background: var(--card);
+  }
+  .dusk-scroll::-webkit-scrollbar-thumb {
+    background: var(--border);
+    border-radius: 4px;
+  }
+
+  /* Dusk surface with blur — for nav, search bars, floating cards */
+  .dusk-surface-blur {
+    background: color-mix(in srgb, var(--background) 93%, transparent);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+  }
+
+  /* Dusk floating card — for hero overlay elements */
+  .dusk-float-card {
+    background: color-mix(in srgb, var(--card) 93%, transparent);
+    border: 1px solid var(--border);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    box-shadow: 0 8px 32px color-mix(in srgb, var(--background) 80%, transparent);
+    border-radius: 12px;
+  }
+
+  /* Dusk accent badge — like the testimonial avatar initials */
+  .dusk-accent-badge {
+    background: color-mix(in srgb, var(--primary) 12%, transparent);
+    color: var(--primary);
+  }
+
+  /* Safety / info card — themed instead of hardcoded blue */
+  .dusk-info-card {
+    background: color-mix(in srgb, var(--primary) 6%, var(--card));
+    border: 1px solid color-mix(in srgb, var(--primary) 20%, var(--border));
+  }
+
+  /* V7 Dusk animations */
+  .anim-fade-in-up {
+    animation: fadeInUp 0.6s ease-out forwards;
+  }
+  .anim-fade-in-up-delay-1 {
+    animation: fadeInUp 0.6s ease-out 0.15s forwards;
+    opacity: 0;
+  }
+  .anim-fade-in-up-delay-2 {
+    animation: fadeInUp 0.6s ease-out 0.3s forwards;
+    opacity: 0;
+  }
+  .pulse-dot {
+    animation: pulseDot 2s ease-in-out infinite;
+  }
+  .hero-ken-burns {
+    animation: kenBurns 22s ease-in-out infinite;
+  }
+  .hero-grain {
+    position: absolute;
+    inset: -50%;
+    width: 200%;
+    height: 200%;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+    background-size: 128px 128px;
+    opacity: 0.035;
+    pointer-events: none;
+    animation: grain 8s steps(10) infinite;
+  }
+  .hero-slide {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    transition: opacity 1.8s ease-in-out;
+  }
+  .hero-slide-active {
+    opacity: 1;
+  }
+}
+
+/* V7 Dusk keyframes */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+@keyframes pulseDot {
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.5;
+    transform: scale(0.8);
+  }
+}
+@keyframes kenBurns {
+  0% {
+    transform: scale(1) translate(0, 0);
+  }
+  50% {
+    transform: scale(1.12) translate(-1.5%, -1%);
+  }
+  100% {
+    transform: scale(1) translate(0, 0);
+  }
+}
+@keyframes grain {
+  0%,
+  100% {
+    transform: translate(0, 0);
+  }
+  10% {
+    transform: translate(-5%, -10%);
+  }
+  20% {
+    transform: translate(-15%, 5%);
+  }
+  30% {
+    transform: translate(7%, -25%);
+  }
+  40% {
+    transform: translate(-5%, 25%);
+  }
+  50% {
+    transform: translate(-15%, 10%);
+  }
+  60% {
+    transform: translate(15%, 0%);
+  }
+  70% {
+    transform: translate(0%, 15%);
+  }
+  80% {
+    transform: translate(3%, 35%);
+  }
+  90% {
+    transform: translate(-10%, 10%);
+  }
+}
+@keyframes orbDrift1 {
+  0%,
+  100% {
+    transform: translate(0, 0) scale(1);
+  }
+  25% {
+    transform: translate(60px, -40px) scale(1.1);
+  }
+  50% {
+    transform: translate(-30px, 50px) scale(0.95);
+  }
+  75% {
+    transform: translate(40px, 20px) scale(1.05);
+  }
+}
+@keyframes orbDrift2 {
+  0%,
+  100% {
+    transform: translate(0, 0) scale(1);
+  }
+  33% {
+    transform: translate(-50px, 30px) scale(1.08);
+  }
+  66% {
+    transform: translate(30px, -60px) scale(0.92);
+  }
+}
+@keyframes orbDrift3 {
+  0%,
+  100% {
+    transform: translate(0, 0) scale(1);
+  }
+  20% {
+    transform: translate(40px, 50px) scale(1.05);
+  }
+  40% {
+    transform: translate(-60px, -20px) scale(0.98);
+  }
+  60% {
+    transform: translate(20px, -50px) scale(1.1);
+  }
+  80% {
+    transform: translate(-30px, 30px) scale(0.95);
+  }
+}
+
+/* Reduce motion for users who prefer it */
+@media (prefers-reduced-motion: reduce) {
+  .hero-ken-burns {
+    animation: none;
+  }
+  .hero-grain {
+    animation: none;
+  }
+  .anim-fade-in-up,
+  .anim-fade-in-up-delay-1,
+  .anim-fade-in-up-delay-2 {
+    animation: none;
+    opacity: 1;
+  }
+  .pulse-dot {
+    animation: none;
+  }
+}
+
+/* Disable grain animation on mobile for GPU perf */
+@media (max-width: 768px) {
+  .hero-grain {
+    animation: none;
+    opacity: 0.02;
   }
 }
 

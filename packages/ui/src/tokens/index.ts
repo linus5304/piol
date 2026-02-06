@@ -2,7 +2,7 @@
  * Piol Design System - Design Tokens
  * Single source of truth for all design values
  *
- * Inspired by Airbnb's warm, trust-focused UI
+ * Dusk theme — deep navy + warm amber/gold, premium trust-focused UI
  */
 
 // =============================================================================
@@ -14,10 +14,10 @@ export const brand = {
   tagline: 'Trouvez votre chez-vous',
   taglineEn: 'Find your home',
   colors: {
-    coral: '#FF385C', // Primary brand color
-    coralDark: '#E31C5F', // Hover/pressed state
-    coralLight: '#FF5A7D', // Light variant
-    coralPale: '#FFE4E8', // Very light bg
+    amber: '#E8A838', // Primary brand color
+    amberDark: '#D49A2E', // Hover/pressed state
+    amberLight: '#F0BE5E', // Light variant
+    amberPale: 'rgba(232, 168, 56, 0.12)', // Very light bg
   },
 } as const;
 
@@ -27,31 +27,31 @@ export const brand = {
 
 export const colors = {
   // Brand
-  primary: brand.colors.coral,
-  primaryHover: brand.colors.coralDark,
-  primaryLight: brand.colors.coralLight,
-  primaryPale: brand.colors.coralPale,
+  primary: brand.colors.amber,
+  primaryHover: brand.colors.amberDark,
+  primaryLight: brand.colors.amberLight,
+  primaryPale: brand.colors.amberPale,
 
-  // Neutrals (Airbnb-inspired)
-  background: '#FFFFFF',
-  foreground: '#222222',
-  muted: '#717171', // Airbnb's signature gray
-  mutedLight: '#B0B0B0', // Lighter gray
-  subtle: '#F7F7F7', // Light backgrounds
-  border: '#DDDDDD', // Softer borders
-  borderLight: '#EBEBEB', // Very light borders
+  // Neutrals (Dusk navy palette)
+  background: '#0C1222',
+  foreground: '#F1F1F1',
+  muted: '#8B95A8',
+  mutedLight: '#B0B0B0',
+  subtle: '#1A2744',
+  border: '#1E2A42',
+  borderLight: '#2A3A58',
 
   // Semantic
-  success: '#008A05', // Verification green
-  successLight: '#E6F4E7',
-  warning: '#C13515', // Alert/error
-  warningLight: '#FDECEA',
+  success: '#34D399', // Verification green
+  successLight: '#34D39922',
+  warning: '#E8A838', // Amber warning
+  warningLight: '#E8A83822',
   info: '#1A73E8', // Info blue
   infoLight: '#E8F0FE',
 
   // Cards
-  card: '#FFFFFF',
-  cardHover: '#F7F7F7',
+  card: '#141E33',
+  cardHover: '#1A2744',
 
   // Overlays
   overlay: 'rgba(0, 0, 0, 0.5)',
@@ -66,7 +66,7 @@ export const radius = {
   none: '0px',
   xs: '4px', // Very small elements
   sm: '8px', // Small elements, badges
-  md: '12px', // Cards, inputs (Airbnb default)
+  md: '12px', // Cards, inputs
   lg: '16px', // Larger cards
   xl: '24px', // Hero sections, modals
   '2xl': '32px', // Large decorative
@@ -78,7 +78,7 @@ export const radius = {
 // =============================================================================
 
 export const shadows = {
-  // Card shadows (Airbnb-style)
+  // Card shadows
   card: '0 6px 16px rgba(0, 0, 0, 0.12)',
   cardHover: '0 6px 20px rgba(0, 0, 0, 0.18)',
   cardLift: '0 12px 28px rgba(0, 0, 0, 0.15)',
@@ -89,8 +89,8 @@ export const shadows = {
   tooltip: '0 2px 8px rgba(0, 0, 0, 0.15)',
 
   // Input focus
-  focus: `0 0 0 2px ${brand.colors.coralPale}`,
-  focusRing: `0 0 0 2px ${brand.colors.coral}`,
+  focus: `0 0 0 2px ${brand.colors.amberPale}`,
+  focusRing: `0 0 0 2px ${brand.colors.amber}`,
 } as const;
 
 // =============================================================================
@@ -119,8 +119,8 @@ export const spacing = {
 
 export const typography = {
   fonts: {
-    sans: 'var(--font-sans), system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
-    mono: 'var(--font-mono), ui-monospace, "SF Mono", Monaco, monospace',
+    sans: 'var(--font-plus-jakarta), system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+    mono: 'var(--font-jetbrains), ui-monospace, "SF Mono", Monaco, monospace',
   },
   sizes: {
     xs: '12px',
@@ -189,10 +189,10 @@ export const zIndex = {
 
 export const cssVariables = {
   // Brand
-  '--brand-coral': brand.colors.coral,
-  '--brand-coral-dark': brand.colors.coralDark,
-  '--brand-coral-light': brand.colors.coralLight,
-  '--brand-coral-pale': brand.colors.coralPale,
+  '--brand-amber': brand.colors.amber,
+  '--brand-amber-dark': brand.colors.amberDark,
+  '--brand-amber-light': brand.colors.amberLight,
+  '--brand-amber-pale': brand.colors.amberPale,
 
   // Colors
   '--color-primary': colors.primary,

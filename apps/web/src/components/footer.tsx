@@ -17,7 +17,7 @@ export function Footer({ variant = 'default', className }: FooterProps) {
   if (variant === 'minimal') {
     return (
       <footer className={cn('border-t bg-background py-6', className)}>
-        <div className="container mx-auto px-4">
+        <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
             <p className="text-sm text-muted-foreground">
               © {currentYear} {brandConstants.name}. {t('footer.copyright')}
@@ -44,7 +44,7 @@ export function Footer({ variant = 'default', className }: FooterProps) {
         className
       )}
     >
-      <div className="container mx-auto px-4 py-12">
+      <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8 py-12">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
           {/* Brand Section */}
           <div className="col-span-2 md:col-span-1">
@@ -181,7 +181,7 @@ export function FooterStatic({ variant = 'default', className }: FooterProps) {
         className
       )}
     >
-      <div className="container mx-auto px-4 text-center">
+      <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8 text-center">
         <p
           className={cn(
             'text-sm',

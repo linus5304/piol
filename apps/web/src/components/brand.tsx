@@ -1,10 +1,9 @@
 import { cn } from '@/lib/utils';
 import { brand } from '@repo/ui/tokens';
-import { Home } from 'lucide-react';
 import Link from 'next/link';
 
 // =============================================================================
-// LOGO COMPONENT
+// LOGO COMPONENT — "piol." text mark with amber dot
 // =============================================================================
 
 interface LogoProps {
@@ -15,23 +14,24 @@ interface LogoProps {
 }
 
 const logoSizes = {
-  sm: { icon: 28, text: 'text-lg', lucide: 14 },
-  md: { icon: 36, text: 'text-xl', lucide: 18 },
-  lg: { icon: 48, text: 'text-2xl', lucide: 24 },
+  sm: 'text-lg',
+  md: 'text-xl',
+  lg: 'text-2xl',
 } as const;
 
-export function Logo({ size = 'md', showText = true, className, asLink = true }: LogoProps) {
-  const { icon, text, lucide } = logoSizes[size];
+export function Logo({
+  size = 'md',
+  showText: _showText = true,
+  className,
+  asLink = true,
+}: LogoProps) {
+  const textSize = logoSizes[size];
 
   const content = (
-    <div className={cn('flex items-center gap-2.5', className)}>
-      <div
-        className="bg-zinc-900 dark:bg-zinc-100 rounded-lg flex items-center justify-center shadow-sm transition-shadow hover:shadow-md"
-        style={{ width: icon, height: icon }}
-      >
-        <Home className="text-white dark:text-zinc-900" size={lucide} strokeWidth={2.5} />
-      </div>
-      {showText && <span className={cn('font-semibold tracking-tight', text)}>{brand.name}</span>}
+    <div className={cn('flex items-center', className)}>
+      <span className={cn('font-extrabold tracking-tighter', textSize)}>
+        piol<span className="text-primary">.</span>
+      </span>
     </div>
   );
 
@@ -47,7 +47,7 @@ export function Logo({ size = 'md', showText = true, className, asLink = true }:
 }
 
 // =============================================================================
-// LOGO ICON ONLY
+// LOGO ICON ONLY — compact "p." mark
 // =============================================================================
 
 interface LogoIconProps {
@@ -55,18 +55,13 @@ interface LogoIconProps {
   className?: string;
 }
 
-export function LogoIcon({ size = 36, className }: LogoIconProps) {
-  const lucideSize = size * 0.5;
+export function LogoIcon({ size: _size = 36, className }: LogoIconProps) {
   return (
-    <div
-      className={cn(
-        'bg-zinc-900 dark:bg-zinc-100 rounded-lg flex items-center justify-center',
-        className
-      )}
-      style={{ width: size, height: size }}
+    <span
+      className={cn('inline-flex items-center font-extrabold tracking-tighter text-lg', className)}
     >
-      <Home className="text-white dark:text-zinc-900" size={lucideSize} strokeWidth={2.5} />
-    </div>
+      p<span className="text-primary">.</span>
+    </span>
   );
 }
 
@@ -87,7 +82,7 @@ export function BrandInfo({ variant = 'light', showTagline = false, className }:
       {showTagline && (
         <p
           className={cn(
-            'text-sm mt-1 ml-12',
+            'text-sm mt-1 ml-0.5',
             variant === 'dark' ? 'text-white/70' : 'text-muted-foreground'
           )}
         >
@@ -114,6 +109,7 @@ export const brandConstants = {
     facebook: 'https://facebook.com/piolcm',
     instagram: 'https://instagram.com/piolcm',
     linkedin: 'https://linkedin.com/company/piol',
+    tiktok: 'https://tiktok.com/@piolcm',
   },
 
   // Contact info

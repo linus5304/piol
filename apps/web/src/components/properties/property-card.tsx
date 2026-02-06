@@ -1,16 +1,9 @@
 'use client';
 
 import { Badge } from '@/components/ui/badge';
-import { Card, CardContent } from '@/components/ui/card';
-import {
-  Carousel,
-  CarouselContent,
-  CarouselItem,
-  CarouselNext,
-  CarouselPrevious,
-} from '@/components/ui/carousel';
 import { cn } from '@/lib/utils';
 import {
+  Armchair,
   Bath,
   Bed,
   Car,
@@ -23,49 +16,55 @@ import {
   Shield,
   Wifi,
   Wind,
+  Zap,
 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useCallback, useState } from 'react';
 
-interface PropertyCardProps {
-  property: {
+export interface PropertyCardData {
+  _id: string;
+  title: string;
+  propertyType: string;
+  rentAmount: number;
+  currency: string;
+  city: string;
+  neighborhood?: string;
+  images?: { url?: string; storageId?: string }[];
+  status?: string;
+  verificationStatus?: string;
+  landlordId?: string;
+  landlordName?: string;
+  landlordVerified?: boolean;
+  landlord?: {
     _id: string;
-    title: string;
-    propertyType: string;
-    rentAmount: number;
-    currency: string;
-    city: string;
-    neighborhood?: string;
-    images?: { url?: string; storageId?: string }[];
-    status?: string;
-    verificationStatus?: string;
-    landlordId?: string;
-    landlordName?: string;
-    landlordVerified?: boolean;
-    landlord?: {
-      _id: string;
-      firstName: string;
-      lastName: string;
-      idVerified: boolean;
-    } | null;
-    amenities?: {
-      wifi?: boolean;
-      parking?: boolean;
-      ac?: boolean;
-      security?: boolean;
-      pool?: boolean;
-      balcony?: boolean;
-      garden?: boolean;
-    };
-    bedrooms?: number;
-    bathrooms?: number;
+    firstName: string;
+    lastName: string;
+    idVerified: boolean;
+  } | null;
+  amenities?: {
+    wifi?: boolean;
+    parking?: boolean;
+    ac?: boolean;
+    security?: boolean;
+    water247?: boolean;
+    electricity247?: boolean;
+    furnished?: boolean;
+    balcony?: boolean;
+    garden?: boolean;
+    pool?: boolean;
   };
+  bedrooms?: number;
+  bathrooms?: number;
+  cautionMonths?: number;
+  upfrontMonths?: number;
+}
+
+interface PropertyCardProps {
+  property: PropertyCardData;
   showSaveButton?: boolean;
-  /** Controlled save state - if provided, component becomes controlled */
   isSaved?: boolean;
-  /** Callback when save button is clicked - receives property ID */
   onToggleSave?: (propertyId: string) => void;
   className?: string;
   variant?: 'vertical' | 'horizontal';
@@ -104,6 +103,15 @@ function formatCurrency(amount: number): string {
   return new Intl.NumberFormat('fr-FR').format(amount);
 }
 
+const amenityIcons = [
+  { key: 'wifi', icon: Wifi },
+  { key: 'parking', icon: Car },
+  { key: 'ac', icon: Wind },
+  { key: 'security', icon: Shield },
+  { key: 'furnished', icon: Armchair },
+  { key: 'electricity247', icon: Zap },
+] as const;
+
 export function PropertyCard({
   property,
   showSaveButton = true,
@@ -113,18 +121,16 @@ export function PropertyCard({
   variant = 'vertical',
 }: PropertyCardProps) {
   const t = useTranslations();
-  // Use prop if provided (controlled), otherwise local state (uncontrolled)
   const [localSaved, setLocalSaved] = useState(false);
   const isSaved = isSavedProp ?? localSaved;
   const [imageLoaded, setImageLoaded] = useState(false);
   const [imageError, setImageError] = useState(false);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [isLikeAnimating, setIsLikeAnimating] = useState(false);
 
-  // Get all valid image URLs, falling back to placeholder
   const allImages = property.images?.filter((img) => img.url).map((img) => img.url!) || [];
   const imageUrls = allImages.length > 0 ? allImages : [getConsistentImage(property._id)];
   const hasMultipleImages = imageUrls.length > 1;
-  const imageUrl = imageUrls[0];
 
   const handleImageError = useCallback(() => {
     setImageError(true);
@@ -151,6 +157,8 @@ export function PropertyCard({
   const handleSave = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
+    setIsLikeAnimating(true);
+    setTimeout(() => setIsLikeAnimating(false), 400);
     if (onToggleSave) {
       onToggleSave(property._id);
     } else {
@@ -158,132 +166,10 @@ export function PropertyCard({
     }
   };
 
-  const amenityIcons = [
-    { key: 'wifi', icon: Wifi, label: 'WiFi' },
-    { key: 'parking', icon: Car, label: 'Parking' },
-    { key: 'ac', icon: Wind, label: 'Climatisation' },
-    { key: 'security', icon: Shield, label: 'Sécurité' },
-  ];
-
   const activeAmenities = amenityIcons.filter(
     (a) => property.amenities?.[a.key as keyof typeof property.amenities]
   );
 
-  if (variant === 'horizontal') {
-    return (
-      <Link href={`/properties/${property._id}`} className={cn('group block', className)}>
-        <Card className="card-hover rounded-2xl overflow-hidden border border-border/50 bg-card">
-          <CardContent className="p-0 flex gap-0">
-            {/* Image */}
-            <div className="relative w-48 h-36 flex-shrink-0 overflow-hidden bg-muted">
-              {!imageLoaded && <div className="absolute inset-0 bg-muted animate-pulse" />}
-              {imageError ? (
-                <div className="absolute inset-0 flex items-center justify-center bg-muted">
-                  <ImageOff className="w-8 h-8 text-muted-foreground" />
-                </div>
-              ) : (
-                <>
-                  <Image
-                    src={imageUrl}
-                    alt={property.title}
-                    fill
-                    sizes="192px"
-                    onLoad={() => setImageLoaded(true)}
-                    onError={handleImageError}
-                    className={cn(
-                      'object-cover transition-transform duration-300 group-hover:scale-105',
-                      !imageLoaded && 'opacity-0'
-                    )}
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-r from-transparent to-black/10 pointer-events-none" />
-                </>
-              )}
-              {isVerified && (
-                <Badge className="absolute top-2 left-2 rounded-full bg-success text-success-foreground border-0 shadow-md backdrop-blur-sm text-xs">
-                  <CheckCircle className="w-3 h-3 mr-1" />
-                  Vérifié
-                </Badge>
-              )}
-            </div>
-
-            {/* Content */}
-            <div className="flex-1 min-w-0 p-4 flex flex-col justify-between">
-              <div>
-                <div className="flex items-start justify-between gap-2">
-                  <div className="min-w-0 flex-1">
-                    <div className="flex items-center gap-1.5 text-sm text-muted-foreground mb-1">
-                      <MapPin className="w-3.5 h-3.5 flex-shrink-0" />
-                      <span className="truncate">
-                        {property.neighborhood}, {property.city}
-                      </span>
-                    </div>
-                    <h3 className="font-semibold line-clamp-1 group-hover:text-primary transition-colors">
-                      {property.title}
-                    </h3>
-                  </div>
-                  {showSaveButton && (
-                    <button
-                      type="button"
-                      onClick={handleSave}
-                      className="flex-shrink-0 w-8 h-8 flex items-center justify-center hover:bg-muted rounded-full transition-colors"
-                    >
-                      <Heart
-                        className={cn(
-                          'w-5 h-5 transition-colors',
-                          isSaved ? 'fill-primary text-primary' : 'text-muted-foreground'
-                        )}
-                      />
-                    </button>
-                  )}
-                </div>
-
-                <div className="flex items-center gap-2 text-sm text-muted-foreground mt-1">
-                  <span className="font-medium">{getPropertyTypeLabel(property.propertyType)}</span>
-                  {property.bedrooms && (
-                    <>
-                      <span className="text-border">•</span>
-                      <span className="flex items-center gap-1">
-                        <Bed className="w-3.5 h-3.5" />
-                        {property.bedrooms}
-                      </span>
-                    </>
-                  )}
-                  {property.bathrooms && (
-                    <span className="flex items-center gap-1">
-                      <Bath className="w-3.5 h-3.5" />
-                      {property.bathrooms}
-                    </span>
-                  )}
-                </div>
-              </div>
-
-              <div className="flex items-center justify-between mt-3 pt-2 border-t border-border/50">
-                <div className="flex items-center gap-2">
-                  {activeAmenities.slice(0, 3).map(({ key, icon: Icon, label }) => (
-                    <div
-                      key={key}
-                      className="text-muted-foreground hover:text-foreground transition-colors"
-                      title={label}
-                    >
-                      <Icon className="w-4 h-4" />
-                    </div>
-                  ))}
-                </div>
-                <div className="text-right">
-                  <span className="font-bold text-foreground font-mono tabular-nums">
-                    {formatCurrency(property.rentAmount)}
-                  </span>
-                  <span className="text-muted-foreground text-sm"> FCFA/mois</span>
-                </div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      </Link>
-    );
-  }
-
-  // Handle carousel navigation
   const handlePrevImage = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
@@ -296,9 +182,126 @@ export function PropertyCard({
     setCurrentImageIndex((prev) => (prev === imageUrls.length - 1 ? 0 : prev + 1));
   };
 
+  // ─── HORIZONTAL VARIANT ──────────────────────────────────────────────
+  if (variant === 'horizontal') {
+    return (
+      <Link href={`/properties/${property._id}`} className={cn('group block', className)}>
+        <div className="dusk-card flex overflow-hidden">
+          {/* Image */}
+          <div className="relative w-48 h-36 flex-shrink-0 overflow-hidden bg-muted">
+            {!imageLoaded && <div className="absolute inset-0 bg-muted animate-pulse" />}
+            {imageError ? (
+              <div className="absolute inset-0 flex items-center justify-center bg-muted">
+                <ImageOff className="w-8 h-8 text-muted-foreground" />
+              </div>
+            ) : (
+              <>
+                <Image
+                  src={imageUrls[0]}
+                  alt={property.title}
+                  fill
+                  sizes="192px"
+                  onLoad={() => setImageLoaded(true)}
+                  onError={handleImageError}
+                  className={cn(
+                    'object-cover transition-transform duration-300 group-hover:scale-105',
+                    !imageLoaded && 'opacity-0'
+                  )}
+                />
+                <div className="absolute inset-0 bg-gradient-to-r from-transparent to-black/10 pointer-events-none" />
+              </>
+            )}
+            {isVerified && (
+              <Badge className="absolute top-2 left-2 rounded-full bg-success text-success-foreground border-0 shadow-md backdrop-blur-sm text-xs">
+                <CheckCircle className="w-3 h-3 mr-1" />
+                V&eacute;rifi&eacute;
+              </Badge>
+            )}
+          </div>
+
+          {/* Content */}
+          <div className="flex-1 min-w-0 p-4 flex flex-col justify-between">
+            <div>
+              <div className="flex items-start justify-between gap-2">
+                <div className="min-w-0 flex-1">
+                  <div className="flex items-center gap-1.5 text-sm text-muted-foreground mb-1">
+                    <MapPin className="w-3.5 h-3.5 flex-shrink-0" />
+                    <span className="truncate">
+                      {property.neighborhood
+                        ? `${property.neighborhood}, ${property.city}`
+                        : property.city}
+                    </span>
+                  </div>
+                  <h3 className="font-semibold line-clamp-1 group-hover:text-primary transition-colors">
+                    {property.title}
+                  </h3>
+                </div>
+                {showSaveButton && (
+                  <button
+                    type="button"
+                    onClick={handleSave}
+                    className="flex-shrink-0 w-8 h-8 flex items-center justify-center hover:bg-accent rounded-full transition-colors"
+                  >
+                    <Heart
+                      className={cn(
+                        'w-5 h-5 transition-all',
+                        isSaved ? 'fill-primary text-primary' : 'text-muted-foreground',
+                        isLikeAnimating && 'scale-125'
+                      )}
+                    />
+                  </button>
+                )}
+              </div>
+
+              <div className="flex items-center gap-2 text-sm text-muted-foreground mt-1">
+                <span className="font-medium">{getPropertyTypeLabel(property.propertyType)}</span>
+                {property.bedrooms && (
+                  <>
+                    <span className="text-border">&middot;</span>
+                    <span className="flex items-center gap-1">
+                      <Bed className="w-3.5 h-3.5" />
+                      {property.bedrooms}
+                    </span>
+                  </>
+                )}
+                {property.bathrooms && (
+                  <span className="flex items-center gap-1">
+                    <Bath className="w-3.5 h-3.5" />
+                    {property.bathrooms}
+                  </span>
+                )}
+              </div>
+            </div>
+
+            <div className="flex items-center justify-between mt-3 pt-2 border-t border-border/50">
+              <div className="flex items-center gap-2">
+                {activeAmenities.slice(0, 3).map(({ key, icon: Icon }) => (
+                  <div
+                    key={key}
+                    className="text-muted-foreground hover:text-foreground transition-colors"
+                    title={getAmenityLabel(key)}
+                  >
+                    <Icon className="w-4 h-4" />
+                  </div>
+                ))}
+              </div>
+              <div className="text-right">
+                <span className="font-bold text-foreground font-mono tabular-nums">
+                  {formatCurrency(property.rentAmount)}
+                </span>
+                <span className="text-muted-foreground text-sm"> FCFA/mois</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </Link>
+    );
+  }
+
+  // ─── VERTICAL VARIANT (DEFAULT) ──────────────────────────────────────
   return (
     <Link href={`/properties/${property._id}`} className={cn('group block', className)}>
-      <Card className="overflow-hidden card-hover rounded-2xl border border-border/50 bg-card shadow-sm">
+      <div className="dusk-card overflow-hidden">
         {/* Image Container with Carousel */}
         <div className="relative aspect-[4/3] overflow-hidden bg-muted">
           {!imageLoaded && <div className="absolute inset-0 bg-muted animate-pulse" />}
@@ -318,38 +321,35 @@ export function PropertyCard({
                 onLoad={() => setImageLoaded(true)}
                 onError={handleImageError}
                 className={cn(
-                  'object-cover transition-all duration-300 group-hover:scale-105',
+                  'object-cover transition-all duration-500 group-hover:scale-105',
                   !imageLoaded && 'opacity-0'
                 )}
               />
-              {/* Gradient overlay for better contrast */}
-              <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent pointer-events-none" />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent pointer-events-none" />
             </>
           )}
 
-          {/* Carousel Navigation - Only show when multiple images */}
+          {/* Carousel Navigation */}
           {hasMultipleImages && (
             <>
-              {/* Previous Button */}
               <button
                 type="button"
                 onClick={handlePrevImage}
-                className="absolute left-3 top-1/2 -translate-y-1/2 w-8 h-8 flex items-center justify-center bg-white/90 dark:bg-black/70 hover:bg-white dark:hover:bg-black/90 rounded-full shadow-lg backdrop-blur-sm opacity-0 group-hover:opacity-100 transition-all duration-200 z-10"
-                aria-label="Image précédente"
+                className="absolute left-3 top-1/2 -translate-y-1/2 w-8 h-8 flex items-center justify-center bg-background/80 hover:bg-background rounded-full shadow-lg backdrop-blur-sm opacity-0 group-hover:opacity-100 transition-all duration-200 z-10"
+                aria-label="Image pr&eacute;c&eacute;dente"
               >
                 <ChevronLeft className="w-4 h-4" />
               </button>
-              {/* Next Button */}
               <button
                 type="button"
                 onClick={handleNextImage}
-                className="absolute right-12 top-1/2 -translate-y-1/2 w-8 h-8 flex items-center justify-center bg-white/90 dark:bg-black/70 hover:bg-white dark:hover:bg-black/90 rounded-full shadow-lg backdrop-blur-sm opacity-0 group-hover:opacity-100 transition-all duration-200 z-10"
+                className="absolute right-12 top-1/2 -translate-y-1/2 w-8 h-8 flex items-center justify-center bg-background/80 hover:bg-background rounded-full shadow-lg backdrop-blur-sm opacity-0 group-hover:opacity-100 transition-all duration-200 z-10"
                 aria-label="Image suivante"
               >
                 <ChevronRight className="w-4 h-4" />
               </button>
               {/* Dots Indicator */}
-              <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex items-center gap-1.5 bg-black/30 backdrop-blur-sm rounded-full px-2 py-1">
+              <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex items-center gap-1.5 bg-black/30 backdrop-blur-sm rounded-full px-2.5 py-1">
                 {imageUrls.map((_, index) => (
                   <button
                     type="button"
@@ -377,13 +377,19 @@ export function PropertyCard({
             <button
               type="button"
               onClick={handleSave}
-              className="absolute top-3 right-3 w-9 h-9 flex items-center justify-center bg-white/90 dark:bg-black/70 hover:bg-white dark:hover:bg-black/90 rounded-full shadow-lg backdrop-blur-sm transition-all duration-200 hover:scale-110 touch-target z-10"
+              className={cn(
+                'absolute top-3 right-3 w-9 h-9 flex items-center justify-center rounded-full shadow-lg backdrop-blur-sm transition-all duration-200 hover:scale-110 touch-target z-10',
+                isSaved
+                  ? 'bg-primary/20 border border-primary/30'
+                  : 'bg-background/80 hover:bg-background'
+              )}
               aria-label={isSaved ? 'Retirer des favoris' : 'Ajouter aux favoris'}
             >
               <Heart
                 className={cn(
-                  'w-5 h-5 transition-colors',
-                  isSaved ? 'fill-primary text-primary' : 'text-foreground'
+                  'w-[18px] h-[18px] transition-all duration-200',
+                  isSaved ? 'fill-primary text-primary' : 'text-foreground',
+                  isLikeAnimating && 'scale-125'
                 )}
               />
             </button>
@@ -391,28 +397,30 @@ export function PropertyCard({
 
           {/* Verified Badge */}
           {isVerified && (
-            <Badge className="absolute top-3 left-3 rounded-full bg-success text-success-foreground border-0 shadow-lg backdrop-blur-sm z-10 font-medium">
-              <CheckCircle className="w-3 h-3 mr-1" />
-              Vérifié
-            </Badge>
+            <div className="absolute top-3 left-3 flex items-center gap-1.5 rounded-full bg-success/90 text-success-foreground px-2.5 py-1 text-xs font-semibold backdrop-blur-sm shadow-lg z-10">
+              <CheckCircle className="w-3 h-3" />
+              V&eacute;rifi&eacute;
+            </div>
           )}
 
-          {/* Image counter badge */}
+          {/* Image counter */}
           {hasMultipleImages && (
-            <div className="absolute top-3 left-1/2 -translate-x-1/2 bg-black/50 backdrop-blur-sm text-white text-xs font-medium px-2 py-0.5 rounded-full z-10">
+            <div className="absolute top-3 left-1/2 -translate-x-1/2 bg-black/50 backdrop-blur-sm text-white text-xs font-medium px-2.5 py-0.5 rounded-full z-10 font-mono">
               {currentImageIndex + 1} / {imageUrls.length}
             </div>
           )}
         </div>
 
         {/* Content */}
-        <CardContent className="p-4 space-y-2">
+        <div className="p-4 space-y-2.5">
           {/* Location */}
           <div className="flex items-center gap-1.5 text-sm text-muted-foreground">
             <MapPin className="w-3.5 h-3.5 flex-shrink-0" />
             <span className="truncate">
               {property.neighborhood || property.city}
-              {property.city !== property.neighborhood && `, ${property.city}`}
+              {property.neighborhood && property.city !== property.neighborhood
+                ? `, ${property.city}`
+                : ''}
             </span>
           </div>
 
@@ -424,7 +432,9 @@ export function PropertyCard({
           {/* Type & Features */}
           <div className="flex items-center gap-2 text-sm text-muted-foreground">
             <span className="font-medium">{getPropertyTypeLabel(property.propertyType)}</span>
-            <span className="text-border">•</span>
+            {(property.bedrooms || property.bathrooms) && (
+              <span className="text-border">&middot;</span>
+            )}
             {property.bedrooms && (
               <span className="flex items-center gap-1">
                 <Bed className="w-3.5 h-3.5" />
@@ -443,44 +453,46 @@ export function PropertyCard({
           {activeAmenities.length > 0 && (
             <div className="flex items-center gap-1.5 flex-wrap">
               {activeAmenities.slice(0, 3).map(({ key, icon: Icon }) => (
-                <Badge
+                <span
                   key={key}
-                  variant="secondary"
-                  className="gap-1 text-xs rounded-md px-2 py-0.5 font-normal"
+                  className="inline-flex items-center gap-1 text-xs rounded-md px-2 py-0.5 bg-accent text-accent-foreground"
                 >
                   <Icon className="w-3 h-3" />
                   {getAmenityLabel(key)}
-                </Badge>
+                </span>
               ))}
               {activeAmenities.length > 3 && (
-                <Badge variant="secondary" className="text-xs rounded-md px-2 py-0.5 font-normal">
+                <span className="text-xs rounded-md px-2 py-0.5 bg-accent text-accent-foreground">
                   +{activeAmenities.length - 3}
-                </Badge>
+                </span>
               )}
             </div>
           )}
 
-          {/* Price */}
-          <div className="pt-2 flex items-baseline gap-1 border-t border-border/50">
-            <span className="font-bold text-lg text-foreground font-mono tabular-nums">
-              {formatCurrency(property.rentAmount)}
-            </span>
-            <span className="text-sm text-muted-foreground">FCFA/mois</span>
-          </div>
-
-          {/* Landlord */}
-          {landlordName && (
-            <div className="flex items-center gap-2 pt-2">
-              <div className="w-6 h-6 bg-primary/10 rounded-full flex items-center justify-center text-xs font-semibold text-primary">
-                {landlordName.charAt(0)}
+          {/* Price & Landlord */}
+          <div className="pt-2.5 border-t border-border/50 flex items-end justify-between">
+            <div>
+              <div className="flex items-baseline gap-1">
+                <span className="font-bold text-lg text-foreground font-mono tabular-nums">
+                  {formatCurrency(property.rentAmount)}
+                </span>
+                <span className="text-sm text-muted-foreground">FCFA</span>
               </div>
-              <span className="text-xs text-muted-foreground">
-                Par <span className="font-medium text-foreground">{landlordName}</span>
-              </span>
+              <span className="text-xs text-muted-foreground">/mois</span>
             </div>
-          )}
-        </CardContent>
-      </Card>
+            {landlordName && (
+              <div className="flex items-center gap-1.5">
+                <div className="w-6 h-6 dusk-accent-badge rounded-full flex items-center justify-center text-xs font-semibold">
+                  {landlordName.charAt(0)}
+                </div>
+                <span className="text-xs text-muted-foreground max-w-[100px] truncate">
+                  {landlordName}
+                </span>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
     </Link>
   );
 }

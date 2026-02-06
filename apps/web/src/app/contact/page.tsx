@@ -46,8 +46,8 @@ export default function ContactPage() {
             <CardContent>
               {submitted ? (
                 <div className="text-center py-12">
-                  <div className="w-16 h-16 bg-green-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
-                    <CheckCircle className="w-8 h-8 text-green-600" />
+                  <div className="w-16 h-16 bg-success/10 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                    <CheckCircle className="w-8 h-8 text-success" />
                   </div>
                   <h3 className="text-lg font-semibold mb-2">Message envoyé!</h3>
                   <p className="text-muted-foreground">
@@ -143,8 +143,8 @@ export default function ContactPage() {
             <Card className="rounded-xl">
               <CardContent className="p-5">
                 <div className="flex items-start gap-4">
-                  <div className="w-10 h-10 bg-green-100 rounded-xl flex items-center justify-center shrink-0">
-                    <MessageCircle className="w-5 h-5 text-green-600" />
+                  <div className="w-10 h-10 bg-success/10 rounded-xl flex items-center justify-center shrink-0">
+                    <MessageCircle className="w-5 h-5 text-success" />
                   </div>
                   <div>
                     <h3 className="font-semibold">WhatsApp</h3>
@@ -173,20 +173,20 @@ export default function ContactPage() {
             </Card>
 
             {/* FAQ Link */}
-            <Card className="rounded-xl bg-blue-50 border-blue-100 dark:bg-blue-950/20 dark:border-blue-900">
+            <Card className="rounded-xl dusk-info-card">
               <CardContent className="p-5">
-                <h3 className="font-semibold text-blue-900 dark:text-blue-100 mb-2">
-                  Questions fréquentes
-                </h3>
-                <p className="text-blue-700 dark:text-blue-300 text-sm mb-4">
+                <h3 className="font-semibold mb-2">Questions fréquentes</h3>
+                <p className="text-muted-foreground text-sm mb-4">
                   Consultez notre FAQ pour des réponses rapides.
                 </p>
-                <Button
-                  variant="outline"
-                  className="w-full rounded-xl border-blue-200 text-blue-700 hover:bg-blue-100 dark:border-blue-800 dark:text-blue-300 dark:hover:bg-blue-900/50"
-                >
-                  Voir la FAQ
-                </Button>
+                <Link href="/help">
+                  <Button
+                    variant="outline"
+                    className="w-full rounded-xl border-border text-primary hover:bg-accent"
+                  >
+                    Voir la FAQ
+                  </Button>
+                </Link>
               </CardContent>
             </Card>
           </div>

@@ -495,7 +495,7 @@ export default function NewPropertyPage() {
                 {formData.neighborhood ? `${formData.neighborhood}, ` : ''}
                 {formData.city}
               </p>
-              <p className="text-sm font-medium text-primary">
+              <p className="text-sm font-medium text-primary font-mono tabular-nums">
                 {Number(formData.rentAmount).toLocaleString('fr-FR')} FCFA/mois
               </p>
               {formData.selectedAmenities.length > 0 && (

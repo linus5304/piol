@@ -210,7 +210,7 @@ export default function PropertiesPage() {
                       </div>
                     </div>
 
-                    <p className="text-lg font-medium text-primary mt-1">
+                    <p className="text-lg font-medium text-primary mt-1 font-mono tabular-nums">
                       {formatCurrency(property.rentAmount)}/mois
                     </p>
 

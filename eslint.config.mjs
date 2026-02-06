@@ -1,7 +1,7 @@
-import { FlatCompat } from '@eslint/eslintrc';
 import { createRequire } from 'node:module';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { FlatCompat } from '@eslint/eslintrc';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const require = createRequire(import.meta.url);

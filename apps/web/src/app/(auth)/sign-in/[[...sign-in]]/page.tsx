@@ -16,11 +16,11 @@ function DemoSignInForm() {
         <CardDescription>Bienvenue! Connectez-vous pour accéder à votre compte.</CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
-        <div className="bg-amber-50 border border-amber-200 rounded-lg p-4 text-sm text-amber-800">
+        <div className="bg-warning/10 border border-warning/20 rounded-lg p-4 text-sm text-warning">
           <strong>Mode Démo:</strong> L'authentification Clerk n'est pas configurée.
           <br />
           Pour activer l'authentification complète, ajoutez vos clés Clerk dans{' '}
-          <code className="bg-amber-100 px-1 rounded">.env.local</code>
+          <code className="bg-warning/20 px-1 rounded">.env.local</code>
         </div>
 
         <div className="space-y-3">

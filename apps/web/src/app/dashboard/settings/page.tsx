@@ -217,13 +217,16 @@ export default function SettingsPage() {
       </form>
 
       {/* Danger Zone */}
-      <Card className="border-red-200">
+      <Card className="border-destructive/20">
         <CardHeader>
-          <CardTitle className="text-red-600">Zone de danger</CardTitle>
+          <CardTitle className="text-destructive">Zone de danger</CardTitle>
           <CardDescription>Actions irréversibles sur votre compte</CardDescription>
         </CardHeader>
         <CardContent>
-          <Button variant="outline" className="text-red-600 border-red-200 hover:bg-red-50">
+          <Button
+            variant="outline"
+            className="text-destructive border-destructive/20 hover:bg-destructive/5"
+          >
             Supprimer mon compte
           </Button>
         </CardContent>

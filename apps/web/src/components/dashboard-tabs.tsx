@@ -38,7 +38,7 @@ export function DashboardTabs({ tabs = renterTabs, className }: DashboardTabsPro
   return (
     <nav
       className={cn(
-        'flex items-center gap-1 overflow-x-auto scrollbar-hide border-b bg-background px-4 md:px-6',
+        'flex items-center gap-1 overflow-x-auto scrollbar-hide border-b bg-background px-4 sm:px-6 lg:px-8',
         className
       )}
     >
