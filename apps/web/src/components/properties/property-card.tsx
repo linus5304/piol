@@ -214,7 +214,7 @@ export function PropertyCard({
             {isVerified && (
               <Badge className="absolute top-2 left-2 rounded-full bg-success text-success-foreground border-0 shadow-md backdrop-blur-sm text-xs">
                 <CheckCircle className="w-3 h-3 mr-1" />
-                V&eacute;rifi&eacute;
+                {t('properties.verified')}
               </Badge>
             )}
           </div>
@@ -289,7 +289,10 @@ export function PropertyCard({
                 <span className="font-bold text-foreground font-mono tabular-nums">
                   {formatCurrency(property.rentAmount)}
                 </span>
-                <span className="text-muted-foreground text-sm"> FCFA/mois</span>
+                <span className="text-muted-foreground text-sm">
+                  {' '}
+                  FCFA{t('properties.perMonth')}
+                </span>
               </div>
             </div>
           </div>
@@ -336,7 +339,7 @@ export function PropertyCard({
                 type="button"
                 onClick={handlePrevImage}
                 className="absolute left-3 top-1/2 -translate-y-1/2 w-8 h-8 flex items-center justify-center bg-background/80 hover:bg-background rounded-full shadow-lg backdrop-blur-sm opacity-0 group-hover:opacity-100 transition-all duration-200 z-10"
-                aria-label="Image pr&eacute;c&eacute;dente"
+                aria-label={t('common.back')}
               >
                 <ChevronLeft className="w-4 h-4" />
               </button>
@@ -344,7 +347,7 @@ export function PropertyCard({
                 type="button"
                 onClick={handleNextImage}
                 className="absolute right-12 top-1/2 -translate-y-1/2 w-8 h-8 flex items-center justify-center bg-background/80 hover:bg-background rounded-full shadow-lg backdrop-blur-sm opacity-0 group-hover:opacity-100 transition-all duration-200 z-10"
-                aria-label="Image suivante"
+                aria-label={t('common.next')}
               >
                 <ChevronRight className="w-4 h-4" />
               </button>
@@ -383,7 +386,7 @@ export function PropertyCard({
                   ? 'bg-primary/20 border border-primary/30'
                   : 'bg-background/80 hover:bg-background'
               )}
-              aria-label={isSaved ? 'Retirer des favoris' : 'Ajouter aux favoris'}
+              aria-label={isSaved ? t('dashboard.favorites') : t('dashboard.favorites')}
             >
               <Heart
                 className={cn(
@@ -399,7 +402,7 @@ export function PropertyCard({
           {isVerified && (
             <div className="absolute top-3 left-3 flex items-center gap-1.5 rounded-full bg-success/90 text-success-foreground px-2.5 py-1 text-xs font-semibold backdrop-blur-sm shadow-lg z-10">
               <CheckCircle className="w-3 h-3" />
-              V&eacute;rifi&eacute;
+              {t('properties.verified')}
             </div>
           )}
 
@@ -453,18 +456,13 @@ export function PropertyCard({
           {activeAmenities.length > 0 && (
             <div className="flex items-center gap-1.5 flex-wrap">
               {activeAmenities.slice(0, 3).map(({ key, icon: Icon }) => (
-                <span
-                  key={key}
-                  className="inline-flex items-center gap-1 text-xs rounded-md px-2 py-0.5 bg-accent text-accent-foreground"
-                >
+                <span key={key} className="dusk-tag font-mono inline-flex items-center gap-1">
                   <Icon className="w-3 h-3" />
                   {getAmenityLabel(key)}
                 </span>
               ))}
               {activeAmenities.length > 3 && (
-                <span className="text-xs rounded-md px-2 py-0.5 bg-accent text-accent-foreground">
-                  +{activeAmenities.length - 3}
-                </span>
+                <span className="dusk-tag font-mono">+{activeAmenities.length - 3}</span>
               )}
             </div>
           )}
@@ -478,7 +476,7 @@ export function PropertyCard({
                 </span>
                 <span className="text-sm text-muted-foreground">FCFA</span>
               </div>
-              <span className="text-xs text-muted-foreground">/mois</span>
+              <span className="text-xs text-muted-foreground">{t('properties.perMonth')}</span>
             </div>
             {landlordName && (
               <div className="flex items-center gap-1.5">

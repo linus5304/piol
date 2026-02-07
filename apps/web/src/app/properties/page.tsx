@@ -18,6 +18,7 @@ import { api } from '@repo/convex/_generated/api';
 import type { Id } from '@repo/convex/_generated/dataModel';
 import { useMutation, useQuery } from 'convex/react';
 import {
+  ArrowRight,
   Building2,
   Castle,
   Grid3X3,
@@ -31,11 +32,25 @@ import {
   X,
 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
+import Link from 'next/link';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { Suspense, useCallback, useMemo, useState } from 'react';
 import { toast } from 'sonner';
 
-const cities = ['Douala', 'Yaoundé', 'Bafoussam', 'Buea', 'Kribi', 'Limbé', 'Bamenda', 'Garoua'];
+// ---------------------------------------------------------------------------
+// Constants
+// ---------------------------------------------------------------------------
+
+const cities = [
+  'Douala',
+  'Yaound\u00e9',
+  'Bafoussam',
+  'Buea',
+  'Kribi',
+  'Limb\u00e9',
+  'Bamenda',
+  'Garoua',
+];
 
 const propertyCategories = [
   { value: 'all', labelKey: 'categories.all', icon: Grid3X3 },
@@ -47,22 +62,24 @@ const propertyCategories = [
 ];
 
 const priceRanges = [
-  { value: 'all', label: 'Tous les prix' },
-  { value: '0-50000', label: 'Moins de 50 000 FCFA' },
-  { value: '50000-100000', label: '50 000 - 100 000 FCFA' },
-  { value: '100000-200000', label: '100 000 - 200 000 FCFA' },
-  { value: '200000-500000', label: '200 000 - 500 000 FCFA' },
-  { value: '500000+', label: 'Plus de 500 000 FCFA' },
+  { value: 'all', labelKey: 'filters.allPrices' },
+  { value: '0-50000', labelKey: 'filters.under50k' },
+  { value: '50000-100000', labelKey: 'filters.range50to100k' },
+  { value: '100000-200000', labelKey: 'filters.range100to200k' },
+  { value: '200000-500000', labelKey: 'filters.range200to500k' },
+  { value: '500000+', labelKey: 'filters.above500k' },
 ];
 
-// Map UI sort values to Convex format
 const sortByMap: Record<string, 'price_asc' | 'price_desc' | 'newest' | 'oldest'> = {
   newest: 'newest',
   'price-asc': 'price_asc',
   'price-desc': 'price_desc',
 };
 
-// Parse price range string into min/max values
+// ---------------------------------------------------------------------------
+// Helpers
+// ---------------------------------------------------------------------------
+
 function parsePriceRange(range: string): { minPrice?: number; maxPrice?: number } {
   if (range === 'all') return {};
   if (range.endsWith('+')) {
@@ -72,7 +89,10 @@ function parsePriceRange(range: string): { minPrice?: number; maxPrice?: number 
   return { minPrice: min, maxPrice: max };
 }
 
-// Type for property data (matches PropertyCard props)
+// ---------------------------------------------------------------------------
+// Types
+// ---------------------------------------------------------------------------
+
 type PropertyWithLandlord = {
   _id: string;
   _creationTime?: number;
@@ -85,10 +105,7 @@ type PropertyWithLandlord = {
   verificationStatus?: string;
   status?: string;
   images?: { url?: string; storageId?: string }[];
-  location?: {
-    latitude: number;
-    longitude: number;
-  };
+  location?: { latitude: number; longitude: number };
   amenities?: {
     wifi?: boolean;
     parking?: boolean;
@@ -111,20 +128,33 @@ type PropertyWithLandlord = {
   } | null;
 };
 
-// Property card skeleton for loading state
+// ---------------------------------------------------------------------------
+// Skeleton
+// ---------------------------------------------------------------------------
+
 function PropertyCardSkeleton() {
   return (
-    <div className="rounded-xl overflow-hidden">
+    <div className="dusk-card overflow-hidden">
       <Skeleton className="aspect-[4/3] w-full" />
-      <div className="p-4 space-y-2">
-        <Skeleton className="h-4 w-3/4" />
+      <div className="p-4 space-y-2.5">
+        <Skeleton className="h-4 w-2/3" />
+        <Skeleton className="h-4 w-4/5" />
         <Skeleton className="h-4 w-1/2" />
-        <Skeleton className="h-4 w-1/4" />
-        <Skeleton className="h-6 w-1/3 mt-2" />
+        <div className="flex gap-1.5 pt-1">
+          <Skeleton className="h-5 w-14 rounded-full" />
+          <Skeleton className="h-5 w-14 rounded-full" />
+        </div>
+        <div className="pt-2.5 border-t border-border/50">
+          <Skeleton className="h-6 w-1/3" />
+        </div>
       </div>
     </div>
   );
 }
+
+// ---------------------------------------------------------------------------
+// Main Content
+// ---------------------------------------------------------------------------
 
 function PropertiesPageContent() {
   const t = useTranslations();
@@ -140,11 +170,11 @@ function PropertiesPageContent() {
   const sortBy = searchParams.get('sort') ?? 'newest';
   const viewMode = (searchParams.get('view') as 'grid' | 'map') ?? 'grid';
 
-  // Local state for UI-only (not persisted in URL)
+  // Local UI state
   const [showFilters, setShowFilters] = useState(false);
   const [hoveredPropertyId, setHoveredPropertyId] = useState<string | null>(null);
 
-  // Update URL params helper
+  // URL param helper
   const updateParams = useCallback(
     (updates: Record<string, string | null>) => {
       const params = new URLSearchParams(searchParams.toString());
@@ -160,7 +190,6 @@ function PropertiesPageContent() {
     [searchParams, router, pathname]
   );
 
-  // Setter functions that update URL
   const setSearchQuery = useCallback(
     (value: string) => updateParams({ q: value || null }),
     [updateParams]
@@ -183,16 +212,12 @@ function PropertiesPageContent() {
     [updateParams]
   );
 
-  // Ensure user exists in Convex when authenticated
   useEnsureUser();
 
-  // Build query args from filter state
+  // Build query args
   const { minPrice, maxPrice } = parsePriceRange(priceRange);
   const convexSortBy = sortByMap[sortBy] || 'newest';
 
-  // Map category to propertyType (null means no filter)
-  // Note: 'apartment' category includes apartment, 1br, 2br, 3br, 4br but Convex
-  // filters by exact type, so we only pass specific types to the query
   const propertyTypeArg = useMemo(() => {
     if (selectedCategory === 'all' || selectedCategory === 'apartment') return undefined;
     if (['studio', 'house', 'villa'].includes(selectedCategory)) {
@@ -201,7 +226,7 @@ function PropertiesPageContent() {
     return undefined;
   }, [selectedCategory]);
 
-  // Use search query when user types, otherwise use listProperties
+  // Queries
   const searchResults = useQuery(
     api.properties.searchProperties,
     searchQuery.trim().length >= 2
@@ -228,28 +253,24 @@ function PropertiesPageContent() {
       : 'skip'
   );
 
-  // Saved properties functionality
+  // Saved properties
   const savedPropertyIds = useQuery(api.savedProperties.getSavedPropertyIds);
   const toggleSaveProperty = useMutation(api.savedProperties.toggleSaveProperty);
 
-  const savedPropertyIdSet = useMemo(() => {
-    return new Set(savedPropertyIds ?? []);
-  }, [savedPropertyIds]);
+  const savedPropertyIdSet = useMemo(() => new Set(savedPropertyIds ?? []), [savedPropertyIds]);
 
   const handleToggleSave = useCallback(
     async (propertyId: string) => {
       try {
-        await toggleSaveProperty({
-          propertyId: propertyId as Id<'properties'>,
-        });
-      } catch (error) {
-        toast.error('Impossible de sauvegarder la propriété. Veuillez réessayer.');
+        await toggleSaveProperty({ propertyId: propertyId as Id<'properties'> });
+      } catch {
+        toast.error(t('common.error'));
       }
     },
-    [toggleSaveProperty]
+    [toggleSaveProperty, t]
   );
 
-  // Combine results based on which query is active
+  // Combine results
   const propertiesResult = useMemo((): {
     properties: PropertyWithLandlord[];
     total: number;
@@ -261,7 +282,6 @@ function PropertiesPageContent() {
       if (searchResults === undefined) {
         return { properties: [], total: 0, isLoading: true };
       }
-      // Filter search results by price range client-side (search query doesn't support it)
       let properties = searchResults as PropertyWithLandlord[];
       if (minPrice !== undefined) {
         properties = properties.filter((p) => p.rentAmount >= minPrice);
@@ -269,7 +289,6 @@ function PropertiesPageContent() {
       if (maxPrice !== undefined) {
         properties = properties.filter((p) => p.rentAmount <= maxPrice);
       }
-      // Apply apartment category filter client-side (includes 1br, 2br, etc)
       if (selectedCategory === 'apartment') {
         properties = properties.filter(
           (p) =>
@@ -287,7 +306,6 @@ function PropertiesPageContent() {
       return { properties: [], total: 0, isLoading: true };
     }
 
-    // Apply apartment category filter client-side
     let properties = listResults.properties as PropertyWithLandlord[];
     if (selectedCategory === 'apartment') {
       properties = properties.filter(
@@ -300,11 +318,7 @@ function PropertiesPageContent() {
       );
     }
 
-    return {
-      properties,
-      total: properties.length,
-      isLoading: false,
-    };
+    return { properties, total: properties.length, isLoading: false };
   }, [searchQuery, searchResults, listResults, minPrice, maxPrice, selectedCategory]);
 
   const activeFiltersCount = [
@@ -318,28 +332,30 @@ function PropertiesPageContent() {
   }, [router, pathname]);
 
   return (
-    <PublicLayout showFooter={false}>
-      {/* Search & Filters */}
+    <PublicLayout showFooter={viewMode === 'grid'}>
+      {/* ================================================================= */}
+      {/* SEARCH & FILTERS — sticky below header                           */}
+      {/* ================================================================= */}
       <div className="border-b border-border dusk-surface-blur sticky top-14 z-40">
-        <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8 py-4">
+        <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8">
           {/* Search Bar */}
-          <div className="flex gap-2 mb-4">
+          <div className="flex gap-2 sm:gap-3 pt-4 pb-3">
             <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input
                 type="text"
                 placeholder={t('search.placeholder')}
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10 rounded-xl border-border bg-card"
+                className="pl-10 h-11 rounded-xl border-border bg-card"
               />
             </div>
             <Select
               value={selectedCity ?? 'all'}
               onValueChange={(v) => setSelectedCity(v === 'all' ? undefined : v)}
             >
-              <SelectTrigger className="w-40 hidden sm:flex rounded-xl border-border">
-                <MapPin className="h-4 w-4 mr-2" />
+              <SelectTrigger className="h-11 w-44 hidden sm:flex rounded-xl border-border">
+                <MapPin className="h-4 w-4 mr-2 flex-shrink-0" />
                 <SelectValue placeholder={t('search.allCities')} />
               </SelectTrigger>
               <SelectContent>
@@ -354,20 +370,22 @@ function PropertiesPageContent() {
             <Button
               variant="outline"
               onClick={() => setShowFilters(!showFilters)}
-              className={`rounded-xl border-border ${activeFiltersCount > 0 ? 'border-primary text-primary' : ''}`}
+              className={`h-11 rounded-xl border-border gap-2 ${
+                activeFiltersCount > 0 ? 'border-primary text-primary' : ''
+              }`}
             >
               <SlidersHorizontal className="h-4 w-4" />
-              <span className="hidden sm:inline ml-2">{t('filters.title')}</span>
+              <span className="hidden sm:inline">{t('filters.title')}</span>
               {activeFiltersCount > 0 && (
-                <Badge className="ml-2 rounded-full bg-primary text-primary-foreground">
+                <Badge className="ml-1 h-5 w-5 p-0 flex items-center justify-center rounded-full bg-primary text-primary-foreground text-[10px]">
                   {activeFiltersCount}
                 </Badge>
               )}
             </Button>
           </div>
 
-          {/* Category Tabs */}
-          <div className="flex items-center gap-1 overflow-x-auto scrollbar-hide">
+          {/* Category Tabs — horizontal scrollable pills */}
+          <div className="flex items-center gap-1.5 overflow-x-auto scrollbar-hide pb-3 -mx-4 px-4 sm:mx-0 sm:px-0">
             {propertyCategories.map((category) => {
               const Icon = category.icon;
               const isActive = selectedCategory === category.value;
@@ -376,10 +394,10 @@ function PropertiesPageContent() {
                   type="button"
                   key={category.value}
                   onClick={() => setSelectedCategory(category.value)}
-                  className={`flex items-center gap-2 px-4 py-2 text-sm font-medium whitespace-nowrap transition-all touch-target rounded-lg ${
+                  className={`flex items-center gap-2 px-4 py-2 text-sm font-medium whitespace-nowrap transition-all touch-target rounded-full ${
                     isActive
-                      ? 'bg-primary text-primary-foreground'
-                      : 'text-muted-foreground hover:text-foreground hover:bg-accent'
+                      ? 'bg-primary text-primary-foreground shadow-sm'
+                      : 'text-muted-foreground hover:text-foreground hover:bg-accent border border-transparent hover:border-border'
                   }`}
                 >
                   <Icon className="w-4 h-4" />
@@ -390,11 +408,36 @@ function PropertiesPageContent() {
           </div>
         </div>
 
-        {/* Extended Filters */}
+        {/* Expanded Filter Panel */}
         {showFilters && (
-          <div className="border-t border-border">
-            <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8 py-4">
-              <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+          <div className="border-t border-border bg-card/50 backdrop-blur-sm">
+            <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8 py-5">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                {/* City — visible on mobile only (desktop has it in search bar) */}
+                <div className="sm:hidden">
+                  <span className="block text-sm font-medium mb-2">{t('filters.city')}</span>
+                  <Select
+                    value={selectedCity ?? 'all'}
+                    onValueChange={(v) => setSelectedCity(v === 'all' ? undefined : v)}
+                  >
+                    <SelectTrigger
+                      className="rounded-xl border-border"
+                      aria-label={t('filters.city')}
+                    >
+                      <SelectValue placeholder={t('search.allCities')} />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">{t('search.allCities')}</SelectItem>
+                      {cities.map((city) => (
+                        <SelectItem key={city} value={city}>
+                          {city}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                {/* Price Range */}
                 <div>
                   <span className="block text-sm font-medium mb-2">{t('filters.priceRange')}</span>
                   <Select value={priceRange} onValueChange={setPriceRange}>
@@ -407,12 +450,14 @@ function PropertiesPageContent() {
                     <SelectContent>
                       {priceRanges.map((range) => (
                         <SelectItem key={range.value} value={range.value}>
-                          {range.label}
+                          {t(range.labelKey)}
                         </SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
                 </div>
+
+                {/* Sort By */}
                 <div>
                   <span className="block text-sm font-medium mb-2">{t('filters.sortBy')}</span>
                   <Select value={sortBy} onValueChange={setSortBy}>
@@ -429,7 +474,9 @@ function PropertiesPageContent() {
                     </SelectContent>
                   </Select>
                 </div>
-                <div className="md:col-span-2 flex items-end justify-end gap-2">
+
+                {/* Actions */}
+                <div className="flex items-end justify-end gap-2 sm:col-span-2 lg:col-span-1">
                   <Button variant="ghost" onClick={clearAllFilters} className="rounded-xl">
                     {t('filters.clearAll')}
                   </Button>
@@ -446,55 +493,48 @@ function PropertiesPageContent() {
         )}
       </div>
 
+      {/* ================================================================= */}
+      {/* RESULTS                                                          */}
+      {/* ================================================================= */}
       <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8 py-6">
-        {/* Results Header */}
-        <div className="flex items-center justify-between mb-6">
+        {/* Results Toolbar */}
+        <div className="flex items-start sm:items-center justify-between gap-4 mb-2">
           <div>
-            <h1 className="text-xl font-bold tracking-tight">
+            <h1 className="text-xl font-bold tracking-tight sm:text-2xl">
               {selectedCity
                 ? t('properties.inCity', { city: selectedCity })
                 : t('properties.title')}
+              <span className="text-primary">.</span>
             </h1>
             <p className="text-sm text-muted-foreground mt-1 font-mono">
               {t('properties.resultsCount', { count: propertiesResult.total })}
             </p>
           </div>
 
-          <div className="flex items-center gap-2">
-            {activeFiltersCount > 0 && (
-              <div className="hidden md:flex items-center gap-2">
-                {selectedCity && (
-                  <Badge variant="secondary" className="gap-1 rounded-full">
-                    {selectedCity}
-                    <button type="button" onClick={() => setSelectedCity(undefined)}>
-                      <X className="w-3 h-3" />
-                    </button>
-                  </Badge>
-                )}
-                {selectedCategory !== 'all' && (
-                  <Badge variant="secondary" className="gap-1 rounded-full">
-                    {t(
-                      propertyCategories.find((c) => c.value === selectedCategory)?.labelKey || ''
-                    )}
-                    <button type="button" onClick={() => setSelectedCategory('all')}>
-                      <X className="w-3 h-3" />
-                    </button>
-                  </Badge>
-                )}
-              </div>
-            )}
+          <div className="flex items-center gap-2 flex-shrink-0">
+            {/* View Toggle */}
             <div className="flex rounded-xl border border-border overflow-hidden">
               <button
                 type="button"
                 onClick={() => setViewMode('grid')}
-                className={`p-2 transition-colors ${viewMode === 'grid' ? 'bg-accent text-foreground' : 'hover:bg-accent/50 text-muted-foreground'}`}
+                className={`p-2.5 transition-colors ${
+                  viewMode === 'grid'
+                    ? 'bg-accent text-foreground'
+                    : 'hover:bg-accent/50 text-muted-foreground'
+                }`}
+                aria-label="Grid view"
               >
                 <Grid3X3 className="w-4 h-4" />
               </button>
               <button
                 type="button"
                 onClick={() => setViewMode('map')}
-                className={`p-2 transition-colors ${viewMode === 'map' ? 'bg-accent text-foreground' : 'hover:bg-accent/50 text-muted-foreground'}`}
+                className={`p-2.5 transition-colors ${
+                  viewMode === 'map'
+                    ? 'bg-accent text-foreground'
+                    : 'hover:bg-accent/50 text-muted-foreground'
+                }`}
+                aria-label="Map view"
               >
                 <MapIcon className="w-4 h-4" />
               </button>
@@ -502,17 +542,76 @@ function PropertiesPageContent() {
           </div>
         </div>
 
-        {/* Properties Grid */}
+        {/* Active Filter Chips */}
+        {activeFiltersCount > 0 && (
+          <div className="flex items-center gap-2 mb-5 flex-wrap">
+            {selectedCity && (
+              <Badge
+                variant="secondary"
+                className="gap-1.5 rounded-full px-3 py-1 text-sm font-normal"
+              >
+                <MapPin className="w-3 h-3" />
+                {selectedCity}
+                <button
+                  type="button"
+                  onClick={() => setSelectedCity(undefined)}
+                  className="ml-0.5 hover:text-foreground"
+                >
+                  <X className="w-3 h-3" />
+                </button>
+              </Badge>
+            )}
+            {selectedCategory !== 'all' && (
+              <Badge
+                variant="secondary"
+                className="gap-1.5 rounded-full px-3 py-1 text-sm font-normal"
+              >
+                {t(propertyCategories.find((c) => c.value === selectedCategory)?.labelKey || '')}
+                <button
+                  type="button"
+                  onClick={() => setSelectedCategory('all')}
+                  className="ml-0.5 hover:text-foreground"
+                >
+                  <X className="w-3 h-3" />
+                </button>
+              </Badge>
+            )}
+            {priceRange !== 'all' && (
+              <Badge
+                variant="secondary"
+                className="gap-1.5 rounded-full px-3 py-1 text-sm font-normal"
+              >
+                {t(priceRanges.find((r) => r.value === priceRange)?.labelKey || '')}
+                <button
+                  type="button"
+                  onClick={() => setPriceRange('all')}
+                  className="ml-0.5 hover:text-foreground"
+                >
+                  <X className="w-3 h-3" />
+                </button>
+              </Badge>
+            )}
+            <button
+              type="button"
+              onClick={clearAllFilters}
+              className="text-sm text-primary font-medium hover:underline underline-offset-4"
+            >
+              {t('filters.clearAll')}
+            </button>
+          </div>
+        )}
+
+        {/* ─── Grid View ─────────────────────────────────────────── */}
         {viewMode === 'grid' ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {/* Loading skeletons */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5 sm:gap-6">
+            {/* Loading */}
             {propertiesResult.isLoading &&
               Array.from({ length: 8 }).map((_, i) => (
-                // biome-ignore lint/suspicious/noArrayIndexKey: static skeleton placeholders
+                // biome-ignore lint/suspicious/noArrayIndexKey: static skeleton
                 <PropertyCardSkeleton key={`skeleton-${i}`} />
               ))}
 
-            {/* Property cards */}
+            {/* Cards */}
             {!propertiesResult.isLoading &&
               propertiesResult.properties.map((property) => (
                 <PropertyCard
@@ -523,9 +622,9 @@ function PropertiesPageContent() {
                 />
               ))}
 
-            {/* Empty state */}
+            {/* Empty State */}
             {!propertiesResult.isLoading && propertiesResult.properties.length === 0 && (
-              <div className="col-span-full text-center py-16">
+              <div className="col-span-full text-center py-20">
                 <div className="w-16 h-16 mx-auto mb-6 dusk-accent-badge flex items-center justify-center rounded-2xl">
                   <Search className="w-8 h-8" />
                 </div>
@@ -544,17 +643,16 @@ function PropertiesPageContent() {
             )}
           </div>
         ) : (
+          /* ─── Map View ────────────────────────────────────────── */
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 h-[calc(100vh-300px)]">
-            {/* Property List Panel */}
+            {/* List Panel */}
             <div className="overflow-y-auto space-y-4 pr-2 lg:pr-4">
-              {/* Loading skeletons for horizontal view */}
               {propertiesResult.isLoading &&
                 Array.from({ length: 4 }).map((_, i) => (
-                  // biome-ignore lint/suspicious/noArrayIndexKey: static skeleton placeholders
+                  // biome-ignore lint/suspicious/noArrayIndexKey: static skeleton
                   <Skeleton key={`h-skeleton-${i}`} className="h-32 w-full rounded-xl" />
                 ))}
 
-              {/* Property cards */}
               {!propertiesResult.isLoading &&
                 propertiesResult.properties.map((property) => (
                   <div
@@ -574,7 +672,6 @@ function PropertiesPageContent() {
                   </div>
                 ))}
 
-              {/* Empty state in list */}
               {!propertiesResult.isLoading && propertiesResult.properties.length === 0 && (
                 <div className="text-center py-12">
                   <Search className="w-8 h-8 text-muted-foreground mx-auto mb-3" />
@@ -593,22 +690,76 @@ function PropertiesPageContent() {
           </div>
         )}
 
-        {/* Load More */}
-        {propertiesResult.properties.length > 0 &&
-          propertiesResult.properties.length < propertiesResult.total && (
-            <div className="text-center mt-12">
-              <Button variant="outline" size="lg" className="rounded-xl">
-                {t('common.loadMore')}
-              </Button>
-            </div>
-          )}
+        {/* TODO: Add pagination/load more when backend supports cursor-based pagination */}
       </div>
 
-      {/* Floating Map Button - Mobile */}
+      {/* ================================================================= */}
+      {/* BROWSE BY CITY                                                    */}
+      {/* ================================================================= */}
+      {viewMode === 'grid' && (
+        <section className="border-t border-border py-12 md:py-16">
+          <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8">
+            <h2 className="text-2xl font-extrabold tracking-tight sm:text-3xl">
+              {t('properties.browseByCity')}
+              <span className="text-primary">.</span>
+            </h2>
+            <div className="mt-6 grid grid-cols-2 sm:grid-cols-4 gap-3">
+              {cities.map((city) => (
+                <Link
+                  key={city}
+                  href={`/properties?city=${city}`}
+                  className="group flex items-center justify-between rounded-xl border border-border bg-card p-4 transition-all hover:border-primary/40 hover:shadow-sm"
+                >
+                  <div>
+                    <div className="font-semibold">{city}</div>
+                    <div className="font-mono mt-0.5 text-xs text-muted-foreground">
+                      {t('nav.properties')}
+                    </div>
+                  </div>
+                  <ArrowRight
+                    size={16}
+                    className="shrink-0 text-primary opacity-0 group-hover:opacity-100 transition-all group-hover:translate-x-0.5"
+                  />
+                </Link>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* ================================================================= */}
+      {/* CTA                                                               */}
+      {/* ================================================================= */}
+      {viewMode === 'grid' && (
+        <section className="py-12 md:py-16 bg-gradient-to-b from-accent/50 via-background to-background">
+          <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8 text-center">
+            <h2 className="text-2xl font-extrabold tracking-tight sm:text-3xl md:text-4xl">
+              {t('properties.cantFind')}
+            </h2>
+            <p className="mx-auto mt-4 max-w-lg text-sm leading-relaxed text-muted-foreground sm:text-base">
+              {t('properties.cantFindDesc')}
+            </p>
+            <div className="mt-8 flex flex-col sm:flex-row gap-3 justify-center">
+              <Link href="/contact" className="dusk-btn-amber font-mono text-sm justify-center">
+                {t('properties.contactUs')}
+              </Link>
+              <Link
+                href="/sign-up?role=landlord"
+                className="inline-flex items-center justify-center gap-2 rounded-lg border border-border px-6 py-3 text-sm font-semibold transition-colors hover:bg-accent"
+              >
+                {t('properties.listYourProperty')}
+                <ArrowRight size={16} />
+              </Link>
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* Mobile Map Toggle */}
       <div className="fixed bottom-6 left-1/2 -translate-x-1/2 md:hidden z-50">
         <Button
           onClick={() => setViewMode(viewMode === 'grid' ? 'map' : 'grid')}
-          className="shadow-lg rounded-full bg-primary text-primary-foreground hover:bg-primary-hover"
+          className="shadow-lg rounded-full bg-primary text-primary-foreground hover:bg-primary-hover px-6"
         >
           {viewMode === 'grid' ? (
             <>
@@ -627,23 +778,28 @@ function PropertiesPageContent() {
   );
 }
 
-// Loading skeleton for Suspense fallback
+// ---------------------------------------------------------------------------
+// Loading Skeleton
+// ---------------------------------------------------------------------------
+
 function PropertiesPageSkeleton() {
   return (
     <PublicLayout showFooter={false}>
-      <div className="border-b bg-background sticky top-16 z-40">
+      <div className="border-b bg-background sticky top-14 z-40">
         <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8 py-4">
-          <Skeleton className="h-10 w-full mb-4 rounded-xl" />
+          <Skeleton className="h-11 w-full mb-3 rounded-xl" />
           <div className="flex gap-2">
             {Array.from({ length: 5 }).map((_, i) => (
               // biome-ignore lint/suspicious/noArrayIndexKey: static skeleton
-              <Skeleton key={`cat-${i}`} className="h-8 w-24 rounded-lg" />
+              <Skeleton key={`cat-${i}`} className="h-9 w-24 rounded-full" />
             ))}
           </div>
         </div>
       </div>
       <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8 py-6">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+        <Skeleton className="h-8 w-64 mb-2" />
+        <Skeleton className="h-4 w-32 mb-6" />
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5 sm:gap-6">
           {Array.from({ length: 8 }).map((_, i) => (
             // biome-ignore lint/suspicious/noArrayIndexKey: static skeleton
             <PropertyCardSkeleton key={`prop-${i}`} />
@@ -653,6 +809,10 @@ function PropertiesPageSkeleton() {
     </PublicLayout>
   );
 }
+
+// ---------------------------------------------------------------------------
+// Export
+// ---------------------------------------------------------------------------
 
 export default function PropertiesPage() {
   return (
