@@ -209,7 +209,7 @@ export default defineSchema({
     isRead: v.boolean(),
   })
     .index('by_conversation', ['conversationId'])
-    .index('by_conversation_time', ['conversationId', '_creationTime'])
+    .index('by_conversation_time', ['conversationId'])
     .index('by_sender', ['senderId'])
     .index('by_recipient', ['recipientId'])
     .index('by_property', ['propertyId']),
