@@ -1,5 +1,15 @@
 'use client';
 
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -29,17 +39,19 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { RequireRole, usePermissions } from '@/hooks/use-permissions';
+import { parseAppLocale } from '@/i18n/config';
+import { formatDate } from '@/lib/i18n-format';
 import { ROLE_COLORS, ROLE_LABELS, type UserRole } from '@/lib/permissions';
 import { api } from '@repo/convex/_generated/api';
 import type { Id } from '@repo/convex/_generated/dataModel';
 import { useMutation, useQuery } from 'convex/react';
+import { useLocale } from 'gt-next/client';
 import {
   AlertCircle,
   ArrowLeft,
   CheckCircle,
   MoreHorizontal,
   Search,
-  Shield,
   UserCheck,
   UserX,
   Users,
@@ -49,8 +61,8 @@ import { useRouter } from 'next/navigation';
 import { useCallback, useEffect, useState } from 'react';
 import { toast } from 'sonner';
 
-function formatDate(timestamp: number): string {
-  return new Date(timestamp).toLocaleDateString('fr-FR', {
+function formatUserDate(timestamp: number, locale: string): string {
+  return formatDate(timestamp, locale, {
     day: 'numeric',
     month: 'short',
     year: 'numeric',
@@ -58,11 +70,24 @@ function formatDate(timestamp: number): string {
 }
 
 function UserManagementContent() {
+  const locale = parseAppLocale(useLocale());
   const router = useRouter();
   const { isAdmin, isLoaded, canManage } = usePermissions();
 
   const [searchQuery, setSearchQuery] = useState('');
   const [roleFilter, setRoleFilter] = useState<string>('all');
+
+  // Confirmation dialog state
+  const [pendingRoleChange, setPendingRoleChange] = useState<{
+    userId: Id<'users'>;
+    newRole: UserRole;
+    userName: string;
+  } | null>(null);
+  const [pendingStatusToggle, setPendingStatusToggle] = useState<{
+    userId: Id<'users'>;
+    currentlyActive: boolean;
+    userName: string;
+  } | null>(null);
 
   // Redirect non-admins
   useEffect(() => {
@@ -218,7 +243,11 @@ function UserManagementContent() {
                         <Select
                           value={user.role}
                           onValueChange={(value) =>
-                            handleRoleChange(user._id as Id<'users'>, value as UserRole)
+                            setPendingRoleChange({
+                              userId: user._id as Id<'users'>,
+                              newRole: value as UserRole,
+                              userName: user.firstName || user.email,
+                            })
                           }
                           disabled={user.role === 'admin'}
                         >
@@ -257,7 +286,7 @@ function UserManagementContent() {
                         )}
                       </TableCell>
                       <TableCell className="hidden md:table-cell text-muted-foreground">
-                        {formatDate(user._creationTime)}
+                        {formatUserDate(user._creationTime, locale)}
                       </TableCell>
                       <TableCell>
                         <DropdownMenu>
@@ -271,7 +300,11 @@ function UserManagementContent() {
                             <DropdownMenuSeparator />
                             <DropdownMenuItem
                               onClick={() =>
-                                handleToggleStatus(user._id as Id<'users'>, user.isActive)
+                                setPendingStatusToggle({
+                                  userId: user._id as Id<'users'>,
+                                  currentlyActive: user.isActive,
+                                  userName: user.firstName || user.email,
+                                })
                               }
                             >
                               {user.isActive ? (
@@ -286,12 +319,7 @@ function UserManagementContent() {
                                 </>
                               )}
                             </DropdownMenuItem>
-                            {!user.idVerified && (
-                              <DropdownMenuItem>
-                                <Shield className="h-4 w-4 mr-2" />
-                                Vérifier identité
-                              </DropdownMenuItem>
-                            )}
+                            {/* "Verify identity" hidden until identity verification feature is ready */}
                           </DropdownMenuContent>
                         </DropdownMenu>
                       </TableCell>
@@ -309,6 +337,78 @@ function UserManagementContent() {
           )}
         </CardContent>
       </Card>
+
+      {/* Role Change Confirmation Dialog */}
+      <AlertDialog
+        open={!!pendingRoleChange}
+        onOpenChange={(open) => !open && setPendingRoleChange(null)}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Changer le rôle</AlertDialogTitle>
+            <AlertDialogDescription>
+              Voulez-vous changer le rôle de {pendingRoleChange?.userName} en{' '}
+              {ROLE_LABELS[pendingRoleChange?.newRole as UserRole] || pendingRoleChange?.newRole} ?
+              Cette action modifiera ses permissions.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Annuler</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => {
+                if (pendingRoleChange) {
+                  handleRoleChange(pendingRoleChange.userId, pendingRoleChange.newRole);
+                  setPendingRoleChange(null);
+                }
+              }}
+            >
+              Confirmer
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* Status Toggle Confirmation Dialog */}
+      <AlertDialog
+        open={!!pendingStatusToggle}
+        onOpenChange={(open) => !open && setPendingStatusToggle(null)}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>
+              {pendingStatusToggle?.currentlyActive
+                ? "Désactiver l'utilisateur"
+                : "Activer l'utilisateur"}
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              {pendingStatusToggle?.currentlyActive
+                ? `Voulez-vous désactiver le compte de ${pendingStatusToggle?.userName} ? L'utilisateur ne pourra plus se connecter.`
+                : `Voulez-vous réactiver le compte de ${pendingStatusToggle?.userName} ?`}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Annuler</AlertDialogCancel>
+            <AlertDialogAction
+              className={
+                pendingStatusToggle?.currentlyActive
+                  ? 'bg-destructive text-destructive-foreground hover:bg-destructive/90'
+                  : ''
+              }
+              onClick={() => {
+                if (pendingStatusToggle) {
+                  handleToggleStatus(
+                    pendingStatusToggle.userId,
+                    pendingStatusToggle.currentlyActive
+                  );
+                  setPendingStatusToggle(null);
+                }
+              }}
+            >
+              {pendingStatusToggle?.currentlyActive ? 'Désactiver' : 'Activer'}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

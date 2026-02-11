@@ -8,23 +8,22 @@ import { Label } from '@/components/ui/label';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Textarea } from '@/components/ui/textarea';
 import { RequireRole, usePermissions } from '@/hooks/use-permissions';
+import { parseAppLocale } from '@/i18n/config';
+import { formatCurrencyFCFA, formatDate } from '@/lib/i18n-format';
 import { api } from '@repo/convex/_generated/api';
 import type { Id } from '@repo/convex/_generated/dataModel';
 import { useMutation, useQuery } from 'convex/react';
+import { useLocale } from 'gt-next/client';
 import {
   AlertCircle,
   ArrowLeft,
-  Bath,
-  Bed,
   Building2,
   Calendar,
   CheckCircle,
   ExternalLink,
   Image as ImageIcon,
   Loader2,
-  Mail,
   MapPin,
-  Phone,
   Shield,
   User,
   XCircle,
@@ -35,16 +34,16 @@ import { useRouter } from 'next/navigation';
 import { use, useCallback, useEffect, useState } from 'react';
 import { toast } from 'sonner';
 
-function formatDate(timestamp: number): string {
-  return new Date(timestamp).toLocaleDateString('fr-FR', {
+function formatVerificationDate(timestamp: number, locale: string): string {
+  return formatDate(timestamp, locale, {
     day: 'numeric',
     month: 'long',
     year: 'numeric',
   });
 }
 
-function formatCurrency(amount: number): string {
-  return `${new Intl.NumberFormat('fr-FR').format(amount)} FCFA`;
+function formatVerificationCurrency(amount: number, locale: string): string {
+  return formatCurrencyFCFA(amount, locale);
 }
 
 const propertyTypeLabels: Record<string, string> = {
@@ -70,6 +69,7 @@ const verificationChecklist = [
 ];
 
 function VerifyPropertyContent({ propertyId }: { propertyId: string }) {
+  const locale = parseAppLocale(useLocale());
   const router = useRouter();
   const { isVerifier, isLoaded } = usePermissions();
 
@@ -208,7 +208,7 @@ function VerifyPropertyContent({ propertyId }: { propertyId: string }) {
     );
   }
 
-  const images = property.images?.filter((img) => img.url) || [];
+  const images = property.imageUrls?.filter((img) => img.url) || [];
 
   return (
     <div className="space-y-6 pb-8">
@@ -288,21 +288,9 @@ function VerifyPropertyContent({ propertyId }: { propertyId: string }) {
                 <div>
                   <p className="text-sm text-muted-foreground">Loyer mensuel</p>
                   <p className="font-medium font-mono tabular-nums">
-                    {formatCurrency(property.rentAmount)}
+                    {formatVerificationCurrency(property.rentAmount, locale)}
                   </p>
                 </div>
-                {property.bedrooms && (
-                  <div className="flex items-center gap-2">
-                    <Bed className="h-4 w-4 text-muted-foreground" />
-                    <span>{property.bedrooms} chambre(s)</span>
-                  </div>
-                )}
-                {property.bathrooms && (
-                  <div className="flex items-center gap-2">
-                    <Bath className="h-4 w-4 text-muted-foreground" />
-                    <span>{property.bathrooms} salle(s) de bain</span>
-                  </div>
-                )}
               </div>
 
               {property.description && (
@@ -324,7 +312,7 @@ function VerifyPropertyContent({ propertyId }: { propertyId: string }) {
 
               <div>
                 <p className="text-sm text-muted-foreground mb-1">Soumis le</p>
-                <p className="text-sm">{formatDate(property._creationTime)}</p>
+                <p className="text-sm">{formatVerificationDate(property._creationTime, locale)}</p>
               </div>
             </CardContent>
           </Card>
@@ -360,12 +348,6 @@ function VerifyPropertyContent({ propertyId }: { propertyId: string }) {
                       </div>
                     </div>
                   </div>
-                  {property.landlord.phone && (
-                    <div className="flex items-center gap-2 text-sm">
-                      <Phone className="h-4 w-4 text-muted-foreground" />
-                      <span className="font-mono">{property.landlord.phone}</span>
-                    </div>
-                  )}
                 </div>
               ) : (
                 <p className="text-muted-foreground">Informations non disponibles</p>

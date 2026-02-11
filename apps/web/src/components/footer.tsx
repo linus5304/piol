@@ -2,7 +2,7 @@ import { Logo, brandConstants } from '@/components/brand';
 import { LanguageSwitcher } from '@/components/language-switcher';
 import { footerNav } from '@/config/navigation';
 import { cn } from '@/lib/utils';
-import { useTranslations } from 'next-intl';
+import { useTranslations } from 'gt-next';
 import Link from 'next/link';
 
 interface FooterProps {
@@ -13,6 +13,8 @@ interface FooterProps {
 export function Footer({ variant = 'default', className }: FooterProps) {
   const t = useTranslations();
   const currentYear = new Date().getFullYear();
+  const productLinks = footerNav.product ?? [];
+  const companyLinks = footerNav.company ?? [];
 
   if (variant === 'minimal') {
     return (
@@ -65,10 +67,10 @@ export function Footer({ variant = 'default', className }: FooterProps) {
           {/* Quick Links */}
           <div>
             <h4 className={cn('font-semibold mb-4', variant === 'dark' ? 'text-background' : '')}>
-              {t('footer.quickLinks')}
+              {t('footer.product')}
             </h4>
             <ul className="space-y-2">
-              {footerNav.quickLinks.map((link) => (
+              {productLinks.map((link) => (
                 <li key={link.href}>
                   <Link
                     href={link.href}
@@ -89,10 +91,10 @@ export function Footer({ variant = 'default', className }: FooterProps) {
           {/* Legal */}
           <div>
             <h4 className={cn('font-semibold mb-4', variant === 'dark' ? 'text-background' : '')}>
-              {t('footer.legal')}
+              {t('footer.company')}
             </h4>
             <ul className="space-y-2">
-              {footerNav.legal.map((link) => (
+              {companyLinks.map((link) => (
                 <li key={link.href}>
                   <Link
                     href={link.href}

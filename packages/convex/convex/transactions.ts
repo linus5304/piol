@@ -154,10 +154,27 @@ export const getTransaction = query({
 export const getTransactionByReference = query({
   args: { reference: v.string() },
   handler: async (ctx, args) => {
+    const result = await getCurrentUserOrNull(ctx);
+    if (!result) {
+      return null;
+    }
+
+    const { user } = result;
+
     const transaction = await ctx.db
       .query('transactions')
       .withIndex('by_reference', (q) => q.eq('transactionReference', args.reference))
       .unique();
+
+    if (!transaction) {
+      return null;
+    }
+
+    // Check authorization (renter, landlord, or admin can view)
+    const isParty = transaction.renterId === user._id || transaction.landlordId === user._id;
+    if (!isParty && !hasRole(user.role, ['admin'])) {
+      return null;
+    }
 
     return transaction;
   },

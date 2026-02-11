@@ -1,7 +1,7 @@
 'use client';
 
 import { PublicLayout } from '@/components/layouts/public-layout';
-import { PropertyCard, PropertyMap } from '@/components/properties';
+import { PropertyCard } from '@/components/properties';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -17,6 +17,7 @@ import { useEnsureUser } from '@/hooks/use-ensure-user';
 import { api } from '@repo/convex/_generated/api';
 import type { Id } from '@repo/convex/_generated/dataModel';
 import { useMutation, useQuery } from 'convex/react';
+import { useTranslations } from 'gt-next';
 import {
   Building2,
   Castle,
@@ -30,10 +31,26 @@ import {
   Warehouse,
   X,
 } from 'lucide-react';
-import { useTranslations } from 'next-intl';
+import dynamic from 'next/dynamic';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { Suspense, useCallback, useMemo, useState } from 'react';
 import { toast } from 'sonner';
+
+const PropertyMap = dynamic(
+  () =>
+    import('@/components/properties/property-map').then((mod) => ({ default: mod.PropertyMap })),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="h-full w-full flex items-center justify-center bg-muted rounded-xl min-h-[400px]">
+        <div className="text-center">
+          <div className="h-8 w-8 rounded-full bg-muted-foreground/20 mx-auto mb-2 animate-pulse" />
+          <div className="h-4 w-24 bg-muted-foreground/20 rounded animate-pulse" />
+        </div>
+      </div>
+    ),
+  }
+);
 
 const cities = ['Douala', 'Yaoundé', 'Bafoussam', 'Buea', 'Kribi', 'Limbé', 'Bamenda', 'Garoua'];
 

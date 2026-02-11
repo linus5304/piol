@@ -5,10 +5,13 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Skeleton } from '@/components/ui/skeleton';
+import { parseAppLocale } from '@/i18n/config';
+import { formatCurrencyFCFA, formatDate } from '@/lib/i18n-format';
 import { api } from '@repo/convex/_generated/api';
 import type { Id } from '@repo/convex/_generated/dataModel';
 import { useMutation, useQuery } from 'convex/react';
-import { ImageOff, Loader2, Trash2 } from 'lucide-react';
+import { useLocale } from 'gt-next/client';
+import { AlertCircle, ImageOff, Loader2, Trash2 } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { use, useEffect, useState } from 'react';
@@ -26,12 +29,12 @@ const statusLabels: Record<string, { label: string; color: string }> = {
 const verificationLabels: Record<string, { label: string; color: string }> = {
   approved: { label: '✓ Vérifié', color: 'text-success' },
   pending: { label: '⏳ En attente', color: 'text-warning' },
-  in_progress: { label: '🔍 En cours', color: 'text-warning' },
+  in_progress: { label: 'En cours', color: 'text-warning' },
   rejected: { label: '✗ Rejeté', color: 'text-destructive' },
 };
 
-function formatDate(timestamp: number): string {
-  return new Date(timestamp).toLocaleDateString('fr-FR', {
+function formatPropertyDate(timestamp: number, locale: string): string {
+  return formatDate(timestamp, locale, {
     day: 'numeric',
     month: 'long',
     year: 'numeric',
@@ -39,6 +42,7 @@ function formatDate(timestamp: number): string {
 }
 
 export default function EditPropertyPage({ params }: { params: Promise<{ id: string }> }) {
+  const locale = parseAppLocale(useLocale());
   const { id } = use(params);
   const router = useRouter();
   const [isUpdating, setIsUpdating] = useState(false);
@@ -49,6 +53,12 @@ export default function EditPropertyPage({ params }: { params: Promise<{ id: str
 
   const property = useQuery(
     api.properties.getProperty,
+    id ? { propertyId: id as Id<'properties'> } : 'skip'
+  );
+
+  // Fetch latest verification for rejection notes
+  const verification = useQuery(
+    api.verifications.getPropertyVerification,
     id ? { propertyId: id as Id<'properties'> } : 'skip'
   );
 
@@ -351,18 +361,42 @@ export default function EditPropertyPage({ params }: { params: Promise<{ id: str
         <Card>
           <CardHeader className="pb-2">
             <CardDescription>Créé le</CardDescription>
-            <CardTitle className="text-lg">{formatDate(property._creationTime)}</CardTitle>
+            <CardTitle className="text-lg">
+              {formatPropertyDate(property._creationTime, locale)}
+            </CardTitle>
           </CardHeader>
         </Card>
         <Card>
           <CardHeader className="pb-2">
             <CardDescription>Loyer</CardDescription>
             <CardTitle className="text-2xl text-primary font-mono tabular-nums">
-              {property.rentAmount.toLocaleString('fr-FR')} FCFA
+              {formatCurrencyFCFA(property.rentAmount, locale)}
             </CardTitle>
           </CardHeader>
         </Card>
       </div>
+
+      {/* Rejection Notice */}
+      {property.verificationStatus === 'rejected' && (
+        <Card className="border-destructive/30 bg-destructive/5">
+          <CardContent className="flex items-start gap-3 pt-6">
+            <AlertCircle className="w-5 h-5 text-destructive mt-0.5 shrink-0" />
+            <div>
+              <p className="font-medium text-destructive">Vérification rejetée</p>
+              {verification?.notes && (
+                <p className="text-sm text-foreground mt-1">
+                  <span className="font-medium">Motif : </span>
+                  {verification.notes}
+                </p>
+              )}
+              <p className="text-sm text-muted-foreground mt-1">
+                Modifiez les informations nécessaires puis resoumettez pour une nouvelle
+                vérification.
+              </p>
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       {/* Edit Form */}
       <Card>
@@ -464,7 +498,7 @@ export default function EditPropertyPage({ params }: { params: Promise<{ id: str
         <CardContent>
           {images.length === 0 ? (
             <div className="text-center py-8 text-muted-foreground">
-              <div className="text-4xl mb-4">📷</div>
+              <ImageOff className="w-10 h-10 mx-auto mb-4 text-muted-foreground" />
               <p>Aucune photo pour le moment</p>
               <label
                 htmlFor="property-photo-upload"
@@ -538,7 +572,9 @@ export default function EditPropertyPage({ params }: { params: Promise<{ id: str
         <CardContent className="flex flex-wrap gap-4">
           {property.status === 'draft' && (
             <Button variant="outline" onClick={handleSubmitForVerification}>
-              Soumettre pour vérification
+              {property.verificationStatus === 'rejected'
+                ? 'Resoumettre pour vérification'
+                : 'Soumettre pour vérification'}
             </Button>
           )}
 

@@ -150,8 +150,8 @@ export default function SettingsPage() {
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="renter">🏠 Locataire - Je cherche un logement</SelectItem>
-                  <SelectItem value="landlord">🔑 Propriétaire - Je loue des propriétés</SelectItem>
+                  <SelectItem value="renter">Locataire - Je cherche un logement</SelectItem>
+                  <SelectItem value="landlord">Propriétaire - Je loue des propriétés</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -163,8 +163,8 @@ export default function SettingsPage() {
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="fr">🇫🇷 Français</SelectItem>
-                  <SelectItem value="en">🇬🇧 English</SelectItem>
+                  <SelectItem value="fr">FR — Français</SelectItem>
+                  <SelectItem value="en">EN — English</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -216,21 +216,7 @@ export default function SettingsPage() {
         </div>
       </form>
 
-      {/* Danger Zone */}
-      <Card className="border-destructive/20">
-        <CardHeader>
-          <CardTitle className="text-destructive">Zone de danger</CardTitle>
-          <CardDescription>Actions irréversibles sur votre compte</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <Button
-            variant="outline"
-            className="text-destructive border-destructive/20 hover:bg-destructive/5"
-          >
-            Supprimer mon compte
-          </Button>
-        </CardContent>
-      </Card>
+      {/* Danger Zone hidden until account deletion is implemented */}
     </div>
   );
 }

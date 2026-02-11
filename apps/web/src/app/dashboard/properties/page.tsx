@@ -10,9 +10,13 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Skeleton } from '@/components/ui/skeleton';
+import { parseAppLocale } from '@/i18n/config';
+import { formatCurrencyFCFA, formatDate } from '@/lib/i18n-format';
 import { cn } from '@/lib/utils';
 import { api } from '@repo/convex/_generated/api';
 import { useQuery } from 'convex/react';
+import { useLocale } from 'gt-next/client';
+import { Building2, Calendar, CheckCircle, ImageIcon, Search } from 'lucide-react';
 import Link from 'next/link';
 import { useMemo, useState } from 'react';
 
@@ -28,7 +32,7 @@ const statusLabels: Record<string, { label: string; color: string }> = {
 const verificationLabels: Record<string, { label: string; color: string }> = {
   approved: { label: '✓ Vérifié', color: 'text-success' },
   pending: { label: '⏳ En attente', color: 'text-warning' },
-  in_progress: { label: '🔍 En cours', color: 'text-warning' },
+  in_progress: { label: 'En cours', color: 'text-warning' },
   rejected: { label: '✗ Rejeté', color: 'text-destructive' },
 };
 
@@ -43,12 +47,12 @@ const propertyTypeLabels: Record<string, string> = {
   villa: 'Villa',
 };
 
-function formatCurrency(amount: number): string {
-  return `${new Intl.NumberFormat('fr-FR').format(amount)} FCFA`;
+function formatPropertyCurrency(amount: number, locale: string): string {
+  return formatCurrencyFCFA(amount, locale);
 }
 
-function formatDate(timestamp: number): string {
-  return new Date(timestamp).toLocaleDateString('fr-FR', {
+function formatPropertyDate(timestamp: number, locale: string): string {
+  return formatDate(timestamp, locale, {
     day: 'numeric',
     month: 'short',
     year: 'numeric',
@@ -56,6 +60,7 @@ function formatDate(timestamp: number): string {
 }
 
 export default function PropertiesPage() {
+  const locale = parseAppLocale(useLocale());
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
 
@@ -139,7 +144,7 @@ export default function PropertiesPage() {
       {/* Properties List */}
       {!isLoading && filteredProperties.length === 0 ? (
         <div className="text-center py-12 bg-background rounded-lg border">
-          <div className="text-5xl mb-4">🏘️</div>
+          <Building2 className="w-12 h-12 mx-auto mb-4 text-muted-foreground" />
           <h3 className="text-lg font-medium text-foreground mb-2">Aucune propriété</h3>
           <p className="text-muted-foreground mb-6">
             {searchQuery || statusFilter !== 'all'
@@ -169,7 +174,7 @@ export default function PropertiesPage() {
                       />
                     ) : (
                       <div className="w-full h-full flex items-center justify-center text-muted-foreground">
-                        📷
+                        <ImageIcon className="w-6 h-6" />
                       </div>
                     )}
                   </div>
@@ -211,13 +216,19 @@ export default function PropertiesPage() {
                     </div>
 
                     <p className="text-lg font-medium text-primary mt-1 font-mono tabular-nums">
-                      {formatCurrency(property.rentAmount)}/mois
+                      {formatPropertyCurrency(property.rentAmount, locale)}/mois
                     </p>
 
                     <div className="flex items-center gap-4 mt-2 text-sm text-muted-foreground">
-                      <span>📅 Créé le {formatDate(property._creationTime)}</span>
+                      <span className="inline-flex items-center gap-1">
+                        <Calendar className="w-3.5 h-3.5" />
+                        Créé le {formatPropertyDate(property._creationTime, locale)}
+                      </span>
                       {property.publishedAt && (
-                        <span>✅ Publié le {formatDate(property.publishedAt)}</span>
+                        <span className="inline-flex items-center gap-1">
+                          <CheckCircle className="w-3.5 h-3.5" />
+                          Publié le {formatPropertyDate(property.publishedAt, locale)}
+                        </span>
                       )}
                     </div>
                   </div>

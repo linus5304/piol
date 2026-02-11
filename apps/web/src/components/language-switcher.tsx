@@ -7,9 +7,10 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import { type AppLocale, parseAppLocale } from '@/i18n/config';
 import { cn } from '@/lib/utils';
+import { useLocale, useSetLocale } from 'gt-next/client';
 import { Check, Globe } from 'lucide-react';
-import { useLocale, useTranslations } from 'next-intl';
 import { useTransition } from 'react';
 
 const languages = [
@@ -22,19 +23,19 @@ interface LanguageSwitcherProps {
 }
 
 export function LanguageSwitcher({ variant = 'default' }: LanguageSwitcherProps) {
-  const locale = useLocale();
-  const t = useTranslations('language');
+  const locale = parseAppLocale(useLocale());
+  const setLocale = useSetLocale();
   const [isPending, startTransition] = useTransition();
 
   const currentLang = languages.find((l) => l.code === locale) || languages[0];
 
-  const setLocale = (newLocale: string) => {
+  const handleSetLocale = (newLocale: AppLocale) => {
     if (newLocale === locale) return;
 
     startTransition(() => {
-      // Set cookie and reload
+      // Keep compatibility with existing persisted locale preference.
       document.cookie = `NEXT_LOCALE=${newLocale};path=/;max-age=31536000`;
-      window.location.reload();
+      setLocale(newLocale);
     });
   };
 
@@ -67,7 +68,7 @@ export function LanguageSwitcher({ variant = 'default' }: LanguageSwitcherProps)
         {languages.map((lang) => (
           <DropdownMenuItem
             key={lang.code}
-            onClick={() => setLocale(lang.code)}
+            onClick={() => handleSetLocale(lang.code)}
             className={cn(
               'flex items-center justify-between cursor-pointer',
               locale === lang.code && 'bg-muted'

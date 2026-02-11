@@ -1,5 +1,5 @@
 import { v } from 'convex/values';
-import { mutation, query } from './_generated/server';
+import { internalMutation, mutation, query } from './_generated/server';
 
 // Get user's notifications
 export const getNotifications = query({
@@ -167,8 +167,8 @@ export const deleteNotification = mutation({
   },
 });
 
-// Create notification (internal use)
-export const createNotification = mutation({
+// Create notification (internal use only)
+export const createNotification = internalMutation({
   args: {
     userId: v.id('users'),
     notificationType: v.string(),

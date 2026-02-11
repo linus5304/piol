@@ -20,7 +20,10 @@ import {
   ItemTitle,
 } from '@/components/ui/item';
 import { Skeleton } from '@/components/ui/skeleton';
+import { parseAppLocale } from '@/i18n/config';
+import { formatDate } from '@/lib/i18n-format';
 import { cn } from '@/lib/utils';
+import { useLocale } from 'gt-next/client';
 import { MessageSquare, Search } from 'lucide-react';
 import Link from 'next/link';
 import { useState } from 'react';
@@ -54,7 +57,7 @@ interface ConversationListProps {
   className?: string;
 }
 
-function formatTimestamp(timestamp: number): string {
+function formatTimestamp(timestamp: number, locale: string): string {
   const now = Date.now();
   const diffMs = now - timestamp;
   const diffMins = Math.floor(diffMs / (1000 * 60));
@@ -70,7 +73,7 @@ function formatTimestamp(timestamp: number): string {
   if (diffDays < 7) {
     return `${diffDays}d`;
   }
-  return new Date(timestamp).toLocaleDateString('fr-FR', { month: 'short', day: 'numeric' });
+  return formatDate(timestamp, locale, { month: 'short', day: 'numeric' });
 }
 
 function getInitials(firstName?: string | null, lastName?: string | null): string {
@@ -122,6 +125,7 @@ function ConversationListEmpty({ hasSearch }: { hasSearch: boolean }) {
 }
 
 export function ConversationList({ conversations, className }: ConversationListProps) {
+  const locale = parseAppLocale(useLocale());
   const [searchQuery, setSearchQuery] = useState('');
 
   // Loading state
@@ -200,7 +204,7 @@ export function ConversationList({ conversations, className }: ConversationListP
                 </ItemContent>
                 <ItemActions className="flex-col items-end gap-1">
                   <span className="text-xs text-muted-foreground">
-                    {formatTimestamp(conversation.lastMessage.timestamp)}
+                    {formatTimestamp(conversation.lastMessage.timestamp, locale)}
                   </span>
                   {conversation.unreadCount > 0 && (
                     <Badge variant="default" className="h-5 min-w-5 justify-center px-1.5">

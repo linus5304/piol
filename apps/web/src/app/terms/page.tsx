@@ -1,7 +1,11 @@
 import { Logo } from '@/components/brand';
-import Link from 'next/link';
+import { parseAppLocale } from '@/i18n/config';
+import { formatDate } from '@/lib/i18n-format';
+import { getLocale } from 'gt-next/server';
 
-export default function TermsPage() {
+export default async function TermsPage() {
+  const locale = parseAppLocale(await getLocale());
+
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
@@ -17,7 +21,7 @@ export default function TermsPage() {
         <div className="prose prose-zinc dark:prose-invert max-w-none">
           <p className="text-muted-foreground mb-6">
             Dernière mise à jour:{' '}
-            {new Date().toLocaleDateString('fr-FR', {
+            {formatDate(new Date(), locale, {
               year: 'numeric',
               month: 'long',
               day: 'numeric',

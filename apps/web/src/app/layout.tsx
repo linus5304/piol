@@ -2,13 +2,13 @@ import { enUS, frFR } from '@clerk/localizations';
 import { ClerkProvider } from '@clerk/nextjs';
 import { Analytics } from '@vercel/analytics/react';
 import { SpeedInsights } from '@vercel/speed-insights/next';
+import { GTProvider, getLocale } from 'gt-next/server';
 import type { Metadata, Viewport } from 'next';
-import { NextIntlClientProvider } from 'next-intl';
-import { getLocale, getMessages } from 'next-intl/server';
 import { JetBrains_Mono, Plus_Jakarta_Sans } from 'next/font/google';
 import './globals.css';
 import { ConnectionStatus } from '@/components/connection-status';
 import { Toaster } from '@/components/ui/sonner';
+import { parseAppLocale } from '@/i18n/config';
 import { env, isClerkConfigured } from '@/lib/env';
 import { Providers } from './providers';
 
@@ -65,8 +65,7 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const locale = await getLocale();
-  const messages = await getMessages();
+  const locale = parseAppLocale(await getLocale());
 
   // Select Clerk localization based on locale
   const clerkLocalization = locale === 'en' ? enUS : frFR;
@@ -78,10 +77,10 @@ export default async function RootLayout({
       suppressHydrationWarning
     >
       <body className="font-sans antialiased">
-        <NextIntlClientProvider messages={messages}>
+        <GTProvider locale={locale}>
           <ConnectionStatus />
           <Providers>{children}</Providers>
-        </NextIntlClientProvider>
+        </GTProvider>
         <Toaster position="top-right" richColors />
         <Analytics />
         <SpeedInsights />

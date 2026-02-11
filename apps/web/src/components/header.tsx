@@ -24,8 +24,8 @@ import {
 } from '@/config/navigation';
 import { isClerkConfigured, useSafeClerk, useSafeUser } from '@/hooks/use-safe-auth';
 import { cn } from '@/lib/utils';
+import { useTranslations } from 'gt-next';
 import { ChevronDown, LogOut, Menu, Settings } from 'lucide-react';
-import { useTranslations } from 'next-intl';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 

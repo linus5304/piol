@@ -15,7 +15,19 @@ export const processPayment = action({
     returnUrl: v.optional(v.string()), // For Orange Money web payments
     cancelUrl: v.optional(v.string()),
   },
-  handler: async (ctx, args) => {
+  handler: async (
+    ctx,
+    args
+  ): Promise<{
+    success: boolean;
+    method: string;
+    referenceId?: string;
+    message?: string;
+    paymentUrl?: string;
+    payToken?: string;
+    orderId?: string;
+    requiresRedirect: boolean;
+  }> => {
     const transaction = await ctx.runQuery(api.transactions.internalGetTransaction, {
       transactionId: args.transactionId,
     });
@@ -96,7 +108,14 @@ export const checkPaymentStatus = action({
     referenceId: v.string(),
     orderId: v.optional(v.string()), // For Orange Money
   },
-  handler: async (ctx, args) => {
+  handler: async (
+    ctx,
+    args
+  ): Promise<{
+    status: 'PENDING' | 'SUCCESSFUL' | 'FAILED';
+    paymentStatus: string;
+    financialTransactionId: string | undefined;
+  }> => {
     let status: 'PENDING' | 'SUCCESSFUL' | 'FAILED';
     let financialTransactionId: string | undefined;
 
@@ -144,7 +163,15 @@ export const releaseEscrowFunds = action({
   args: {
     transactionId: v.id('transactions'),
   },
-  handler: async (ctx, args) => {
+  handler: async (
+    ctx,
+    args
+  ): Promise<{
+    success: boolean;
+    disbursedAmount: number;
+    commission: number;
+    referenceId: string;
+  }> => {
     const transaction = await ctx.runQuery(api.transactions.internalGetTransaction, {
       transactionId: args.transactionId,
     });

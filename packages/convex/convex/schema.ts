@@ -109,6 +109,7 @@ export default defineSchema({
     .index('by_status', ['status'])
     .index('by_city', ['city'])
     .index('by_city_status', ['city', 'status'])
+    .index('by_city_status_type', ['city', 'status', 'propertyType'])
     .index('by_verification_status', ['verificationStatus'])
     .searchIndex('search_properties', {
       searchField: 'searchText',
@@ -208,6 +209,7 @@ export default defineSchema({
     isRead: v.boolean(),
   })
     .index('by_conversation', ['conversationId'])
+    .index('by_conversation_time', ['conversationId', '_creationTime'])
     .index('by_sender', ['senderId'])
     .index('by_recipient', ['recipientId'])
     .index('by_property', ['propertyId']),

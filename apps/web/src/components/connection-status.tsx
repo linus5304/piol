@@ -1,7 +1,7 @@
 'use client';
 
+import { useTranslations } from 'gt-next';
 import { Wifi, WifiOff } from 'lucide-react';
-import { useTranslations } from 'next-intl';
 import { useEffect, useState } from 'react';
 
 export function ConnectionStatus() {

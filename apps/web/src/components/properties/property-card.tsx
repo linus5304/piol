@@ -1,7 +1,10 @@
 'use client';
 
 import { Badge } from '@/components/ui/badge';
+import { parseAppLocale } from '@/i18n/config';
+import { formatNumber } from '@/lib/i18n-format';
 import { cn } from '@/lib/utils';
+import { useLocale, useTranslations } from 'gt-next';
 import {
   Armchair,
   Bath,
@@ -18,10 +21,9 @@ import {
   Wind,
   Zap,
 } from 'lucide-react';
-import { useTranslations } from 'next-intl';
 import Image from 'next/image';
 import Link from 'next/link';
-import { useCallback, useState } from 'react';
+import { memo, useCallback, useState } from 'react';
 
 export interface PropertyCardData {
   _id: string;
@@ -39,8 +41,8 @@ export interface PropertyCardData {
   landlordVerified?: boolean;
   landlord?: {
     _id: string;
-    firstName: string;
-    lastName: string;
+    firstName?: string;
+    lastName?: string;
     idVerified: boolean;
   } | null;
   amenities?: {
@@ -99,8 +101,8 @@ function getConsistentImage(id: string): string {
   return propertyImages[hash % propertyImages.length];
 }
 
-function formatCurrency(amount: number): string {
-  return new Intl.NumberFormat('fr-FR').format(amount);
+function formatCurrency(amount: number, locale: string): string {
+  return formatNumber(amount, locale);
 }
 
 const amenityIcons = [
@@ -112,7 +114,7 @@ const amenityIcons = [
   { key: 'electricity247', icon: Zap },
 ] as const;
 
-export function PropertyCard({
+export const PropertyCard = memo(function PropertyCard({
   property,
   showSaveButton = true,
   isSaved: isSavedProp,
@@ -121,6 +123,7 @@ export function PropertyCard({
   variant = 'vertical',
 }: PropertyCardProps) {
   const t = useTranslations();
+  const locale = parseAppLocale(useLocale());
   const [localSaved, setLocalSaved] = useState(false);
   const isSaved = isSavedProp ?? localSaved;
   const [imageLoaded, setImageLoaded] = useState(false);
@@ -182,6 +185,20 @@ export function PropertyCard({
     setCurrentImageIndex((prev) => (prev === imageUrls.length - 1 ? 0 : prev + 1));
   };
 
+  const handleCarouselKeyDown = useCallback(
+    (e: React.KeyboardEvent) => {
+      if (!hasMultipleImages) return;
+      if (e.key === 'ArrowLeft') {
+        e.preventDefault();
+        setCurrentImageIndex((prev) => (prev === 0 ? imageUrls.length - 1 : prev - 1));
+      } else if (e.key === 'ArrowRight') {
+        e.preventDefault();
+        setCurrentImageIndex((prev) => (prev === imageUrls.length - 1 ? 0 : prev + 1));
+      }
+    },
+    [hasMultipleImages, imageUrls.length]
+  );
+
   // ─── HORIZONTAL VARIANT ──────────────────────────────────────────────
   if (variant === 'horizontal') {
     return (
@@ -240,7 +257,7 @@ export function PropertyCard({
                   <button
                     type="button"
                     onClick={handleSave}
-                    className="flex-shrink-0 w-8 h-8 flex items-center justify-center hover:bg-accent rounded-full transition-colors"
+                    className="flex-shrink-0 min-w-11 min-h-11 w-11 h-11 flex items-center justify-center hover:bg-accent rounded-full transition-colors"
                   >
                     <Heart
                       className={cn(
@@ -287,7 +304,7 @@ export function PropertyCard({
               </div>
               <div className="text-right">
                 <span className="font-bold text-foreground font-mono tabular-nums">
-                  {formatCurrency(property.rentAmount)}
+                  {formatCurrency(property.rentAmount, locale)}
                 </span>
                 <span className="text-muted-foreground text-sm"> FCFA/mois</span>
               </div>
@@ -303,7 +320,18 @@ export function PropertyCard({
     <Link href={`/properties/${property._id}`} className={cn('group block', className)}>
       <div className="dusk-card overflow-hidden">
         {/* Image Container with Carousel */}
-        <div className="relative aspect-[4/3] overflow-hidden bg-muted">
+        <div
+          className="relative aspect-[4/3] overflow-hidden bg-muted"
+          tabIndex={hasMultipleImages ? 0 : undefined}
+          role={hasMultipleImages ? 'region' : undefined}
+          aria-label={
+            hasMultipleImages
+              ? `Image carousel: ${currentImageIndex + 1} of ${imageUrls.length}`
+              : undefined
+          }
+          aria-roledescription={hasMultipleImages ? 'carousel' : undefined}
+          onKeyDown={hasMultipleImages ? handleCarouselKeyDown : undefined}
+        >
           {!imageLoaded && <div className="absolute inset-0 bg-muted animate-pulse" />}
 
           {imageError ? (
@@ -335,7 +363,7 @@ export function PropertyCard({
               <button
                 type="button"
                 onClick={handlePrevImage}
-                className="absolute left-3 top-1/2 -translate-y-1/2 w-8 h-8 flex items-center justify-center bg-background/80 hover:bg-background rounded-full shadow-lg backdrop-blur-sm opacity-0 group-hover:opacity-100 transition-all duration-200 z-10"
+                className="absolute left-2 top-1/2 -translate-y-1/2 min-w-11 min-h-11 w-11 h-11 flex items-center justify-center bg-background/80 hover:bg-background rounded-full shadow-lg backdrop-blur-sm opacity-0 group-hover:opacity-100 transition-all duration-200 z-10"
                 aria-label="Image pr&eacute;c&eacute;dente"
               >
                 <ChevronLeft className="w-4 h-4" />
@@ -343,7 +371,7 @@ export function PropertyCard({
               <button
                 type="button"
                 onClick={handleNextImage}
-                className="absolute right-12 top-1/2 -translate-y-1/2 w-8 h-8 flex items-center justify-center bg-background/80 hover:bg-background rounded-full shadow-lg backdrop-blur-sm opacity-0 group-hover:opacity-100 transition-all duration-200 z-10"
+                className="absolute right-12 top-1/2 -translate-y-1/2 min-w-11 min-h-11 w-11 h-11 flex items-center justify-center bg-background/80 hover:bg-background rounded-full shadow-lg backdrop-blur-sm opacity-0 group-hover:opacity-100 transition-all duration-200 z-10"
                 aria-label="Image suivante"
               >
                 <ChevronRight className="w-4 h-4" />
@@ -360,10 +388,10 @@ export function PropertyCard({
                       setCurrentImageIndex(index);
                     }}
                     className={cn(
-                      'rounded-full transition-all duration-200',
+                      'rounded-full transition-all duration-200 p-1.5',
                       index === currentImageIndex
-                        ? 'bg-white w-2 h-2'
-                        : 'bg-white/50 w-1.5 h-1.5 hover:bg-white/70'
+                        ? 'bg-white w-2 h-2 box-content'
+                        : 'bg-white/50 w-1.5 h-1.5 box-content hover:bg-white/70'
                     )}
                     aria-label={`Image ${index + 1}`}
                   />
@@ -378,7 +406,7 @@ export function PropertyCard({
               type="button"
               onClick={handleSave}
               className={cn(
-                'absolute top-3 right-3 w-9 h-9 flex items-center justify-center rounded-full shadow-lg backdrop-blur-sm transition-all duration-200 hover:scale-110 touch-target z-10',
+                'absolute top-3 right-3 min-w-11 min-h-11 w-11 h-11 flex items-center justify-center rounded-full shadow-lg backdrop-blur-sm transition-all duration-200 hover:scale-110 z-10',
                 isSaved
                   ? 'bg-primary/20 border border-primary/30'
                   : 'bg-background/80 hover:bg-background'
@@ -474,7 +502,7 @@ export function PropertyCard({
             <div>
               <div className="flex items-baseline gap-1">
                 <span className="font-bold text-lg text-foreground font-mono tabular-nums">
-                  {formatCurrency(property.rentAmount)}
+                  {formatCurrency(property.rentAmount, locale)}
                 </span>
                 <span className="text-sm text-muted-foreground">FCFA</span>
               </div>
@@ -495,4 +523,4 @@ export function PropertyCard({
       </div>
     </Link>
   );
-}
+});

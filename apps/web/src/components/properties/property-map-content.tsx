@@ -2,7 +2,10 @@
 
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
+import { parseAppLocale } from '@/i18n/config';
+import { formatCurrencyFCFA } from '@/lib/i18n-format';
 import { cn } from '@/lib/utils';
+import { useLocale } from 'gt-next/client';
 import L from 'leaflet';
 import { CheckCircle } from 'lucide-react';
 import Link from 'next/link';
@@ -61,6 +64,7 @@ function MapBounds({ properties }: { properties: (Property & { location: Propert
 
 // Property popup card
 function PropertyPopupCard({ property }: { property: Property }) {
+  const locale = parseAppLocale(useLocale());
   const imageUrl = property.images?.[0]?.url || getConsistentImage(property._id);
   const isVerified = property.verificationStatus === 'approved';
 
@@ -83,7 +87,7 @@ function PropertyPopupCard({ property }: { property: Property }) {
             {property.city}
           </p>
           <p className="font-semibold text-primary mt-1">
-            {new Intl.NumberFormat('fr-FR').format(property.rentAmount)} FCFA
+            {formatCurrencyFCFA(property.rentAmount, locale)}
             <span className="text-muted-foreground font-normal text-xs"> /mois</span>
           </p>
         </CardContent>
