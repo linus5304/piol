@@ -1,13 +1,8 @@
 import { withSentryConfig } from '@sentry/nextjs';
+import { withGTConfig } from 'gt-next/config';
 import type { NextConfig } from 'next';
-import createNextIntlPlugin from 'next-intl/plugin';
-
-const withNextIntl = createNextIntlPlugin();
 
 const nextConfig: NextConfig = {
-  typescript: {
-    ignoreBuildErrors: true,
-  },
   images: {
     formats: ['image/avif', 'image/webp'],
     remotePatterns: [
@@ -39,7 +34,18 @@ const nextConfig: NextConfig = {
   },
 };
 
-export default withSentryConfig(withNextIntl(nextConfig), {
+const withGeneralTranslation = withGTConfig(nextConfig, {
+  config: './gt.config.json',
+  loadDictionaryPath: './src/loadDictionary.ts',
+  headersAndCookies: {
+    localeCookieName: 'NEXT_LOCALE',
+  },
+  // Keep support for both env variable names during rollout.
+  projectId: process.env.GT_PROJECT_ID ?? process.env.NEXT_PUBLIC_GT_PROJECT_ID,
+  apiKey: process.env.GT_API_KEY,
+});
+
+export default withSentryConfig(withGeneralTranslation, {
   // Suppress source map upload logs in CI
   silent: true,
 
@@ -49,9 +55,6 @@ export default withSentryConfig(withNextIntl(nextConfig), {
 
   // Only upload source maps when auth token is set
   authToken: process.env.SENTRY_AUTH_TOKEN,
-
-  // Hide source maps from client bundles
-  hideSourceMaps: true,
 
   // Disable Sentry telemetry
   telemetry: false,

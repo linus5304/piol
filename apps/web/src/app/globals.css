@@ -97,7 +97,7 @@
   --secondary-foreground: #f1f1f1;
 
   --muted: #1a2744;
-  --muted-foreground: #8b95a8;
+  --muted-foreground: #9ba4b5;
 
   --accent: #1a2744;
   --accent-foreground: #f1f1f1;
@@ -120,7 +120,7 @@
   --sidebar-accent-foreground: #f1f1f1;
   --sidebar-border: #1e2a42;
   --sidebar-ring: #e8a838;
-  --sidebar-muted: #8b95a8;
+  --sidebar-muted: #9ba4b5;
 }
 
 @theme inline {

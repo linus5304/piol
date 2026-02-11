@@ -60,17 +60,28 @@ export const listProperties = query({
   handler: async (ctx, args) => {
     const limit = args.limit ?? 20;
 
-    // Filter by city and status
-    const propertiesQuery = args.city
-      ? ctx.db
-          .query('properties')
-          .withIndex('by_city_status', (q) => q.eq('city', args.city).eq('status', 'active'))
-      : ctx.db.query('properties').withIndex('by_status', (q) => q.eq('status', 'active'));
+    // Filter by city, status, and optionally propertyType using compound indexes
+    const city = args.city;
+    const propertyType = args.propertyType;
+    let propertiesQuery = ctx.db
+      .query('properties')
+      .withIndex('by_status', (q) => q.eq('status', 'active'));
+    if (city && propertyType) {
+      propertiesQuery = ctx.db
+        .query('properties')
+        .withIndex('by_city_status_type', (q) =>
+          q.eq('city', city).eq('status', 'active').eq('propertyType', propertyType)
+        );
+    } else if (city) {
+      propertiesQuery = ctx.db
+        .query('properties')
+        .withIndex('by_city_status', (q) => q.eq('city', city).eq('status', 'active'));
+    }
 
     let properties = await propertiesQuery.collect();
 
-    // Apply additional filters
-    if (args.propertyType) {
+    // Apply propertyType filter in-memory only when city is not set (can't use compound index)
+    if (args.propertyType && !args.city) {
       properties = properties.filter((p) => p.propertyType === args.propertyType);
     }
     if (args.neighborhood) {
@@ -194,10 +205,11 @@ export const getFilterOptions = query({
     city: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
-    const propertiesQuery = args.city
+    const filterCity = args.city;
+    const propertiesQuery = filterCity
       ? ctx.db
           .query('properties')
-          .withIndex('by_city_status', (q) => q.eq('city', args.city).eq('status', 'active'))
+          .withIndex('by_city_status', (q) => q.eq('city', filterCity).eq('status', 'active'))
       : ctx.db.query('properties').withIndex('by_status', (q) => q.eq('status', 'active'));
 
     const properties = await propertiesQuery.collect();

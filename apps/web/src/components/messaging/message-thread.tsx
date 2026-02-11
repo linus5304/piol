@@ -11,7 +11,10 @@ import {
   EmptyTitle,
 } from '@/components/ui/empty';
 import { Skeleton } from '@/components/ui/skeleton';
+import { parseAppLocale } from '@/i18n/config';
+import { formatTime } from '@/lib/i18n-format';
 import { cn } from '@/lib/utils';
+import { useLocale } from 'gt-next/client';
 import { ArrowLeft, Check, CheckCheck, Home, MessageCircle } from 'lucide-react';
 import Link from 'next/link';
 import { useEffect, useRef } from 'react';
@@ -46,8 +49,8 @@ interface MessageThreadProps {
   className?: string;
 }
 
-function formatTime(timestamp: number): string {
-  return new Date(timestamp).toLocaleTimeString('fr-FR', {
+function formatMessageTime(timestamp: number, locale: string): string {
+  return formatTime(timestamp, locale, {
     hour: '2-digit',
     minute: '2-digit',
   });
@@ -105,9 +108,10 @@ function MessageThreadEmpty() {
 
 interface MessageBubbleProps {
   message: Message;
+  locale: string;
 }
 
-function MessageBubble({ message }: MessageBubbleProps) {
+function MessageBubble({ message, locale }: MessageBubbleProps) {
   return (
     <div className={cn('flex', message.isFromMe ? 'justify-end' : 'justify-start')}>
       <div
@@ -125,7 +129,7 @@ function MessageBubble({ message }: MessageBubbleProps) {
             message.isFromMe ? 'text-primary-foreground/70' : 'text-muted-foreground'
           )}
         >
-          <span className="text-xs">{formatTime(message._creationTime)}</span>
+          <span className="text-xs">{formatMessageTime(message._creationTime, locale)}</span>
           {message.isFromMe &&
             (message.isRead ? <CheckCheck className="h-3 w-3" /> : <Check className="h-3 w-3" />)}
         </div>
@@ -206,6 +210,7 @@ export function MessageThread({
   isLoading,
   className,
 }: MessageThreadProps) {
+  const locale = parseAppLocale(useLocale());
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   // Auto-scroll to bottom when messages change
@@ -234,7 +239,9 @@ export function MessageThread({
         {messages.length === 0 ? (
           <MessageThreadEmpty />
         ) : (
-          messages.map((message) => <MessageBubble key={message._id} message={message} />)
+          messages.map((message) => (
+            <MessageBubble key={message._id} message={message} locale={locale} />
+          ))
         )}
         <div ref={messagesEndRef} />
       </div>

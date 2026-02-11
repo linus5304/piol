@@ -1,5 +1,8 @@
 'use client';
 
+import { parseAppLocale } from '@/i18n/config';
+import { formatDate } from '@/lib/i18n-format';
+import { useLocale } from 'gt-next/client';
 import * as React from 'react';
 import { Area, AreaChart, CartesianGrid, XAxis } from 'recharts';
 
@@ -138,6 +141,7 @@ const chartConfig = {
 } satisfies ChartConfig;
 
 export function ChartAreaInteractive() {
+  const locale = parseAppLocale(useLocale());
   const isMobile = useIsMobile();
   const [timeRange, setTimeRange] = React.useState('90d');
 
@@ -224,8 +228,7 @@ export function ChartAreaInteractive() {
               tickMargin={8}
               minTickGap={32}
               tickFormatter={(value) => {
-                const date = new Date(value);
-                return date.toLocaleDateString('en-US', {
+                return formatDate(value, locale, {
                   month: 'short',
                   day: 'numeric',
                 });
@@ -236,7 +239,7 @@ export function ChartAreaInteractive() {
               content={
                 <ChartTooltipContent
                   labelFormatter={(value) => {
-                    return new Date(value).toLocaleDateString('en-US', {
+                    return formatDate(value, locale, {
                       month: 'short',
                       day: 'numeric',
                     });

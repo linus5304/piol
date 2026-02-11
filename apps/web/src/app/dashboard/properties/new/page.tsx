@@ -11,10 +11,25 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { parseAppLocale } from '@/i18n/config';
+import { formatNumber } from '@/lib/i18n-format';
 import { api } from '@repo/convex/_generated/api';
 import type { Id } from '@repo/convex/_generated/dataModel';
 import { useMutation } from 'convex/react';
-import { Loader2 } from 'lucide-react';
+import { useLocale } from 'gt-next/client';
+import {
+  Armchair,
+  Camera,
+  Car,
+  Droplet,
+  Loader2,
+  Shield,
+  Sun,
+  TreePine,
+  Wifi,
+  Wind,
+  Zap,
+} from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
@@ -36,20 +51,21 @@ type PropertyType = (typeof propertyTypes)[number]['value'];
 const cities = ['Douala', 'Yaoundé', 'Bafoussam', 'Buea', 'Kribi', 'Limbe', 'Bamenda'];
 
 const amenitiesList = [
-  { id: 'wifi', label: 'WiFi', icon: '📶' },
-  { id: 'parking', label: 'Parking', icon: '🚗' },
-  { id: 'ac', label: 'Climatisation', icon: '❄️' },
-  { id: 'security', label: 'Sécurité 24h', icon: '🔐' },
-  { id: 'water247', label: 'Eau 24/7', icon: '💧' },
-  { id: 'electricity247', label: 'Électricité 24/7', icon: '⚡' },
-  { id: 'furnished', label: 'Meublé', icon: '🛋️' },
-  { id: 'balcony', label: 'Balcon', icon: '🌅' },
-  { id: 'garden', label: 'Jardin', icon: '🌳' },
+  { id: 'wifi', label: 'WiFi', icon: Wifi },
+  { id: 'parking', label: 'Parking', icon: Car },
+  { id: 'ac', label: 'Climatisation', icon: Wind },
+  { id: 'security', label: 'Sécurité 24h', icon: Shield },
+  { id: 'water247', label: 'Eau 24/7', icon: Droplet },
+  { id: 'electricity247', label: 'Électricité 24/7', icon: Zap },
+  { id: 'furnished', label: 'Meublé', icon: Armchair },
+  { id: 'balcony', label: 'Balcon', icon: Sun },
+  { id: 'garden', label: 'Jardin', icon: TreePine },
 ] as const;
 
 type AmenityId = (typeof amenitiesList)[number]['id'];
 
 export default function NewPropertyPage() {
+  const locale = parseAppLocale(useLocale());
   const router = useRouter();
   const [step, setStep] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -403,21 +419,24 @@ export default function NewPropertyPage() {
             <div className="space-y-3">
               <Label>Équipements et commodités</Label>
               <div className="grid grid-cols-3 gap-3">
-                {amenitiesList.map((amenity) => (
-                  <button
-                    key={amenity.id}
-                    type="button"
-                    onClick={() => toggleAmenity(amenity.id)}
-                    className={`flex items-center gap-2 p-3 rounded-lg border transition-colors ${
-                      formData.selectedAmenities.includes(amenity.id)
-                        ? 'bg-primary/10 border-primary text-primary'
-                        : 'hover:bg-muted'
-                    }`}
-                  >
-                    <span>{amenity.icon}</span>
-                    <span className="text-sm">{amenity.label}</span>
-                  </button>
-                ))}
+                {amenitiesList.map((amenity) => {
+                  const Icon = amenity.icon;
+                  return (
+                    <button
+                      key={amenity.id}
+                      type="button"
+                      onClick={() => toggleAmenity(amenity.id)}
+                      className={`flex items-center gap-2 p-3 rounded-lg border transition-colors ${
+                        formData.selectedAmenities.includes(amenity.id)
+                          ? 'bg-primary/10 border-primary text-primary'
+                          : 'hover:bg-muted'
+                      }`}
+                    >
+                      <Icon className="w-4 h-4" />
+                      <span className="text-sm">{amenity.label}</span>
+                    </button>
+                  );
+                })}
               </div>
             </div>
 
@@ -444,7 +463,7 @@ export default function NewPropertyPage() {
           </CardHeader>
           <CardContent className="space-y-6">
             <div className="border-2 border-dashed rounded-lg p-8 text-center">
-              <div className="text-4xl mb-4">📷</div>
+              <Camera className="w-10 h-10 text-muted-foreground mx-auto mb-4" />
               <p className="text-muted-foreground mb-4">
                 Glissez vos photos ici ou cliquez pour sélectionner
               </p>
@@ -496,7 +515,7 @@ export default function NewPropertyPage() {
                 {formData.city}
               </p>
               <p className="text-sm font-medium text-primary font-mono tabular-nums">
-                {Number(formData.rentAmount).toLocaleString('fr-FR')} FCFA/mois
+                {formatNumber(Number(formData.rentAmount || 0), locale)} FCFA/mois
               </p>
               {formData.selectedAmenities.length > 0 && (
                 <p className="text-sm text-muted-foreground">

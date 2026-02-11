@@ -21,14 +21,17 @@ import {
 import { Skeleton } from '@/components/ui/skeleton';
 import { Textarea } from '@/components/ui/textarea';
 import { useSafeAuth } from '@/hooks/use-safe-auth';
+import { parseAppLocale } from '@/i18n/config';
+import { formatDate, formatNumber } from '@/lib/i18n-format';
 import { cn } from '@/lib/utils';
 import { api } from '@repo/convex/_generated/api';
 import type { Id } from '@repo/convex/_generated/dataModel';
 import { useMutation, useQuery } from 'convex/react';
+import { useLocale } from 'gt-next/client';
 import {
   Armchair,
   BadgeCheck,
-  Calendar,
+  Camera,
   Car,
   ChevronLeft,
   ChevronRight,
@@ -36,6 +39,7 @@ import {
   Heart,
   ImageOff,
   Loader2,
+  Lock,
   MapPin,
   MessageCircle,
   Share2,
@@ -76,12 +80,12 @@ const propertyTypeLabels: Record<string, string> = {
   villa: 'Villa',
 };
 
-function formatCurrency(amount: number): string {
-  return new Intl.NumberFormat('fr-FR').format(amount);
+function formatCurrency(amount: number, locale: string): string {
+  return formatNumber(amount, locale);
 }
 
-function formatDate(timestamp: number): string {
-  return new Date(timestamp).toLocaleDateString('fr-FR', {
+function formatListingDate(timestamp: number, locale: string): string {
+  return formatDate(timestamp, locale, {
     year: 'numeric',
     month: 'long',
   });
@@ -100,6 +104,7 @@ export default function PropertyDetailPage({
 }) {
   // Unwrap params promise (Next.js 15+ / React 19)
   const { id } = use(params);
+  const locale = parseAppLocale(useLocale());
 
   const router = useRouter();
   const { isSignedIn } = useSafeAuth();
@@ -113,33 +118,25 @@ export default function PropertyDetailPage({
   const [galleryCarouselApi, setGalleryCarouselApi] = useState<CarouselApi>();
   const toggleSaveProperty = useMutation(api.savedProperties.toggleSaveProperty);
 
-  // Sync carousel with selectedImage state
+  // Sync carousels with selectedImage and listen for scroll events
   useEffect(() => {
-    if (mobileCarouselApi) {
-      mobileCarouselApi.scrollTo(selectedImage);
-    }
-  }, [selectedImage, mobileCarouselApi]);
+    mobileCarouselApi?.scrollTo(selectedImage);
+    galleryCarouselApi?.scrollTo(selectedImage);
+  }, [selectedImage, mobileCarouselApi, galleryCarouselApi]);
 
   useEffect(() => {
-    if (galleryCarouselApi) {
-      galleryCarouselApi.scrollTo(selectedImage);
-    }
-  }, [selectedImage, galleryCarouselApi]);
-
-  // Update selectedImage when carousel scrolls
-  useEffect(() => {
-    if (!mobileCarouselApi) return;
-    mobileCarouselApi.on('select', () => {
-      setSelectedImage(mobileCarouselApi.selectedScrollSnap());
-    });
-  }, [mobileCarouselApi]);
-
-  useEffect(() => {
-    if (!galleryCarouselApi) return;
-    galleryCarouselApi.on('select', () => {
-      setSelectedImage(galleryCarouselApi.selectedScrollSnap());
-    });
-  }, [galleryCarouselApi]);
+    const onSelect = () => {
+      const snap =
+        mobileCarouselApi?.selectedScrollSnap() ?? galleryCarouselApi?.selectedScrollSnap();
+      if (snap !== undefined) setSelectedImage(snap);
+    };
+    mobileCarouselApi?.on('select', onSelect);
+    galleryCarouselApi?.on('select', onSelect);
+    return () => {
+      mobileCarouselApi?.off('select', onSelect);
+      galleryCarouselApi?.off('select', onSelect);
+    };
+  }, [mobileCarouselApi, galleryCarouselApi]);
 
   const sendMessage = useMutation(api.messages.sendMessage);
 
@@ -298,7 +295,7 @@ export default function PropertyDetailPage({
               onClick={() => setShowGallery(true)}
               className="absolute bottom-8 right-8 flex items-center gap-2 px-4 py-2 bg-card border border-border rounded-lg shadow-lg hover:scale-105 transition-transform text-sm font-medium"
             >
-              <span>📷</span>
+              <Camera className="w-4 h-4" />
               Voir les {images.length} photos
             </button>
           )}
@@ -524,7 +521,7 @@ export default function PropertyDetailPage({
                       )}
                     </div>
                     <p className="text-sm text-muted-foreground">
-                      Publié le {formatDate(property._creationTime)}
+                      Publié le {formatListingDate(property._creationTime, locale)}
                     </p>
                   </div>
                 </div>
@@ -601,7 +598,7 @@ export default function PropertyDetailPage({
                   <div className="mb-6">
                     <div className="flex items-baseline gap-1">
                       <span className="text-3xl font-semibold text-foreground font-mono tabular-nums">
-                        {formatCurrency(property.rentAmount)}
+                        {formatCurrency(property.rentAmount, locale)}
                       </span>
                       <span className="text-muted-foreground">{property.currency}</span>
                     </div>
@@ -614,7 +611,7 @@ export default function PropertyDetailPage({
                         Caution ({property.cautionMonths} mois)
                       </span>
                       <span className="font-medium font-mono tabular-nums">
-                        {formatCurrency(property.rentAmount * property.cautionMonths)}{' '}
+                        {formatCurrency(property.rentAmount * property.cautionMonths, locale)}{' '}
                         {property.currency}
                       </span>
                     </div>
@@ -623,7 +620,7 @@ export default function PropertyDetailPage({
                         Avance ({property.upfrontMonths} mois)
                       </span>
                       <span className="font-medium font-mono tabular-nums">
-                        {formatCurrency(property.rentAmount * property.upfrontMonths)}{' '}
+                        {formatCurrency(property.rentAmount * property.upfrontMonths, locale)}{' '}
                         {property.currency}
                       </span>
                     </div>
@@ -631,7 +628,7 @@ export default function PropertyDetailPage({
                     <div className="flex justify-between font-semibold text-lg">
                       <span>Total à l'entrée</span>
                       <span className="font-mono tabular-nums">
-                        {formatCurrency(totalEntry)} {property.currency}
+                        {formatCurrency(totalEntry, locale)} {property.currency}
                       </span>
                     </div>
                   </div>
@@ -646,10 +643,7 @@ export default function PropertyDetailPage({
                         <MessageCircle className="w-4 h-4 mr-2" />
                         Contacter le propriétaire
                       </Button>
-                      <Button variant="outline" className="w-full border-border" size="lg">
-                        <Calendar className="w-4 h-4 mr-2" />
-                        Planifier une visite
-                      </Button>
+                      {/* "Plan a visit" hidden until scheduling feature is ready */}
                     </div>
                   ) : (
                     <Link href="/sign-in" className="block">
@@ -662,8 +656,9 @@ export default function PropertyDetailPage({
                     </Link>
                   )}
 
-                  <p className="text-xs text-center text-muted-foreground mt-4">
-                    🔒 Vos informations sont protégées
+                  <p className="text-xs text-center text-muted-foreground mt-4 flex items-center justify-center gap-1">
+                    <Lock className="w-3 h-3" />
+                    Vos informations sont protégées
                   </p>
                 </CardContent>
               </Card>
@@ -747,7 +742,7 @@ export default function PropertyDetailPage({
           <div>
             <div className="flex items-baseline gap-1">
               <span className="text-xl font-semibold text-foreground font-mono tabular-nums">
-                {formatCurrency(property.rentAmount)}
+                {formatCurrency(property.rentAmount, locale)}
               </span>
               <span className="text-muted-foreground text-sm">{property.currency}/mois</span>
             </div>
@@ -799,7 +794,7 @@ export default function PropertyDetailPage({
             <div className="flex-1 min-w-0">
               <p className="font-medium text-foreground truncate">{property.title}</p>
               <p className="text-sm text-primary font-medium font-mono tabular-nums">
-                {formatCurrency(property.rentAmount)} {property.currency}/mois
+                {formatCurrency(property.rentAmount, locale)} {property.currency}/mois
               </p>
             </div>
           </div>

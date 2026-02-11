@@ -12,8 +12,11 @@ import {
 } from '@/components/ui/select';
 import { Skeleton } from '@/components/ui/skeleton';
 import { RequireRole, usePermissions } from '@/hooks/use-permissions';
+import { parseAppLocale } from '@/i18n/config';
+import { formatCurrencyFCFA, formatDate } from '@/lib/i18n-format';
 import { api } from '@repo/convex/_generated/api';
 import { useQuery } from 'convex/react';
+import { useLocale } from 'gt-next/client';
 import {
   AlertCircle,
   ArrowRight,
@@ -29,16 +32,16 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 
-function formatDate(timestamp: number): string {
-  return new Date(timestamp).toLocaleDateString('fr-FR', {
+function formatVerificationDate(timestamp: number, locale: string): string {
+  return formatDate(timestamp, locale, {
     day: 'numeric',
     month: 'short',
     year: 'numeric',
   });
 }
 
-function formatCurrency(amount: number): string {
-  return `${new Intl.NumberFormat('fr-FR').format(amount)} FCFA`;
+function formatVerificationCurrency(amount: number, locale: string): string {
+  return formatCurrencyFCFA(amount, locale);
 }
 
 const statusConfig = {
@@ -65,6 +68,7 @@ const statusConfig = {
 };
 
 function VerifyDashboardContent() {
+  const locale = parseAppLocale(useLocale());
   const router = useRouter();
   const { isVerifier, isLoaded, role } = usePermissions();
   const [cityFilter, setCityFilter] = useState<string>('all');
@@ -232,11 +236,11 @@ function VerifyDashboardContent() {
                         {property.landlord?.lastName || ''}
                       </span>
                       <span className="font-mono tabular-nums">
-                        {formatCurrency(property.rentAmount)}/mois
+                        {formatVerificationCurrency(property.rentAmount, locale)}/mois
                       </span>
                     </div>
                     <p className="text-xs text-muted-foreground mt-1">
-                      Soumis le {formatDate(property._creationTime)}
+                      Soumis le {formatVerificationDate(property._creationTime, locale)}
                     </p>
                   </div>
                   <div className="flex items-center gap-2">
@@ -299,7 +303,8 @@ function VerifyDashboardContent() {
                       <div>
                         <p className="font-medium">{verification.property?.title}</p>
                         <p className="text-sm text-muted-foreground">
-                          {verification.property?.city} • {formatDate(verification._creationTime)}
+                          {verification.property?.city} •{' '}
+                          {formatVerificationDate(verification._creationTime, locale)}
                         </p>
                       </div>
                     </div>

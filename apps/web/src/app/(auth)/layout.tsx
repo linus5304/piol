@@ -1,8 +1,8 @@
 'use client';
 
 import { Logo } from '@/components/brand';
+import { useTranslations } from 'gt-next';
 import { ArrowLeft, Star } from 'lucide-react';
-import { useTranslations } from 'next-intl';
 import Image from 'next/image';
 import Link from 'next/link';
 

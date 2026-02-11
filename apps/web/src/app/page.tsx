@@ -3,6 +3,9 @@
 import { Footer } from '@/components/footer';
 import { Header } from '@/components/header';
 import { homepageNav } from '@/config/navigation';
+import { parseAppLocale } from '@/i18n/config';
+import { formatNumber } from '@/lib/i18n-format';
+import { useLocale } from 'gt-next/client';
 import { ArrowRight, MapPin, Search, Shield, Smartphone } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -116,6 +119,7 @@ const METRICS = [
 // Component
 // ---------------------------------------------------------------------------
 export default function HomePage() {
+  const locale = parseAppLocale(useLocale());
   const [activeStep, setActiveStep] = useState(0);
   const [currentSlide, setCurrentSlide] = useState(0);
 
@@ -518,7 +522,7 @@ export default function HomePage() {
                 <div>
                   <div className="text-lg font-bold sm:text-xl">{city.name}</div>
                   <div className="font-mono mt-1 text-xs text-muted-foreground">
-                    {city.desc} &middot; {city.count.toLocaleString()} listings
+                    {city.desc} &middot; {formatNumber(city.count, locale)} listings
                   </div>
                 </div>
                 <ArrowRight

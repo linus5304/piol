@@ -365,6 +365,45 @@ export const completeVerification = mutation({
   },
 });
 
+// Get latest verification for a property (accessible by property owner)
+export const getPropertyVerification = query({
+  args: {
+    propertyId: v.id('properties'),
+  },
+  handler: async (ctx, args) => {
+    const result = await getCurrentUserOrNull(ctx);
+    if (!result) {
+      return null;
+    }
+
+    const property = await ctx.db.get(args.propertyId);
+    if (!property) {
+      return null;
+    }
+
+    // Only property owner, admin, or verifier can see verification details
+    const isAuthorized =
+      property.landlordId === result.user._id || hasRole(result.user.role, ['admin', 'verifier']);
+
+    if (!isAuthorized) {
+      return null;
+    }
+
+    // Get the latest verification for this property
+    const verifications = await ctx.db
+      .query('verifications')
+      .withIndex('by_property', (q) => q.eq('propertyId', args.propertyId))
+      .collect();
+
+    if (verifications.length === 0) {
+      return null;
+    }
+
+    // Return the most recent one
+    return verifications.sort((a, b) => b._creationTime - a._creationTime)[0];
+  },
+});
+
 // Get verification stats (admin only)
 export const getVerificationStats = query({
   args: {},

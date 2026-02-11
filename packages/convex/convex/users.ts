@@ -450,7 +450,7 @@ export const getAdminStats = query({
       return null;
     }
 
-    // Count users
+    // Count users (scan is unavoidable, but only users table)
     const allUsers = await ctx.db.query('users').collect();
     const totalUsers = allUsers.length;
 
@@ -459,19 +459,72 @@ export const getAdminStats = query({
     const thirtyDaysAgo = now - 30 * 24 * 60 * 60 * 1000;
     const newUsersThisMonth = allUsers.filter((u) => u._creationTime >= thirtyDaysAgo).length;
 
-    // Count properties
-    const allProperties = await ctx.db.query('properties').collect();
-    const totalProperties = allProperties.length;
-    const activeProperties = allProperties.filter((p) => p.status === 'active').length;
-    const pendingVerifications = allProperties.filter(
-      (p) => p.verificationStatus === 'pending'
+    // Count properties by status using index (avoid loading all properties)
+    const activeProperties = (
+      await ctx.db
+        .query('properties')
+        .withIndex('by_status', (q) => q.eq('status', 'active'))
+        .collect()
     ).length;
 
-    // Count transactions
-    const allTransactions = await ctx.db.query('transactions').collect();
-    const totalTransactions = allTransactions
-      .filter((t) => t.paymentStatus === 'completed')
-      .reduce((sum, t) => sum + t.amount, 0);
+    const pendingVerificationProperties = (
+      await ctx.db
+        .query('properties')
+        .withIndex('by_status', (q) => q.eq('status', 'pending_verification'))
+        .collect()
+    ).length;
+
+    const draftProperties = (
+      await ctx.db
+        .query('properties')
+        .withIndex('by_status', (q) => q.eq('status', 'draft'))
+        .collect()
+    ).length;
+
+    const rentedProperties = (
+      await ctx.db
+        .query('properties')
+        .withIndex('by_status', (q) => q.eq('status', 'rented'))
+        .collect()
+    ).length;
+
+    const archivedProperties = (
+      await ctx.db
+        .query('properties')
+        .withIndex('by_status', (q) => q.eq('status', 'archived'))
+        .collect()
+    ).length;
+
+    const verifiedProperties = (
+      await ctx.db
+        .query('properties')
+        .withIndex('by_status', (q) => q.eq('status', 'verified'))
+        .collect()
+    ).length;
+
+    const totalProperties =
+      activeProperties +
+      pendingVerificationProperties +
+      draftProperties +
+      rentedProperties +
+      archivedProperties +
+      verifiedProperties;
+
+    // Count pending verifications using verification status index
+    const pendingVerifications = (
+      await ctx.db
+        .query('properties')
+        .withIndex('by_verification_status', (q) => q.eq('verificationStatus', 'pending'))
+        .collect()
+    ).length;
+
+    // Count completed transactions using status index
+    const completedTransactions = await ctx.db
+      .query('transactions')
+      .withIndex('by_status', (q) => q.eq('paymentStatus', 'completed'))
+      .collect();
+
+    const totalTransactions = completedTransactions.reduce((sum, t) => sum + t.amount, 0);
 
     return {
       totalUsers,

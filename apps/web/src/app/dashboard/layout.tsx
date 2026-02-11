@@ -8,13 +8,29 @@ import { SiteHeader } from '@/components/site-header';
 import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar';
 import { useEnsureUser } from '@/hooks/use-ensure-user';
 import { useSafeUser } from '@/hooks/use-safe-auth';
+import { usePathname, useRouter } from 'next/navigation';
+import { useEffect } from 'react';
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   // Ensure user exists in Convex (fallback for webhook race condition)
   useEnsureUser();
 
   const { user, isLoaded } = useSafeUser();
+  const pathname = usePathname();
+  const router = useRouter();
   const role = (user?.unsafeMetadata?.role as 'renter' | 'landlord') || 'renter';
+
+  // Redirect to onboarding if user hasn't completed it
+  useEffect(() => {
+    if (
+      isLoaded &&
+      user &&
+      !user.unsafeMetadata?.onboardingCompleted &&
+      !pathname.startsWith('/dashboard/onboarding')
+    ) {
+      router.replace('/dashboard/onboarding');
+    }
+  }, [isLoaded, user, pathname, router]);
 
   // Show loading state while auth is loading
   if (!isLoaded) {

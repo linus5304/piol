@@ -19,39 +19,53 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { useSafeUser } from '@/hooks/use-safe-auth';
+import { parseAppLocale } from '@/i18n/config';
+import { formatCurrencyFCFA, formatDate } from '@/lib/i18n-format';
 import { api } from '@repo/convex/_generated/api';
 import { useQuery } from 'convex/react';
+import { useTranslations } from 'gt-next';
+import { useLocale } from 'gt-next/client';
 import { MoreHorizontal } from 'lucide-react';
 import Link from 'next/link';
 
-function getGreeting() {
+function getGreetingKey() {
   const hour = new Date().getHours();
-  if (hour < 12) return 'Bonjour';
-  if (hour < 18) return 'Bon après-midi';
-  return 'Bonsoir';
+  if (hour < 12) return 'dashboard.greetingMorning';
+  if (hour < 18) return 'dashboard.greetingAfternoon';
+  return 'dashboard.greetingEvening';
 }
 
-function formatDate(timestamp: number): string {
-  return new Date(timestamp).toLocaleDateString('fr-FR', {
+function formatDashboardDate(timestamp: number, locale: string): string {
+  return formatDate(timestamp, locale, {
     day: 'numeric',
     month: 'short',
     year: 'numeric',
   });
 }
 
-function formatCurrency(amount: number): string {
-  return `${new Intl.NumberFormat('fr-FR').format(amount)} FCFA`;
+function formatDashboardCurrency(amount: number, locale: string): string {
+  return formatCurrencyFCFA(amount, locale);
 }
 
-const paymentStatusLabels: Record<string, { label: string; color: string }> = {
-  completed: { label: 'Payé', color: 'bg-success/10 text-success' },
-  pending: { label: 'En attente', color: 'bg-warning/10 text-warning' },
-  processing: { label: 'En cours', color: 'bg-primary/10 text-primary' },
-  failed: { label: 'Échoué', color: 'bg-destructive/10 text-destructive' },
-  refunded: { label: 'Remboursé', color: 'bg-muted text-muted-foreground' },
+const paymentStatusColors: Record<string, string> = {
+  completed: 'bg-success/10 text-success',
+  pending: 'bg-warning/10 text-warning',
+  processing: 'bg-primary/10 text-primary',
+  failed: 'bg-destructive/10 text-destructive',
+  refunded: 'bg-muted text-muted-foreground',
+};
+
+const paymentStatusKeys: Record<string, string> = {
+  completed: 'dashboard.statusPaid',
+  pending: 'dashboard.statusPending',
+  processing: 'dashboard.statusProcessing',
+  failed: 'dashboard.statusFailed',
+  refunded: 'dashboard.statusRefunded',
 };
 
 export default function DashboardPage() {
+  const t = useTranslations();
+  const locale = parseAppLocale(useLocale());
   const { user, isLoaded } = useSafeUser();
 
   // Fetch dashboard stats
@@ -75,7 +89,7 @@ export default function DashboardPage() {
   }
 
   const role = (user?.unsafeMetadata?.role as string) || 'renter';
-  const firstName = user?.firstName || 'Utilisateur';
+  const firstName = user?.firstName || t('dashboard.defaultUser');
 
   // Prepare stats for SectionCards based on role
   const stats =
@@ -99,19 +113,19 @@ export default function DashboardPage() {
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between px-4 lg:px-6">
         <div>
           <h1 className="text-2xl font-bold tracking-tight md:text-3xl">
-            {getGreeting()}, {firstName}
+            {t(getGreetingKey())}, {firstName}
           </h1>
-          <p className="text-muted-foreground mt-1">Voici un aperçu de votre activité</p>
+          <p className="text-muted-foreground mt-1">{t('dashboard.activityOverview')}</p>
         </div>
         <Select defaultValue="last-week">
           <SelectTrigger className="w-[180px] bg-card">
-            <SelectValue placeholder="Période" />
+            <SelectValue placeholder={t('dashboard.period')} />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="last-week">7 derniers jours</SelectItem>
-            <SelectItem value="last-month">30 derniers jours</SelectItem>
-            <SelectItem value="last-quarter">3 derniers mois</SelectItem>
-            <SelectItem value="last-year">Cette année</SelectItem>
+            <SelectItem value="last-week">{t('dashboard.last7Days')}</SelectItem>
+            <SelectItem value="last-month">{t('dashboard.last30Days')}</SelectItem>
+            <SelectItem value="last-quarter">{t('dashboard.last3Months')}</SelectItem>
+            <SelectItem value="last-year">{t('dashboard.thisYear')}</SelectItem>
           </SelectContent>
         </Select>
       </div>
@@ -125,12 +139,12 @@ export default function DashboardPage() {
       {role === 'landlord' && (
         <div className="px-4 lg:px-6 space-y-4">
           <div className="flex items-center justify-between">
-            <h2 className="text-section-label">Transactions récentes</h2>
+            <h2 className="text-section-label">{t('dashboard.recentTransactions')}</h2>
             <Link
               href="/dashboard/payments"
               className="text-sm font-medium text-muted-foreground hover:text-foreground"
             >
-              Voir tout →
+              {t('dashboard.viewAllArrow')}
             </Link>
           </div>
           <div className="rounded-xl border border-border/50 bg-card overflow-hidden shadow-sm">
@@ -146,19 +160,19 @@ export default function DashboardPage() {
                 <TableHeader>
                   <TableRow className="border-b border-border/50 bg-muted/30 hover:bg-muted/30">
                     <TableHead className="text-muted-foreground font-semibold text-xs uppercase tracking-wider">
-                      Date
+                      {t('dashboard.tableDate')}
                     </TableHead>
                     <TableHead className="text-muted-foreground font-semibold text-xs uppercase tracking-wider">
-                      Locataire
+                      {t('dashboard.tableTenant')}
                     </TableHead>
                     <TableHead className="text-muted-foreground font-semibold text-xs uppercase tracking-wider">
-                      Type
+                      {t('dashboard.tableType')}
                     </TableHead>
                     <TableHead className="text-muted-foreground font-semibold text-xs uppercase tracking-wider">
-                      Statut
+                      {t('dashboard.tableStatus')}
                     </TableHead>
                     <TableHead className="text-muted-foreground font-semibold text-xs uppercase tracking-wider text-right">
-                      Montant
+                      {t('dashboard.tableAmount')}
                     </TableHead>
                     <TableHead className="w-10" />
                   </TableRow>
@@ -170,24 +184,25 @@ export default function DashboardPage() {
                       className="border-b border-border/50 last:border-0 hover:bg-muted/50 transition-colors"
                     >
                       <TableCell className="text-muted-foreground">
-                        {formatDate(transaction._creationTime)}
+                        {formatDashboardDate(transaction._creationTime, locale)}
                       </TableCell>
                       <TableCell className="font-medium">
                         {transaction.renter
                           ? `${transaction.renter.firstName} ${transaction.renter.lastName ?? ''}`.trim()
-                          : 'Inconnu'}
+                          : t('dashboard.unknownRenter')}
                       </TableCell>
                       <TableCell className="capitalize">{transaction.type}</TableCell>
                       <TableCell>
                         <span
-                          className={`inline-flex items-center rounded-md px-2 py-1 text-xs font-medium ${paymentStatusLabels[transaction.paymentStatus]?.color ?? 'bg-muted'}`}
+                          className={`inline-flex items-center rounded-md px-2 py-1 text-xs font-medium ${paymentStatusColors[transaction.paymentStatus] ?? 'bg-muted'}`}
                         >
-                          {paymentStatusLabels[transaction.paymentStatus]?.label ??
-                            transaction.paymentStatus}
+                          {paymentStatusKeys[transaction.paymentStatus]
+                            ? t(paymentStatusKeys[transaction.paymentStatus])
+                            : transaction.paymentStatus}
                         </span>
                       </TableCell>
                       <TableCell className="text-right font-semibold font-mono tabular-nums">
-                        {formatCurrency(transaction.amount)}
+                        {formatDashboardCurrency(transaction.amount, locale)}
                       </TableCell>
                       <TableCell>
                         <Button variant="ghost" size="icon" className="h-8 w-8 rounded-lg">
@@ -200,7 +215,7 @@ export default function DashboardPage() {
               </Table>
             ) : (
               <div className="text-center py-12 text-muted-foreground">
-                <p>Aucune transaction pour le moment</p>
+                <p>{t('dashboard.noTransactions')}</p>
               </div>
             )}
           </div>
@@ -211,12 +226,12 @@ export default function DashboardPage() {
       {role === 'renter' && (
         <div className="px-4 lg:px-6 space-y-4">
           <div className="flex items-center justify-between">
-            <h2 className="text-section-label">Activité récente</h2>
+            <h2 className="text-section-label">{t('dashboard.recentActivity')}</h2>
             <Link
               href="/dashboard/payments"
               className="text-sm font-medium text-muted-foreground hover:text-foreground"
             >
-              Voir tout →
+              {t('dashboard.viewAllArrow')}
             </Link>
           </div>
           <div className="rounded-xl border border-border/50 bg-card overflow-hidden shadow-sm">
@@ -232,16 +247,16 @@ export default function DashboardPage() {
                 <TableHeader>
                   <TableRow className="border-b border-border/50 bg-muted/30 hover:bg-muted/30">
                     <TableHead className="text-muted-foreground font-semibold text-xs uppercase tracking-wider">
-                      Date
+                      {t('dashboard.tableDate')}
                     </TableHead>
                     <TableHead className="text-muted-foreground font-semibold text-xs uppercase tracking-wider">
-                      Type
+                      {t('dashboard.tableType')}
                     </TableHead>
                     <TableHead className="text-muted-foreground font-semibold text-xs uppercase tracking-wider">
-                      Statut
+                      {t('dashboard.tableStatus')}
                     </TableHead>
                     <TableHead className="text-muted-foreground font-semibold text-xs uppercase tracking-wider text-right">
-                      Montant
+                      {t('dashboard.tableAmount')}
                     </TableHead>
                   </TableRow>
                 </TableHeader>
@@ -252,19 +267,20 @@ export default function DashboardPage() {
                       className="border-b border-border/50 last:border-0 hover:bg-muted/50 transition-colors"
                     >
                       <TableCell className="text-muted-foreground">
-                        {formatDate(transaction._creationTime)}
+                        {formatDashboardDate(transaction._creationTime, locale)}
                       </TableCell>
                       <TableCell className="font-medium capitalize">{transaction.type}</TableCell>
                       <TableCell>
                         <span
-                          className={`inline-flex items-center rounded-md px-2 py-1 text-xs font-medium ${paymentStatusLabels[transaction.paymentStatus]?.color ?? 'bg-muted'}`}
+                          className={`inline-flex items-center rounded-md px-2 py-1 text-xs font-medium ${paymentStatusColors[transaction.paymentStatus] ?? 'bg-muted'}`}
                         >
-                          {paymentStatusLabels[transaction.paymentStatus]?.label ??
-                            transaction.paymentStatus}
+                          {paymentStatusKeys[transaction.paymentStatus]
+                            ? t(paymentStatusKeys[transaction.paymentStatus])
+                            : transaction.paymentStatus}
                         </span>
                       </TableCell>
                       <TableCell className="text-right font-semibold font-mono tabular-nums">
-                        {formatCurrency(transaction.amount)}
+                        {formatDashboardCurrency(transaction.amount, locale)}
                       </TableCell>
                     </TableRow>
                   ))}
@@ -272,9 +288,9 @@ export default function DashboardPage() {
               </Table>
             ) : (
               <div className="text-center py-12 text-muted-foreground">
-                <p>Aucune activité pour le moment</p>
+                <p>{t('dashboard.noActivity')}</p>
                 <Link href="/properties" className="text-primary hover:underline mt-2 inline-block">
-                  Découvrir les propriétés
+                  {t('dashboard.discoverProperties')}
                 </Link>
               </div>
             )}

@@ -10,9 +10,13 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Skeleton } from '@/components/ui/skeleton';
+import { parseAppLocale } from '@/i18n/config';
+import { formatCurrencyFCFA, formatDate } from '@/lib/i18n-format';
 import { cn } from '@/lib/utils';
 import { api } from '@repo/convex/_generated/api';
 import { useQuery } from 'convex/react';
+import { useLocale } from 'gt-next/client';
+import { CreditCard, Smartphone } from 'lucide-react';
 import { useMemo, useState } from 'react';
 
 const statusLabels: Record<string, { label: string; color: string }> = {
@@ -37,12 +41,12 @@ const methodLabels: Record<string, string> = {
   cash: 'Espèces',
 };
 
-function formatCurrency(amount: number): string {
-  return `${new Intl.NumberFormat('fr-FR').format(amount)} FCFA`;
+function formatPaymentCurrency(amount: number, locale: string): string {
+  return formatCurrencyFCFA(amount, locale);
 }
 
-function formatDate(timestamp: number): string {
-  return new Date(timestamp).toLocaleDateString('fr-FR', {
+function formatPaymentDate(timestamp: number, locale: string): string {
+  return formatDate(timestamp, locale, {
     day: 'numeric',
     month: 'long',
     year: 'numeric',
@@ -50,6 +54,7 @@ function formatDate(timestamp: number): string {
 }
 
 export default function PaymentsPage() {
+  const locale = parseAppLocale(useLocale());
   const [filter, setFilter] = useState<string>('all');
   const transactions = useQuery(api.transactions.getMyTransactions, { limit: 100 });
 
@@ -80,7 +85,7 @@ export default function PaymentsPage() {
           <CardHeader className="pb-2">
             <CardDescription>Total payé</CardDescription>
             <CardTitle className="text-2xl text-success font-mono tabular-nums">
-              {formatCurrency(totalPaid)}
+              {formatPaymentCurrency(totalPaid, locale)}
             </CardTitle>
           </CardHeader>
         </Card>
@@ -88,7 +93,7 @@ export default function PaymentsPage() {
           <CardHeader className="pb-2">
             <CardDescription>En attente</CardDescription>
             <CardTitle className="text-2xl text-warning font-mono tabular-nums">
-              {formatCurrency(pendingAmount)}
+              {formatPaymentCurrency(pendingAmount, locale)}
             </CardTitle>
           </CardHeader>
         </Card>
@@ -96,7 +101,7 @@ export default function PaymentsPage() {
           <CardHeader className="pb-2">
             <CardDescription>Prochaine échéance</CardDescription>
             <CardTitle className="text-2xl font-mono tabular-nums">
-              {pendingAmount > 0 ? formatCurrency(pendingAmount) : '-'}
+              {pendingAmount > 0 ? formatPaymentCurrency(pendingAmount, locale) : '-'}
             </CardTitle>
           </CardHeader>
         </Card>
@@ -118,7 +123,7 @@ export default function PaymentsPage() {
           </SelectContent>
         </Select>
 
-        <Button variant="outline">Exporter</Button>
+        {/* Export button hidden until feature is ready */}
       </div>
 
       {/* Payments List */}
@@ -141,7 +146,7 @@ export default function PaymentsPage() {
           </div>
         ) : filteredPayments.length === 0 ? (
           <div className="p-8 text-center">
-            <div className="text-4xl mb-4">💳</div>
+            <CreditCard className="w-10 h-10 mx-auto mb-4 text-muted-foreground" />
             <h3 className="text-lg font-medium text-foreground mb-1">Aucun paiement</h3>
             <p className="text-muted-foreground">Vos transactions apparaîtront ici</p>
           </div>
@@ -168,12 +173,12 @@ export default function PaymentsPage() {
                   </div>
                   <div className="col-span-2">
                     <p className="text-sm text-muted-foreground">
-                      {formatDate(payment._creationTime)}
+                      {formatPaymentDate(payment._creationTime, locale)}
                     </p>
                   </div>
                   <div className="col-span-2 text-right">
                     <p className="font-medium text-foreground font-mono tabular-nums">
-                      {formatCurrency(payment.amount)}
+                      {formatPaymentCurrency(payment.amount, locale)}
                     </p>
                   </div>
                   <div className="col-span-1">
@@ -202,11 +207,11 @@ export default function PaymentsPage() {
         <CardContent>
           <div className="flex gap-4">
             <div className="flex items-center gap-2 px-4 py-2 border rounded-lg">
-              <span className="text-2xl">📱</span>
+              <Smartphone className="w-6 h-6 text-muted-foreground" />
               <span className="font-medium">MTN MoMo</span>
             </div>
             <div className="flex items-center gap-2 px-4 py-2 border rounded-lg">
-              <span className="text-2xl">📱</span>
+              <Smartphone className="w-6 h-6 text-muted-foreground" />
               <span className="font-medium">Orange Money</span>
             </div>
           </div>

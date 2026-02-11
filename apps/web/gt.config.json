@@ -1,0 +1,7 @@
+{
+  "defaultLocale": "fr",
+  "sourceLocale": "fr",
+  "dictionary": "./src/i18n/locales/fr.json",
+  "locales": ["fr", "en"],
+  "ignoreBrowserLocales": true
+}

@@ -4,6 +4,7 @@ import { Logo } from '@/components/brand';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { useSafeUser } from '@/hooks/use-safe-auth';
+import { Building2, KeyRound } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 
@@ -28,6 +29,33 @@ export default function OnboardingPage() {
       router.replace('/dashboard');
     }
   }, [isLoaded, user?.unsafeMetadata?.onboardingCompleted, router]);
+
+  // Auto-complete onboarding if role is already set from signup
+  useEffect(() => {
+    if (
+      isLoaded &&
+      user &&
+      user.unsafeMetadata?.role &&
+      !user.unsafeMetadata?.onboardingCompleted &&
+      !isSubmitting
+    ) {
+      setIsSubmitting(true);
+      user
+        .update({
+          unsafeMetadata: {
+            ...user.unsafeMetadata,
+            onboardingCompleted: true,
+          },
+        })
+        .then(() => {
+          router.push('/dashboard');
+        })
+        .catch((error) => {
+          console.error('Failed to auto-complete onboarding:', error);
+          setIsSubmitting(false);
+        });
+    }
+  }, [isLoaded, user, isSubmitting, router]);
 
   const handleComplete = async () => {
     if (!user) return;
@@ -95,7 +123,7 @@ export default function OnboardingPage() {
             }`}
           >
             <div className="flex items-center gap-4">
-              <span className="text-3xl">🔑</span>
+              <KeyRound className="w-8 h-8 text-primary" />
               <div>
                 <div className="font-semibold">Je cherche un logement</div>
                 <div className="text-sm text-muted-foreground">
@@ -115,7 +143,7 @@ export default function OnboardingPage() {
             }`}
           >
             <div className="flex items-center gap-4">
-              <span className="text-3xl">🏢</span>
+              <Building2 className="w-8 h-8 text-primary" />
               <div>
                 <div className="font-semibold">Je suis propriétaire</div>
                 <div className="text-sm text-muted-foreground">

@@ -99,7 +99,7 @@ export default function SignUpPage() {
         routing="path"
         path="/sign-up"
         signInUrl="/sign-in"
-        fallbackRedirectUrl="/dashboard/onboarding"
+        fallbackRedirectUrl="/dashboard"
         unsafeMetadata={{
           role: role || 'renter',
         }}

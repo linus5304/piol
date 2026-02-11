@@ -18,11 +18,21 @@ jest.mock('next/navigation', () => ({
   },
 }));
 
-// Mock next-intl
-jest.mock('next-intl', () => ({
+// Mock gt-next
+jest.mock('gt-next', () => ({
   useTranslations: () => (key) => key,
   useLocale: () => 'fr',
-  NextIntlClientProvider: ({ children }) => children,
+}));
+
+jest.mock('gt-next/client', () => ({
+  useTranslations: () => (key) => key,
+  useLocale: () => 'fr',
+  useSetLocale: () => jest.fn(),
+}));
+
+jest.mock('gt-next/server', () => ({
+  getLocale: jest.fn(async () => 'fr'),
+  GTProvider: ({ children }) => children,
 }));
 
 // Mock Convex

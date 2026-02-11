@@ -117,6 +117,5 @@ jobs:
       - name: Fail on critical issues
         if: steps.security.outputs.has_issues == 'true'
         run: |
-          echo "::warning::Security issues detected. Please review the security scan results."
-          # Note: Not failing the build, just warning. Uncomment below to fail:
-          # exit 1
+          echo "::error::CRITICAL or HIGH security issues detected. Please review the security scan results."
+          exit 1

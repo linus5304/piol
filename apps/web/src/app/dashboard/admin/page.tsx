@@ -13,9 +13,12 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { RequireRole, usePermissions } from '@/hooks/use-permissions';
+import { parseAppLocale } from '@/i18n/config';
+import { formatCurrencyFCFA, formatDate } from '@/lib/i18n-format';
 import { ROLE_COLORS, ROLE_LABELS, type UserRole } from '@/lib/permissions';
 import { api } from '@repo/convex/_generated/api';
 import { useQuery } from 'convex/react';
+import { useLocale } from 'gt-next/client';
 import {
   AlertCircle,
   Building2,
@@ -30,19 +33,20 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 
-function formatDate(timestamp: number): string {
-  return new Date(timestamp).toLocaleDateString('fr-FR', {
+function formatAdminDate(timestamp: number, locale: string): string {
+  return formatDate(timestamp, locale, {
     day: 'numeric',
     month: 'short',
     year: 'numeric',
   });
 }
 
-function formatCurrency(amount: number): string {
-  return `${new Intl.NumberFormat('fr-FR').format(amount)} FCFA`;
+function formatAdminCurrency(amount: number, locale: string): string {
+  return formatCurrencyFCFA(amount, locale);
 }
 
 function AdminDashboardContent() {
+  const locale = parseAppLocale(useLocale());
   const router = useRouter();
   const { isAdmin, isLoaded, role } = usePermissions();
 
@@ -144,7 +148,9 @@ function AdminDashboardContent() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold font-mono tabular-nums">
-              {adminStats?.totalTransactions ? formatCurrency(adminStats.totalTransactions) : '-'}
+              {adminStats?.totalTransactions
+                ? formatAdminCurrency(adminStats.totalTransactions, locale)
+                : '-'}
             </div>
             <p className="text-xs text-muted-foreground">Volume total</p>
           </CardContent>
@@ -203,7 +209,7 @@ function AdminDashboardContent() {
                         </Badge>
                       </TableCell>
                       <TableCell className="hidden sm:table-cell text-muted-foreground">
-                        {formatDate(user._creationTime)}
+                        {formatAdminDate(user._creationTime, locale)}
                       </TableCell>
                     </TableRow>
                   ))}

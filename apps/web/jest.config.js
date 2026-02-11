@@ -12,7 +12,9 @@ const config = {
   moduleNameMapper: {
     '^@/(.*)$': '<rootDir>/src/$1',
   },
-  transformIgnorePatterns: ['node_modules/(?!(next-intl|use-intl)/)'],
+  transformIgnorePatterns: [
+    'node_modules/(?!(gt-next|gt-react|generaltranslation|@generaltranslation)/)',
+  ],
   collectCoverageFrom: [
     'src/**/*.{js,jsx,ts,tsx}',
     '!src/**/*.d.ts',

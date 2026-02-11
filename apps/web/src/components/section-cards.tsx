@@ -1,7 +1,10 @@
 'use client';
 
 import { Card, CardContent } from '@/components/ui/card';
+import { parseAppLocale } from '@/i18n/config';
+import { formatCurrencyFCFA, formatNumber } from '@/lib/i18n-format';
 import { cn } from '@/lib/utils';
+import { useLocale } from 'gt-next/client';
 import {
   ArrowDownRight,
   ArrowUpRight,
@@ -82,6 +85,8 @@ function StatCard({
 }
 
 export function SectionCards({ role, stats = {} }: SectionCardsProps) {
+  const locale = parseAppLocale(useLocale());
+
   if (role === 'landlord') {
     return (
       <div className="space-y-4">
@@ -89,7 +94,7 @@ export function SectionCards({ role, stats = {} }: SectionCardsProps) {
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
           <StatCard
             label="Revenus total"
-            value={`${(stats.revenue ?? 0).toLocaleString('fr-FR')} FCFA`}
+            value={formatCurrencyFCFA(stats.revenue ?? 0, locale)}
             change={4.5}
             icon={Wallet}
           />
@@ -107,7 +112,7 @@ export function SectionCards({ role, stats = {} }: SectionCardsProps) {
           />
           <StatCard
             label="Vues totales"
-            value={(stats.views ?? 0).toLocaleString('fr-FR')}
+            value={formatNumber(stats.views ?? 0, locale)}
             change={21.2}
             icon={Eye}
           />

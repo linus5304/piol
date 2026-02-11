@@ -27,6 +27,10 @@ export const env = createEnv({
     // Sentry Error Tracking
     SENTRY_AUTH_TOKEN: z.string().optional(),
 
+    // General Translation
+    GT_API_KEY: z.string().optional(),
+    GT_PROJECT_ID: z.string().optional(),
+
     // Analytics (optional)
     ANALYTICS_SECRET: z.string().optional(),
   },
@@ -52,6 +56,9 @@ export const env = createEnv({
     // App Configuration
     NEXT_PUBLIC_APP_URL: z.string().url().default('http://localhost:3000'),
     NEXT_PUBLIC_APP_NAME: z.string().default('Piol'),
+
+    // General Translation (client-visible project identifier)
+    NEXT_PUBLIC_GT_PROJECT_ID: z.string().optional(),
   },
 
   /**
@@ -65,6 +72,8 @@ export const env = createEnv({
     CLERK_WEBHOOK_SECRET: process.env.CLERK_WEBHOOK_SECRET,
     CONVEX_DEPLOYMENT: process.env.CONVEX_DEPLOYMENT,
     SENTRY_AUTH_TOKEN: process.env.SENTRY_AUTH_TOKEN,
+    GT_API_KEY: process.env.GT_API_KEY,
+    GT_PROJECT_ID: process.env.GT_PROJECT_ID,
     ANALYTICS_SECRET: process.env.ANALYTICS_SECRET,
 
     // Client
@@ -77,6 +86,7 @@ export const env = createEnv({
     NEXT_PUBLIC_SENTRY_DSN: process.env.NEXT_PUBLIC_SENTRY_DSN,
     NEXT_PUBLIC_APP_URL: process.env.NEXT_PUBLIC_APP_URL,
     NEXT_PUBLIC_APP_NAME: process.env.NEXT_PUBLIC_APP_NAME,
+    NEXT_PUBLIC_GT_PROJECT_ID: process.env.NEXT_PUBLIC_GT_PROJECT_ID,
   },
 
   /**
