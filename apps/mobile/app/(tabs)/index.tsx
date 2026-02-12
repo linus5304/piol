@@ -6,9 +6,36 @@ import { Pressable, RefreshControl, StyleSheet, Text, View } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { PropertyCard } from '../../components/PropertyCard';
 
+// Type for property items
+interface PropertyItem {
+  _id: string;
+  title: string;
+  propertyType: string;
+  rentAmount: number;
+  currency: string;
+  city: string;
+  neighborhood?: string;
+  images?: Array<{ storageId: string; url?: string; order: number }>;
+  status?: string;
+  verificationStatus?: string;
+  landlord?: {
+    _id: string;
+    firstName?: string;
+    lastName?: string;
+    idVerified: boolean;
+  } | null;
+}
+
+// Type for properties list response
+interface PropertiesResult {
+  properties: PropertyItem[];
+  nextCursor?: string | null;
+}
+
 // Conditionally import Convex
-let api: any = null;
-let useQuery: any = () => undefined;
+let api: unknown = null;
+let useQuery: (query: unknown, args?: { limit: number }) => PropertiesResult | undefined = () =>
+  undefined;
 
 try {
   api = require('../../convex/_generated/api').api;
@@ -19,7 +46,7 @@ try {
 }
 
 // Mock data for demo mode
-const mockProperties = [
+const mockProperties: PropertyItem[] = [
   {
     _id: '1',
     title: 'Beautiful Studio in Bonapriso',
@@ -72,8 +99,12 @@ export default function HomeScreen() {
   const [refreshing, setRefreshing] = useState(false);
 
   // Use Convex query if available, otherwise use mock data
-  const convexResult = api ? useQuery(api.properties.listProperties, { limit: 20 }) : undefined;
-  const propertiesResult = convexResult ?? { properties: mockProperties };
+  const convexResult: PropertiesResult | undefined = api
+    ? useQuery((api as { properties: { listProperties: unknown } }).properties.listProperties, {
+        limit: 20,
+      })
+    : undefined;
+  const propertiesResult: PropertiesResult = convexResult ?? { properties: mockProperties };
 
   const onRefresh = useCallback(() => {
     setRefreshing(true);
@@ -104,12 +135,11 @@ export default function HomeScreen() {
         </Pressable>
       </View>
 
-      <FlashList
+      <FlashList<PropertyItem>
         data={propertiesResult?.properties ?? []}
         renderItem={({ item }) => (
           <PropertyCard property={item} onPress={() => handlePropertyPress(item._id)} />
         )}
-        estimatedItemSize={280}
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
         ListEmptyComponent={
           <View style={styles.emptyState}>
