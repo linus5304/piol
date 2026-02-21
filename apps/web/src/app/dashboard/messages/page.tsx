@@ -1,18 +1,20 @@
 'use client';
 
 import { ConversationList } from '@/components/messaging';
+import { PageHeader } from '@/components/ui/page-header';
 import { api } from '@repo/convex/_generated/api';
 import { useQuery } from 'convex/react';
+import { useTranslations } from 'gt-next';
 
 export default function MessagesPage() {
   const conversations = useQuery(api.messages.getConversations);
+  const t = useTranslations();
+
+  const unreadCount = conversations?.reduce((sum, c) => sum + c.unreadCount, 0);
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold text-foreground">Messages</h1>
-        <p className="text-muted-foreground mt-1">Manage your conversations</p>
-      </div>
+      <PageHeader title={t('messages.title')} count={unreadCount} />
 
       <ConversationList conversations={conversations} />
     </div>
