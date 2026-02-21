@@ -45,12 +45,13 @@ export default function SettingsPage() {
         },
       });
 
-      // Update Convex user with phone and language preference
+      // Update Convex user with phone, language, and role
       await updateProfile({
         firstName,
         lastName,
         phone: phone || undefined,
         languagePreference: language,
+        role,
       });
 
       toast.success('Profil mis à jour avec succès!');
