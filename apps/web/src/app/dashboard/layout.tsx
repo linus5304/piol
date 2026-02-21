@@ -59,7 +59,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       <SidebarInset className="bg-background">
         <SiteHeader />
         <div className="flex flex-1 flex-col">
-          <main className="flex flex-1 flex-col gap-6 py-6 pb-20 md:pb-6">{children}</main>
+          <main className="flex flex-1 flex-col py-6 pb-20 md:pb-6 px-4 lg:px-6">{children}</main>
         </div>
       </SidebarInset>
     </SidebarProvider>

@@ -1,7 +1,6 @@
 'use client';
 
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Badge } from '@/components/ui/badge';
 import {
   Empty,
   EmptyDescription,
@@ -10,15 +9,6 @@ import {
   EmptyTitle,
 } from '@/components/ui/empty';
 import { Input } from '@/components/ui/input';
-import {
-  Item,
-  ItemActions,
-  ItemContent,
-  ItemDescription,
-  ItemGroup,
-  ItemMedia,
-  ItemTitle,
-} from '@/components/ui/item';
 import { Skeleton } from '@/components/ui/skeleton';
 import { parseAppLocale } from '@/i18n/config';
 import { formatDate } from '@/lib/i18n-format';
@@ -86,22 +76,18 @@ function ConversationListSkeleton() {
   return (
     <div className="space-y-4">
       <Skeleton className="h-10 w-full" />
-      <ItemGroup className="rounded-lg border">
+      <div className="rounded-lg border bg-card divide-y">
         {[1, 2, 3].map((i) => (
-          <Item key={i}>
-            <ItemMedia>
-              <Skeleton className="h-10 w-10 rounded-full" />
-            </ItemMedia>
-            <ItemContent>
+          <div key={i} className="flex items-center gap-3 p-3">
+            <Skeleton className="h-10 w-10 shrink-0 rounded-full" />
+            <div className="flex-1 min-w-0 space-y-1.5">
               <Skeleton className="h-4 w-32" />
-              <Skeleton className="h-3 w-48 mt-1" />
-            </ItemContent>
-            <ItemActions>
-              <Skeleton className="h-3 w-8" />
-            </ItemActions>
-          </Item>
+              <Skeleton className="h-3 w-48" />
+            </div>
+            <Skeleton className="h-3 w-8 shrink-0" />
+          </div>
         ))}
-      </ItemGroup>
+      </div>
     </div>
   );
 }
@@ -160,62 +146,67 @@ export function ConversationList({ conversations, className }: ConversationListP
       {filteredConversations.length === 0 ? (
         <ConversationListEmpty hasSearch={searchQuery.trim().length > 0} />
       ) : (
-        <ItemGroup className="rounded-lg border bg-background">
-          {filteredConversations.map((conversation) => (
-            <Link
-              key={conversation.conversationId}
-              href={`/dashboard/messages/${encodeURIComponent(conversation.conversationId)}`}
-            >
-              <Item
-                className={cn('cursor-pointer', conversation.unreadCount > 0 && 'bg-primary/5')}
+        <div className="rounded-lg border bg-card divide-y">
+          {filteredConversations.map((conversation) => {
+            const isUnread = conversation.unreadCount > 0;
+
+            return (
+              <Link
+                key={conversation.conversationId}
+                href={`/dashboard/messages/${encodeURIComponent(conversation.conversationId)}`}
+                className={cn(
+                  'flex items-center gap-3 p-3 hover:bg-muted/50 transition-colors',
+                  isUnread && 'bg-success/5'
+                )}
               >
-                <ItemMedia>
-                  <Avatar className="h-10 w-10">
-                    <AvatarImage src={conversation.otherUser?.imageUrl ?? undefined} />
-                    <AvatarFallback>
-                      {getInitials(
-                        conversation.otherUser?.firstName,
-                        conversation.otherUser?.lastName
-                      )}
-                    </AvatarFallback>
-                  </Avatar>
-                </ItemMedia>
-                <ItemContent>
-                  <ItemTitle className="flex items-center gap-2">
-                    <span>
+                {/* Avatar */}
+                <Avatar className="h-10 w-10 shrink-0">
+                  <AvatarImage src={conversation.otherUser?.imageUrl ?? undefined} />
+                  <AvatarFallback className="bg-muted">
+                    {getInitials(
+                      conversation.otherUser?.firstName,
+                      conversation.otherUser?.lastName
+                    )}
+                  </AvatarFallback>
+                </Avatar>
+
+                {/* Content */}
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2">
+                    <span
+                      className={cn('text-sm truncate', isUnread ? 'font-semibold' : 'font-medium')}
+                    >
                       {conversation.otherUser?.firstName || 'User'}{' '}
                       {conversation.otherUser?.lastName || ''}
                     </span>
-                    {conversation.unreadCount > 0 && (
-                      <span className="h-2 w-2 rounded-full bg-primary" />
-                    )}
-                  </ItemTitle>
+                  </div>
                   {conversation.property && (
-                    <ItemDescription className="text-xs">
+                    <p className="text-xs text-muted-foreground truncate">
                       {conversation.property.title}
-                    </ItemDescription>
+                    </p>
                   )}
-                  <ItemDescription
-                    className={cn(conversation.unreadCount > 0 && 'text-foreground font-medium')}
+                  <p
+                    className={cn(
+                      'text-sm text-muted-foreground truncate',
+                      isUnread && 'font-semibold text-foreground'
+                    )}
                   >
                     {conversation.lastMessage.isFromMe && 'You: '}
                     {conversation.lastMessage.text}
-                  </ItemDescription>
-                </ItemContent>
-                <ItemActions className="flex-col items-end gap-1">
+                  </p>
+                </div>
+
+                {/* Time & unread indicator */}
+                <div className="flex flex-col items-end gap-1 shrink-0">
                   <span className="text-xs text-muted-foreground">
                     {formatTimestamp(conversation.lastMessage.timestamp, locale)}
                   </span>
-                  {conversation.unreadCount > 0 && (
-                    <Badge variant="default" className="h-5 min-w-5 justify-center px-1.5">
-                      {conversation.unreadCount}
-                    </Badge>
-                  )}
-                </ItemActions>
-              </Item>
-            </Link>
-          ))}
-        </ItemGroup>
+                  {isUnread && <span className="h-2 w-2 rounded-full bg-success" />}
+                </div>
+              </Link>
+            );
+          })}
+        </div>
       )}
     </div>
   );
