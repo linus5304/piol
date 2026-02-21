@@ -23,6 +23,8 @@ export const env = createEnv({
 
     // Convex Backend
     CONVEX_DEPLOYMENT: z.string().optional(),
+    // Temporary backward compatibility for old local setups.
+    CONVEX_URL: z.string().url().optional(),
 
     // Sentry Error Tracking
     SENTRY_AUTH_TOKEN: z.string().optional(),
@@ -56,6 +58,7 @@ export const env = createEnv({
     // App Configuration
     NEXT_PUBLIC_APP_URL: z.string().url().default('http://localhost:3000'),
     NEXT_PUBLIC_APP_NAME: z.string().default('Piol'),
+    NEXT_PUBLIC_PAYMENTS_ENABLED: z.enum(['true', 'false']).default('false'),
 
     // General Translation (client-visible project identifier)
     NEXT_PUBLIC_GT_PROJECT_ID: z.string().optional(),
@@ -71,6 +74,7 @@ export const env = createEnv({
     CLERK_SECRET_KEY: process.env.CLERK_SECRET_KEY,
     CLERK_WEBHOOK_SECRET: process.env.CLERK_WEBHOOK_SECRET,
     CONVEX_DEPLOYMENT: process.env.CONVEX_DEPLOYMENT,
+    CONVEX_URL: process.env.CONVEX_URL,
     SENTRY_AUTH_TOKEN: process.env.SENTRY_AUTH_TOKEN,
     GT_API_KEY: process.env.GT_API_KEY,
     GT_PROJECT_ID: process.env.GT_PROJECT_ID,
@@ -82,10 +86,11 @@ export const env = createEnv({
     NEXT_PUBLIC_CLERK_SIGN_UP_URL: process.env.NEXT_PUBLIC_CLERK_SIGN_UP_URL,
     NEXT_PUBLIC_CLERK_AFTER_SIGN_IN_URL: process.env.NEXT_PUBLIC_CLERK_AFTER_SIGN_IN_URL,
     NEXT_PUBLIC_CLERK_AFTER_SIGN_UP_URL: process.env.NEXT_PUBLIC_CLERK_AFTER_SIGN_UP_URL,
-    NEXT_PUBLIC_CONVEX_URL: process.env.NEXT_PUBLIC_CONVEX_URL,
+    NEXT_PUBLIC_CONVEX_URL: process.env.NEXT_PUBLIC_CONVEX_URL ?? process.env.CONVEX_URL,
     NEXT_PUBLIC_SENTRY_DSN: process.env.NEXT_PUBLIC_SENTRY_DSN,
     NEXT_PUBLIC_APP_URL: process.env.NEXT_PUBLIC_APP_URL,
     NEXT_PUBLIC_APP_NAME: process.env.NEXT_PUBLIC_APP_NAME,
+    NEXT_PUBLIC_PAYMENTS_ENABLED: process.env.NEXT_PUBLIC_PAYMENTS_ENABLED,
     NEXT_PUBLIC_GT_PROJECT_ID: process.env.NEXT_PUBLIC_GT_PROJECT_ID,
   },
 
@@ -123,6 +128,12 @@ export const isConvexConfigured = Boolean(
 export const isSentryConfigured = Boolean(env.NEXT_PUBLIC_SENTRY_DSN);
 
 /**
+ * Feature flag for payment initiation UX.
+ * Transaction history remains available even when this is disabled.
+ */
+export const isPaymentsEnabled = env.NEXT_PUBLIC_PAYMENTS_ENABLED === 'true';
+
+/**
  * Get configuration status for debugging
  */
 export function getConfigStatus() {
@@ -130,6 +141,7 @@ export function getConfigStatus() {
     clerk: isClerkConfigured,
     convex: isConvexConfigured,
     sentry: isSentryConfigured,
+    payments: isPaymentsEnabled,
     environment: env.NODE_ENV,
   };
 }
