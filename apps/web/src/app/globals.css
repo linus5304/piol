@@ -712,3 +712,121 @@
 .leaflet-marker-icon {
   filter: none !important;
 }
+
+/* =============================================================================
+   CLERK COMPONENT THEMING
+   Overrides Clerk's .cl-* classes to use our CSS variables.
+   These rules respond to .dark class automatically via var() references.
+   Placed outside @layer so they have enough specificity to override Clerk.
+   ============================================================================= */
+
+/* Card box wrapper and footer — inherit theme text color */
+.cl-cardBox,
+.cl-footer {
+  color: var(--foreground) !important;
+}
+
+/* Footer — override Clerk's white background gradient */
+.cl-footer {
+  background: transparent !important;
+  background-image: none !important;
+}
+
+/* Card — use our card background with visible border */
+.cl-card {
+  background-color: var(--card) !important;
+  color: var(--card-foreground) !important;
+  border: 1px solid var(--border) !important;
+}
+
+/* Dark mode: elevated card with subtle amber glow */
+.dark .cl-card {
+  box-shadow: 0 0 0 1px var(--border), 0 4px 24px -4px rgba(0, 0, 0, 0.4), 0 0 48px -12px
+    color-mix(in srgb, var(--primary) 6%, transparent) !important;
+}
+
+/* Form inputs — visible border, correct background */
+.cl-formFieldInput {
+  background-color: var(--background) !important;
+  border-color: var(--border) !important;
+  color: var(--foreground) !important;
+}
+
+.cl-formFieldInput::placeholder {
+  color: var(--muted-foreground) !important;
+}
+
+.cl-formFieldInput:focus {
+  border-color: var(--ring) !important;
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--ring) 25%, transparent) !important;
+}
+
+/* Form field labels */
+.cl-formFieldLabel {
+  color: var(--foreground) !important;
+}
+
+/* Social/OAuth buttons — fix text visibility */
+.cl-socialButtonsBlockButton {
+  background-color: var(--background) !important;
+  border: 1px solid var(--border) !important;
+  color: var(--foreground) !important;
+}
+
+.cl-socialButtonsBlockButton:hover {
+  background-color: var(--muted) !important;
+}
+
+.cl-socialButtonsBlockButton span {
+  color: var(--foreground) !important;
+}
+
+/* Divider text ("ou" / "or") */
+.cl-dividerText {
+  color: var(--muted-foreground) !important;
+}
+
+.cl-dividerLine {
+  background-color: var(--border) !important;
+}
+
+/* Footer action links & text */
+.cl-footerActionLink {
+  color: var(--primary) !important;
+}
+
+.cl-footerActionLink:hover {
+  color: var(--primary-hover) !important;
+}
+
+.cl-footerActionText {
+  color: var(--muted-foreground) !important;
+}
+
+/* Header text (when visible) */
+.cl-headerTitle {
+  color: var(--foreground) !important;
+}
+
+.cl-headerSubtitle {
+  color: var(--muted-foreground) !important;
+}
+
+/* Alert/error messages */
+.cl-formFieldErrorText {
+  color: var(--destructive) !important;
+}
+
+.cl-alert {
+  background-color: color-mix(in srgb, var(--destructive) 10%, var(--card)) !important;
+  border-color: color-mix(in srgb, var(--destructive) 30%, var(--border)) !important;
+  color: var(--foreground) !important;
+}
+
+/* Clerk branding ("Secured by") — match theme */
+.cl-footer p,
+.cl-footer a,
+.cl-footer svg {
+  color: var(--muted-foreground) !important;
+  fill: var(--muted-foreground) !important;
+}

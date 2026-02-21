@@ -88,10 +88,10 @@ export default function SignUpPage() {
         appearance={{
           elements: {
             rootBox: 'w-full',
-            card: 'w-full shadow-xl border-0',
+            card: 'w-full',
             headerTitle: 'hidden',
             headerSubtitle: 'hidden',
-            socialButtonsBlockButton: 'border border-border hover:bg-muted transition-colors',
+            socialButtonsBlockButton: 'transition-colors',
             formButtonPrimary: 'bg-primary hover:bg-primary/90 transition-colors',
             footerActionLink: 'text-primary hover:text-primary/90',
           },
