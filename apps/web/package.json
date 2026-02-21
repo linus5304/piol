@@ -6,7 +6,7 @@
     "dev": "next dev --turbopack",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint .",
+    "lint": "biome check .",
     "typecheck": "tsc --noEmit",
     "test": "jest",
     "test:i18n": "jest --watchman=false src/__tests__/i18n-dictionaries.test.ts",
