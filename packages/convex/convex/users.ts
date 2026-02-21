@@ -280,6 +280,7 @@ export const updateProfile = mutation({
     phone: v.optional(v.string()),
     languagePreference: v.optional(v.union(v.literal('fr'), v.literal('en'))),
     profileImageId: v.optional(v.id('_storage')),
+    role: v.optional(v.union(v.literal('renter'), v.literal('landlord'))),
   },
   handler: async (ctx, args) => {
     const { user } = await getAuthUser(ctx);
@@ -290,6 +291,7 @@ export const updateProfile = mutation({
       ...(args.phone !== undefined && { phone: args.phone }),
       ...(args.languagePreference !== undefined && { languagePreference: args.languagePreference }),
       ...(args.profileImageId !== undefined && { profileImageId: args.profileImageId }),
+      ...(args.role !== undefined && { role: args.role }),
     });
 
     return user._id;

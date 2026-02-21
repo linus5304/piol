@@ -4,6 +4,8 @@ import { Logo } from '@/components/brand';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { useSafeUser } from '@/hooks/use-safe-auth';
+import { api } from '@repo/convex/_generated/api';
+import { useMutation } from 'convex/react';
 import { Building2, KeyRound } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
@@ -15,6 +17,7 @@ export default function OnboardingPage() {
   const router = useRouter();
   const [selectedRole, setSelectedRole] = useState<Role>('renter');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const completeOnboarding = useMutation(api.users.completeOnboarding);
 
   // Update selected role when user loads
   useEffect(() => {
@@ -23,7 +26,7 @@ export default function OnboardingPage() {
     }
   }, [user?.unsafeMetadata?.role]);
 
-  // Redirect if already completed onboarding - using useEffect to avoid setState during render
+  // Redirect if already completed onboarding
   useEffect(() => {
     if (isLoaded && user?.unsafeMetadata?.onboardingCompleted) {
       router.replace('/dashboard');
@@ -39,14 +42,19 @@ export default function OnboardingPage() {
       !user.unsafeMetadata?.onboardingCompleted &&
       !isSubmitting
     ) {
+      const role = user.unsafeMetadata.role as Role;
       setIsSubmitting(true);
-      user
-        .update({
-          unsafeMetadata: {
-            ...user.unsafeMetadata,
-            onboardingCompleted: true,
-          },
-        })
+
+      // Sync role to Convex, then mark onboarding complete in Clerk
+      completeOnboarding({ role, languagePreference: 'fr' })
+        .then(() =>
+          user.update({
+            unsafeMetadata: {
+              ...user.unsafeMetadata,
+              onboardingCompleted: true,
+            },
+          })
+        )
         .then(() => {
           router.push('/dashboard');
         })
@@ -55,13 +63,20 @@ export default function OnboardingPage() {
           setIsSubmitting(false);
         });
     }
-  }, [isLoaded, user, isSubmitting, router]);
+  }, [isLoaded, user, isSubmitting, router, completeOnboarding]);
 
   const handleComplete = async () => {
     if (!user) return;
 
     setIsSubmitting(true);
     try {
+      // Sync role to Convex database first
+      await completeOnboarding({
+        role: selectedRole,
+        languagePreference: 'fr',
+      });
+
+      // Then update Clerk metadata
       await user.update({
         unsafeMetadata: {
           ...user.unsafeMetadata,
