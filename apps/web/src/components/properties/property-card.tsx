@@ -202,7 +202,12 @@ export const PropertyCard = memo(function PropertyCard({
   // ─── HORIZONTAL VARIANT ──────────────────────────────────────────────
   if (variant === 'horizontal') {
     return (
-      <Link href={`/properties/${property._id}`} className={cn('group block', className)}>
+      <Link
+        href={`/properties/${property._id}`}
+        className={cn('group block', className)}
+        data-testid="property-card"
+        data-property-id={property._id}
+      >
         <div className="dusk-card flex overflow-hidden">
           {/* Image */}
           <div className="relative w-48 h-36 flex-shrink-0 overflow-hidden bg-muted">
@@ -317,7 +322,12 @@ export const PropertyCard = memo(function PropertyCard({
 
   // ─── VERTICAL VARIANT (DEFAULT) ──────────────────────────────────────
   return (
-    <Link href={`/properties/${property._id}`} className={cn('group block', className)}>
+    <Link
+      href={`/properties/${property._id}`}
+      className={cn('group block', className)}
+      data-testid="property-card"
+      data-property-id={property._id}
+    >
       <div className="dusk-card overflow-hidden">
         {/* Image Container with Carousel */}
         <div

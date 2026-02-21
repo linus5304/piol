@@ -1,37 +1,32 @@
 'use client';
 
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Textarea } from '@/components/ui/textarea';
 import { parseAppLocale } from '@/i18n/config';
 import { formatCurrencyFCFA, formatDate } from '@/lib/i18n-format';
 import { api } from '@repo/convex/_generated/api';
 import type { Id } from '@repo/convex/_generated/dataModel';
 import { useMutation, useQuery } from 'convex/react';
-import { useLocale } from 'gt-next/client';
+import { useLocale, useTranslations } from 'gt-next/client';
 import { AlertCircle, ImageOff, Loader2, Trash2 } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { use, useEffect, useState } from 'react';
+import { use, useEffect, useMemo, useState } from 'react';
 import { toast } from 'sonner';
-
-const statusLabels: Record<string, { label: string; color: string }> = {
-  active: { label: 'Actif', color: 'text-success' },
-  draft: { label: 'Brouillon', color: 'text-muted-foreground' },
-  pending_verification: { label: 'En vérification', color: 'text-warning' },
-  verified: { label: 'Vérifié', color: 'text-success' },
-  rented: { label: 'Loué', color: 'text-primary' },
-  archived: { label: 'Archivé', color: 'text-muted-foreground' },
-};
-
-const verificationLabels: Record<string, { label: string; color: string }> = {
-  approved: { label: '✓ Vérifié', color: 'text-success' },
-  pending: { label: '⏳ En attente', color: 'text-warning' },
-  in_progress: { label: 'En cours', color: 'text-warning' },
-  rejected: { label: '✗ Rejeté', color: 'text-destructive' },
-};
 
 function formatPropertyDate(timestamp: number, locale: string): string {
   return formatDate(timestamp, locale, {
@@ -43,6 +38,7 @@ function formatPropertyDate(timestamp: number, locale: string): string {
 
 export default function EditPropertyPage({ params }: { params: Promise<{ id: string }> }) {
   const locale = parseAppLocale(useLocale());
+  const t = useTranslations();
   const { id } = use(params);
   const router = useRouter();
   const [isUpdating, setIsUpdating] = useState(false);
@@ -50,6 +46,34 @@ export default function EditPropertyPage({ params }: { params: Promise<{ id: str
   const [isArchiving, setIsArchiving] = useState(false);
   const [isUploadingImages, setIsUploadingImages] = useState(false);
   const [removingImageId, setRemovingImageId] = useState<Id<'_storage'> | null>(null);
+  const [showArchiveDialog, setShowArchiveDialog] = useState(false);
+  const [showVerifyDialog, setShowVerifyDialog] = useState(false);
+  const [showDeactivateDialog, setShowDeactivateDialog] = useState(false);
+
+  const statusLabels = useMemo<Record<string, { label: string; color: string }>>(
+    () => ({
+      active: { label: t('editProperty.statusActive'), color: 'text-success' },
+      draft: { label: t('editProperty.statusDraft'), color: 'text-muted-foreground' },
+      pending_verification: {
+        label: t('editProperty.statusPendingVerification'),
+        color: 'text-warning',
+      },
+      verified: { label: t('editProperty.statusVerified'), color: 'text-success' },
+      rented: { label: t('editProperty.statusRented'), color: 'text-primary' },
+      archived: { label: t('editProperty.statusArchived'), color: 'text-muted-foreground' },
+    }),
+    [t]
+  );
+
+  const verificationLabels = useMemo<Record<string, { label: string; color: string }>>(
+    () => ({
+      approved: { label: t('editProperty.verificationApproved'), color: 'text-success' },
+      pending: { label: t('editProperty.verificationPending'), color: 'text-warning' },
+      in_progress: { label: t('editProperty.verificationInProgress'), color: 'text-warning' },
+      rejected: { label: t('editProperty.verificationRejected'), color: 'text-destructive' },
+    }),
+    [t]
+  );
 
   const property = useQuery(
     api.properties.getProperty,
@@ -105,7 +129,7 @@ export default function EditPropertyPage({ params }: { params: Promise<{ id: str
       const hasLongitude = formData.longitude.trim().length > 0;
 
       if ((hasLatitude && !hasLongitude) || (!hasLatitude && hasLongitude)) {
-        toast.error('Veuillez renseigner la latitude et la longitude.');
+        toast.error(t('editProperty.errorCoords'));
         return;
       }
 
@@ -116,7 +140,7 @@ export default function EditPropertyPage({ params }: { params: Promise<{ id: str
         hasLongitude &&
         (!Number.isFinite(latitude) || !Number.isFinite(longitude))
       ) {
-        toast.error('Coordonnees invalides.');
+        toast.error(t('editProperty.errorCoordsInvalid'));
         return;
       }
       const location =
@@ -131,10 +155,19 @@ export default function EditPropertyPage({ params }: { params: Promise<{ id: str
         rentAmount: Number(formData.rentAmount),
         location,
       });
-      toast.success('Propriété mise à jour');
+      if (property.status === 'active') {
+        toast.success(t('editProperty.toastUpdated'), {
+          action: {
+            label: t('editProperty.toastViewListing'),
+            onClick: () => router.push(`/properties/${property._id}`),
+          },
+        });
+      } else {
+        toast.success(t('editProperty.toastUpdated'));
+      }
     } catch (error) {
       console.error('Error updating property:', error);
-      toast.error('Erreur lors de la mise à jour');
+      toast.error(t('editProperty.errorUpdate'));
     } finally {
       setIsUpdating(false);
     }
@@ -168,10 +201,10 @@ export default function EditPropertyPage({ params }: { params: Promise<{ id: str
       }
 
       await addPropertyImages({ propertyId: property._id, images: uploaded });
-      toast.success('Photos ajoutées');
+      toast.success(t('editProperty.toastPhotosAdded'));
     } catch (error) {
       console.error('Error uploading images:', error);
-      toast.error("Erreur lors de l'upload des photos");
+      toast.error(t('editProperty.errorUpload'));
     } finally {
       setIsUploadingImages(false);
     }
@@ -183,10 +216,10 @@ export default function EditPropertyPage({ params }: { params: Promise<{ id: str
     setRemovingImageId(storageId);
     try {
       await removePropertyImage({ propertyId: property._id, storageId });
-      toast.success('Photo supprimée');
+      toast.success(t('editProperty.toastPhotoRemoved'));
     } catch (error) {
       console.error('Error removing image:', error);
-      toast.error('Erreur lors de la suppression');
+      toast.error(t('editProperty.errorRemovePhoto'));
     } finally {
       setRemovingImageId(null);
     }
@@ -202,10 +235,12 @@ export default function EditPropertyPage({ params }: { params: Promise<{ id: str
         propertyId: property._id,
         active: !isCurrentlyActive,
       });
-      toast.success(isCurrentlyActive ? 'Propriété désactivée' : 'Propriété activée');
+      toast.success(
+        isCurrentlyActive ? t('editProperty.toastDeactivated') : t('editProperty.toastActivated')
+      );
     } catch (error) {
       console.error('Error toggling status:', error);
-      toast.error('Erreur lors du changement de statut');
+      toast.error(t('editProperty.errorToggle'));
     } finally {
       setIsToggling(false);
     }
@@ -216,28 +251,24 @@ export default function EditPropertyPage({ params }: { params: Promise<{ id: str
 
     try {
       await submitForVerification({ propertyId: property._id });
-      toast.success('Propriété soumise pour vérification');
+      toast.success(t('editProperty.toastSubmitted'));
     } catch (error) {
       console.error('Error submitting for verification:', error);
-      toast.error('Erreur lors de la soumission');
+      toast.error(t('editProperty.errorSubmit'));
     }
   };
 
   const handleArchive = async () => {
     if (!property) return;
 
-    if (!window.confirm('Êtes-vous sûr de vouloir archiver cette propriété ?')) {
-      return;
-    }
-
     setIsArchiving(true);
     try {
       await archiveProperty({ propertyId: property._id });
-      toast.success('Propriété archivée');
+      toast.success(t('editProperty.toastArchived'));
       router.push('/dashboard/properties');
     } catch (error) {
       console.error('Error archiving property:', error);
-      toast.error("Erreur lors de l'archivage");
+      toast.error(t('editProperty.errorArchive'));
     } finally {
       setIsArchiving(false);
     }
@@ -284,12 +315,12 @@ export default function EditPropertyPage({ params }: { params: Promise<{ id: str
         <div className="w-24 h-24 mx-auto mb-6 rounded-full bg-muted flex items-center justify-center">
           <ImageOff className="w-12 h-12 text-muted-foreground" />
         </div>
-        <h1 className="text-2xl font-semibold text-foreground mb-2">Propriété introuvable</h1>
-        <p className="text-muted-foreground mb-8">
-          Cette propriété n'existe pas ou vous n'avez pas accès.
-        </p>
+        <h1 className="text-2xl font-semibold text-foreground mb-2">
+          {t('editProperty.notFound')}
+        </h1>
+        <p className="text-muted-foreground mb-8">{t('editProperty.notFoundDesc')}</p>
         <Link href="/dashboard/properties">
-          <Button>Retour aux propriétés</Button>
+          <Button>{t('editProperty.backToProperties')}</Button>
         </Link>
       </div>
     );
@@ -317,22 +348,22 @@ export default function EditPropertyPage({ params }: { params: Promise<{ id: str
             href="/dashboard/properties"
             className="text-muted-foreground hover:text-foreground"
           >
-            ← Retour
+            {t('editProperty.back')}
           </Link>
           <div>
-            <h1 className="text-2xl font-bold text-foreground">Modifier la propriété</h1>
+            <h1 className="text-2xl font-bold text-foreground">{t('editProperty.title')}</h1>
             <p className="text-muted-foreground">{property.title}</p>
           </div>
         </div>
         <div className="flex gap-2">
           {property.status === 'active' && (
             <Link href={`/properties/${id}`}>
-              <Button variant="outline">Voir l'annonce</Button>
+              <Button variant="outline">{t('editProperty.viewListing')}</Button>
             </Link>
           )}
           <Button onClick={handleSave} disabled={isUpdating}>
             {isUpdating && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
-            Enregistrer
+            {t('editProperty.save')}
           </Button>
         </div>
       </div>
@@ -341,7 +372,7 @@ export default function EditPropertyPage({ params }: { params: Promise<{ id: str
       <div className="grid gap-4 md:grid-cols-4">
         <Card>
           <CardHeader className="pb-2">
-            <CardDescription>Statut</CardDescription>
+            <CardDescription>{t('editProperty.status')}</CardDescription>
             <CardTitle className={`text-2xl ${statusLabels[property.status]?.color}`}>
               {statusLabels[property.status]?.label || property.status}
             </CardTitle>
@@ -349,7 +380,7 @@ export default function EditPropertyPage({ params }: { params: Promise<{ id: str
         </Card>
         <Card>
           <CardHeader className="pb-2">
-            <CardDescription>Vérification</CardDescription>
+            <CardDescription>{t('editProperty.verification')}</CardDescription>
             <CardTitle
               className={`text-2xl ${verificationLabels[property.verificationStatus]?.color}`}
             >
@@ -360,7 +391,7 @@ export default function EditPropertyPage({ params }: { params: Promise<{ id: str
         </Card>
         <Card>
           <CardHeader className="pb-2">
-            <CardDescription>Créé le</CardDescription>
+            <CardDescription>{t('editProperty.createdOn')}</CardDescription>
             <CardTitle className="text-lg">
               {formatPropertyDate(property._creationTime, locale)}
             </CardTitle>
@@ -368,7 +399,7 @@ export default function EditPropertyPage({ params }: { params: Promise<{ id: str
         </Card>
         <Card>
           <CardHeader className="pb-2">
-            <CardDescription>Loyer</CardDescription>
+            <CardDescription>{t('editProperty.rent')}</CardDescription>
             <CardTitle className="text-2xl text-primary font-mono tabular-nums">
               {formatCurrencyFCFA(property.rentAmount, locale)}
             </CardTitle>
@@ -382,16 +413,15 @@ export default function EditPropertyPage({ params }: { params: Promise<{ id: str
           <CardContent className="flex items-start gap-3 pt-6">
             <AlertCircle className="w-5 h-5 text-destructive mt-0.5 shrink-0" />
             <div>
-              <p className="font-medium text-destructive">Vérification rejetée</p>
+              <p className="font-medium text-destructive">{t('editProperty.rejectionTitle')}</p>
               {verification?.notes && (
                 <p className="text-sm text-foreground mt-1">
-                  <span className="font-medium">Motif : </span>
+                  <span className="font-medium">{`${t('editProperty.rejectionReason')} `}</span>
                   {verification.notes}
                 </p>
               )}
               <p className="text-sm text-muted-foreground mt-1">
-                Modifiez les informations nécessaires puis resoumettez pour une nouvelle
-                vérification.
+                {t('editProperty.rejectionHint')}
               </p>
             </div>
           </CardContent>
@@ -401,11 +431,11 @@ export default function EditPropertyPage({ params }: { params: Promise<{ id: str
       {/* Edit Form */}
       <Card>
         <CardHeader>
-          <CardTitle>Informations de base</CardTitle>
+          <CardTitle>{t('editProperty.basicInfo')}</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="title">Titre</Label>
+            <Label htmlFor="title">{t('editProperty.titleLabel')}</Label>
             <Input
               id="title"
               value={formData.title}
@@ -414,18 +444,18 @@ export default function EditPropertyPage({ params }: { params: Promise<{ id: str
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="description">Description</Label>
-            <textarea
+            <Label htmlFor="description">{t('editProperty.descriptionLabel')}</Label>
+            <Textarea
               id="description"
               value={formData.description}
               onChange={(e) => setFormData((prev) => ({ ...prev, description: e.target.value }))}
-              className="w-full min-h-[120px] px-3 py-2 border rounded-md resize-none"
+              className="min-h-[120px] resize-none"
             />
           </div>
 
           <div className="grid gap-4 md:grid-cols-3">
             <div className="space-y-2">
-              <Label htmlFor="rent">Loyer mensuel (FCFA)</Label>
+              <Label htmlFor="rent">{t('editProperty.monthlyRent')}</Label>
               <Input
                 id="rent"
                 type="number"
@@ -434,7 +464,7 @@ export default function EditPropertyPage({ params }: { params: Promise<{ id: str
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="caution">Mois de caution</Label>
+              <Label htmlFor="caution">{t('editProperty.cautionMonths')}</Label>
               <Input
                 id="caution"
                 type="number"
@@ -446,7 +476,7 @@ export default function EditPropertyPage({ params }: { params: Promise<{ id: str
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="upfront">Avance (mois)</Label>
+              <Label htmlFor="upfront">{t('editProperty.advanceMonths')}</Label>
               <Input
                 id="upfront"
                 type="number"
@@ -461,7 +491,7 @@ export default function EditPropertyPage({ params }: { params: Promise<{ id: str
 
           <div className="grid gap-4 md:grid-cols-2">
             <div className="space-y-2">
-              <Label htmlFor="latitude">Latitude</Label>
+              <Label htmlFor="latitude">{t('editProperty.latitude')}</Label>
               <Input
                 id="latitude"
                 type="number"
@@ -472,7 +502,7 @@ export default function EditPropertyPage({ params }: { params: Promise<{ id: str
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="longitude">Longitude</Label>
+              <Label htmlFor="longitude">{t('editProperty.longitude')}</Label>
               <Input
                 id="longitude"
                 type="number"
@@ -483,23 +513,21 @@ export default function EditPropertyPage({ params }: { params: Promise<{ id: str
               />
             </div>
           </div>
-          <p className="text-xs text-muted-foreground">
-            Ajoutez des coordonnees pour afficher la propriete sur la carte.
-          </p>
+          <p className="text-xs text-muted-foreground">{t('editProperty.coordsHint')}</p>
         </CardContent>
       </Card>
 
       {/* Photos */}
       <Card>
         <CardHeader>
-          <CardTitle>Photos</CardTitle>
-          <CardDescription>Gérez les photos de votre propriété</CardDescription>
+          <CardTitle>{t('editProperty.photos')}</CardTitle>
+          <CardDescription>{t('editProperty.photosDesc')}</CardDescription>
         </CardHeader>
         <CardContent>
           {images.length === 0 ? (
             <div className="text-center py-8 text-muted-foreground">
               <ImageOff className="w-10 h-10 mx-auto mb-4 text-muted-foreground" />
-              <p>Aucune photo pour le moment</p>
+              <p>{t('editProperty.noPhotos')}</p>
               <label
                 htmlFor="property-photo-upload"
                 className="mt-4 inline-flex items-center justify-center rounded-md border border-dashed px-4 py-2 text-sm text-muted-foreground hover:text-foreground hover:border-border transition-colors cursor-pointer"
@@ -507,7 +535,7 @@ export default function EditPropertyPage({ params }: { params: Promise<{ id: str
                 {isUploadingImages ? (
                   <Loader2 className="w-4 h-4 animate-spin" />
                 ) : (
-                  <span>Ajouter des photos</span>
+                  <span>{t('editProperty.addPhotos')}</span>
                 )}
               </label>
             </div>
@@ -564,40 +592,97 @@ export default function EditPropertyPage({ params }: { params: Promise<{ id: str
         </CardContent>
       </Card>
 
+      {/* Confirmation Dialogs */}
+      <AlertDialog open={showArchiveDialog} onOpenChange={setShowArchiveDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>{t('editProperty.archiveDialogTitle')}</AlertDialogTitle>
+            <AlertDialogDescription>{t('editProperty.archiveDialogDesc')}</AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>{t('editProperty.archiveDialogCancel')}</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleArchive}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              {t('editProperty.archiveDialogConfirm')}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      <AlertDialog open={showVerifyDialog} onOpenChange={setShowVerifyDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>{t('editProperty.verifyDialogTitle')}</AlertDialogTitle>
+            <AlertDialogDescription>{t('editProperty.verifyDialogDesc')}</AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>{t('editProperty.verifyDialogCancel')}</AlertDialogCancel>
+            <AlertDialogAction onClick={handleSubmitForVerification}>
+              {t('editProperty.verifyDialogConfirm')}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      <AlertDialog open={showDeactivateDialog} onOpenChange={setShowDeactivateDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>{t('editProperty.deactivateDialogTitle')}</AlertDialogTitle>
+            <AlertDialogDescription>
+              {t('editProperty.deactivateDialogDesc')}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>{t('editProperty.deactivateDialogCancel')}</AlertDialogCancel>
+            <AlertDialogAction onClick={handleToggleStatus}>
+              {t('editProperty.deactivateDialogConfirm')}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
       {/* Actions */}
       <Card className="border-border">
         <CardHeader>
-          <CardTitle>Actions</CardTitle>
+          <CardTitle>{t('editProperty.actions')}</CardTitle>
         </CardHeader>
         <CardContent className="flex flex-wrap gap-4">
           {property.status === 'draft' && (
-            <Button variant="outline" onClick={handleSubmitForVerification}>
+            <Button variant="outline" onClick={() => setShowVerifyDialog(true)}>
               {property.verificationStatus === 'rejected'
-                ? 'Resoumettre pour vérification'
-                : 'Soumettre pour vérification'}
+                ? t('editProperty.resubmitForVerification')
+                : t('editProperty.submitForVerification')}
             </Button>
           )}
 
           {property.verificationStatus === 'approved' && (
             <Button
               variant="outline"
-              onClick={handleToggleStatus}
+              onClick={
+                property.status === 'active'
+                  ? () => setShowDeactivateDialog(true)
+                  : handleToggleStatus
+              }
               disabled={isToggling}
               className={property.status === 'active' ? 'text-warning border-warning' : ''}
             >
               {isToggling && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
-              {property.status === 'active' ? "Désactiver l'annonce" : "Activer l'annonce"}
+              {property.status === 'active'
+                ? t('editProperty.deactivate')
+                : t('editProperty.activate')}
             </Button>
           )}
 
           <Button
             variant="outline"
-            onClick={handleArchive}
+            onClick={() => setShowArchiveDialog(true)}
             disabled={isArchiving}
             className="text-destructive border-destructive hover:bg-destructive/10"
           >
             {isArchiving && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
-            Archiver l'annonce
+            {t('editProperty.archive')}
           </Button>
         </CardContent>
       </Card>
