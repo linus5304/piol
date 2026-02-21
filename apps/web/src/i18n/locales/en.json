@@ -435,7 +435,11 @@
     "saving": "Saving...",
     "dangerZone": "Danger zone",
     "dangerZoneDesc": "Irreversible actions on your account",
-    "deleteAccount": "Delete my account"
+    "deleteAccount": "Delete my account",
+    "firstNameRequired": "First name is required",
+    "lastNameRequired": "Last name is required",
+    "phoneInvalid": "Enter a valid Cameroon number (e.g. 6XX XXX XXX)",
+    "phonePlaceholder": "6XX XXX XXX"
   },
   "messages": {
     "title": "Messages",
