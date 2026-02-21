@@ -10,7 +10,6 @@ Piol is a Cameroon housing marketplace where renters find verified properties, p
 
 - **Backend:** Convex (serverless + realtime DB), Clerk auth
 - **Web:** Next.js 16 (App Router, Turbopack), React 19, Tailwind v4, shadcn/ui
-- **Mobile:** Expo 52, React Native (paused until web MVP done)
 - **Monorepo:** Turborepo + Bun
 
 ## Common Commands
@@ -95,13 +94,11 @@ cd apps/web && bunx jest --coverage                    # With coverage
 ```
 apps/
   web/                      # Next.js 16 web app (@repo/web)
-  mobile/                   # Expo React Native app (@repo/mobile)
 packages/
   convex/                   # Convex backend functions + schema (@repo/convex)
   ui/                       # Shared UI components (@repo/ui)
   types/                    # Shared TypeScript types (@repo/types)
   config/                   # Shared config (@repo/config)
-  env/                      # Environment variable handling (@repo/env)
 ```
 
 ## Architecture
@@ -148,7 +145,7 @@ packages/
 - Never commit to main directly
 - Branch naming: `feat/`, `fix/`, `chore/`, `docs/`
 - Commit format: `<scope>(<feature-id>): <description>`
-  - Scopes: `web`, `convex`, `mobile`, `agent`, `chore`
+  - Scopes: `web`, `convex`, `chore`
   - Example: `web(mvp-2): wire properties to Convex`
 - Squash merge PRs
 
@@ -168,29 +165,6 @@ git worktree remove ../piol-feature-x
 ```
 
 Each worktree is a separate Claude Code session context.
-
-## Autonomous Mode
-
-When user says "autonomous mode" or "full auto":
-
-1. Read `agent/spec.md` thoroughly
-2. Read `agent/implementation_plan.md`
-3. Pick highest leverage unchecked task
-4. Complete the task
-5. Write a test to verify (if applicable)
-6. Check the box [x] in implementation_plan.md
-7. Use /commit for logical units of work
-8. Repeat until all boxes checked
-9. Say "DONE - ready for review"
-
-### Files
-- `agent/spec.md` - Feature requirements
-- `agent/implementation_plan.md` - Task checklist
-- `agent/prompt.md` - Static instructions
-
-### Session Management
-Start NEW session: DONE reached, context slow, spec changed, after ship
-Stay SAME session: Tasks unchecked, still progressing
 
 ## Auto-Ship Mode
 
@@ -221,7 +195,7 @@ Co-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>
 ```
 
 Types: `feat`, `fix`, `chore`, `docs`, `refactor`
-Scopes: `web`, `convex`, `mobile`, `agent`
+Scopes: `web`, `convex`
 
 ### Prompting Patterns for UI Work
 
@@ -258,22 +232,6 @@ Phase 1: Component shell with props interface
 Phase 2: Add [sub-feature 1]
 Phase 3: Add [sub-feature 2]
 After each phase, show what you built before continuing.
-```
-
-**Pattern 4: Full Autonomous**
-```
-I'm stepping away. Work through agent/implementation_plan.md:
-
-1. Read agent/spec.md for context
-2. Pick highest leverage unchecked task
-3. Complete it following existing patterns
-4. Run typecheck and lint
-5. Check the box [x] in implementation_plan.md
-6. Use /commit for logical units
-7. Repeat until all boxes checked
-8. Say "DONE - ready for review"
-
-Make reasonable decisions and document them.
 ```
 
 ### Daily Development Prompt Template
@@ -323,83 +281,3 @@ Create a JWT template named `convex` in Clerk Dashboard with default claims.
 - `turbo.json` - Turborepo task configuration
 - `biome.json` - Linter/formatter configuration
 
-## Compound Engineering (Nightly Loop)
-
-Autonomous nightly development based on Ryan Carson's compound engineering approach.
-
-### Schedule
-
-| Time | Job | Description |
-|------|-----|-------------|
-| 5:00 PM | Caffeinate | Keeps Mac awake for 9 hours |
-| 10:30 PM | Daily Review | Extracts learnings from Claude sessions |
-| 11:00 PM | Auto-Compound | Implements top task from implementation_plan.md |
-
-### Scripts
-
-```bash
-scripts/compound/
-├── daily-compound-review.sh   # Learning extraction
-├── auto-compound.sh           # Main implementation loop
-├── analyze-report.sh          # Task parser
-├── loop.sh                    # Iterative Claude wrapper
-├── notify.sh                  # macOS/Discord notifications
-└── COMPOUND_PROMPT.md         # Claude instructions
-```
-
-### Manual Trigger
-
-```bash
-# Test notification
-./scripts/compound/notify.sh "Test message"
-
-# Parse next task
-./scripts/compound/analyze-report.sh agent/implementation_plan.md
-
-# Run single iteration (creates branch, doesn't auto-merge)
-./scripts/compound/auto-compound.sh 1
-
-# Run full loop (5 iterations)
-./scripts/compound/auto-compound.sh
-```
-
-### Enable/Disable Scheduled Jobs
-
-```bash
-# Enable all jobs
-launchctl load ~/Library/LaunchAgents/com.piol.caffeinate.plist
-launchctl load ~/Library/LaunchAgents/com.piol.daily-compound-review.plist
-launchctl load ~/Library/LaunchAgents/com.piol.auto-compound.plist
-
-# Check status
-launchctl list | grep piol
-
-# Disable jobs
-launchctl unload ~/Library/LaunchAgents/com.piol.auto-compound.plist
-launchctl unload ~/Library/LaunchAgents/com.piol.daily-compound-review.plist
-launchctl unload ~/Library/LaunchAgents/com.piol.caffeinate.plist
-```
-
-### Log Files
-
-- `/tmp/piol-compound-review.log` - Learning extraction logs
-- `/tmp/piol-auto-compound.log` - Implementation loop logs
-- `/tmp/piol-caffeinate.log` - Caffeinate logs
-- `agent/progress.md` - Loop progress tracking
-- `agent/compound-learnings.md` - Extracted learnings
-
-### Discord Notifications
-
-Set `DISCORD_WEBHOOK_URL` environment variable for Discord notifications:
-
-```bash
-export DISCORD_WEBHOOK_URL="https://discord.com/api/webhooks/..."
-```
-
-### Safety Guardrails
-
-- Always creates feature branches (never pushes to main)
-- Runs typecheck/lint before committing
-- Creates draft PRs for human review
-- Max 5 iterations per night
-- Aborts if working directory is dirty
