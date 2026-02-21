@@ -272,6 +272,9 @@ export const getOrCreateCurrentUser = mutation({
   },
 });
 
+// Cameroon phone: +237 followed by 9 digits starting with 6 or 2
+const CM_PHONE_RE = /^\+237[62]\d{8}$/;
+
 // Update user profile
 export const updateProfile = mutation({
   args: {
@@ -285,10 +288,25 @@ export const updateProfile = mutation({
   handler: async (ctx, args) => {
     const { user } = await getAuthUser(ctx);
 
+    // Validate phone format if provided
+    if (args.phone !== undefined && args.phone !== '' && !CM_PHONE_RE.test(args.phone)) {
+      throw new Error(
+        'Invalid Cameroon phone number. Expected format: +237 6XXXXXXXX or +237 2XXXXXXXX'
+      );
+    }
+
+    // Validate name lengths
+    if (args.firstName !== undefined && args.firstName.trim().length === 0) {
+      throw new Error('First name is required');
+    }
+    if (args.lastName !== undefined && args.lastName.trim().length === 0) {
+      throw new Error('Last name is required');
+    }
+
     await ctx.db.patch(user._id, {
-      ...(args.firstName !== undefined && { firstName: args.firstName }),
-      ...(args.lastName !== undefined && { lastName: args.lastName }),
-      ...(args.phone !== undefined && { phone: args.phone }),
+      ...(args.firstName !== undefined && { firstName: args.firstName.trim() }),
+      ...(args.lastName !== undefined && { lastName: args.lastName.trim() }),
+      ...(args.phone !== undefined && { phone: args.phone || undefined }),
       ...(args.languagePreference !== undefined && { languagePreference: args.languagePreference }),
       ...(args.profileImageId !== undefined && { profileImageId: args.profileImageId }),
       ...(args.role !== undefined && { role: args.role }),

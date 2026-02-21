@@ -8,11 +8,50 @@ import { PageHeader } from '@/components/ui/page-header';
 import { SectionLabel } from '@/components/ui/section-label';
 import { Switch } from '@/components/ui/switch';
 import { useSafeUser } from '@/hooks/use-safe-auth';
+import { cn } from '@/lib/utils';
 import { api } from '@repo/convex/_generated/api';
 import { useMutation } from 'convex/react';
 import { useTranslations } from 'gt-next';
 import { useState } from 'react';
 import { toast } from 'sonner';
+
+/**
+ * Cameroon phone: 9 digits starting with 6 (mobile) or 2 (landline).
+ * Accepts with or without +237 prefix, with or without spaces/dashes.
+ */
+const CM_PHONE_RE = /^(?:\+?237\s*)?([62]\d{8})$/;
+
+/** Strip non-digit chars except leading + */
+function normalizePhone(raw: string): string {
+  return raw.replace(/[^\d+]/g, '');
+}
+
+/** Check if a raw phone string is a valid Cameroon number (or empty). */
+function isValidCmPhone(raw: string): boolean {
+  if (!raw.trim()) return true; // empty is OK (optional field)
+  return CM_PHONE_RE.test(normalizePhone(raw));
+}
+
+/** Format digits into +237 6XX XXX XXX display format */
+function formatPhoneDisplay(raw: string): string {
+  const normalized = normalizePhone(raw);
+  // Extract the 9-digit local number
+  const match = normalized.match(CM_PHONE_RE);
+  if (match) {
+    const digits = match[1];
+    return `+237 ${digits.slice(0, 3)} ${digits.slice(3, 6)} ${digits.slice(6)}`.trim();
+  }
+  return raw;
+}
+
+/** Extract the 9-digit local number for storage */
+function toStoragePhone(raw: string): string | undefined {
+  if (!raw.trim()) return undefined;
+  const normalized = normalizePhone(raw);
+  const match = normalized.match(CM_PHONE_RE);
+  if (match) return `+237${match[1]}`;
+  return undefined;
+}
 
 export default function SettingsPage() {
   const { user, isLoaded } = useSafeUser();
@@ -29,15 +68,28 @@ export default function SettingsPage() {
   );
   const t = useTranslations();
 
+  // Validation errors (set on submit attempt)
+  const [errors, setErrors] = useState<Record<string, string>>({});
+
+  function validate(): boolean {
+    const next: Record<string, string> = {};
+    if (!firstName.trim()) next.firstName = t('settings.firstNameRequired');
+    if (!lastName.trim()) next.lastName = t('settings.lastNameRequired');
+    if (!isValidCmPhone(phone)) next.phone = t('settings.phoneInvalid');
+    setErrors(next);
+    return Object.keys(next).length === 0;
+  }
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!validate()) return;
     setIsSubmitting(true);
 
     try {
       // Update Clerk user
       await user?.update({
-        firstName,
-        lastName,
+        firstName: firstName.trim(),
+        lastName: lastName.trim(),
         unsafeMetadata: {
           ...user.unsafeMetadata,
           role,
@@ -47,12 +99,17 @@ export default function SettingsPage() {
 
       // Update Convex user with phone, language, and role
       await updateProfile({
-        firstName,
-        lastName,
-        phone: phone || undefined,
+        firstName: firstName.trim(),
+        lastName: lastName.trim(),
+        phone: toStoragePhone(phone),
         languagePreference: language,
         role,
       });
+
+      // Format the phone display after successful save
+      if (phone.trim()) {
+        setPhone(formatPhoneDisplay(phone));
+      }
 
       toast.success('Profil mis à jour avec succès!');
     } catch (error) {
@@ -86,18 +143,28 @@ export default function SettingsPage() {
               <Input
                 id="firstName"
                 value={firstName}
-                onChange={(e) => setFirstName(e.target.value)}
+                onChange={(e) => {
+                  setFirstName(e.target.value);
+                  if (errors.firstName) setErrors((prev) => ({ ...prev, firstName: '' }));
+                }}
                 placeholder="Votre prénom"
+                className={cn(errors.firstName && 'border-destructive')}
               />
+              {errors.firstName && <p className="text-xs text-destructive">{errors.firstName}</p>}
             </div>
             <div className="space-y-2">
               <Label htmlFor="lastName">{t('settings.lastName')}</Label>
               <Input
                 id="lastName"
                 value={lastName}
-                onChange={(e) => setLastName(e.target.value)}
+                onChange={(e) => {
+                  setLastName(e.target.value);
+                  if (errors.lastName) setErrors((prev) => ({ ...prev, lastName: '' }));
+                }}
                 placeholder="Votre nom"
+                className={cn(errors.lastName && 'border-destructive')}
               />
+              {errors.lastName && <p className="text-xs text-destructive">{errors.lastName}</p>}
             </div>
           </div>
           <div className="space-y-2">
@@ -113,13 +180,23 @@ export default function SettingsPage() {
           </div>
           <div className="space-y-2">
             <Label htmlFor="phone">{t('settings.phone')}</Label>
-            <Input
-              id="phone"
-              type="tel"
-              value={phone}
-              onChange={(e) => setPhone(e.target.value)}
-              placeholder="+237 6XX XXX XXX"
-            />
+            <div className="flex">
+              <span className="inline-flex items-center px-3 rounded-l-md border border-r-0 border-input bg-muted text-sm text-muted-foreground">
+                +237
+              </span>
+              <Input
+                id="phone"
+                type="tel"
+                value={phone}
+                onChange={(e) => {
+                  setPhone(e.target.value);
+                  if (errors.phone) setErrors((prev) => ({ ...prev, phone: '' }));
+                }}
+                placeholder={t('settings.phonePlaceholder')}
+                className={cn('rounded-l-none', errors.phone && 'border-destructive')}
+              />
+            </div>
+            {errors.phone && <p className="text-xs text-destructive">{errors.phone}</p>}
           </div>
         </div>
 

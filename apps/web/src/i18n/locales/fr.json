@@ -435,7 +435,11 @@
     "saving": "Enregistrement...",
     "dangerZone": "Zone de danger",
     "dangerZoneDesc": "Actions irréversibles sur votre compte",
-    "deleteAccount": "Supprimer mon compte"
+    "deleteAccount": "Supprimer mon compte",
+    "firstNameRequired": "Le prénom est requis",
+    "lastNameRequired": "Le nom est requis",
+    "phoneInvalid": "Entrez un numéro camerounais valide (ex. 6XX XXX XXX)",
+    "phonePlaceholder": "6XX XXX XXX"
   },
   "messages": {
     "title": "Messages",
