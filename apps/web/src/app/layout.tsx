@@ -1,7 +1,6 @@
 import { enUS, frFR } from '@clerk/localizations';
 import { ClerkProvider } from '@clerk/nextjs';
 import { Analytics } from '@vercel/analytics/react';
-// Root layout — provides auth, theme, i18n, and analytics wrappers
 import { SpeedInsights } from '@vercel/speed-insights/next';
 import { GTProvider, getLocale } from 'gt-next/server';
 import type { Metadata, Viewport } from 'next';

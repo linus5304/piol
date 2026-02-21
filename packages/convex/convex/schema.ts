@@ -1,7 +1,6 @@
 import { defineSchema, defineTable } from 'convex/server';
 import { v } from 'convex/values';
 
-// Piol database schema — source of truth for all data models
 export default defineSchema({
   // Users table
   users: defineTable({
