@@ -12,12 +12,25 @@ import {
 } from '@/components/ui/alert-dialog';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Textarea } from '@/components/ui/textarea';
 import { parseAppLocale } from '@/i18n/config';
 import { formatCurrencyFCFA, formatDate } from '@/lib/i18n-format';
+import {
+  type EditPropertyFormInput,
+  type EditPropertyFormValues,
+  createEditPropertySchema,
+} from '@/lib/validations';
+import { zodResolver } from '@hookform/resolvers/zod';
 import { api } from '@repo/convex/_generated/api';
 import type { Id } from '@repo/convex/_generated/dataModel';
 import { useMutation, useQuery } from 'convex/react';
@@ -26,6 +39,7 @@ import { AlertCircle, ImageOff, Loader2, Trash2 } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { use, useEffect, useMemo, useState } from 'react';
+import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 
 function formatPropertyDate(timestamp: number, locale: string): string {
@@ -94,21 +108,26 @@ export default function EditPropertyPage({ params }: { params: Promise<{ id: str
   const addPropertyImages = useMutation(api.properties.addPropertyImages);
   const removePropertyImage = useMutation(api.properties.removePropertyImage);
 
-  // Form state
-  const [formData, setFormData] = useState({
-    title: '',
-    description: '',
-    rentAmount: '',
-    cautionMonths: '',
-    upfrontMonths: '',
-    latitude: '',
-    longitude: '',
+  // Form setup with React Hook Form + Zod
+  const schema = useMemo(() => createEditPropertySchema(t), [t]);
+  const form = useForm<EditPropertyFormInput, unknown, EditPropertyFormValues>({
+    resolver: zodResolver(schema),
+    mode: 'onBlur',
+    defaultValues: {
+      title: '',
+      description: '',
+      rentAmount: '',
+      cautionMonths: '',
+      upfrontMonths: '',
+      latitude: '',
+      longitude: '',
+    },
   });
 
-  // Update form when property loads
+  // Reset form when property loads
   useEffect(() => {
     if (property) {
-      setFormData({
+      form.reset({
         title: property.title,
         description: property.description || '',
         rentAmount: property.rentAmount.toString(),
@@ -118,31 +137,22 @@ export default function EditPropertyPage({ params }: { params: Promise<{ id: str
         longitude: property.location?.longitude?.toString() ?? '',
       });
     }
-  }, [property]);
+  }, [property, form]);
 
   const handleSave = async () => {
-    if (!property) return;
+    const valid = await form.trigger();
+    if (!valid || !property) return;
 
     setIsUpdating(true);
     try {
-      const hasLatitude = formData.latitude.trim().length > 0;
-      const hasLongitude = formData.longitude.trim().length > 0;
+      const data = form.getValues();
+      const lat = data.latitude ?? '';
+      const lng = data.longitude ?? '';
+      const hasLatitude = lat.trim().length > 0;
+      const hasLongitude = lng.trim().length > 0;
 
-      if ((hasLatitude && !hasLongitude) || (!hasLatitude && hasLongitude)) {
-        toast.error(t('editProperty.errorCoords'));
-        return;
-      }
-
-      const latitude = Number(formData.latitude);
-      const longitude = Number(formData.longitude);
-      if (
-        hasLatitude &&
-        hasLongitude &&
-        (!Number.isFinite(latitude) || !Number.isFinite(longitude))
-      ) {
-        toast.error(t('editProperty.errorCoordsInvalid'));
-        return;
-      }
+      const latitude = Number(lat);
+      const longitude = Number(lng);
       const location =
         hasLatitude && hasLongitude && Number.isFinite(latitude) && Number.isFinite(longitude)
           ? { latitude, longitude }
@@ -150,9 +160,9 @@ export default function EditPropertyPage({ params }: { params: Promise<{ id: str
 
       await updateProperty({
         propertyId: property._id,
-        title: formData.title,
-        description: formData.description || undefined,
-        rentAmount: Number(formData.rentAmount),
+        title: data.title,
+        description: data.description || undefined,
+        rentAmount: Number(data.rentAmount),
         location,
       });
       if (property.status === 'active') {
@@ -429,93 +439,114 @@ export default function EditPropertyPage({ params }: { params: Promise<{ id: str
       )}
 
       {/* Edit Form */}
-      <Card>
-        <CardHeader>
-          <CardTitle>{t('editProperty.basicInfo')}</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="title">{t('editProperty.titleLabel')}</Label>
-            <Input
-              id="title"
-              value={formData.title}
-              onChange={(e) => setFormData((prev) => ({ ...prev, title: e.target.value }))}
+      <Form {...form}>
+        <Card>
+          <CardHeader>
+            <CardTitle>{t('editProperty.basicInfo')}</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <FormField
+              control={form.control}
+              name="title"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>{t('editProperty.titleLabel')}</FormLabel>
+                  <FormControl>
+                    <Input {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
             />
-          </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="description">{t('editProperty.descriptionLabel')}</Label>
-            <Textarea
-              id="description"
-              value={formData.description}
-              onChange={(e) => setFormData((prev) => ({ ...prev, description: e.target.value }))}
-              className="min-h-[120px] resize-none"
+            <FormField
+              control={form.control}
+              name="description"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>{t('editProperty.descriptionLabel')}</FormLabel>
+                  <FormControl>
+                    <Textarea className="min-h-[120px] resize-none" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
             />
-          </div>
 
-          <div className="grid gap-4 md:grid-cols-3">
-            <div className="space-y-2">
-              <Label htmlFor="rent">{t('editProperty.monthlyRent')}</Label>
-              <Input
-                id="rent"
-                type="number"
-                value={formData.rentAmount}
-                onChange={(e) => setFormData((prev) => ({ ...prev, rentAmount: e.target.value }))}
+            <div className="grid gap-4 md:grid-cols-3">
+              <FormField
+                control={form.control}
+                name="rentAmount"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>{t('editProperty.monthlyRent')}</FormLabel>
+                    <FormControl>
+                      <Input type="number" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="cautionMonths"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>{t('editProperty.cautionMonths')}</FormLabel>
+                    <FormControl>
+                      <Input type="number" disabled {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="upfrontMonths"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>{t('editProperty.advanceMonths')}</FormLabel>
+                    <FormControl>
+                      <Input type="number" disabled {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
               />
             </div>
-            <div className="space-y-2">
-              <Label htmlFor="caution">{t('editProperty.cautionMonths')}</Label>
-              <Input
-                id="caution"
-                type="number"
-                value={formData.cautionMonths}
-                onChange={(e) =>
-                  setFormData((prev) => ({ ...prev, cautionMonths: e.target.value }))
-                }
-                disabled
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="upfront">{t('editProperty.advanceMonths')}</Label>
-              <Input
-                id="upfront"
-                type="number"
-                value={formData.upfrontMonths}
-                onChange={(e) =>
-                  setFormData((prev) => ({ ...prev, upfrontMonths: e.target.value }))
-                }
-                disabled
-              />
-            </div>
-          </div>
 
-          <div className="grid gap-4 md:grid-cols-2">
-            <div className="space-y-2">
-              <Label htmlFor="latitude">{t('editProperty.latitude')}</Label>
-              <Input
-                id="latitude"
-                type="number"
-                step="any"
-                value={formData.latitude}
-                onChange={(e) => setFormData((prev) => ({ ...prev, latitude: e.target.value }))}
-                placeholder="3.848"
+            <div className="grid gap-4 md:grid-cols-2">
+              <FormField
+                control={form.control}
+                name="latitude"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>{t('editProperty.latitude')}</FormLabel>
+                    <FormControl>
+                      <Input type="number" step="any" placeholder="3.848" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="longitude"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>{t('editProperty.longitude')}</FormLabel>
+                    <FormControl>
+                      <Input type="number" step="any" placeholder="11.5021" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
               />
             </div>
-            <div className="space-y-2">
-              <Label htmlFor="longitude">{t('editProperty.longitude')}</Label>
-              <Input
-                id="longitude"
-                type="number"
-                step="any"
-                value={formData.longitude}
-                onChange={(e) => setFormData((prev) => ({ ...prev, longitude: e.target.value }))}
-                placeholder="11.5021"
-              />
-            </div>
-          </div>
-          <p className="text-xs text-muted-foreground">{t('editProperty.coordsHint')}</p>
-        </CardContent>
-      </Card>
+            <p className="text-xs text-muted-foreground">{t('editProperty.coordsHint')}</p>
+          </CardContent>
+        </Card>
+      </Form>
 
       {/* Photos */}
       <Card>

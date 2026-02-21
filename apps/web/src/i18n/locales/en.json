@@ -554,5 +554,29 @@
   "language": {
     "fr": "Français",
     "en": "English"
+  },
+  "validation": {
+    "firstNameRequired": "First name is required",
+    "lastNameRequired": "Last name is required",
+    "phoneInvalid": "Enter a valid Cameroon number (e.g. 6XX XXX XXX)",
+    "emailRequired": "Email is required",
+    "emailInvalid": "Enter a valid email address",
+    "subjectRequired": "Subject is required",
+    "messageRequired": "Message is required",
+    "titleRequired": "Title is required",
+    "titleMaxLength": "Title must be 200 characters or fewer",
+    "descriptionMaxLength": "Description must be 5000 characters or fewer",
+    "propertyTypeRequired": "Property type is required",
+    "cityRequired": "City is required",
+    "rentAmountRequired": "Monthly rent is required",
+    "rentAmountPositive": "Rent must be a positive number",
+    "cautionMonthsMin": "Deposit months must be at least 1",
+    "upfrontMonthsMin": "Advance months must be at least 1",
+    "coordsBothRequired": "Please enter both latitude and longitude",
+    "coordsInvalid": "Invalid coordinates",
+    "latitudeRange": "Latitude must be between -90 and 90",
+    "longitudeRange": "Longitude must be between -180 and 180",
+    "checklistIncomplete": "Please complete all required checklist items",
+    "rejectionNotesRequired": "Please provide a reason for rejection"
   }
 }
