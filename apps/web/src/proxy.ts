@@ -70,12 +70,15 @@ function passthroughProxy() {
 }
 
 // Clerk proxy handler
-const clerkProxy = clerkMiddleware(async (auth, request) => {
-  if (!isPublicRoute(request)) {
-    await auth.protect();
-  }
-  return applySecurityHeaders(NextResponse.next());
-});
+const clerkProxy = clerkMiddleware(
+  async (auth, request) => {
+    if (!isPublicRoute(request)) {
+      await auth.protect();
+    }
+    return applySecurityHeaders(NextResponse.next());
+  },
+  { signInUrl: '/sign-in', signUpUrl: '/sign-up' }
+);
 
 // Export the appropriate proxy based on configuration
 export const proxy = isClerkConfigured ? clerkProxy : passthroughProxy;
