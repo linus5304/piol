@@ -20,14 +20,17 @@ jobs:
       contents: read
       pull-requests: write
       issues: write
+      id-token: write
 
     steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
       - name: Run Claude Code Review
         uses: anthropics/claude-code-action@v1
         with:
           anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
-          model: 'claude-sonnet-4-20250514'
-          direct_prompt: |
+          prompt: |
             Review this PR for:
             1. Security issues (auth, XSS, injection, secrets exposure)
             2. Bugs or logic errors
@@ -36,4 +39,3 @@ jobs:
 
             This is a Cameroon housing marketplace using Next.js 16, Convex, Clerk auth, and Tailwind v4.
             Be concise. Only flag genuine issues, not style preferences.
-          timeout_minutes: 10

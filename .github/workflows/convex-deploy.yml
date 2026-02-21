@@ -29,8 +29,6 @@ jobs:
       - name: Generate Convex types
         run: bunx convex codegen
         working-directory: packages/convex
-        env:
-          CONVEX_DEPLOY_KEY: ${{ secrets.CONVEX_DEPLOY_KEY }}
 
       - name: Type check
         run: bunx tsc --noEmit
@@ -53,8 +51,6 @@ jobs:
       - name: Generate Convex types
         run: bunx convex codegen
         working-directory: packages/convex
-        env:
-          CONVEX_DEPLOY_KEY: ${{ secrets.CONVEX_DEPLOY_KEY }}
 
       - name: Run tests
         run: bunx vitest run
