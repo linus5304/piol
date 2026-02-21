@@ -2,14 +2,14 @@ name: Claude Code Review
 
 on:
   pull_request:
-    types: [opened, synchronize]
+    types: [opened]
     branches: [main]
   issue_comment:
     types: [created]
 
 jobs:
   claude-review:
-    # Run on PR open/sync, or when someone comments @claude on a PR
+    # Run on PR open only, or when someone comments @claude on a PR
     if: |
       (github.event_name == 'pull_request') ||
       (github.event_name == 'issue_comment' &&
@@ -30,12 +30,11 @@ jobs:
         uses: anthropics/claude-code-action@v1
         with:
           anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          claude_args: "--model claude-haiku-4-5-20251001"
           prompt: |
             Review this PR for:
             1. Security issues (auth, XSS, injection, secrets exposure)
             2. Bugs or logic errors
             3. Performance concerns
-            4. Alignment with the project's conventions (Biome formatting, Convex patterns, Tailwind design tokens)
 
-            This is a Cameroon housing marketplace using Next.js 16, Convex, Clerk auth, and Tailwind v4.
-            Be concise. Only flag genuine issues, not style preferences.
+            This is a Next.js 16 + Convex + Clerk app. Be concise. Only flag genuine issues.
