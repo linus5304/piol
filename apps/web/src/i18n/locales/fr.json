@@ -554,5 +554,29 @@
   "language": {
     "fr": "Français",
     "en": "English"
+  },
+  "validation": {
+    "firstNameRequired": "Le prénom est requis",
+    "lastNameRequired": "Le nom est requis",
+    "phoneInvalid": "Entrez un numéro camerounais valide (ex. 6XX XXX XXX)",
+    "emailRequired": "L'email est requis",
+    "emailInvalid": "Entrez une adresse email valide",
+    "subjectRequired": "Le sujet est requis",
+    "messageRequired": "Le message est requis",
+    "titleRequired": "Le titre est requis",
+    "titleMaxLength": "Le titre doit contenir 200 caractères ou moins",
+    "descriptionMaxLength": "La description doit contenir 5000 caractères ou moins",
+    "propertyTypeRequired": "Le type de propriété est requis",
+    "cityRequired": "La ville est requise",
+    "rentAmountRequired": "Le loyer mensuel est requis",
+    "rentAmountPositive": "Le loyer doit être un nombre positif",
+    "cautionMonthsMin": "Les mois de caution doivent être au moins 1",
+    "upfrontMonthsMin": "Les mois d'avance doivent être au moins 1",
+    "coordsBothRequired": "Veuillez renseigner la latitude et la longitude",
+    "coordsInvalid": "Coordonnées invalides",
+    "latitudeRange": "La latitude doit être entre -90 et 90",
+    "longitudeRange": "La longitude doit être entre -180 et 180",
+    "checklistIncomplete": "Veuillez compléter tous les éléments requis de la checklist",
+    "rejectionNotesRequired": "Veuillez indiquer la raison du rejet"
   }
 }

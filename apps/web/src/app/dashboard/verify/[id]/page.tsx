@@ -10,10 +10,11 @@ import { Textarea } from '@/components/ui/textarea';
 import { RequireRole, usePermissions } from '@/hooks/use-permissions';
 import { parseAppLocale } from '@/i18n/config';
 import { formatCurrencyFCFA, formatDate } from '@/lib/i18n-format';
+import { validateApproval, validateRejection } from '@/lib/validations';
 import { api } from '@repo/convex/_generated/api';
 import type { Id } from '@repo/convex/_generated/dataModel';
 import { useMutation, useQuery } from 'convex/react';
-import { useLocale } from 'gt-next/client';
+import { useLocale, useTranslations } from 'gt-next/client';
 import {
   AlertCircle,
   ArrowLeft,
@@ -70,6 +71,7 @@ const verificationChecklist = [
 
 function VerifyPropertyContent({ propertyId }: { propertyId: string }) {
   const locale = parseAppLocale(useLocale());
+  const t = useTranslations();
   const router = useRouter();
   const { isVerifier, isLoaded } = usePermissions();
 
@@ -102,8 +104,12 @@ function VerifyPropertyContent({ propertyId }: { propertyId: string }) {
     .every((item) => checklist[item.id]);
 
   const handleApprove = useCallback(async () => {
-    if (!allRequiredChecked) {
-      toast.error('Veuillez compléter tous les éléments requis de la checklist');
+    const requiredIds = verificationChecklist
+      .filter((item) => item.required)
+      .map((item) => item.id);
+    const error = validateApproval(checklist, requiredIds, t);
+    if (error) {
+      toast.error(error);
       return;
     }
 
@@ -133,11 +139,12 @@ function VerifyPropertyContent({ propertyId }: { propertyId: string }) {
     } finally {
       setIsSubmitting(false);
     }
-  }, [allRequiredChecked, claimVerification, completeVerification, propertyId, notes, router]);
+  }, [checklist, t, claimVerification, completeVerification, propertyId, notes, router]);
 
   const handleReject = useCallback(async () => {
-    if (!notes.trim()) {
-      toast.error('Veuillez indiquer la raison du rejet');
+    const error = validateRejection(notes, t);
+    if (error) {
+      toast.error(error);
       return;
     }
 
@@ -167,7 +174,7 @@ function VerifyPropertyContent({ propertyId }: { propertyId: string }) {
     } finally {
       setIsSubmitting(false);
     }
-  }, [claimVerification, completeVerification, propertyId, notes, router]);
+  }, [notes, t, claimVerification, completeVerification, propertyId, router]);
 
   if (!isLoaded || !isVerifier) {
     return (
