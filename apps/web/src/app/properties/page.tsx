@@ -344,6 +344,7 @@ function PropertiesPageContent() {
             <div className="relative flex-1">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input
+                data-testid="property-search-input"
                 type="text"
                 placeholder={t('search.placeholder')}
                 value={searchQuery}
@@ -369,6 +370,7 @@ function PropertiesPageContent() {
               </SelectContent>
             </Select>
             <Button
+              data-testid="property-filter-toggle"
               variant="outline"
               onClick={() => setShowFilters(!showFilters)}
               className={`rounded-xl border-border ${activeFiltersCount > 0 ? 'border-primary text-primary' : ''}`}
@@ -416,6 +418,7 @@ function PropertiesPageContent() {
                   <span className="block text-sm font-medium mb-2">{t('filters.priceRange')}</span>
                   <Select value={priceRange} onValueChange={setPriceRange}>
                     <SelectTrigger
+                      data-testid="property-price-range-trigger"
                       className="rounded-xl border-border"
                       aria-label={t('filters.priceRange')}
                     >
@@ -434,6 +437,7 @@ function PropertiesPageContent() {
                   <span className="block text-sm font-medium mb-2">{t('filters.sortBy')}</span>
                   <Select value={sortBy} onValueChange={setSortBy}>
                     <SelectTrigger
+                      data-testid="property-sort-trigger"
                       className="rounded-xl border-border"
                       aria-label={t('filters.sortBy')}
                     >
@@ -451,6 +455,7 @@ function PropertiesPageContent() {
                     {t('filters.clearAll')}
                   </Button>
                   <Button
+                    data-testid="property-filters-apply"
                     onClick={() => setShowFilters(false)}
                     className="rounded-xl bg-primary text-primary-foreground hover:bg-primary-hover"
                   >
@@ -521,7 +526,10 @@ function PropertiesPageContent() {
 
         {/* Properties Grid */}
         {viewMode === 'grid' ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          <div
+            data-testid="property-grid"
+            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
+          >
             {/* Loading skeletons */}
             {propertiesResult.isLoading &&
               Array.from({ length: 8 }).map((_, i) => (

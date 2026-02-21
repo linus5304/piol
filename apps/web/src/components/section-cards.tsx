@@ -3,18 +3,9 @@
 import { Card, CardContent } from '@/components/ui/card';
 import { parseAppLocale } from '@/i18n/config';
 import { formatCurrencyFCFA, formatNumber } from '@/lib/i18n-format';
-import { cn } from '@/lib/utils';
+import { useTranslations } from 'gt-next';
 import { useLocale } from 'gt-next/client';
-import {
-  ArrowDownRight,
-  ArrowUpRight,
-  Building2,
-  Eye,
-  Heart,
-  MessageSquare,
-  Search,
-  Wallet,
-} from 'lucide-react';
+import { Building2, Eye, Heart, MessageSquare, Search, Wallet } from 'lucide-react';
 
 interface SectionCardsProps {
   role: 'renter' | 'landlord';
@@ -31,21 +22,10 @@ interface SectionCardsProps {
 interface StatCardProps {
   label: string;
   value: string | number;
-  change?: number;
-  changeLabel?: string;
   icon?: React.ComponentType<{ className?: string }>;
 }
 
-function StatCard({
-  label,
-  value,
-  change,
-  changeLabel = 'vs dernière semaine',
-  icon: Icon,
-}: StatCardProps) {
-  const isPositive = change !== undefined && change >= 0;
-  const changeText = change !== undefined ? `${isPositive ? '+' : ''}${change}%` : null;
-
+function StatCard({ label, value, icon: Icon }: StatCardProps) {
   return (
     <Card className="border border-border/50 bg-card shadow-sm hover:shadow-md transition-shadow">
       <CardContent className="p-5">
@@ -60,60 +40,38 @@ function StatCard({
             </div>
           )}
         </div>
-
-        {changeText && (
-          <div className="mt-3 flex items-center gap-2">
-            <span
-              className={cn(
-                'inline-flex items-center gap-0.5 rounded-md px-1.5 py-0.5 text-xs font-semibold',
-                isPositive ? 'stat-change-positive' : 'stat-change-negative'
-              )}
-            >
-              {isPositive ? (
-                <ArrowUpRight className="h-3 w-3" />
-              ) : (
-                <ArrowDownRight className="h-3 w-3" />
-              )}
-              {changeText}
-            </span>
-            <span className="text-xs text-muted-foreground">{changeLabel}</span>
-          </div>
-        )}
       </CardContent>
     </Card>
   );
 }
 
 export function SectionCards({ role, stats = {} }: SectionCardsProps) {
+  const t = useTranslations();
   const locale = parseAppLocale(useLocale());
 
   if (role === 'landlord') {
     return (
       <div className="space-y-4">
-        <h2 className="text-section-label">Aperçu de votre activité</h2>
+        <h2 className="text-section-label">{t('sectionCards.landlordTitle')}</h2>
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
           <StatCard
-            label="Revenus total"
+            label={t('sectionCards.totalRevenue')}
             value={formatCurrencyFCFA(stats.revenue ?? 0, locale)}
-            change={4.5}
             icon={Wallet}
           />
           <StatCard
-            label="Propriétés actives"
+            label={t('sectionCards.activeProperties')}
             value={stats.properties ?? 0}
-            change={8.1}
             icon={Building2}
           />
           <StatCard
-            label="Messages"
+            label={t('sectionCards.messages')}
             value={stats.messages ?? 0}
-            change={-2.0}
             icon={MessageSquare}
           />
           <StatCard
-            label="Vues totales"
+            label={t('sectionCards.totalViews')}
             value={formatNumber(stats.views ?? 0, locale)}
-            change={21.2}
             icon={Eye}
           />
         </div>
@@ -124,12 +82,16 @@ export function SectionCards({ role, stats = {} }: SectionCardsProps) {
   // Renter stats
   return (
     <div className="space-y-4">
-      <h2 className="text-section-label">Votre activité</h2>
+      <h2 className="text-section-label">{t('sectionCards.renterTitle')}</h2>
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <StatCard label="Favoris" value={stats.favorites ?? 0} change={12.5} icon={Heart} />
-        <StatCard label="Recherches" value={stats.searches ?? 0} change={-5.2} icon={Search} />
-        <StatCard label="Messages" value={stats.messages ?? 0} change={8.1} icon={MessageSquare} />
-        <StatCard label="Propriétés vues" value={stats.views ?? 0} change={15.3} icon={Eye} />
+        <StatCard label={t('sectionCards.favorites')} value={stats.favorites ?? 0} icon={Heart} />
+        <StatCard label={t('sectionCards.searches')} value={stats.searches ?? 0} icon={Search} />
+        <StatCard
+          label={t('sectionCards.messages')}
+          value={stats.messages ?? 0}
+          icon={MessageSquare}
+        />
+        <StatCard label={t('sectionCards.propertiesViewed')} value={stats.views ?? 0} icon={Eye} />
       </div>
     </div>
   );

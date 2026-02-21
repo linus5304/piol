@@ -3,8 +3,10 @@
 import { useSafeUser } from '@/hooks/use-safe-auth';
 import { api } from '@repo/convex/_generated/api';
 import { useQuery } from 'convex/react';
+import { useTranslations } from 'gt-next';
 import {
   Building2,
+  CreditCard,
   Heart,
   HelpCircle,
   Home,
@@ -36,73 +38,45 @@ import {
 } from '@/components/ui/sidebar';
 import { Skeleton } from '@/components/ui/skeleton';
 
-const renterNavigation = [
-  {
-    title: 'Accueil',
-    url: '/dashboard',
-    icon: Home,
-  },
-  {
-    title: 'Propriétés',
-    url: '/properties',
-    icon: Building2,
-  },
-  {
-    title: 'Favoris',
-    url: '/dashboard/saved',
-    icon: Heart,
-  },
-  {
-    title: 'Paramètres',
-    url: '/dashboard/settings',
-    icon: Settings,
-  },
-];
-
-const landlordNavigation = [
-  {
-    title: 'Accueil',
-    url: '/dashboard',
-    icon: Home,
-  },
-  {
-    title: 'Propriétés',
-    url: '/dashboard/properties',
-    icon: Building2,
-  },
-  {
-    title: 'Messages',
-    url: '/dashboard/messages',
-    icon: MessageSquare,
-  },
-  {
-    title: 'Paramètres',
-    url: '/dashboard/settings',
-    icon: Settings,
-  },
-];
-
-const secondaryNavigation = [
-  {
-    title: 'Support',
-    url: '/help',
-    icon: HelpCircle,
-  },
-  {
-    title: 'Nouveautés',
-    url: '/changelog',
-    icon: Sparkles,
-  },
-];
-
 export function AppSidebar({
   variant = 'sidebar',
   ...props
 }: React.ComponentProps<typeof Sidebar>) {
   const { user } = useSafeUser();
   const pathname = usePathname();
+  const t = useTranslations();
 
   const role = (user?.unsafeMetadata?.role as 'renter' | 'landlord') || 'renter';
+
+  const renterNavigation = useMemo(
+    () => [
+      { title: t('sidebar.home'), url: '/dashboard', icon: Home },
+      { title: t('sidebar.properties'), url: '/properties', icon: Building2 },
+      { title: t('sidebar.favorites'), url: '/dashboard/saved', icon: Heart },
+      { title: t('sidebar.settings'), url: '/dashboard/settings', icon: Settings },
+    ],
+    [t]
+  );
+
+  const landlordNavigation = useMemo(
+    () => [
+      { title: t('sidebar.home'), url: '/dashboard', icon: Home },
+      { title: t('sidebar.properties'), url: '/dashboard/properties', icon: Building2 },
+      { title: t('sidebar.payments'), url: '/dashboard/payments', icon: CreditCard },
+      { title: t('sidebar.messages'), url: '/dashboard/messages', icon: MessageSquare },
+      { title: t('sidebar.settings'), url: '/dashboard/settings', icon: Settings },
+    ],
+    [t]
+  );
+
+  const secondaryNavigation = useMemo(
+    () => [
+      { title: t('sidebar.support'), url: '/help', icon: HelpCircle },
+      { title: t('sidebar.whatsNew'), url: '/changelog', icon: Sparkles },
+    ],
+    [t]
+  );
+
   const navItems = role === 'landlord' ? landlordNavigation : renterNavigation;
 
   // Fetch real properties for landlords
@@ -118,7 +92,7 @@ export function AppSidebar({
   }, [myProperties]);
 
   const userData = {
-    name: user?.fullName || user?.firstName || 'Utilisateur',
+    name: user?.fullName || user?.firstName || t('sidebar.user'),
     email: user?.primaryEmailAddress?.emailAddress || '',
     avatar: user?.imageUrl || '',
   };
@@ -141,7 +115,7 @@ export function AppSidebar({
         {role === 'landlord' && (
           <SidebarGroup>
             <SidebarGroupLabel className="text-sidebar-muted text-xs font-medium uppercase tracking-wider">
-              Propriétés récentes
+              {t('sidebar.recentProperties')}
             </SidebarGroupLabel>
             <SidebarGroupContent>
               <SidebarMenu>
@@ -162,7 +136,7 @@ export function AppSidebar({
                   // Empty state
                   <SidebarMenuItem>
                     <span className="text-sm text-muted-foreground px-2 py-1">
-                      Aucune propriété
+                      {t('sidebar.noProperties')}
                     </span>
                   </SidebarMenuItem>
                 ) : (

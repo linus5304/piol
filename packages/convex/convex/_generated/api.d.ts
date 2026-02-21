@@ -23,6 +23,10 @@ import type * as seed_properties from "../seed/properties.js";
 import type * as seed_users from "../seed/users.js";
 import type * as transactions from "../transactions.js";
 import type * as users from "../users.js";
+import type * as utils_auth from "../utils/auth.js";
+import type * as utils_authorization from "../utils/authorization.js";
+import type * as utils_data from "../utils/data.js";
+import type * as utils_index from "../utils/index.js";
 import type * as verifications from "../verifications.js";
 
 import type {
@@ -47,6 +51,10 @@ declare const fullApi: ApiFromModules<{
   "seed/users": typeof seed_users;
   transactions: typeof transactions;
   users: typeof users;
+  "utils/auth": typeof utils_auth;
+  "utils/authorization": typeof utils_authorization;
+  "utils/data": typeof utils_data;
+  "utils/index": typeof utils_index;
   verifications: typeof verifications;
 }>;
 

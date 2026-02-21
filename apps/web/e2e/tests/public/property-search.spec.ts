@@ -30,10 +30,10 @@ test.describe('Property Search', () => {
     await propertiesPage.goto();
     await page.waitForLoadState('networkidle');
 
-    await propertiesPage.filterByPrice(50000, 150000);
+    await propertiesPage.filterByPriceRange('50 000 - 100 000 FCFA');
 
-    // URL should contain filter parameters
-    await expect(page).toHaveURL(/minPrice|maxPrice/i);
+    // URL should contain selected price filter parameter
+    await expect(page).toHaveURL(/price=50000-100000/i);
   });
 
   test('should navigate to property detail page', async ({ page }) => {

@@ -5,27 +5,19 @@ export class PropertiesPage {
   readonly searchInput: Locator;
   readonly filterButton: Locator;
   readonly propertyCards: Locator;
-  readonly priceMinInput: Locator;
-  readonly priceMaxInput: Locator;
-  readonly bedroomSelect: Locator;
+  readonly priceRangeTrigger: Locator;
+  readonly sortTrigger: Locator;
   readonly applyFiltersButton: Locator;
-  readonly clearFiltersButton: Locator;
-  readonly sortSelect: Locator;
-  readonly loadMoreButton: Locator;
   readonly noResultsMessage: Locator;
 
   constructor(page: Page) {
     this.page = page;
-    this.searchInput = page.getByPlaceholder(/search|rechercher/i);
-    this.filterButton = page.getByRole('button', { name: /filter/i });
-    this.propertyCards = page.locator('[data-testid="property-card"]');
-    this.priceMinInput = page.getByLabel(/min|minimum/i);
-    this.priceMaxInput = page.getByLabel(/max|maximum/i);
-    this.bedroomSelect = page.getByLabel(/bedroom|chambre/i);
-    this.applyFiltersButton = page.getByRole('button', { name: /apply|appliquer/i });
-    this.clearFiltersButton = page.getByRole('button', { name: /clear|effacer/i });
-    this.sortSelect = page.getByRole('combobox', { name: /sort|trier/i });
-    this.loadMoreButton = page.getByRole('button', { name: /load more|charger plus/i });
+    this.searchInput = page.getByTestId('property-search-input');
+    this.filterButton = page.getByTestId('property-filter-toggle');
+    this.propertyCards = page.getByTestId('property-card');
+    this.priceRangeTrigger = page.getByTestId('property-price-range-trigger');
+    this.sortTrigger = page.getByTestId('property-sort-trigger');
+    this.applyFiltersButton = page.getByTestId('property-filters-apply');
     this.noResultsMessage = page.getByText(/no results|aucun résultat/i);
   }
 
@@ -42,10 +34,10 @@ export class PropertiesPage {
     await this.filterButton.click();
   }
 
-  async filterByPrice(min?: number, max?: number) {
+  async filterByPriceRange(rangeLabel: string) {
     await this.openFilters();
-    if (min) await this.priceMinInput.fill(min.toString());
-    if (max) await this.priceMaxInput.fill(max.toString());
+    await this.priceRangeTrigger.click();
+    await this.page.getByRole('option', { name: rangeLabel }).click();
     await this.applyFiltersButton.click();
   }
 
