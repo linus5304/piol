@@ -177,6 +177,14 @@ export const sendMessage = mutation({
   handler: async (ctx, args) => {
     const { user } = await getCurrentUser(ctx);
 
+    // Validate message length
+    if (args.messageText.length === 0) {
+      throw new Error('Message cannot be empty');
+    }
+    if (args.messageText.length > 2000) {
+      throw new Error('Message must be under 2000 characters');
+    }
+
     // Generate conversation ID (sorted user IDs for consistency)
     const sortedIds = [user._id, args.recipientId].sort();
     const conversationId = args.propertyId

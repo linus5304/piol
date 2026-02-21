@@ -8,7 +8,7 @@ import { internalAction } from '../_generated/server';
 const ORANGE_MONEY_BASE_URL =
   process.env.ORANGE_MONEY_ENVIRONMENT === 'production'
     ? 'https://api.orange.com/orange-money-webpay/cm/v1'
-    : 'https://api.orange.com/orange-money-webpay/cm/v1';
+    : 'https://api.orange.com/orange-money-webpay/cm/v1/sandbox';
 
 interface OrangeMoneyTokenResponse {
   access_token: string;

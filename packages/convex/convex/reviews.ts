@@ -141,6 +141,12 @@ export const createReview = mutation({
     if (args.rating < 1 || args.rating > 5) {
       throw new Error('Rating must be between 1 and 5');
     }
+    if (!Number.isInteger(args.rating)) {
+      throw new Error('Rating must be a whole number');
+    }
+    if (args.comment && args.comment.length > 1000) {
+      throw new Error('Comment must be under 1000 characters');
+    }
 
     // Check if property exists
     const property = await ctx.db.get(args.propertyId);
@@ -234,6 +240,12 @@ export const updateReview = mutation({
     // Validate rating if provided
     if (args.rating !== undefined && (args.rating < 1 || args.rating > 5)) {
       throw new Error('Rating must be between 1 and 5');
+    }
+    if (args.rating !== undefined && !Number.isInteger(args.rating)) {
+      throw new Error('Rating must be a whole number');
+    }
+    if (args.comment !== undefined && args.comment.length > 1000) {
+      throw new Error('Comment must be under 1000 characters');
     }
 
     const updates: Record<string, unknown> = {};
