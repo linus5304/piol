@@ -393,7 +393,22 @@ export const getMyProperties = query({
       .withIndex('by_landlord', (q) => q.eq('landlordId', result.user._id))
       .collect();
 
-    return properties.sort((a, b) => b._creationTime - a._creationTime);
+    const sorted = properties.sort((a, b) => b._creationTime - a._creationTime);
+
+    // Resolve storage URLs for images
+    return Promise.all(
+      sorted.map(async (property) => {
+        const images = property.images
+          ? await Promise.all(
+              property.images.map(async (image) => {
+                const url = await ctx.storage.getUrl(image.storageId);
+                return { url, storageId: image.storageId };
+              })
+            )
+          : undefined;
+        return { ...property, images };
+      })
+    );
   },
 });
 

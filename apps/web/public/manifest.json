@@ -1,0 +1,9 @@
+{
+  "name": "Piol - Cameroon Housing Marketplace",
+  "short_name": "Piol",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0a0a0a",
+  "theme_color": "#FF385C",
+  "description": "Find your perfect home in Cameroon. Verified properties, secure payments, and trusted landlords."
+}
