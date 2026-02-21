@@ -25,8 +25,8 @@ const cspDirectives = [
   "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://*.clerk.accounts.dev https://*.sentry.io https://va.vercel-scripts.com",
   // Styles: unsafe-inline required for shadcn/tailwind runtime styles
   "style-src 'self' 'unsafe-inline'",
-  // Images: self + Clerk avatars + Unsplash + placeholder + data URIs
-  "img-src 'self' blob: data: https://images.unsplash.com https://via.placeholder.com https://img.clerk.com https://*.clerk.com",
+  // Images: self + Convex storage + Clerk avatars + Unsplash + placeholder + data URIs
+  "img-src 'self' blob: data: https://*.convex.cloud https://images.unsplash.com https://via.placeholder.com https://img.clerk.com https://*.clerk.com",
   // Fonts: self
   "font-src 'self'",
   // Connect: self + Convex (REST + WebSocket) + Clerk + Sentry + General Translation
