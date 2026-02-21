@@ -364,7 +364,7 @@ function LandlordDashboard({
             </div>
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
               {displayProperties.map((prop: (typeof displayProperties)[number]) => {
-                const imageUrl = prop.placeholderImages?.[0] ?? null;
+                const imageUrl = prop.images?.[0]?.url ?? null;
                 return (
                   <Link key={prop._id} href={`/dashboard/properties/${prop._id}`}>
                     <Card className="border-border/50 overflow-hidden hover:border-primary/30 transition-colors cursor-pointer group">
