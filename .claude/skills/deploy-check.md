@@ -45,9 +45,6 @@ cd packages/convex && bunx convex dev --once
 ### Pre-existing test errors
 Some test files have pre-existing type compatibility issues. Focus on verifying your changes don't introduce new errors.
 
-### Mobile app errors
-The mobile app is paused. Ignore errors from `apps/mobile`.
-
 ## Quick Validation
 ```bash
 bunx biome check --write . && bun run typecheck
