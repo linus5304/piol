@@ -45,6 +45,29 @@ export const deleteFile = mutation({
       throw new Error('Not authenticated');
     }
 
+    // Look up the user
+    const user = await ctx.db
+      .query('users')
+      .withIndex('by_clerk_id', (q) => q.eq('clerkId', identity.subject))
+      .unique();
+
+    if (!user) {
+      throw new Error('User not found');
+    }
+
+    // Check if any property references this file
+    const properties = await ctx.db.query('properties').collect();
+    const ownerProperty = properties.find((p) =>
+      p.images?.some((img) => img.storageId === args.storageId)
+    );
+
+    if (ownerProperty) {
+      // Verify the user owns the property or is admin
+      if (ownerProperty.landlordId !== user._id && user.role !== 'admin') {
+        throw new Error('Unauthorized: you do not own this file');
+      }
+    }
+
     await ctx.storage.delete(args.storageId);
     return args.storageId;
   },

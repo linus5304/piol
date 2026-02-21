@@ -1,13 +1,18 @@
 import { v } from 'convex/values';
-import { internalMutation, mutation, query } from './_generated/server';
+import { internalMutation, internalQuery, mutation, query } from './_generated/server';
 import { getCurrentUser, getCurrentUserOrNull } from './utils/auth';
 import { hasRole, isOwnerOrAdmin } from './utils/authorization';
+
+// Validate Cameroon phone number format
+function isValidCameroonPhone(phone: string): boolean {
+  return /^237[0-9]{9}$/.test(phone) || /^[0-9]{9}$/.test(phone);
+}
 
 // Generate unique transaction reference
 function generateTransactionReference(): string {
   const timestamp = Date.now().toString(36);
-  const random = Math.random().toString(36).substring(2, 8);
-  return `TXN-${timestamp}-${random}`.toUpperCase();
+  const uuid = crypto.randomUUID().replace(/-/g, '').substring(0, 8);
+  return `TXN-${timestamp}-${uuid}`.toUpperCase();
 }
 
 // Get user's transactions
@@ -202,14 +207,30 @@ export const createTransaction = mutation({
   handler: async (ctx, args) => {
     const { user } = await getCurrentUser(ctx);
 
+    // Validate amount
+    if (args.amount <= 0) {
+      throw new Error('Amount must be greater than 0');
+    }
+
     // Verify property exists
     const property = await ctx.db.get(args.propertyId);
     if (!property) {
       throw new Error('Property not found');
     }
 
+    // Verify landlord matches property owner
+    if (args.landlordId !== property.landlordId) {
+      throw new Error('Landlord does not match property owner');
+    }
+
     // Generate unique reference
     const transactionReference = generateTransactionReference();
+
+    // Validate phone number
+    const phone = args.payerPhone ?? user.phone;
+    if (phone && !isValidCameroonPhone(phone)) {
+      throw new Error('Invalid phone number format');
+    }
 
     const transactionId = await ctx.db.insert('transactions', {
       propertyId: args.propertyId,
@@ -232,7 +253,7 @@ export const createTransaction = mutation({
 });
 
 // Update transaction status (internal use, called by payment actions)
-export const updateTransactionStatus = mutation({
+export const updateTransactionStatus = internalMutation({
   args: {
     transactionId: v.id('transactions'),
     paymentStatus: v.union(
@@ -538,7 +559,7 @@ export const internalUpdateStatus = internalMutation({
 });
 
 // Internal: Get transaction for actions
-export const internalGetTransaction = query({
+export const internalGetTransaction = internalQuery({
   args: { transactionId: v.id('transactions') },
   handler: async (ctx, args) => {
     const transaction = await ctx.db.get(args.transactionId);
@@ -570,5 +591,16 @@ export const internalGetTransaction = query({
           }
         : null,
     };
+  },
+});
+
+// Internal: Get user by Clerk ID (for auth in actions)
+export const internalGetUserByClerkId = internalQuery({
+  args: { clerkId: v.string() },
+  handler: async (ctx, args) => {
+    return await ctx.db
+      .query('users')
+      .withIndex('by_clerk_id', (q) => q.eq('clerkId', args.clerkId))
+      .unique();
   },
 });

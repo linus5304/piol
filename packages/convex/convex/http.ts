@@ -112,6 +112,19 @@ http.route({
   method: 'POST',
   handler: httpAction(async (ctx, request) => {
     try {
+      // Verify webhook authenticity
+      const webhookSecret = process.env.MTN_MOMO_WEBHOOK_SECRET;
+      if (webhookSecret) {
+        const authHeader = request.headers.get('Authorization');
+        if (!authHeader || authHeader !== `Bearer ${webhookSecret}`) {
+          console.error('MTN MoMo webhook: invalid or missing Authorization header');
+          return new Response(JSON.stringify({ error: 'Unauthorized' }), {
+            status: 401,
+            headers: { 'Content-Type': 'application/json' },
+          });
+        }
+      }
+
       const payload = await request.json();
 
       console.log('MTN MoMo webhook received:', JSON.stringify(payload));
@@ -158,6 +171,19 @@ http.route({
   method: 'POST',
   handler: httpAction(async (ctx, request) => {
     try {
+      // Verify webhook authenticity
+      const webhookSecret = process.env.ORANGE_MONEY_WEBHOOK_SECRET;
+      if (webhookSecret) {
+        const authHeader = request.headers.get('Authorization');
+        if (!authHeader || authHeader !== `Bearer ${webhookSecret}`) {
+          console.error('Orange Money webhook: invalid or missing Authorization header');
+          return new Response(JSON.stringify({ error: 'Unauthorized' }), {
+            status: 401,
+            headers: { 'Content-Type': 'application/json' },
+          });
+        }
+      }
+
       const payload = await request.json();
 
       console.log('Orange Money webhook received:', JSON.stringify(payload));

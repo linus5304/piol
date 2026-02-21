@@ -423,6 +423,25 @@ export const createProperty = mutation({
     const { user } = await getCurrentUser(ctx);
     assertLandlordOrAdmin(user.role);
 
+    // Validate amounts
+    if (args.rentAmount <= 0) {
+      throw new Error('Rent amount must be greater than 0');
+    }
+    if (args.cautionMonths !== undefined && args.cautionMonths < 0) {
+      throw new Error('Caution months cannot be negative');
+    }
+    if (args.upfrontMonths !== undefined && args.upfrontMonths < 0) {
+      throw new Error('Upfront months cannot be negative');
+    }
+
+    // Validate string lengths
+    if (args.title.length > 200) {
+      throw new Error('Title must be under 200 characters');
+    }
+    if (args.description && args.description.length > 5000) {
+      throw new Error('Description must be under 5000 characters');
+    }
+
     // Create searchable text
     const searchText = [
       args.title,
@@ -488,6 +507,19 @@ export const updateProperty = mutation({
 
     // Check ownership
     assertOwner(property.landlordId, user._id, user.role);
+
+    // Validate amounts
+    if (args.rentAmount !== undefined && args.rentAmount <= 0) {
+      throw new Error('Rent amount must be greater than 0');
+    }
+
+    // Validate string lengths
+    if (args.title !== undefined && args.title.length > 200) {
+      throw new Error('Title must be under 200 characters');
+    }
+    if (args.description !== undefined && args.description.length > 5000) {
+      throw new Error('Description must be under 5000 characters');
+    }
 
     // Build update object
     const updates: Record<string, unknown> = {};
