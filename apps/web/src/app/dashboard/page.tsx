@@ -178,6 +178,7 @@ export default function DashboardPage() {
         locale={locale}
         stats={dashboardStats}
         transactions={transactions}
+        txLoading={txStatus === 'LoadingFirstPage'}
         properties={myProperties}
         t={t}
       />
@@ -190,6 +191,7 @@ export default function DashboardPage() {
       locale={locale}
       stats={dashboardStats}
       transactions={transactions}
+      txLoading={txStatus === 'LoadingFirstPage'}
       t={t}
     />
   );
@@ -202,6 +204,7 @@ function LandlordDashboard({
   locale,
   stats,
   transactions,
+  txLoading,
   properties,
   t,
 }: {
@@ -210,6 +213,7 @@ function LandlordDashboard({
   stats: ReturnType<typeof useQuery<typeof api.users.getDashboardStats>>;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   transactions: any[];
+  txLoading: boolean;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   properties: any[];
   t: ReturnType<typeof useTranslations>;
@@ -442,13 +446,13 @@ function LandlordDashboard({
             </Link>
           </CardHeader>
           <CardContent className="p-0">
-            {transactions.length === 0 ? (
+            {txLoading ? (
               <div className="p-4 space-y-4">
                 {[1, 2, 3].map((i) => (
                   <Skeleton key={i} className="h-12 w-full" />
                 ))}
               </div>
-            ) : transactions && transactions.length > 0 ? (
+            ) : transactions.length > 0 ? (
               <Table>
                 <TableHeader>
                   <TableRow className="border-border/50 bg-muted/30 hover:bg-muted/30">
@@ -536,6 +540,7 @@ function RenterDashboard({
   locale,
   stats,
   transactions,
+  txLoading,
   t,
 }: {
   firstName: string;
@@ -543,6 +548,7 @@ function RenterDashboard({
   stats: ReturnType<typeof useQuery<typeof api.users.getDashboardStats>>;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   transactions: any[];
+  txLoading: boolean;
   t: ReturnType<typeof useTranslations>;
 }) {
   const greetingKey = useGreetingKey();
@@ -646,13 +652,13 @@ function RenterDashboard({
             </Link>
           </CardHeader>
           <CardContent className="p-0">
-            {transactions.length === 0 ? (
+            {txLoading ? (
               <div className="p-4 space-y-4">
                 {[1, 2, 3].map((i) => (
                   <Skeleton key={i} className="h-12 w-full" />
                 ))}
               </div>
-            ) : transactions && transactions.length > 0 ? (
+            ) : transactions.length > 0 ? (
               <Table>
                 <TableHeader>
                   <TableRow className="border-border/50 bg-muted/30 hover:bg-muted/30">

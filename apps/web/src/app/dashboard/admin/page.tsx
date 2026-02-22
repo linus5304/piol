@@ -61,7 +61,7 @@ function AdminDashboardContent() {
   const adminStats = useQuery(api.users.getAdminStats);
 
   // Fetch recent users
-  const { results: recentUsers } = usePaginatedQuery(
+  const { results: recentUsers, status: usersStatus } = usePaginatedQuery(
     api.users.listUsers,
     {},
     { initialNumItems: 5 }
@@ -194,7 +194,7 @@ function AdminDashboardContent() {
             </div>
           </CardHeader>
           <CardContent>
-            {recentUsers.length === 0 ? (
+            {usersStatus === 'LoadingFirstPage' ? (
               <div className="space-y-3">
                 {[1, 2, 3].map((i) => (
                   <Skeleton key={i} className="h-12 w-full" />
