@@ -460,6 +460,49 @@ export const updateUserRole = mutation({
   },
 });
 
+// Admin edit user profile (admin only)
+export const adminUpdateUser = mutation({
+  args: {
+    userId: v.id('users'),
+    firstName: v.optional(v.string()),
+    lastName: v.optional(v.string()),
+    phone: v.optional(v.string()),
+  },
+  returns: v.id('users'),
+  handler: async (ctx, args) => {
+    const { user: currentUser } = await getAuthUser(ctx);
+    assertAdmin(currentUser.role);
+
+    const targetUser = await ctx.db.get(args.userId);
+    if (!targetUser) {
+      throw new Error('User not found');
+    }
+
+    // Validate phone format if provided
+    if (args.phone !== undefined && args.phone !== '' && !CM_PHONE_RE.test(args.phone)) {
+      throw new Error(
+        'Invalid Cameroon phone number. Expected format: +237 6XXXXXXXX or +237 2XXXXXXXX'
+      );
+    }
+
+    // Validate name lengths
+    if (args.firstName !== undefined && args.firstName.trim().length === 0) {
+      throw new Error('First name is required');
+    }
+    if (args.lastName !== undefined && args.lastName.trim().length === 0) {
+      throw new Error('Last name is required');
+    }
+
+    await ctx.db.patch(args.userId, {
+      ...(args.firstName !== undefined && { firstName: args.firstName.trim() }),
+      ...(args.lastName !== undefined && { lastName: args.lastName.trim() }),
+      ...(args.phone !== undefined && { phone: args.phone || undefined }),
+    });
+
+    return args.userId;
+  },
+});
+
 // Verify user ID (admin/verifier only)
 export const verifyUserId = mutation({
   args: {
