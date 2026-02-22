@@ -131,15 +131,16 @@ export function AppSidebar({
 
   // Fetch real properties for landlords and admins
   const showProperties = effectiveRole === 'landlord' || effectiveRole === 'admin';
-  const { results: myProperties } = usePaginatedQuery(
+  const { results: myProperties, status: propertiesStatus } = usePaginatedQuery(
     api.properties.getMyProperties,
     showProperties ? {} : 'skip',
     { initialNumItems: 3 }
   );
 
+  const isLoadingProperties = propertiesStatus === 'LoadingFirstPage';
+
   // Transform to recent properties list (show latest 3)
   const recentProperties = useMemo(() => {
-    if (myProperties.length === 0) return null;
     return myProperties.slice(0, 3).map((p) => ({
       title: p.title,
       url: `/dashboard/properties/${p._id}`,
@@ -174,7 +175,7 @@ export function AppSidebar({
             </SidebarGroupLabel>
             <SidebarGroupContent>
               <SidebarMenu>
-                {recentProperties === null ? (
+                {isLoadingProperties ? (
                   // Loading state
                   <>
                     <SidebarMenuItem>
