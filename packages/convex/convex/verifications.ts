@@ -8,6 +8,7 @@ export const getPendingVerifications = query({
   args: {
     city: v.optional(v.string()),
   },
+  returns: v.any(),
   handler: async (ctx, args) => {
     const result = await getCurrentUserOrNull(ctx);
     if (!result || !hasRole(result.user.role, ['admin', 'verifier'])) {
@@ -73,6 +74,7 @@ export const getMyVerifications = query({
       )
     ),
   },
+  returns: v.any(),
   handler: async (ctx, args) => {
     const result = await getCurrentUserOrNull(ctx);
     if (!result || !hasRole(result.user.role, ['admin', 'verifier'])) {
@@ -125,6 +127,7 @@ export const getMyVerifications = query({
 // Get verification by ID
 export const getVerification = query({
   args: { verificationId: v.id('verifications') },
+  returns: v.any(),
   handler: async (ctx, args) => {
     const result = await getCurrentUserOrNull(ctx);
     if (!result) {
@@ -188,6 +191,7 @@ export const claimVerification = mutation({
       v.literal('id_verification')
     ),
   },
+  returns: v.id('verifications'),
   handler: async (ctx, args) => {
     const { user } = await getCurrentUser(ctx);
     assertAdminOrVerifier(user.role);
@@ -204,13 +208,10 @@ export const claimVerification = mutation({
     // Check if verification already exists
     const existingVerification = await ctx.db
       .query('verifications')
-      .withIndex('by_property', (q) => q.eq('propertyId', args.propertyId))
-      .filter((q) =>
-        q.and(
-          q.eq(q.field('verificationType'), args.verificationType),
-          q.neq(q.field('status'), 'rejected')
-        )
+      .withIndex('by_property_and_verificationType', (q) =>
+        q.eq('propertyId', args.propertyId).eq('verificationType', args.verificationType)
       )
+      .filter((q) => q.neq(q.field('status'), 'rejected'))
       .first();
 
     if (existingVerification) {
@@ -262,6 +263,7 @@ export const updateVerification = mutation({
       )
     ),
   },
+  returns: v.id('verifications'),
   handler: async (ctx, args) => {
     const { user } = await getCurrentUser(ctx);
     assertAdminOrVerifier(user.role);
@@ -303,6 +305,7 @@ export const completeVerification = mutation({
     status: v.union(v.literal('approved'), v.literal('rejected')),
     notes: v.optional(v.string()),
   },
+  returns: v.id('verifications'),
   handler: async (ctx, args) => {
     const { user } = await getCurrentUser(ctx);
     assertAdminOrVerifier(user.role);
@@ -370,6 +373,7 @@ export const getPropertyVerification = query({
   args: {
     propertyId: v.id('properties'),
   },
+  returns: v.any(),
   handler: async (ctx, args) => {
     const result = await getCurrentUserOrNull(ctx);
     if (!result) {
@@ -407,6 +411,7 @@ export const getPropertyVerification = query({
 // Get verification stats (admin only)
 export const getVerificationStats = query({
   args: {},
+  returns: v.any(),
   handler: async (ctx) => {
     const result = await getCurrentUserOrNull(ctx);
     if (!result || !hasRole(result.user.role, ['admin'])) {

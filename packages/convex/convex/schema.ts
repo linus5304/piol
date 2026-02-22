@@ -61,6 +61,7 @@ export default defineSchema({
     addressLine2: v.optional(v.string()),
     city: v.string(),
     neighborhood: v.optional(v.string()),
+    landmarks: v.optional(v.string()),
     amenities: v.optional(
       v.object({
         wifi: v.optional(v.boolean()),
@@ -153,6 +154,7 @@ export default defineSchema({
     completedAt: v.optional(v.number()),
   })
     .index('by_property', ['propertyId'])
+    .index('by_property_and_verificationType', ['propertyId', 'verificationType'])
     .index('by_verifier', ['verifierId'])
     .index('by_status', ['status']),
 
@@ -209,8 +211,10 @@ export default defineSchema({
     isRead: v.boolean(),
   })
     .index('by_conversation', ['conversationId'])
+    .index('by_conversation_and_recipient_and_isRead', ['conversationId', 'recipientId', 'isRead'])
     .index('by_sender', ['senderId'])
     .index('by_recipient', ['recipientId'])
+    .index('by_recipient_and_isRead', ['recipientId', 'isRead'])
     .index('by_property', ['propertyId']),
 
   // Conversations table (for listing conversations)
@@ -221,6 +225,7 @@ export default defineSchema({
     lastMessagePreview: v.optional(v.string()),
   })
     .index('by_participants', ['participantIds'])
+    .index('by_participants_and_propertyId', ['participantIds', 'propertyId'])
     .index('by_last_message', ['lastMessageAt']),
 
   // Reviews table
@@ -237,6 +242,7 @@ export default defineSchema({
     comment: v.optional(v.string()),
   })
     .index('by_property', ['propertyId'])
+    .index('by_property_and_reviewer_and_reviewType', ['propertyId', 'reviewerId', 'reviewType'])
     .index('by_reviewee', ['revieweeId'])
     .index('by_reviewer', ['reviewerId']),
 

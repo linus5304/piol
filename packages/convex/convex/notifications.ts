@@ -7,6 +7,7 @@ export const getNotifications = query({
     limit: v.optional(v.number()),
     unreadOnly: v.optional(v.boolean()),
   },
+  returns: v.any(),
   handler: async (ctx, args) => {
     const identity = await ctx.auth.getUserIdentity();
     if (!identity) {
@@ -46,6 +47,7 @@ export const getNotifications = query({
 // Get unread notification count
 export const getUnreadNotificationCount = query({
   args: {},
+  returns: v.number(),
   handler: async (ctx) => {
     const identity = await ctx.auth.getUserIdentity();
     if (!identity) {
@@ -75,6 +77,7 @@ export const markAsRead = mutation({
   args: {
     notificationId: v.id('notifications'),
   },
+  returns: v.id('notifications'),
   handler: async (ctx, args) => {
     const identity = await ctx.auth.getUserIdentity();
     if (!identity) {
@@ -107,6 +110,7 @@ export const markAsRead = mutation({
 // Mark all notifications as read
 export const markAllAsRead = mutation({
   args: {},
+  returns: v.number(),
   handler: async (ctx) => {
     const identity = await ctx.auth.getUserIdentity();
     if (!identity) {
@@ -138,6 +142,7 @@ export const deleteNotification = mutation({
   args: {
     notificationId: v.id('notifications'),
   },
+  returns: v.id('notifications'),
   handler: async (ctx, args) => {
     const identity = await ctx.auth.getUserIdentity();
     if (!identity) {
@@ -177,6 +182,7 @@ export const createNotification = internalMutation({
     data: v.optional(v.any()),
     actionUrl: v.optional(v.string()),
   },
+  returns: v.id('notifications'),
   handler: async (ctx, args) => {
     // This is typically called internally by other functions
     // Could add admin check if exposing publicly

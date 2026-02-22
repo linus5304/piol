@@ -7,6 +7,72 @@ import {
 import { assertAdmin, assertAdminOrVerifier, hasRole } from './utils/authorization';
 
 // ============================================================================
+// Reusable return type validators
+// ============================================================================
+
+const roleValidator = v.union(
+  v.literal('renter'),
+  v.literal('landlord'),
+  v.literal('admin'),
+  v.literal('verifier')
+);
+
+const fullUserValidator = v.object({
+  _id: v.id('users'),
+  _creationTime: v.number(),
+  clerkId: v.string(),
+  email: v.string(),
+  phone: v.optional(v.string()),
+  role: roleValidator,
+  firstName: v.optional(v.string()),
+  lastName: v.optional(v.string()),
+  languagePreference: v.union(v.literal('fr'), v.literal('en')),
+  emailVerified: v.boolean(),
+  phoneVerified: v.boolean(),
+  idVerified: v.boolean(),
+  profileImageUrl: v.optional(v.string()),
+  profileImageId: v.optional(v.id('_storage')),
+  lastLogin: v.optional(v.number()),
+  isActive: v.boolean(),
+  onboardingCompleted: v.optional(v.boolean()),
+});
+
+const publicProfileValidator = v.object({
+  _id: v.id('users'),
+  firstName: v.optional(v.string()),
+  lastName: v.optional(v.string()),
+  role: roleValidator,
+  profileImageUrl: v.optional(v.string()),
+  idVerified: v.boolean(),
+  _creationTime: v.number(),
+});
+
+const publicUserWithEmailValidator = v.object({
+  _id: v.id('users'),
+  email: v.string(),
+  phone: v.optional(v.string()),
+  firstName: v.optional(v.string()),
+  lastName: v.optional(v.string()),
+  role: roleValidator,
+  isActive: v.boolean(),
+  idVerified: v.boolean(),
+  _creationTime: v.number(),
+});
+
+const listUserValidator = v.object({
+  _id: v.id('users'),
+  email: v.string(),
+  phone: v.optional(v.string()),
+  firstName: v.optional(v.string()),
+  lastName: v.optional(v.string()),
+  role: roleValidator,
+  isActive: v.boolean(),
+  idVerified: v.boolean(),
+  profileImageUrl: v.optional(v.string()),
+  _creationTime: v.number(),
+});
+
+// ============================================================================
 // Internal mutations for Clerk webhook
 // ============================================================================
 
@@ -20,6 +86,7 @@ export const createUserFromClerk = internalMutation({
     phone: v.optional(v.string()),
     role: v.union(v.literal('renter'), v.literal('landlord')),
   },
+  returns: v.id('users'),
   handler: async (ctx, args) => {
     // Check if user already exists
     const existingUser = await ctx.db
@@ -64,6 +131,7 @@ export const updateUserFromClerk = internalMutation({
     phone: v.optional(v.string()),
     role: v.optional(v.union(v.literal('renter'), v.literal('landlord'))),
   },
+  returns: v.union(v.null(), v.id('users')),
   handler: async (ctx, args) => {
     const user = await ctx.db
       .query('users')
@@ -97,6 +165,7 @@ export const deleteUserByClerkId = internalMutation({
   args: {
     clerkId: v.string(),
   },
+  returns: v.null(),
   handler: async (ctx, args) => {
     const user = await ctx.db
       .query('users')
@@ -105,12 +174,13 @@ export const deleteUserByClerkId = internalMutation({
 
     if (!user) {
       console.log(`User with clerkId ${args.clerkId} not found for deletion`);
-      return;
+      return null;
     }
 
     // Soft delete - mark as inactive
     await ctx.db.patch(user._id, { isActive: false });
     console.log(`Deactivated user ${user._id}`);
+    return null;
   },
 });
 
@@ -121,6 +191,7 @@ export const deleteUserByClerkId = internalMutation({
 // Get current user profile from Clerk token
 export const getCurrentUser = query({
   args: {},
+  returns: v.union(v.null(), fullUserValidator),
   handler: async (ctx) => {
     const identity = await ctx.auth.getUserIdentity();
     if (!identity) {
@@ -142,6 +213,7 @@ export const getCurrentUser = query({
 // Get user by ID (public profile)
 export const getUserById = query({
   args: { userId: v.id('users') },
+  returns: v.union(v.null(), publicProfileValidator),
   handler: async (ctx, args) => {
     const user = await ctx.db.get(args.userId);
     if (!user || !user.isActive) {
@@ -175,6 +247,7 @@ export const ensureCurrentUser = mutation({
     phone: v.optional(v.string()),
     role: v.union(v.literal('renter'), v.literal('landlord')),
   },
+  returns: v.id('users'),
   handler: async (ctx, args) => {
     const identity = await ctx.auth.getUserIdentity();
     if (!identity) {
@@ -222,6 +295,7 @@ export const ensureCurrentUser = mutation({
 // Uses identity claims from Clerk JWT - no args needed
 export const getOrCreateCurrentUser = mutation({
   args: {},
+  returns: v.union(v.null(), fullUserValidator),
   handler: async (ctx) => {
     const identity = await ctx.auth.getUserIdentity();
     if (!identity) {
@@ -285,6 +359,7 @@ export const updateProfile = mutation({
     profileImageId: v.optional(v.id('_storage')),
     role: v.optional(v.union(v.literal('renter'), v.literal('landlord'))),
   },
+  returns: v.id('users'),
   handler: async (ctx, args) => {
     const { user } = await getAuthUser(ctx);
 
@@ -323,6 +398,7 @@ export const completeOnboarding = mutation({
     phone: v.optional(v.string()),
     languagePreference: v.union(v.literal('fr'), v.literal('en')),
   },
+  returns: v.id('users'),
   handler: async (ctx, args) => {
     const { user } = await getAuthUser(ctx);
 
@@ -348,6 +424,7 @@ export const updateUserRole = mutation({
       v.literal('verifier')
     ),
   },
+  returns: v.id('users'),
   handler: async (ctx, args) => {
     const { user: currentUser } = await getAuthUser(ctx);
     assertAdmin(currentUser.role);
@@ -383,6 +460,7 @@ export const verifyUserId = mutation({
     userId: v.id('users'),
     verified: v.boolean(),
   },
+  returns: v.id('users'),
   handler: async (ctx, args) => {
     const { user: currentUser } = await getAuthUser(ctx);
     assertAdminOrVerifier(currentUser.role);
@@ -403,6 +481,7 @@ export const getUsersByRole = query({
     ),
     limit: v.optional(v.number()),
   },
+  returns: v.array(publicUserWithEmailValidator),
   handler: async (ctx, args) => {
     const result = await getAuthUserOrNull(ctx);
     if (!result || !hasRole(result.user.role, ['admin'])) {
@@ -434,6 +513,7 @@ export const listUsers = query({
   args: {
     limit: v.optional(v.number()),
   },
+  returns: v.array(listUserValidator),
   handler: async (ctx, args) => {
     const result = await getAuthUserOrNull(ctx);
     if (!result || !hasRole(result.user.role, ['admin'])) {
@@ -464,6 +544,17 @@ export const listUsers = query({
 // Get admin-specific stats
 export const getAdminStats = query({
   args: {},
+  returns: v.union(
+    v.null(),
+    v.object({
+      totalUsers: v.number(),
+      newUsersThisMonth: v.number(),
+      totalProperties: v.number(),
+      activeProperties: v.number(),
+      pendingVerifications: v.number(),
+      totalTransactions: v.number(),
+    })
+  ),
   handler: async (ctx) => {
     const result = await getAuthUserOrNull(ctx);
     if (!result || !hasRole(result.user.role, ['admin'])) {
@@ -563,6 +654,7 @@ export const toggleUserStatus = mutation({
     userId: v.id('users'),
     isActive: v.boolean(),
   },
+  returns: v.id('users'),
   handler: async (ctx, args) => {
     const { user: currentUser } = await getAuthUser(ctx);
     assertAdmin(currentUser.role);
@@ -580,6 +672,7 @@ export const toggleUserStatus = mutation({
 // Get dashboard stats for current user (role-specific)
 export const getDashboardStats = query({
   args: {},
+  returns: v.any(),
   handler: async (ctx) => {
     const result = await getAuthUserOrNull(ctx);
     if (!result) {
