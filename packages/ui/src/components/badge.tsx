@@ -27,7 +27,7 @@ function Badge({
   asChild = false,
   ...props
 }: React.ComponentProps<'span'> & VariantProps<typeof badgeVariants> & { asChild?: boolean }) {
-  const Comp = asChild ? Slot : 'span';
+  const Comp = asChild ? (Slot as React.ComponentType<React.ComponentProps<'span'>>) : 'span';
 
   return (
     <Comp data-slot="badge" className={cn(badgeVariants({ variant }), className)} {...props} />
