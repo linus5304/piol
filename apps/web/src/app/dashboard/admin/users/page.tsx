@@ -84,11 +84,6 @@ function UserManagementContent() {
   const [roleFilter, setRoleFilter] = useState<string>('all');
 
   // Confirmation dialog state
-  const [pendingRoleChange, setPendingRoleChange] = useState<{
-    userId: Id<'users'>;
-    newRole: UserRole;
-    userName: string;
-  } | null>(null);
   const [pendingStatusToggle, setPendingStatusToggle] = useState<{
     userId: Id<'users'>;
     currentlyActive: boolean;
@@ -100,6 +95,7 @@ function UserManagementContent() {
     lastName?: string;
     phone?: string;
     email: string;
+    role: string;
   } | null>(null);
   const [pendingVerification, setPendingVerification] = useState<{
     userId: Id<'users'>;
@@ -132,21 +128,8 @@ function UserManagementContent() {
   const adminStats = useQuery(api.users.getAdminStats);
 
   // Mutations
-  const updateUserRole = useMutation(api.users.updateUserRole);
   const toggleUserStatus = useMutation(api.users.toggleUserStatus);
   const verifyUserId = useMutation(api.users.verifyUserId);
-
-  const handleRoleChange = useCallback(
-    async (userId: Id<'users'>, newRole: UserRole) => {
-      try {
-        await updateUserRole({ userId, role: newRole });
-        toast.success('Rôle mis à jour avec succès');
-      } catch (error) {
-        toast.error('Erreur lors de la mise à jour du rôle');
-      }
-    },
-    [updateUserRole]
-  );
 
   const handleToggleStatus = useCallback(
     async (userId: Id<'users'>, currentlyActive: boolean) => {
@@ -287,32 +270,12 @@ function UserManagementContent() {
                         </div>
                       </TableCell>
                       <TableCell>
-                        <Select
-                          value={user.role}
-                          onValueChange={(value) =>
-                            setPendingRoleChange({
-                              userId: user._id as Id<'users'>,
-                              newRole: value as UserRole,
-                              userName: user.firstName || user.email,
-                            })
-                          }
-                          disabled={user.role === 'admin'}
+                        <Badge
+                          variant="secondary"
+                          className={ROLE_COLORS[user.role as UserRole] || ''}
                         >
-                          <SelectTrigger className="w-32">
-                            <Badge
-                              variant="secondary"
-                              className={ROLE_COLORS[user.role as UserRole] || ''}
-                            >
-                              {ROLE_LABELS[user.role as UserRole] || user.role}
-                            </Badge>
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="renter">Locataire</SelectItem>
-                            <SelectItem value="landlord">Propriétaire</SelectItem>
-                            <SelectItem value="verifier">Vérificateur</SelectItem>
-                            <SelectItem value="admin">Administrateur</SelectItem>
-                          </SelectContent>
-                        </Select>
+                          {ROLE_LABELS[user.role as UserRole] || user.role}
+                        </Badge>
                       </TableCell>
                       <TableCell className="hidden md:table-cell">
                         {user.isActive ? (
@@ -353,6 +316,7 @@ function UserManagementContent() {
                                   lastName: user.lastName,
                                   phone: user.phone,
                                   email: user.email,
+                                  role: user.role,
                                 })
                               }
                             >
@@ -438,36 +402,6 @@ function UserManagementContent() {
           />
         </CardContent>
       </Card>
-
-      {/* Role Change Confirmation Dialog */}
-      <AlertDialog
-        open={!!pendingRoleChange}
-        onOpenChange={(open) => !open && setPendingRoleChange(null)}
-      >
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Changer le rôle</AlertDialogTitle>
-            <AlertDialogDescription>
-              Voulez-vous changer le rôle de {pendingRoleChange?.userName} en{' '}
-              {ROLE_LABELS[pendingRoleChange?.newRole as UserRole] || pendingRoleChange?.newRole} ?
-              Cette action modifiera ses permissions.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Annuler</AlertDialogCancel>
-            <AlertDialogAction
-              onClick={() => {
-                if (pendingRoleChange) {
-                  handleRoleChange(pendingRoleChange.userId, pendingRoleChange.newRole);
-                  setPendingRoleChange(null);
-                }
-              }}
-            >
-              Confirmer
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
 
       {/* Status Toggle Confirmation Dialog */}
       <AlertDialog
