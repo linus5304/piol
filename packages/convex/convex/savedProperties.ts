@@ -4,6 +4,7 @@ import { mutation, query } from './_generated/server';
 // Get user's saved property IDs (for efficient bulk checking)
 export const getSavedPropertyIds = query({
   args: {},
+  returns: v.array(v.id('properties')),
   handler: async (ctx) => {
     const identity = await ctx.auth.getUserIdentity();
     if (!identity) {
@@ -31,6 +32,7 @@ export const getSavedPropertyIds = query({
 // Get user's saved properties (favorites)
 export const getSavedProperties = query({
   args: {},
+  returns: v.any(),
   handler: async (ctx) => {
     const identity = await ctx.auth.getUserIdentity();
     if (!identity) {
@@ -88,6 +90,7 @@ export const getSavedProperties = query({
 // Check if property is saved
 export const isPropertySaved = query({
   args: { propertyId: v.id('properties') },
+  returns: v.boolean(),
   handler: async (ctx, args) => {
     const identity = await ctx.auth.getUserIdentity();
     if (!identity) {
@@ -117,6 +120,7 @@ export const isPropertySaved = query({
 // Save a property (add to favorites)
 export const saveProperty = mutation({
   args: { propertyId: v.id('properties') },
+  returns: v.id('savedProperties'),
   handler: async (ctx, args) => {
     const identity = await ctx.auth.getUserIdentity();
     if (!identity) {
@@ -162,6 +166,7 @@ export const saveProperty = mutation({
 // Unsave a property (remove from favorites)
 export const unsaveProperty = mutation({
   args: { propertyId: v.id('properties') },
+  returns: v.id('properties'),
   handler: async (ctx, args) => {
     const identity = await ctx.auth.getUserIdentity();
     if (!identity) {
@@ -195,6 +200,7 @@ export const unsaveProperty = mutation({
 // Toggle save status
 export const toggleSaveProperty = mutation({
   args: { propertyId: v.id('properties') },
+  returns: v.object({ saved: v.boolean() }),
   handler: async (ctx, args) => {
     const identity = await ctx.auth.getUserIdentity();
     if (!identity) {

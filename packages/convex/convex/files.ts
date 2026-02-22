@@ -4,6 +4,7 @@ import { mutation, query } from './_generated/server';
 // Generate upload URL for file storage
 export const generateUploadUrl = mutation({
   args: {},
+  returns: v.string(),
   handler: async (ctx) => {
     const identity = await ctx.auth.getUserIdentity();
     if (!identity) {
@@ -17,6 +18,7 @@ export const generateUploadUrl = mutation({
 // Get file URL from storage ID
 export const getFileUrl = query({
   args: { storageId: v.id('_storage') },
+  returns: v.union(v.null(), v.string()),
   handler: async (ctx, args) => {
     return await ctx.storage.getUrl(args.storageId);
   },
@@ -25,6 +27,7 @@ export const getFileUrl = query({
 // Get multiple file URLs
 export const getFileUrls = query({
   args: { storageIds: v.array(v.id('_storage')) },
+  returns: v.array(v.object({ storageId: v.id('_storage'), url: v.union(v.null(), v.string()) })),
   handler: async (ctx, args) => {
     const urls = await Promise.all(
       args.storageIds.map(async (storageId) => {
@@ -39,6 +42,7 @@ export const getFileUrls = query({
 // Delete a file from storage
 export const deleteFile = mutation({
   args: { storageId: v.id('_storage') },
+  returns: v.id('_storage'),
   handler: async (ctx, args) => {
     const identity = await ctx.auth.getUserIdentity();
     if (!identity) {

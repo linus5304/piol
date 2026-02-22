@@ -36,6 +36,94 @@ const amenitiesValidator = v.optional(
   })
 );
 
+// Status validators for reuse in return types
+const statusValidator = v.union(
+  v.literal('draft'),
+  v.literal('pending_verification'),
+  v.literal('verified'),
+  v.literal('active'),
+  v.literal('rented'),
+  v.literal('archived')
+);
+
+const verificationStatusValidator = v.union(
+  v.literal('pending'),
+  v.literal('in_progress'),
+  v.literal('approved'),
+  v.literal('rejected')
+);
+
+// Landlord info validator (matches enrichPropertiesWithLandlord output)
+const landlordInfoValidator = v.union(
+  v.object({
+    _id: v.id('users'),
+    firstName: v.optional(v.string()),
+    lastName: v.optional(v.string()),
+    idVerified: v.boolean(),
+  }),
+  v.null()
+);
+
+// Base property fields shared across return types
+const basePropertyFieldsValidator = {
+  _id: v.id('properties'),
+  _creationTime: v.number(),
+  landlordId: v.id('users'),
+  title: v.string(),
+  description: v.optional(v.string()),
+  propertyType: propertyTypeValidator,
+  rentAmount: v.number(),
+  currency: v.string(),
+  cautionMonths: v.number(),
+  upfrontMonths: v.number(),
+  location: v.optional(
+    v.object({
+      latitude: v.number(),
+      longitude: v.number(),
+    })
+  ),
+  addressLine1: v.optional(v.string()),
+  addressLine2: v.optional(v.string()),
+  city: v.string(),
+  neighborhood: v.optional(v.string()),
+  landmarks: v.optional(v.string()),
+  amenities: v.optional(
+    v.object({
+      wifi: v.optional(v.boolean()),
+      parking: v.optional(v.boolean()),
+      ac: v.optional(v.boolean()),
+      security: v.optional(v.boolean()),
+      water247: v.optional(v.boolean()),
+      electricity247: v.optional(v.boolean()),
+      furnished: v.optional(v.boolean()),
+      balcony: v.optional(v.boolean()),
+      garden: v.optional(v.boolean()),
+    })
+  ),
+  images: v.optional(
+    v.array(
+      v.object({
+        storageId: v.id('_storage'),
+        order: v.number(),
+        caption: v.optional(v.string()),
+      })
+    )
+  ),
+  placeholderImages: v.optional(v.array(v.string())),
+  status: statusValidator,
+  verificationStatus: verificationStatusValidator,
+  verifiedAt: v.optional(v.number()),
+  verifierId: v.optional(v.id('users')),
+  publishedAt: v.optional(v.number()),
+  searchText: v.optional(v.string()),
+};
+
+// Property with landlord info (used by listProperties, searchProperties, getPendingVerification)
+const propertyWithLandlordValidator = v.object({
+  ...basePropertyFieldsValidator,
+  landlord: landlordInfoValidator,
+});
+
 // List active properties with advanced filters
 export const listProperties = query({
   args: {
@@ -57,6 +145,11 @@ export const listProperties = query({
     limit: v.optional(v.number()),
     cursor: v.optional(v.string()),
   },
+  returns: v.object({
+    properties: v.array(propertyWithLandlordValidator),
+    nextCursor: v.union(v.string(), v.null()),
+    total: v.number(),
+  }),
   handler: async (ctx, args) => {
     const limit = args.limit ?? 20;
 
@@ -146,6 +239,21 @@ export const getSearchSuggestions = query({
     query: v.string(),
     limit: v.optional(v.number()),
   },
+  returns: v.object({
+    cities: v.array(
+      v.object({
+        name: v.string(),
+        count: v.number(),
+      })
+    ),
+    neighborhoods: v.array(
+      v.object({
+        name: v.string(),
+        city: v.string(),
+        count: v.number(),
+      })
+    ),
+  }),
   handler: async (ctx, args) => {
     if (args.query.length < 2) {
       return { cities: [], neighborhoods: [] };
@@ -204,6 +312,22 @@ export const getFilterOptions = query({
   args: {
     city: v.optional(v.string()),
   },
+  returns: v.object({
+    cities: v.array(v.string()),
+    neighborhoods: v.array(v.string()),
+    propertyTypes: v.array(propertyTypeValidator),
+    priceRange: v.object({
+      min: v.number(),
+      max: v.number(),
+    }),
+    amenities: v.array(
+      v.object({
+        name: v.string(),
+        count: v.number(),
+      })
+    ),
+    totalCount: v.number(),
+  }),
   handler: async (ctx, args) => {
     const filterCity = args.city;
     const propertiesQuery = filterCity
@@ -262,6 +386,7 @@ export const searchProperties = query({
     propertyType: v.optional(propertyTypeValidator),
     limit: v.optional(v.number()),
   },
+  returns: v.array(propertyWithLandlordValidator),
   handler: async (ctx, args) => {
     const limit = args.limit ?? 20;
 
@@ -290,6 +415,34 @@ export const searchProperties = query({
 // Get single property by ID
 export const getProperty = query({
   args: { propertyId: v.id('properties') },
+  returns: v.union(
+    v.object({
+      ...basePropertyFieldsValidator,
+      imageUrls: v.array(
+        v.object({
+          url: v.union(v.string(), v.null()),
+          order: v.number(),
+          caption: v.optional(v.string()),
+          storageId: v.id('_storage'),
+        })
+      ),
+      landlord: v.union(
+        v.object({
+          _id: v.id('users'),
+          firstName: v.optional(v.string()),
+          lastName: v.optional(v.string()),
+          idVerified: v.boolean(),
+          profileImageUrl: v.union(v.string(), v.null()),
+        }),
+        v.null()
+      ),
+      reviews: v.object({
+        count: v.number(),
+        averageRating: v.union(v.number(), v.null()),
+      }),
+    }),
+    v.null()
+  ),
   handler: async (ctx, args) => {
     const property = await ctx.db.get(args.propertyId);
     if (!property) {
@@ -382,6 +535,19 @@ export const getProperty = query({
 // Get properties by landlord
 export const getMyProperties = query({
   args: {},
+  returns: v.array(
+    v.object({
+      ...basePropertyFieldsValidator,
+      images: v.optional(
+        v.array(
+          v.object({
+            url: v.union(v.string(), v.null()),
+            storageId: v.id('_storage'),
+          })
+        )
+      ),
+    })
+  ),
   handler: async (ctx) => {
     const result = await getCurrentUserOrNull(ctx);
     if (!result) {
@@ -432,8 +598,10 @@ export const createProperty = mutation({
     addressLine2: v.optional(v.string()),
     city: v.string(),
     neighborhood: v.optional(v.string()),
+    landmarks: v.optional(v.string()),
     amenities: amenitiesValidator,
   },
+  returns: v.id('properties'),
   handler: async (ctx, args) => {
     const { user } = await getCurrentUser(ctx);
     assertLandlordOrAdmin(user.role);
@@ -456,6 +624,9 @@ export const createProperty = mutation({
     if (args.description && args.description.length > 5000) {
       throw new Error('Description must be under 5000 characters');
     }
+    if (args.landmarks && args.landmarks.length > 500) {
+      throw new Error('Landmarks must be under 500 characters');
+    }
 
     // Create searchable text
     const searchText = [
@@ -465,6 +636,7 @@ export const createProperty = mutation({
       args.neighborhood,
       args.addressLine1,
       args.propertyType,
+      args.landmarks,
     ]
       .filter(Boolean)
       .join(' ');
@@ -483,6 +655,7 @@ export const createProperty = mutation({
       addressLine2: args.addressLine2,
       city: args.city,
       neighborhood: args.neighborhood,
+      landmarks: args.landmarks,
       amenities: args.amenities,
       status: 'draft',
       verificationStatus: 'pending',
@@ -510,8 +683,10 @@ export const updateProperty = mutation({
     addressLine1: v.optional(v.string()),
     addressLine2: v.optional(v.string()),
     neighborhood: v.optional(v.string()),
+    landmarks: v.optional(v.string()),
     amenities: amenitiesValidator,
   },
+  returns: v.id('properties'),
   handler: async (ctx, args) => {
     const { user } = await getCurrentUser(ctx);
 
@@ -535,6 +710,9 @@ export const updateProperty = mutation({
     if (args.description !== undefined && args.description.length > 5000) {
       throw new Error('Description must be under 5000 characters');
     }
+    if (args.landmarks !== undefined && args.landmarks.length > 500) {
+      throw new Error('Landmarks must be under 500 characters');
+    }
 
     // Build update object
     const updates: Record<string, unknown> = {};
@@ -546,6 +724,7 @@ export const updateProperty = mutation({
     if (args.addressLine1 !== undefined) updates.addressLine1 = args.addressLine1;
     if (args.addressLine2 !== undefined) updates.addressLine2 = args.addressLine2;
     if (args.neighborhood !== undefined) updates.neighborhood = args.neighborhood;
+    if (args.landmarks !== undefined) updates.landmarks = args.landmarks;
     if (args.amenities !== undefined) updates.amenities = args.amenities;
 
     // Update search text
@@ -553,6 +732,7 @@ export const updateProperty = mutation({
     const newDescription = args.description ?? property.description;
     const newNeighborhood = args.neighborhood ?? property.neighborhood;
     const newPropertyType = args.propertyType ?? property.propertyType;
+    const newLandmarks = args.landmarks ?? property.landmarks;
 
     updates.searchText = [
       newTitle,
@@ -561,6 +741,7 @@ export const updateProperty = mutation({
       newNeighborhood,
       args.addressLine1 ?? property.addressLine1,
       newPropertyType,
+      newLandmarks,
     ]
       .filter(Boolean)
       .join(' ');
@@ -582,6 +763,7 @@ export const addPropertyImages = mutation({
       })
     ),
   },
+  returns: v.id('properties'),
   handler: async (ctx, args) => {
     const { user } = await getCurrentUser(ctx);
 
@@ -603,6 +785,7 @@ export const addPropertyImages = mutation({
 // Submit property for verification
 export const submitForVerification = mutation({
   args: { propertyId: v.id('properties') },
+  returns: v.id('properties'),
   handler: async (ctx, args) => {
     const { user } = await getCurrentUser(ctx);
 
@@ -647,6 +830,7 @@ export const updatePropertyStatus = mutation({
       )
     ),
   },
+  returns: v.id('properties'),
   handler: async (ctx, args) => {
     const { user } = await getCurrentUser(ctx);
     assertAdminOrVerifier(user.role);
@@ -674,6 +858,7 @@ export const updatePropertyStatus = mutation({
 // Delete property (soft delete - archive)
 export const archiveProperty = mutation({
   args: { propertyId: v.id('properties') },
+  returns: v.id('properties'),
   handler: async (ctx, args) => {
     const { user } = await getCurrentUser(ctx);
 
@@ -694,6 +879,30 @@ export const getFeaturedProperties = query({
   args: {
     limit: v.optional(v.number()),
   },
+  returns: v.array(
+    v.object({
+      _id: v.id('properties'),
+      title: v.string(),
+      propertyType: propertyTypeValidator,
+      rentAmount: v.number(),
+      currency: v.string(),
+      city: v.string(),
+      neighborhood: v.optional(v.string()),
+      imageUrl: v.union(v.string(), v.null()),
+      placeholderImages: v.optional(v.array(v.string())),
+      verificationStatus: verificationStatusValidator,
+      _creationTime: v.number(),
+      landlord: v.union(
+        v.object({
+          _id: v.id('users'),
+          firstName: v.optional(v.string()),
+          lastName: v.optional(v.string()),
+          idVerified: v.boolean(),
+        }),
+        v.null()
+      ),
+    })
+  ),
   handler: async (ctx, args) => {
     const limit = args.limit ?? 6;
 
@@ -757,6 +966,12 @@ export const getFeaturedProperties = query({
 // Get city statistics (public)
 export const getCityStats = query({
   args: {},
+  returns: v.array(
+    v.object({
+      city: v.string(),
+      count: v.number(),
+    })
+  ),
   handler: async (ctx) => {
     // Get all active properties
     const properties = await ctx.db
@@ -783,6 +998,7 @@ export const getCityStats = query({
 // Get properties pending verification (admin/verifier only)
 export const getPendingVerification = query({
   args: {},
+  returns: v.array(propertyWithLandlordValidator),
   handler: async (ctx) => {
     const result = await getCurrentUserOrNull(ctx);
     if (!result || !hasRole(result.user.role, ['admin', 'verifier'])) {
@@ -808,6 +1024,7 @@ export const togglePropertyStatus = mutation({
     propertyId: v.id('properties'),
     active: v.boolean(),
   },
+  returns: v.id('properties'),
   handler: async (ctx, args) => {
     const { user } = await getCurrentUser(ctx);
 
@@ -841,6 +1058,7 @@ export const removePropertyImage = mutation({
     propertyId: v.id('properties'),
     storageId: v.id('_storage'),
   },
+  returns: v.id('properties'),
   handler: async (ctx, args) => {
     const { user } = await getCurrentUser(ctx);
 

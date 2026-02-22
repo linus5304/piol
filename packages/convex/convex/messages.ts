@@ -5,6 +5,7 @@ import { getCurrentUser, getCurrentUserOrNull } from './utils/auth';
 // Get all conversations for current user
 export const getConversations = query({
   args: {},
+  returns: v.any(),
   handler: async (ctx) => {
     const result = await getCurrentUserOrNull(ctx);
     if (!result) {
@@ -68,9 +69,11 @@ export const getConversations = query({
 
         const unreadMessages = await ctx.db
           .query('messages')
-          .withIndex('by_conversation', (q) => q.eq('conversationId', conversationIdStr))
-          .filter((q) =>
-            q.and(q.eq(q.field('recipientId'), user._id), q.eq(q.field('isRead'), false))
+          .withIndex('by_conversation_and_recipient_and_isRead', (q) =>
+            q
+              .eq('conversationId', conversationIdStr)
+              .eq('recipientId', user._id)
+              .eq('isRead', false)
           )
           .collect();
 
@@ -118,6 +121,7 @@ export const getMessages = query({
     limit: v.optional(v.number()),
     cursor: v.optional(v.string()),
   },
+  returns: v.any(),
   handler: async (ctx, args) => {
     const result = await getCurrentUserOrNull(ctx);
     if (!result) {
@@ -174,6 +178,7 @@ export const sendMessage = mutation({
     propertyId: v.optional(v.id('properties')),
     messageText: v.string(),
   },
+  returns: v.id('messages'),
   handler: async (ctx, args) => {
     const { user } = await getCurrentUser(ctx);
 
@@ -203,11 +208,8 @@ export const sendMessage = mutation({
     // Upsert conversation record for efficient listing
     const existingConversation = await ctx.db
       .query('conversations')
-      .withIndex('by_participants', (q) => q.eq('participantIds', sortedIds as any))
-      .filter((q) =>
-        args.propertyId
-          ? q.eq(q.field('propertyId'), args.propertyId)
-          : q.eq(q.field('propertyId'), undefined)
+      .withIndex('by_participants_and_propertyId', (q) =>
+        q.eq('participantIds', sortedIds as any).eq('propertyId', args.propertyId)
       )
       .first();
 
@@ -244,6 +246,7 @@ export const markMessagesAsRead = mutation({
   args: {
     conversationId: v.string(),
   },
+  returns: v.number(),
   handler: async (ctx, args) => {
     const { user } = await getCurrentUser(ctx);
 
@@ -264,6 +267,7 @@ export const markMessagesAsRead = mutation({
 // Get unread message count
 export const getUnreadCount = query({
   args: {},
+  returns: v.number(),
   handler: async (ctx) => {
     const result = await getCurrentUserOrNull(ctx);
     if (!result) {
@@ -272,8 +276,9 @@ export const getUnreadCount = query({
 
     const unreadMessages = await ctx.db
       .query('messages')
-      .withIndex('by_recipient', (q) => q.eq('recipientId', result.user._id))
-      .filter((q) => q.eq(q.field('isRead'), false))
+      .withIndex('by_recipient_and_isRead', (q) =>
+        q.eq('recipientId', result.user._id).eq('isRead', false)
+      )
       .collect();
 
     return unreadMessages.length;

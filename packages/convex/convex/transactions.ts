@@ -30,6 +30,7 @@ export const getMyTransactions = query({
     ),
     limit: v.optional(v.number()),
   },
+  returns: v.any(),
   handler: async (ctx, args) => {
     const result = await getCurrentUserOrNull(ctx);
     if (!result) {
@@ -102,6 +103,7 @@ export const getMyTransactions = query({
 // Get transaction by ID
 export const getTransaction = query({
   args: { transactionId: v.id('transactions') },
+  returns: v.any(),
   handler: async (ctx, args) => {
     const result = await getCurrentUserOrNull(ctx);
     if (!result) {
@@ -158,6 +160,7 @@ export const getTransaction = query({
 // Get transaction by reference (for payment callbacks)
 export const getTransactionByReference = query({
   args: { reference: v.string() },
+  returns: v.any(),
   handler: async (ctx, args) => {
     const result = await getCurrentUserOrNull(ctx);
     if (!result) {
@@ -204,6 +207,7 @@ export const createTransaction = mutation({
     ),
     payerPhone: v.optional(v.string()),
   },
+  returns: v.object({ transactionId: v.id('transactions'), transactionReference: v.string() }),
   handler: async (ctx, args) => {
     const { user } = await getCurrentUser(ctx);
 
@@ -267,6 +271,7 @@ export const updateTransactionStatus = internalMutation({
     externalId: v.optional(v.string()),
     callbackReceived: v.optional(v.boolean()),
   },
+  returns: v.id('transactions'),
   handler: async (ctx, args) => {
     const transaction = await ctx.db.get(args.transactionId);
     if (!transaction) {
@@ -326,6 +331,7 @@ export const releaseEscrow = mutation({
   args: {
     transactionId: v.id('transactions'),
   },
+  returns: v.id('transactions'),
   handler: async (ctx, args) => {
     const { user } = await getCurrentUser(ctx);
 
@@ -367,6 +373,7 @@ export const requestRefund = mutation({
     transactionId: v.id('transactions'),
     reason: v.string(),
   },
+  returns: v.id('transactions'),
   handler: async (ctx, args) => {
     const { user } = await getCurrentUser(ctx);
 
@@ -413,6 +420,7 @@ export const getTransactionStats = query({
     startDate: v.optional(v.number()),
     endDate: v.optional(v.number()),
   },
+  returns: v.any(),
   handler: async (ctx, args) => {
     const result = await getCurrentUserOrNull(ctx);
     if (!result || !hasRole(result.user.role, ['admin'])) {
@@ -460,6 +468,7 @@ export const updateMoMoReference = internalMutation({
     transactionId: v.id('transactions'),
     mobileMoneyReference: v.string(),
   },
+  returns: v.id('transactions'),
   handler: async (ctx, args) => {
     const transaction = await ctx.db.get(args.transactionId);
     if (!transaction) {
@@ -492,6 +501,7 @@ export const internalUpdateStatus = internalMutation({
     externalId: v.optional(v.string()),
     callbackReceived: v.optional(v.boolean()),
   },
+  returns: v.id('transactions'),
   handler: async (ctx, args) => {
     const transaction = await ctx.db.get(args.transactionId);
     if (!transaction) {
@@ -561,6 +571,7 @@ export const internalUpdateStatus = internalMutation({
 // Internal: Get transaction for actions
 export const internalGetTransaction = internalQuery({
   args: { transactionId: v.id('transactions') },
+  returns: v.any(),
   handler: async (ctx, args) => {
     const transaction = await ctx.db.get(args.transactionId);
     if (!transaction) {
@@ -597,6 +608,7 @@ export const internalGetTransaction = internalQuery({
 // Internal: Get user by Clerk ID (for auth in actions)
 export const internalGetUserByClerkId = internalQuery({
   args: { clerkId: v.string() },
+  returns: v.any(),
   handler: async (ctx, args) => {
     return await ctx.db
       .query('users')

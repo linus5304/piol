@@ -6,6 +6,7 @@ export const getPropertyReviews = query({
   args: {
     propertyId: v.id('properties'),
   },
+  returns: v.any(),
   handler: async (ctx, args) => {
     const reviews = await ctx.db
       .query('reviews')
@@ -46,6 +47,7 @@ export const getUserReviews = query({
       )
     ),
   },
+  returns: v.any(),
   handler: async (ctx, args) => {
     let reviews = await ctx.db
       .query('reviews')
@@ -89,6 +91,7 @@ export const getUserReviews = query({
 // Get average rating for a user
 export const getUserRating = query({
   args: { userId: v.id('users') },
+  returns: v.object({ averageRating: v.union(v.null(), v.number()), totalReviews: v.number() }),
   handler: async (ctx, args) => {
     const reviews = await ctx.db
       .query('reviews')
@@ -122,6 +125,7 @@ export const createReview = mutation({
     rating: v.number(),
     comment: v.optional(v.string()),
   },
+  returns: v.id('reviews'),
   handler: async (ctx, args) => {
     const identity = await ctx.auth.getUserIdentity();
     if (!identity) {
@@ -173,9 +177,11 @@ export const createReview = mutation({
     // Check if already reviewed
     const existingReview = await ctx.db
       .query('reviews')
-      .withIndex('by_property', (q) => q.eq('propertyId', args.propertyId))
-      .filter((q) =>
-        q.and(q.eq(q.field('reviewerId'), user._id), q.eq(q.field('reviewType'), args.reviewType))
+      .withIndex('by_property_and_reviewer_and_reviewType', (q) =>
+        q
+          .eq('propertyId', args.propertyId)
+          .eq('reviewerId', user._id)
+          .eq('reviewType', args.reviewType)
       )
       .first();
 
@@ -213,6 +219,7 @@ export const updateReview = mutation({
     rating: v.optional(v.number()),
     comment: v.optional(v.string()),
   },
+  returns: v.id('reviews'),
   handler: async (ctx, args) => {
     const identity = await ctx.auth.getUserIdentity();
     if (!identity) {
@@ -260,6 +267,7 @@ export const updateReview = mutation({
 // Delete a review
 export const deleteReview = mutation({
   args: { reviewId: v.id('reviews') },
+  returns: v.id('reviews'),
   handler: async (ctx, args) => {
     const identity = await ctx.auth.getUserIdentity();
     if (!identity) {

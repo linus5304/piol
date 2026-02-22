@@ -115,6 +115,14 @@ packages/
   - Indexes for every query path (no table scans)
   - Paginate lists (max 100 items)
 
+### Convex Guidelines
+
+- **Always include `returns:` validators** on all Convex functions (`query`, `mutation`, `action`, `internalQuery`, `internalMutation`, `internalAction`). Use `v.null()` for functions that don't return anything.
+- **Never use query `.filter()`** on Convex query builders. Define an index in `schema.ts` and use `.withIndex()` instead. JavaScript `Array.filter()` after `.collect()` is fine for complex in-memory logic.
+- **Use `internalQuery`/`internalMutation`/`internalAction`** for functions not exposed to the client.
+- **Index naming:** `by_field1_and_field2` matching the indexed fields.
+- **Use `v.null()` for void returns**, not omitting the `returns:` field.
+
 ### Web App (`apps/web/src/`)
 
 - `app/` - Next.js App Router pages
