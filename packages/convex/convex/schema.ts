@@ -302,6 +302,21 @@ export default defineSchema({
     .index('by_user', ['userId'])
     .index('by_user_unread', ['userId', 'isRead']),
 
+  // Landlord Applications table
+  landlordApplications: defineTable({
+    userId: v.id('users'),
+    status: v.union(v.literal('pending'), v.literal('approved'), v.literal('rejected')),
+    cniPhotoFront: v.id('_storage'),
+    cniPhotoBack: v.id('_storage'),
+    motivationText: v.string(),
+    rejectionReason: v.optional(v.string()),
+    reviewedBy: v.optional(v.id('users')),
+    reviewedAt: v.optional(v.number()),
+  })
+    .index('by_userId', ['userId'])
+    .index('by_status', ['status'])
+    .index('by_userId_and_status', ['userId', 'status']),
+
   // Saved Properties (favorites)
   savedProperties: defineTable({
     userId: v.id('users'),

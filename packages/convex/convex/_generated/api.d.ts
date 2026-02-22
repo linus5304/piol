@@ -13,6 +13,7 @@ import type * as actions_orangeMoney from "../actions/orangeMoney.js";
 import type * as actions_payments from "../actions/payments.js";
 import type * as files from "../files.js";
 import type * as http from "../http.js";
+import type * as landlordApplications from "../landlordApplications.js";
 import type * as messages from "../messages.js";
 import type * as notifications from "../notifications.js";
 import type * as properties from "../properties.js";
@@ -41,6 +42,7 @@ declare const fullApi: ApiFromModules<{
   "actions/payments": typeof actions_payments;
   files: typeof files;
   http: typeof http;
+  landlordApplications: typeof landlordApplications;
   messages: typeof messages;
   notifications: typeof notifications;
   properties: typeof properties;

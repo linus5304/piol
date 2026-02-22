@@ -18,6 +18,7 @@ export function NavMain({
     title: string;
     url: string;
     icon?: LucideIcon;
+    badge?: number;
   }[];
 }) {
   const pathname = usePathname();
@@ -36,7 +37,12 @@ export function NavMain({
                 <SidebarMenuButton asChild tooltip={item.title} isActive={isActive}>
                   <Link href={item.url}>
                     {Icon && <Icon className="h-4 w-4" />}
-                    <span>{item.title}</span>
+                    <span className="flex-1">{item.title}</span>
+                    {item.badge !== undefined && item.badge > 0 && (
+                      <span className="ml-auto inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-primary px-1.5 text-[10px] font-medium text-primary-foreground">
+                        {item.badge}
+                      </span>
+                    )}
                   </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>
