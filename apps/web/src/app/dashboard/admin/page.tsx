@@ -17,7 +17,7 @@ import { parseAppLocale } from '@/i18n/config';
 import { formatCurrencyFCFA, formatDate } from '@/lib/i18n-format';
 import { ROLE_COLORS, ROLE_LABELS, type UserRole } from '@/lib/permissions';
 import { api } from '@repo/convex/_generated/api';
-import { useQuery } from 'convex/react';
+import { usePaginatedQuery, useQuery } from 'convex/react';
 import { useLocale } from 'gt-next/client';
 import {
   AlertCircle,
@@ -61,7 +61,11 @@ function AdminDashboardContent() {
   const adminStats = useQuery(api.users.getAdminStats);
 
   // Fetch recent users
-  const recentUsers = useQuery(api.users.listUsers, { limit: 5 });
+  const { results: recentUsers } = usePaginatedQuery(
+    api.users.listUsers,
+    {},
+    { initialNumItems: 5 }
+  );
 
   // Fetch properties pending verification
   const pendingProperties = useQuery(api.properties.getPendingVerification);
@@ -174,13 +178,13 @@ function AdminDashboardContent() {
             </div>
           </CardHeader>
           <CardContent>
-            {recentUsers === undefined ? (
+            {recentUsers.length === 0 ? (
               <div className="space-y-3">
                 {[1, 2, 3].map((i) => (
                   <Skeleton key={i} className="h-12 w-full" />
                 ))}
               </div>
-            ) : recentUsers && recentUsers.length > 0 ? (
+            ) : recentUsers.length > 0 ? (
               <Table>
                 <TableHeader>
                   <TableRow>

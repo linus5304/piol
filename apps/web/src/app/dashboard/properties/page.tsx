@@ -22,10 +22,10 @@ import { parseAppLocale } from '@/i18n/config';
 import { formatCurrencyFCFA, formatDate } from '@/lib/i18n-format';
 import { cn } from '@/lib/utils';
 import { api } from '@repo/convex/_generated/api';
-import { useQuery } from 'convex/react';
+import { usePaginatedQuery } from 'convex/react';
 import { useTranslations } from 'gt-next';
 import { useLocale } from 'gt-next/client';
-import { Building2, Calendar, CheckCircle, ImageIcon, Plus, Search } from 'lucide-react';
+import { Building2, Calendar, CheckCircle, ImageIcon, Loader2, Plus, Search } from 'lucide-react';
 import Link from 'next/link';
 import { useMemo, useState } from 'react';
 
@@ -58,7 +58,11 @@ export default function PropertiesPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState<StatusFilterValue>('all');
 
-  const properties = useQuery(api.properties.getMyProperties);
+  const {
+    results: properties,
+    status: paginationStatus,
+    loadMore,
+  } = usePaginatedQuery(api.properties.getMyProperties, {}, { initialNumItems: 25 });
 
   const statusFilterLabels = useMemo<Record<StatusFilterValue, string>>(
     () => ({
@@ -124,9 +128,7 @@ export default function PropertiesPage() {
   );
 
   const filteredProperties = useMemo(() => {
-    if (!properties) return [];
-
-    return properties.filter((property: (typeof properties)[number]) => {
+    return properties.filter((property) => {
       const matchesSearch = property.title.toLowerCase().includes(searchQuery.toLowerCase());
       const matchesStatus = statusFilter === 'all' || property.status === statusFilter;
       return matchesSearch && matchesStatus;
@@ -134,17 +136,14 @@ export default function PropertiesPage() {
   }, [properties, searchQuery, statusFilter]);
 
   const statusCounts = useMemo(() => {
-    if (!properties) return { active: 0, draft: 0, pending_verification: 0 };
     return {
-      active: properties.filter((p: (typeof properties)[number]) => p.status === 'active').length,
-      draft: properties.filter((p: (typeof properties)[number]) => p.status === 'draft').length,
-      pending_verification: properties.filter(
-        (p: (typeof properties)[number]) => p.status === 'pending_verification'
-      ).length,
+      active: properties.filter((p) => p.status === 'active').length,
+      draft: properties.filter((p) => p.status === 'draft').length,
+      pending_verification: properties.filter((p) => p.status === 'pending_verification').length,
     };
   }, [properties]);
 
-  const isLoading = properties === undefined;
+  const isLoading = paginationStatus === 'LoadingFirstPage';
 
   return (
     <div className="space-y-6">
@@ -152,7 +151,7 @@ export default function PropertiesPage() {
       <div className="space-y-3">
         <PageHeader
           title={t('myProperties.title')}
-          count={properties?.length}
+          count={isLoading ? undefined : properties.length}
           action={{
             label: t('myProperties.addProperty'),
             icon: Plus,
@@ -266,7 +265,7 @@ export default function PropertiesPage() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {filteredProperties.map((property: (typeof filteredProperties)[number]) => {
+                {filteredProperties.map((property) => {
                   const imageUrl = property.placeholderImages?.[0] ?? null;
                   return (
                     <TableRow key={property._id} className="hover:bg-muted/50 cursor-pointer">
@@ -342,7 +341,7 @@ export default function PropertiesPage() {
 
           {/* Mobile: Card List */}
           <div className="md:hidden bg-background rounded-lg border divide-y">
-            {filteredProperties.map((property: (typeof filteredProperties)[number]) => {
+            {filteredProperties.map((property) => {
               const imageUrl = property.placeholderImages?.[0] ?? null;
 
               return (
@@ -407,6 +406,20 @@ export default function PropertiesPage() {
               );
             })}
           </div>
+
+          {/* Load More */}
+          {paginationStatus === 'CanLoadMore' && (
+            <div className="flex justify-center pt-4">
+              <Button variant="outline" onClick={() => loadMore(25)}>
+                {t('common.loadMore')}
+              </Button>
+            </div>
+          )}
+          {paginationStatus === 'LoadingMore' && (
+            <div className="flex justify-center pt-4">
+              <Loader2 className="w-5 h-5 animate-spin text-muted-foreground" />
+            </div>
+          )}
         </>
       )}
     </div>

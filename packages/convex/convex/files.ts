@@ -59,8 +59,14 @@ export const deleteFile = mutation({
       throw new Error('User not found');
     }
 
-    // Check if any property references this file
-    const properties = await ctx.db.query('properties').collect();
+    // Check if any of the user's properties references this file
+    const properties =
+      user.role === 'admin'
+        ? await ctx.db.query('properties').collect()
+        : await ctx.db
+            .query('properties')
+            .withIndex('by_landlord', (q) => q.eq('landlordId', user._id))
+            .collect();
     const ownerProperty = properties.find((p) =>
       p.images?.some((img) => img.storageId === args.storageId)
     );

@@ -11,12 +11,13 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
+import { useCurrentUserRole } from '@/hooks/use-current-user-role';
 import { useSafeUser } from '@/hooks/use-safe-auth';
 import { parseAppLocale } from '@/i18n/config';
 import { formatCurrencyFCFA, formatDate, formatNumber } from '@/lib/i18n-format';
 import { cn } from '@/lib/utils';
 import { api } from '@repo/convex/_generated/api';
-import { useQuery } from 'convex/react';
+import { usePaginatedQuery, useQuery } from 'convex/react';
 import { useTranslations } from 'gt-next';
 import { useLocale } from 'gt-next/client';
 import {
@@ -31,6 +32,7 @@ import {
   Wallet,
 } from 'lucide-react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 
 /**
@@ -137,14 +139,33 @@ export default function DashboardPage() {
   const t = useTranslations();
   const locale = parseAppLocale(useLocale());
   const { user, isLoaded } = useSafeUser();
+  const { role: convexRole } = useCurrentUserRole();
+  const router = useRouter();
+
+  const role = convexRole || 'renter';
 
   const dashboardStats = useQuery(api.users.getDashboardStats);
-  const transactions = useQuery(api.transactions.getMyTransactions, { limit: 5 });
+  const { results: transactions, status: txStatus } = usePaginatedQuery(
+    api.transactions.getMyTransactions,
+    {},
+    { initialNumItems: 5 }
+  );
+  const { results: myProperties, status: propStatus } = usePaginatedQuery(
+    api.properties.getMyProperties,
+    role === 'landlord' ? {} : 'skip',
+    { initialNumItems: 5 }
+  );
 
-  const role = (user?.unsafeMetadata?.role as string) || 'renter';
-  const myProperties = useQuery(api.properties.getMyProperties, role === 'landlord' ? {} : 'skip');
+  // Redirect admin/verifier to their dedicated dashboards
+  useEffect(() => {
+    if (role === 'admin') {
+      router.replace('/dashboard/admin');
+    } else if (role === 'verifier') {
+      router.replace('/dashboard/verify');
+    }
+  }, [role, router]);
 
-  if (!isLoaded) {
+  if (!isLoaded || role === 'admin' || role === 'verifier') {
     return <DashboardSkeleton />;
   }
 
@@ -187,9 +208,10 @@ function LandlordDashboard({
   firstName: string;
   locale: string;
   stats: ReturnType<typeof useQuery<typeof api.users.getDashboardStats>>;
-  transactions: ReturnType<typeof useQuery<typeof api.transactions.getMyTransactions>>;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  properties: any[] | undefined;
+  transactions: any[];
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  properties: any[];
   t: ReturnType<typeof useTranslations>;
 }) {
   const greetingKey = useGreetingKey();
@@ -200,7 +222,7 @@ function LandlordDashboard({
   const pendingPayments = stats && stats.role === 'landlord' ? stats.pendingPayments : 0;
 
   // Take first 5 properties for grid
-  const displayProperties = properties?.slice(0, 5) ?? [];
+  const displayProperties = properties.slice(0, 5);
 
   return (
     <div className="flex flex-col min-h-screen">
@@ -420,7 +442,7 @@ function LandlordDashboard({
             </Link>
           </CardHeader>
           <CardContent className="p-0">
-            {transactions === undefined ? (
+            {transactions.length === 0 ? (
               <div className="p-4 space-y-4">
                 {[1, 2, 3].map((i) => (
                   <Skeleton key={i} className="h-12 w-full" />
@@ -519,7 +541,8 @@ function RenterDashboard({
   firstName: string;
   locale: string;
   stats: ReturnType<typeof useQuery<typeof api.users.getDashboardStats>>;
-  transactions: ReturnType<typeof useQuery<typeof api.transactions.getMyTransactions>>;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  transactions: any[];
   t: ReturnType<typeof useTranslations>;
 }) {
   const greetingKey = useGreetingKey();
@@ -623,7 +646,7 @@ function RenterDashboard({
             </Link>
           </CardHeader>
           <CardContent className="p-0">
-            {transactions === undefined ? (
+            {transactions.length === 0 ? (
               <div className="p-4 space-y-4">
                 {[1, 2, 3].map((i) => (
                   <Skeleton key={i} className="h-12 w-full" />

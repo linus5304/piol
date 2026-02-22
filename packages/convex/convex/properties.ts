@@ -1,3 +1,4 @@
+import { paginationOptsValidator } from 'convex/server';
 import { v } from 'convex/values';
 import { mutation, query } from './_generated/server';
 import { getCurrentUser, getCurrentUserOrNull } from './utils/auth';
@@ -171,7 +172,8 @@ export const listProperties = query({
         .withIndex('by_city_status', (q) => q.eq('city', city).eq('status', 'active'));
     }
 
-    let properties = await propertiesQuery.collect();
+    // Safety cap: limit to 500 results to prevent unbounded scans
+    let properties = await propertiesQuery.take(500);
 
     // Apply propertyType filter in-memory only when city is not set (can't use compound index)
     if (args.propertyType && !args.city) {
@@ -532,49 +534,21 @@ export const getProperty = query({
   },
 });
 
-// Get properties by landlord
+// Get properties by landlord (paginated)
 export const getMyProperties = query({
-  args: {},
-  returns: v.array(
-    v.object({
-      ...basePropertyFieldsValidator,
-      images: v.optional(
-        v.array(
-          v.object({
-            url: v.union(v.string(), v.null()),
-            storageId: v.id('_storage'),
-          })
-        )
-      ),
-    })
-  ),
-  handler: async (ctx) => {
+  args: { paginationOpts: paginationOptsValidator },
+  returns: v.any(),
+  handler: async (ctx, args) => {
     const result = await getCurrentUserOrNull(ctx);
     if (!result) {
-      return [];
+      return { page: [], isDone: true, continueCursor: '' };
     }
 
-    const properties = await ctx.db
+    return await ctx.db
       .query('properties')
       .withIndex('by_landlord', (q) => q.eq('landlordId', result.user._id))
-      .collect();
-
-    const sorted = properties.sort((a, b) => b._creationTime - a._creationTime);
-
-    // Resolve storage URLs for images
-    return Promise.all(
-      sorted.map(async (property) => {
-        const images = property.images
-          ? await Promise.all(
-              property.images.map(async (image) => {
-                const url = await ctx.storage.getUrl(image.storageId);
-                return { url, storageId: image.storageId };
-              })
-            )
-          : undefined;
-        return { ...property, images };
-      })
-    );
+      .order('desc')
+      .paginate(args.paginationOpts);
   },
 });
 
@@ -906,17 +880,14 @@ export const getFeaturedProperties = query({
   handler: async (ctx, args) => {
     const limit = args.limit ?? 6;
 
-    // Get active, verified properties
-    const properties = await ctx.db
+    // Get active, verified properties using compound index
+    const verifiedProperties = await ctx.db
       .query('properties')
-      .withIndex('by_status', (q) => q.eq('status', 'active'))
-      .collect();
-
-    // Filter for verified properties and sort by newest
-    const verifiedProperties = properties
-      .filter((p) => p.verificationStatus === 'approved')
-      .sort((a, b) => b._creationTime - a._creationTime)
-      .slice(0, limit);
+      .withIndex('by_status_and_verificationStatus', (q) =>
+        q.eq('status', 'active').eq('verificationStatus', 'approved')
+      )
+      .order('desc')
+      .take(limit);
 
     // Get landlord info and resolve image URLs
     const propertiesWithDetails = await Promise.all(
