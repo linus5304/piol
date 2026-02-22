@@ -5,6 +5,7 @@ import { PropertyCard } from '@/components/properties';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { PaginationFooter } from '@/components/ui/pagination-footer';
 import {
   Select,
   SelectContent,
@@ -161,6 +162,7 @@ function PropertiesPageContent() {
   const [showFilters, setShowFilters] = useState(false);
   const [hoveredPropertyId, setHoveredPropertyId] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
+  const [visibleLimit, setVisibleLimit] = useState(25);
 
   // Update URL params helper — wrapped in transition to avoid flash of stale data
   const updateParams = useCallback(
@@ -229,7 +231,7 @@ function PropertiesPageContent() {
           searchQuery: searchQuery.trim(),
           city: selectedCity,
           propertyType: propertyTypeArg,
-          limit: 50,
+          limit: visibleLimit,
         }
       : 'skip'
   );
@@ -243,7 +245,7 @@ function PropertiesPageContent() {
           minPrice,
           maxPrice,
           sortBy: convexSortBy,
-          limit: 50,
+          limit: visibleLimit,
         }
       : 'skip'
   );
@@ -273,13 +275,14 @@ function PropertiesPageContent() {
   const propertiesResult = useMemo((): {
     properties: PropertyWithLandlord[];
     total: number;
+    hasMore: boolean;
     isLoading: boolean;
   } => {
     const isSearching = searchQuery.trim().length >= 2;
 
     if (isSearching) {
       if (searchResults === undefined) {
-        return { properties: [], total: 0, isLoading: true };
+        return { properties: [], total: 0, hasMore: false, isLoading: true };
       }
       // Filter search results by price range client-side (search query doesn't support it)
       let properties = searchResults as PropertyWithLandlord[];
@@ -300,11 +303,11 @@ function PropertiesPageContent() {
             p.propertyType === '4br'
         );
       }
-      return { properties, total: properties.length, isLoading: false };
+      return { properties, total: properties.length, hasMore: false, isLoading: false };
     }
 
     if (listResults === undefined) {
-      return { properties: [], total: 0, isLoading: true };
+      return { properties: [], total: 0, hasMore: false, isLoading: true };
     }
 
     // Apply apartment category filter client-side
@@ -322,7 +325,8 @@ function PropertiesPageContent() {
 
     return {
       properties,
-      total: properties.length,
+      total: listResults.total,
+      hasMore: listResults.nextCursor !== null,
       isLoading: false,
     };
   }, [searchQuery, searchResults, listResults, minPrice, maxPrice, selectedCategory]);
@@ -334,6 +338,7 @@ function PropertiesPageContent() {
   ].filter(Boolean).length;
 
   const clearAllFilters = useCallback(() => {
+    setVisibleLimit(25);
     router.replace(pathname, { scroll: false });
   }, [router, pathname]);
 
@@ -627,14 +632,16 @@ function PropertiesPageContent() {
           )}
 
           {/* Load More */}
-          {propertiesResult.properties.length > 0 &&
-            propertiesResult.properties.length < propertiesResult.total && (
-              <div className="text-center mt-12">
-                <Button variant="outline" size="lg" className="rounded-xl">
-                  {t('common.loadMore')}
-                </Button>
-              </div>
-            )}
+          {propertiesResult.properties.length > 0 && (
+            <PaginationFooter
+              status={propertiesResult.hasMore ? 'CanLoadMore' : 'Exhausted'}
+              loadedCount={propertiesResult.properties.length}
+              totalCount={propertiesResult.total}
+              onLoadMore={() => setVisibleLimit((prev) => prev + 25)}
+              itemLabel="propriétés"
+              className="mt-8"
+            />
+          )}
         </div>
       </div>
 

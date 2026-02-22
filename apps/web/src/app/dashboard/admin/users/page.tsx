@@ -1,5 +1,6 @@
 'use client';
 
+import { EditUserDialog } from '@/components/admin/edit-user-dialog';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -12,7 +13,7 @@ import {
 } from '@/components/ui/alert-dialog';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -22,6 +23,8 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Input } from '@/components/ui/input';
+import { PageHeader } from '@/components/ui/page-header';
+import { PaginationFooter } from '@/components/ui/pagination-footer';
 import {
   Select,
   SelectContent,
@@ -44,15 +47,17 @@ import { formatDate } from '@/lib/i18n-format';
 import { ROLE_COLORS, ROLE_LABELS, type UserRole } from '@/lib/permissions';
 import { api } from '@repo/convex/_generated/api';
 import type { Id } from '@repo/convex/_generated/dataModel';
-import { useMutation, usePaginatedQuery } from 'convex/react';
+import { useMutation, usePaginatedQuery, useQuery } from 'convex/react';
 import { useLocale } from 'gt-next/client';
 import {
   AlertCircle,
-  ArrowLeft,
   CheckCircle,
-  Loader2,
   MoreHorizontal,
+  Pencil,
   Search,
+  ShieldCheck,
+  ShieldX,
+  Trash2,
   UserCheck,
   UserX,
   Users,
@@ -89,6 +94,22 @@ function UserManagementContent() {
     currentlyActive: boolean;
     userName: string;
   } | null>(null);
+  const [editingUser, setEditingUser] = useState<{
+    _id: Id<'users'>;
+    firstName?: string;
+    lastName?: string;
+    phone?: string;
+    email: string;
+  } | null>(null);
+  const [pendingVerification, setPendingVerification] = useState<{
+    userId: Id<'users'>;
+    currentlyVerified: boolean;
+    userName: string;
+  } | null>(null);
+  const [pendingDelete, setPendingDelete] = useState<{
+    userId: Id<'users'>;
+    userName: string;
+  } | null>(null);
 
   // Redirect non-admins
   useEffect(() => {
@@ -106,11 +127,14 @@ function UserManagementContent() {
     results: users,
     status: paginationStatus,
     loadMore,
-  } = usePaginatedQuery(api.users.listUsers, roleArg, { initialNumItems: 50 });
+  } = usePaginatedQuery(api.users.listUsers, roleArg, { initialNumItems: 25 });
+
+  const adminStats = useQuery(api.users.getAdminStats);
 
   // Mutations
   const updateUserRole = useMutation(api.users.updateUserRole);
   const toggleUserStatus = useMutation(api.users.toggleUserStatus);
+  const verifyUserId = useMutation(api.users.verifyUserId);
 
   const handleRoleChange = useCallback(
     async (userId: Id<'users'>, newRole: UserRole) => {
@@ -131,6 +155,30 @@ function UserManagementContent() {
         toast.success(currentlyActive ? 'Utilisateur désactivé' : 'Utilisateur activé');
       } catch (error) {
         toast.error('Erreur lors de la mise à jour du statut');
+      }
+    },
+    [toggleUserStatus]
+  );
+
+  const handleVerifyUser = useCallback(
+    async (userId: Id<'users'>, currentlyVerified: boolean) => {
+      try {
+        await verifyUserId({ userId, verified: !currentlyVerified });
+        toast.success(currentlyVerified ? 'Vérification retirée' : 'Utilisateur vérifié');
+      } catch (error) {
+        toast.error('Erreur lors de la mise à jour de la vérification');
+      }
+    },
+    [verifyUserId]
+  );
+
+  const handleDeleteUser = useCallback(
+    async (userId: Id<'users'>) => {
+      try {
+        await toggleUserStatus({ userId, isActive: false });
+        toast.success('Utilisateur supprimé (désactivé)');
+      } catch (error) {
+        toast.error("Erreur lors de la suppression de l'utilisateur");
       }
     },
     [toggleUserStatus]
@@ -159,19 +207,11 @@ function UserManagementContent() {
   return (
     <div className="space-y-6 pb-8">
       {/* Header */}
-      <div className="flex items-center gap-4">
-        <Link href="/dashboard/admin">
-          <Button variant="ghost" size="icon">
-            <ArrowLeft className="h-4 w-4" />
-          </Button>
-        </Link>
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight">Gestion des utilisateurs</h1>
-          <p className="text-muted-foreground">
-            Gérer les comptes, rôles et permissions des utilisateurs
-          </p>
-        </div>
-      </div>
+      <PageHeader
+        backHref="/dashboard/admin"
+        title="Gestion des utilisateurs"
+        subtitle="Gérer les comptes, rôles et permissions des utilisateurs"
+      />
 
       {/* Filters */}
       <Card>
@@ -207,7 +247,7 @@ function UserManagementContent() {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Users className="h-5 w-5" />
-            Utilisateurs ({filteredUsers.length})
+            Utilisateurs
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -307,6 +347,41 @@ function UserManagementContent() {
                             <DropdownMenuSeparator />
                             <DropdownMenuItem
                               onClick={() =>
+                                setEditingUser({
+                                  _id: user._id as Id<'users'>,
+                                  firstName: user.firstName,
+                                  lastName: user.lastName,
+                                  phone: user.phone,
+                                  email: user.email,
+                                })
+                              }
+                            >
+                              <Pencil className="h-4 w-4 mr-2" />
+                              Modifier le profil
+                            </DropdownMenuItem>
+                            <DropdownMenuItem
+                              onClick={() =>
+                                setPendingVerification({
+                                  userId: user._id as Id<'users'>,
+                                  currentlyVerified: user.idVerified,
+                                  userName: user.firstName || user.email,
+                                })
+                              }
+                            >
+                              {user.idVerified ? (
+                                <>
+                                  <ShieldX className="h-4 w-4 mr-2" />
+                                  Retirer vérification
+                                </>
+                              ) : (
+                                <>
+                                  <ShieldCheck className="h-4 w-4 mr-2" />
+                                  Vérifier identité
+                                </>
+                              )}
+                            </DropdownMenuItem>
+                            <DropdownMenuItem
+                              onClick={() =>
                                 setPendingStatusToggle({
                                   userId: user._id as Id<'users'>,
                                   currentlyActive: user.isActive,
@@ -326,7 +401,19 @@ function UserManagementContent() {
                                 </>
                               )}
                             </DropdownMenuItem>
-                            {/* "Verify identity" hidden until identity verification feature is ready */}
+                            <DropdownMenuSeparator />
+                            <DropdownMenuItem
+                              className="text-destructive focus:text-destructive"
+                              onClick={() =>
+                                setPendingDelete({
+                                  userId: user._id as Id<'users'>,
+                                  userName: user.firstName || user.email,
+                                })
+                              }
+                            >
+                              <Trash2 className="h-4 w-4 mr-2" />
+                              Supprimer
+                            </DropdownMenuItem>
                           </DropdownMenuContent>
                         </DropdownMenu>
                       </TableCell>
@@ -342,18 +429,13 @@ function UserManagementContent() {
               <p>Essayez de modifier vos critères de recherche</p>
             </div>
           )}
-          {paginationStatus === 'CanLoadMore' && (
-            <div className="flex justify-center pt-4">
-              <Button variant="outline" onClick={() => loadMore(50)}>
-                Charger plus
-              </Button>
-            </div>
-          )}
-          {paginationStatus === 'LoadingMore' && (
-            <div className="flex justify-center pt-4">
-              <Loader2 className="w-5 h-5 animate-spin text-muted-foreground" />
-            </div>
-          )}
+          <PaginationFooter
+            status={paginationStatus}
+            loadedCount={filteredUsers.length}
+            totalCount={adminStats?.totalUsers}
+            onLoadMore={() => loadMore(25)}
+            itemLabel="utilisateurs"
+          />
         </CardContent>
       </Card>
 
@@ -428,6 +510,80 @@ function UserManagementContent() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      {/* Verification Confirmation Dialog */}
+      <AlertDialog
+        open={!!pendingVerification}
+        onOpenChange={(open) => !open && setPendingVerification(null)}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>
+              {pendingVerification?.currentlyVerified
+                ? 'Retirer la vérification'
+                : "Vérifier l'identité"}
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              {pendingVerification?.currentlyVerified
+                ? `Voulez-vous retirer la vérification d'identité de ${pendingVerification?.userName} ?`
+                : `Voulez-vous vérifier l'identité de ${pendingVerification?.userName} ? Cela ajoutera un badge de confiance à son profil.`}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Annuler</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => {
+                if (pendingVerification) {
+                  handleVerifyUser(
+                    pendingVerification.userId,
+                    pendingVerification.currentlyVerified
+                  );
+                  setPendingVerification(null);
+                }
+              }}
+            >
+              Confirmer
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* Delete Confirmation Dialog */}
+      <AlertDialog open={!!pendingDelete} onOpenChange={(open) => !open && setPendingDelete(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Supprimer l'utilisateur</AlertDialogTitle>
+            <AlertDialogDescription>
+              Voulez-vous supprimer le compte de {pendingDelete?.userName} ? Le compte sera
+              désactivé et l'utilisateur ne pourra plus se connecter. Cette action peut être annulée
+              en réactivant le compte.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Annuler</AlertDialogCancel>
+            <AlertDialogAction
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              onClick={() => {
+                if (pendingDelete) {
+                  handleDeleteUser(pendingDelete.userId);
+                  setPendingDelete(null);
+                }
+              }}
+            >
+              Supprimer
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* Edit User Dialog */}
+      {editingUser && (
+        <EditUserDialog
+          open={!!editingUser}
+          onOpenChange={(open) => !open && setEditingUser(null)}
+          user={editingUser}
+        />
+      )}
     </div>
   );
 }

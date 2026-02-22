@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { InlineStats } from '@/components/ui/inline-stats';
 import { Input } from '@/components/ui/input';
 import { PageHeader } from '@/components/ui/page-header';
+import { PaginationFooter } from '@/components/ui/pagination-footer';
 import { Skeleton } from '@/components/ui/skeleton';
 import {
   StatusDot,
@@ -25,7 +26,7 @@ import { api } from '@repo/convex/_generated/api';
 import { usePaginatedQuery } from 'convex/react';
 import { useTranslations } from 'gt-next';
 import { useLocale } from 'gt-next/client';
-import { Building2, Calendar, CheckCircle, ImageIcon, Loader2, Plus, Search } from 'lucide-react';
+import { Building2, Calendar, CheckCircle, ImageIcon, Plus, Search } from 'lucide-react';
 import Link from 'next/link';
 import { useMemo, useState } from 'react';
 
@@ -408,18 +409,12 @@ export default function PropertiesPage() {
           </div>
 
           {/* Load More */}
-          {paginationStatus === 'CanLoadMore' && (
-            <div className="flex justify-center pt-4">
-              <Button variant="outline" onClick={() => loadMore(25)}>
-                {t('common.loadMore')}
-              </Button>
-            </div>
-          )}
-          {paginationStatus === 'LoadingMore' && (
-            <div className="flex justify-center pt-4">
-              <Loader2 className="w-5 h-5 animate-spin text-muted-foreground" />
-            </div>
-          )}
+          <PaginationFooter
+            status={paginationStatus}
+            loadedCount={filteredProperties.length}
+            onLoadMore={() => loadMore(25)}
+            itemLabel="propriétés"
+          />
         </>
       )}
     </div>

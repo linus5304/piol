@@ -3,6 +3,7 @@
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { PageHeader } from '@/components/ui/page-header';
 import { Skeleton } from '@/components/ui/skeleton';
 import {
   Table,
@@ -19,7 +20,7 @@ import { api } from '@repo/convex/_generated/api';
 import { useQuery } from 'convex/react';
 import { useTranslations } from 'gt-next';
 import { useLocale } from 'gt-next/client';
-import { AlertCircle, ArrowLeft, FileCheck } from 'lucide-react';
+import { AlertCircle, FileCheck } from 'lucide-react';
 import Link from 'next/link';
 
 function ApplicationsListContent() {
@@ -30,17 +31,11 @@ function ApplicationsListContent() {
   return (
     <div className="space-y-6 pb-8">
       {/* Header */}
-      <div className="flex items-center gap-4">
-        <Link href="/dashboard/admin">
-          <Button variant="ghost" size="icon">
-            <ArrowLeft className="h-4 w-4" />
-          </Button>
-        </Link>
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight">{t('admin.applications')}</h1>
-          <p className="text-muted-foreground">{t('admin.applicationsDesc')}</p>
-        </div>
-      </div>
+      <PageHeader
+        backHref="/dashboard/admin"
+        title={t('admin.applications')}
+        subtitle={t('admin.applicationsDesc')}
+      />
 
       {/* Applications Table */}
       <Card>

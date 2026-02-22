@@ -3,6 +3,7 @@
 import { Button } from '@/components/ui/button';
 import { Card, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { PageHeader } from '@/components/ui/page-header';
+import { PaginationFooter } from '@/components/ui/pagination-footer';
 import { SectionLabel } from '@/components/ui/section-label';
 import { Skeleton } from '@/components/ui/skeleton';
 import { StatCard } from '@/components/ui/stat-card';
@@ -15,7 +16,7 @@ import { api } from '@repo/convex/_generated/api';
 import { usePaginatedQuery } from 'convex/react';
 import { useTranslations } from 'gt-next';
 import { useLocale } from 'gt-next/client';
-import { CreditCard, Loader2, Smartphone } from 'lucide-react';
+import { CreditCard, Smartphone } from 'lucide-react';
 import Link from 'next/link';
 import { useMemo, useState } from 'react';
 
@@ -83,7 +84,7 @@ export default function PaymentsPage() {
     results: transactions,
     status: paginationStatus,
     loadMore,
-  } = usePaginatedQuery(api.transactions.getMyTransactions, statusArg, { initialNumItems: 50 });
+  } = usePaginatedQuery(api.transactions.getMyTransactions, statusArg, { initialNumItems: 25 });
 
   const totalPaid = transactions
     .filter((p) => p.paymentStatus === 'completed')
@@ -235,18 +236,12 @@ export default function PaymentsPage() {
             ))}
           </div>
         )}
-        {paginationStatus === 'CanLoadMore' && (
-          <div className="flex justify-center pt-4">
-            <Button variant="outline" onClick={() => loadMore(50)}>
-              {t('common.loadMore')}
-            </Button>
-          </div>
-        )}
-        {paginationStatus === 'LoadingMore' && (
-          <div className="flex justify-center pt-4">
-            <Loader2 className="w-5 h-5 animate-spin text-muted-foreground" />
-          </div>
-        )}
+        <PaginationFooter
+          status={paginationStatus}
+          loadedCount={transactions.length}
+          onLoadMore={() => loadMore(25)}
+          itemLabel="paiements"
+        />
       </div>
 
       {/* Payment Methods */}
