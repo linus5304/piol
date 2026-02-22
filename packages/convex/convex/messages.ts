@@ -16,11 +16,12 @@ export const getConversations = query({
 
     // Use the conversations table which stores lastMessagePreview and lastMessageAt.
     // Filter to conversations that include the current user.
+    // Safety cap: limit to 200 conversations to prevent unbounded scans
     const allConversations = await ctx.db
       .query('conversations')
       .withIndex('by_last_message')
       .order('desc')
-      .collect();
+      .take(200);
 
     const userConversations = allConversations.filter((c) => c.participantIds.includes(user._id));
 

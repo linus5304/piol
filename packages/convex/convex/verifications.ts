@@ -82,14 +82,18 @@ export const getMyVerifications = query({
     }
 
     const { user } = result;
-    let verifications = await ctx.db
-      .query('verifications')
-      .withIndex('by_verifier', (q) => q.eq('verifierId', user._id))
-      .collect();
-
-    if (args.status) {
-      verifications = verifications.filter((v) => v.status === args.status);
-    }
+    const statusFilter = args.status;
+    const verifications = statusFilter
+      ? await ctx.db
+          .query('verifications')
+          .withIndex('by_verifier_and_status', (q) =>
+            q.eq('verifierId', user._id).eq('status', statusFilter)
+          )
+          .collect()
+      : await ctx.db
+          .query('verifications')
+          .withIndex('by_verifier', (q) => q.eq('verifierId', user._id))
+          .collect();
 
     // Get property and landlord details
     const verificationsWithDetails = await Promise.all(
@@ -393,18 +397,12 @@ export const getPropertyVerification = query({
       return null;
     }
 
-    // Get the latest verification for this property
-    const verifications = await ctx.db
+    // Get the latest verification for this property (single read)
+    return await ctx.db
       .query('verifications')
       .withIndex('by_property', (q) => q.eq('propertyId', args.propertyId))
-      .collect();
-
-    if (verifications.length === 0) {
-      return null;
-    }
-
-    // Return the most recent one
-    return verifications.sort((a, b) => b._creationTime - a._creationTime)[0];
+      .order('desc')
+      .first();
   },
 });
 
@@ -418,8 +416,9 @@ export const getVerificationStats = query({
       return null;
     }
 
-    const verifications = await ctx.db.query('verifications').collect();
-    const properties = await ctx.db.query('properties').collect();
+    // Safety caps for admin-only stats query
+    const verifications = await ctx.db.query('verifications').take(50000);
+    const properties = await ctx.db.query('properties').take(50000);
 
     return {
       totalVerifications: verifications.length,

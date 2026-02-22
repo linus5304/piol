@@ -33,7 +33,7 @@ import {
 } from 'lucide-react';
 import dynamic from 'next/dynamic';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
-import { Suspense, useCallback, useMemo, useState } from 'react';
+import { Suspense, useCallback, useMemo, useState, useTransition } from 'react';
 import { toast } from 'sonner';
 
 const PropertyMap = dynamic(
@@ -160,8 +160,9 @@ function PropertiesPageContent() {
   // Local state for UI-only (not persisted in URL)
   const [showFilters, setShowFilters] = useState(false);
   const [hoveredPropertyId, setHoveredPropertyId] = useState<string | null>(null);
+  const [isPending, startTransition] = useTransition();
 
-  // Update URL params helper
+  // Update URL params helper — wrapped in transition to avoid flash of stale data
   const updateParams = useCallback(
     (updates: Record<string, string | null>) => {
       const params = new URLSearchParams(searchParams.toString());
@@ -172,7 +173,9 @@ function PropertiesPageContent() {
           params.set(key, value);
         }
       }
-      router.replace(`${pathname}?${params.toString()}`, { scroll: false });
+      startTransition(() => {
+        router.replace(`${pathname}?${params.toString()}`, { scroll: false });
+      });
     },
     [searchParams, router, pathname]
   );
@@ -525,108 +528,114 @@ function PropertiesPageContent() {
         </div>
 
         {/* Properties Grid */}
-        {viewMode === 'grid' ? (
-          <div
-            data-testid="property-grid"
-            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
-          >
-            {/* Loading skeletons */}
-            {propertiesResult.isLoading &&
-              Array.from({ length: 8 }).map((_, i) => (
-                // biome-ignore lint/suspicious/noArrayIndexKey: static skeleton placeholders
-                <PropertyCardSkeleton key={`skeleton-${i}`} />
-              ))}
-
-            {/* Property cards */}
-            {!propertiesResult.isLoading &&
-              propertiesResult.properties.map((property) => (
-                <PropertyCard
-                  key={property._id}
-                  property={property}
-                  isSaved={savedPropertyIdSet.has(property._id as Id<'properties'>)}
-                  onToggleSave={handleToggleSave}
-                />
-              ))}
-
-            {/* Empty state */}
-            {!propertiesResult.isLoading && propertiesResult.properties.length === 0 && (
-              <div className="col-span-full text-center py-16">
-                <div className="w-16 h-16 mx-auto mb-6 dusk-accent-badge flex items-center justify-center rounded-2xl">
-                  <Search className="w-8 h-8" />
-                </div>
-                <h3 className="text-lg font-bold mb-2">{t('properties.noResults')}</h3>
-                <p className="text-muted-foreground mb-6 max-w-md mx-auto">
-                  {t('properties.noResultsDescription')}
-                </p>
-                <Button
-                  variant="outline"
-                  onClick={clearAllFilters}
-                  className="rounded-xl border-border"
-                >
-                  {t('filters.clearAll')}
-                </Button>
-              </div>
-            )}
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 h-[calc(100vh-300px)]">
-            {/* Property List Panel */}
-            <div className="overflow-y-auto space-y-4 pr-2 lg:pr-4">
-              {/* Loading skeletons for horizontal view */}
+        <div
+          className={
+            isPending ? 'opacity-60 pointer-events-none transition-opacity' : 'transition-opacity'
+          }
+        >
+          {viewMode === 'grid' ? (
+            <div
+              data-testid="property-grid"
+              className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
+            >
+              {/* Loading skeletons */}
               {propertiesResult.isLoading &&
-                Array.from({ length: 4 }).map((_, i) => (
+                Array.from({ length: 8 }).map((_, i) => (
                   // biome-ignore lint/suspicious/noArrayIndexKey: static skeleton placeholders
-                  <Skeleton key={`h-skeleton-${i}`} className="h-32 w-full rounded-xl" />
+                  <PropertyCardSkeleton key={`skeleton-${i}`} />
                 ))}
 
               {/* Property cards */}
               {!propertiesResult.isLoading &&
                 propertiesResult.properties.map((property) => (
-                  <div
+                  <PropertyCard
                     key={property._id}
-                    onMouseEnter={() => setHoveredPropertyId(property._id)}
-                    onMouseLeave={() => setHoveredPropertyId(null)}
-                    className={`transition-all rounded-xl ${
-                      hoveredPropertyId === property._id ? 'ring-2 ring-primary' : ''
-                    }`}
-                  >
-                    <PropertyCard
-                      property={property}
-                      variant="horizontal"
-                      isSaved={savedPropertyIdSet.has(property._id as Id<'properties'>)}
-                      onToggleSave={handleToggleSave}
-                    />
-                  </div>
+                    property={property}
+                    isSaved={savedPropertyIdSet.has(property._id as Id<'properties'>)}
+                    onToggleSave={handleToggleSave}
+                  />
                 ))}
 
-              {/* Empty state in list */}
+              {/* Empty state */}
               {!propertiesResult.isLoading && propertiesResult.properties.length === 0 && (
-                <div className="text-center py-12">
-                  <Search className="w-8 h-8 text-muted-foreground mx-auto mb-3" />
-                  <p className="text-muted-foreground">{t('properties.noResults')}</p>
+                <div className="col-span-full text-center py-16">
+                  <div className="w-16 h-16 mx-auto mb-6 dusk-accent-badge flex items-center justify-center rounded-2xl">
+                    <Search className="w-8 h-8" />
+                  </div>
+                  <h3 className="text-lg font-bold mb-2">{t('properties.noResults')}</h3>
+                  <p className="text-muted-foreground mb-6 max-w-md mx-auto">
+                    {t('properties.noResultsDescription')}
+                  </p>
+                  <Button
+                    variant="outline"
+                    onClick={clearAllFilters}
+                    className="rounded-xl border-border"
+                  >
+                    {t('filters.clearAll')}
+                  </Button>
                 </div>
               )}
             </div>
+          ) : (
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 h-[calc(100vh-300px)]">
+              {/* Property List Panel */}
+              <div className="overflow-y-auto space-y-4 pr-2 lg:pr-4">
+                {/* Loading skeletons for horizontal view */}
+                {propertiesResult.isLoading &&
+                  Array.from({ length: 4 }).map((_, i) => (
+                    // biome-ignore lint/suspicious/noArrayIndexKey: static skeleton placeholders
+                    <Skeleton key={`h-skeleton-${i}`} className="h-32 w-full rounded-xl" />
+                  ))}
 
-            {/* Map Panel */}
-            <PropertyMap
-              properties={propertiesResult.properties}
-              hoveredPropertyId={hoveredPropertyId}
-              onPropertyHover={setHoveredPropertyId}
-              className="h-full min-h-[400px] lg:min-h-0"
-            />
-          </div>
-        )}
+                {/* Property cards */}
+                {!propertiesResult.isLoading &&
+                  propertiesResult.properties.map((property) => (
+                    <div
+                      key={property._id}
+                      onMouseEnter={() => setHoveredPropertyId(property._id)}
+                      onMouseLeave={() => setHoveredPropertyId(null)}
+                      className={`transition-all rounded-xl ${
+                        hoveredPropertyId === property._id ? 'ring-2 ring-primary' : ''
+                      }`}
+                    >
+                      <PropertyCard
+                        property={property}
+                        variant="horizontal"
+                        isSaved={savedPropertyIdSet.has(property._id as Id<'properties'>)}
+                        onToggleSave={handleToggleSave}
+                      />
+                    </div>
+                  ))}
 
-        {/* Load More */}
-        {propertiesResult.properties.length > 0 &&
-          propertiesResult.properties.length < propertiesResult.total && (
-            <div className="text-center mt-12">
-              <Button variant="outline" size="lg" className="rounded-xl">
-                {t('common.loadMore')}
-              </Button>
+                {/* Empty state in list */}
+                {!propertiesResult.isLoading && propertiesResult.properties.length === 0 && (
+                  <div className="text-center py-12">
+                    <Search className="w-8 h-8 text-muted-foreground mx-auto mb-3" />
+                    <p className="text-muted-foreground">{t('properties.noResults')}</p>
+                  </div>
+                )}
+              </div>
+
+              {/* Map Panel */}
+              <PropertyMap
+                properties={propertiesResult.properties}
+                hoveredPropertyId={hoveredPropertyId}
+                onPropertyHover={setHoveredPropertyId}
+                className="h-full min-h-[400px] lg:min-h-0"
+              />
             </div>
           )}
+
+          {/* Load More */}
+          {propertiesResult.properties.length > 0 &&
+            propertiesResult.properties.length < propertiesResult.total && (
+              <div className="text-center mt-12">
+                <Button variant="outline" size="lg" className="rounded-xl">
+                  {t('common.loadMore')}
+                </Button>
+              </div>
+            )}
+        </div>
       </div>
 
       {/* Floating Map Button - Mobile */}

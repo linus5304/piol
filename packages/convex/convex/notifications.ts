@@ -1,17 +1,18 @@
+import { paginationOptsValidator } from 'convex/server';
 import { v } from 'convex/values';
 import { internalMutation, mutation, query } from './_generated/server';
 
-// Get user's notifications
+// Get user's notifications (paginated)
 export const getNotifications = query({
   args: {
-    limit: v.optional(v.number()),
+    paginationOpts: paginationOptsValidator,
     unreadOnly: v.optional(v.boolean()),
   },
   returns: v.any(),
   handler: async (ctx, args) => {
     const identity = await ctx.auth.getUserIdentity();
     if (!identity) {
-      return [];
+      return { page: [], isDone: true, continueCursor: '' };
     }
 
     const user = await ctx.db
@@ -20,27 +21,16 @@ export const getNotifications = query({
       .unique();
 
     if (!user) {
-      return [];
+      return { page: [], isDone: true, continueCursor: '' };
     }
 
-    const limit = args.limit ?? 50;
+    const query = args.unreadOnly
+      ? ctx.db
+          .query('notifications')
+          .withIndex('by_user_unread', (q) => q.eq('userId', user._id).eq('isRead', false))
+      : ctx.db.query('notifications').withIndex('by_user', (q) => q.eq('userId', user._id));
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    let notifications: any[];
-    if (args.unreadOnly) {
-      notifications = await ctx.db
-        .query('notifications')
-        .withIndex('by_user_unread', (q) => q.eq('userId', user._id).eq('isRead', false))
-        .collect();
-    } else {
-      notifications = await ctx.db
-        .query('notifications')
-        .withIndex('by_user', (q) => q.eq('userId', user._id))
-        .collect();
-    }
-
-    // Sort by creation time (newest first) and limit
-    return notifications.sort((a, b) => b._creationTime - a._creationTime).slice(0, limit);
+    return await query.order('desc').paginate(args.paginationOpts);
   },
 });
 

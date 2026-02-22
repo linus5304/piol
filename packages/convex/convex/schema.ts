@@ -112,6 +112,7 @@ export default defineSchema({
     .index('by_city_status', ['city', 'status'])
     .index('by_city_status_type', ['city', 'status', 'propertyType'])
     .index('by_verification_status', ['verificationStatus'])
+    .index('by_status_and_verificationStatus', ['status', 'verificationStatus'])
     .searchIndex('search_properties', {
       searchField: 'searchText',
       filterFields: ['city', 'status', 'propertyType'],
@@ -156,7 +157,8 @@ export default defineSchema({
     .index('by_property', ['propertyId'])
     .index('by_property_and_verificationType', ['propertyId', 'verificationType'])
     .index('by_verifier', ['verifierId'])
-    .index('by_status', ['status']),
+    .index('by_status', ['status'])
+    .index('by_verifier_and_status', ['verifierId', 'status']),
 
   // Transactions table
   transactions: defineTable({
@@ -199,7 +201,9 @@ export default defineSchema({
     .index('by_renter', ['renterId'])
     .index('by_landlord', ['landlordId'])
     .index('by_status', ['paymentStatus'])
-    .index('by_reference', ['transactionReference']),
+    .index('by_reference', ['transactionReference'])
+    .index('by_renter_and_paymentStatus', ['renterId', 'paymentStatus'])
+    .index('by_landlord_and_paymentStatus', ['landlordId', 'paymentStatus']),
 
   // Messages table
   messages: defineTable({

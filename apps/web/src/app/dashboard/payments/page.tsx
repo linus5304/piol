@@ -12,10 +12,10 @@ import { isPaymentsEnabled } from '@/lib/env';
 import { formatCurrencyFCFA, formatDate } from '@/lib/i18n-format';
 import { cn } from '@/lib/utils';
 import { api } from '@repo/convex/_generated/api';
-import { useQuery } from 'convex/react';
+import { usePaginatedQuery } from 'convex/react';
 import { useTranslations } from 'gt-next';
 import { useLocale } from 'gt-next/client';
-import { CreditCard, Smartphone } from 'lucide-react';
+import { CreditCard, Loader2, Smartphone } from 'lucide-react';
 import Link from 'next/link';
 import { useMemo, useState } from 'react';
 
@@ -74,19 +74,22 @@ export default function PaymentsPage() {
   const t = useTranslations();
   const locale = parseAppLocale(useLocale());
   const [filter, setFilter] = useState<string>('all');
-  const transactions = useQuery(api.transactions.getMyTransactions, { limit: 100 });
 
-  const filteredPayments = useMemo(() => {
-    if (!transactions) return [];
-    if (filter === 'all') return transactions;
-    return transactions.filter((payment) => payment.paymentStatus === filter);
-  }, [transactions, filter]);
+  const statusArg =
+    filter !== 'all'
+      ? { status: filter as 'pending' | 'processing' | 'completed' | 'failed' | 'refunded' }
+      : {};
+  const {
+    results: transactions,
+    status: paginationStatus,
+    loadMore,
+  } = usePaginatedQuery(api.transactions.getMyTransactions, statusArg, { initialNumItems: 50 });
 
-  const totalPaid = (transactions ?? [])
+  const totalPaid = transactions
     .filter((p) => p.paymentStatus === 'completed')
     .reduce((sum, p) => sum + p.amount, 0);
 
-  const pendingAmount = (transactions ?? [])
+  const pendingAmount = transactions
     .filter((p) => p.paymentStatus === 'pending' || p.paymentStatus === 'processing')
     .reduce((sum, p) => sum + p.amount, 0);
 
@@ -172,13 +175,13 @@ export default function PaymentsPage() {
           </div>
         </div>
 
-        {transactions === undefined ? (
+        {paginationStatus === 'LoadingFirstPage' ? (
           <div className="space-y-3">
             {[1, 2, 3].map((i) => (
               <Skeleton key={i} className="h-14 w-full rounded-lg" />
             ))}
           </div>
-        ) : filteredPayments.length === 0 ? (
+        ) : transactions.length === 0 ? (
           <div className="rounded-lg border bg-card p-8 text-center">
             <CreditCard className="mx-auto mb-4 h-10 w-10 text-muted-foreground" />
             <h3 className="mb-1 text-lg font-medium text-foreground">{t('payments.noPayments')}</h3>
@@ -186,7 +189,7 @@ export default function PaymentsPage() {
           </div>
         ) : (
           <div className="divide-y rounded-lg border bg-card">
-            {filteredPayments.map((payment) => (
+            {transactions.map((payment) => (
               <div
                 key={payment._id}
                 className="flex items-center justify-between gap-4 px-4 py-3 transition-colors hover:bg-muted/50"
@@ -230,6 +233,18 @@ export default function PaymentsPage() {
                 </div>
               </div>
             ))}
+          </div>
+        )}
+        {paginationStatus === 'CanLoadMore' && (
+          <div className="flex justify-center pt-4">
+            <Button variant="outline" onClick={() => loadMore(50)}>
+              {t('common.loadMore')}
+            </Button>
+          </div>
+        )}
+        {paginationStatus === 'LoadingMore' && (
+          <div className="flex justify-center pt-4">
+            <Loader2 className="w-5 h-5 animate-spin text-muted-foreground" />
           </div>
         )}
       </div>

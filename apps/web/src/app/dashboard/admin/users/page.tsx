@@ -44,12 +44,13 @@ import { formatDate } from '@/lib/i18n-format';
 import { ROLE_COLORS, ROLE_LABELS, type UserRole } from '@/lib/permissions';
 import { api } from '@repo/convex/_generated/api';
 import type { Id } from '@repo/convex/_generated/dataModel';
-import { useMutation, useQuery } from 'convex/react';
+import { useMutation, usePaginatedQuery } from 'convex/react';
 import { useLocale } from 'gt-next/client';
 import {
   AlertCircle,
   ArrowLeft,
   CheckCircle,
+  Loader2,
   MoreHorizontal,
   Search,
   UserCheck,
@@ -96,8 +97,16 @@ function UserManagementContent() {
     }
   }, [isLoaded, isAdmin, router]);
 
-  // Fetch all users
-  const users = useQuery(api.users.listUsers, { limit: 100 });
+  // Fetch users with server-side role filter and pagination
+  const roleArg =
+    roleFilter !== 'all'
+      ? { role: roleFilter as 'renter' | 'landlord' | 'admin' | 'verifier' }
+      : {};
+  const {
+    results: users,
+    status: paginationStatus,
+    loadMore,
+  } = usePaginatedQuery(api.users.listUsers, roleArg, { initialNumItems: 50 });
 
   // Mutations
   const updateUserRole = useMutation(api.users.updateUserRole);
@@ -127,17 +136,15 @@ function UserManagementContent() {
     [toggleUserStatus]
   );
 
-  // Filter users
-  const filteredUsers = users?.filter((user) => {
+  // Filter users (role filter is server-side, search is client-side)
+  const filteredUsers = users.filter((user) => {
     const matchesSearch =
       !searchQuery ||
       user.firstName?.toLowerCase().includes(searchQuery.toLowerCase()) ||
       user.lastName?.toLowerCase().includes(searchQuery.toLowerCase()) ||
       user.email.toLowerCase().includes(searchQuery.toLowerCase());
 
-    const matchesRole = roleFilter === 'all' || user.role === roleFilter;
-
-    return matchesSearch && matchesRole;
+    return matchesSearch;
   });
 
   if (!isLoaded || !isAdmin) {
@@ -200,17 +207,17 @@ function UserManagementContent() {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Users className="h-5 w-5" />
-            Utilisateurs ({filteredUsers?.length ?? 0})
+            Utilisateurs ({filteredUsers.length})
           </CardTitle>
         </CardHeader>
         <CardContent>
-          {users === undefined ? (
+          {paginationStatus === 'LoadingFirstPage' ? (
             <div className="space-y-3">
               {[1, 2, 3, 4, 5].map((i) => (
                 <Skeleton key={i} className="h-16 w-full" />
               ))}
             </div>
-          ) : filteredUsers && filteredUsers.length > 0 ? (
+          ) : filteredUsers.length > 0 ? (
             <div className="rounded-lg border overflow-hidden">
               <Table>
                 <TableHeader>
@@ -333,6 +340,18 @@ function UserManagementContent() {
               <Users className="w-12 h-12 mx-auto mb-4 opacity-50" />
               <h3 className="text-lg font-medium mb-1">Aucun utilisateur trouvé</h3>
               <p>Essayez de modifier vos critères de recherche</p>
+            </div>
+          )}
+          {paginationStatus === 'CanLoadMore' && (
+            <div className="flex justify-center pt-4">
+              <Button variant="outline" onClick={() => loadMore(50)}>
+                Charger plus
+              </Button>
+            </div>
+          )}
+          {paginationStatus === 'LoadingMore' && (
+            <div className="flex justify-center pt-4">
+              <Loader2 className="w-5 h-5 animate-spin text-muted-foreground" />
             </div>
           )}
         </CardContent>

@@ -1,3 +1,4 @@
+import { paginationOptsValidator } from 'convex/server';
 import { v } from 'convex/values';
 import { internalMutation, mutation, query } from './_generated/server';
 import {
@@ -508,36 +509,27 @@ export const getUsersByRole = query({
   },
 });
 
-// List all users (admin only)
+// List all users (admin only, paginated)
 export const listUsers = query({
   args: {
-    limit: v.optional(v.number()),
+    paginationOpts: paginationOptsValidator,
+    role: v.optional(roleValidator),
   },
-  returns: v.array(listUserValidator),
+  returns: v.any(),
   handler: async (ctx, args) => {
     const result = await getAuthUserOrNull(ctx);
     if (!result || !hasRole(result.user.role, ['admin'])) {
-      return [];
+      return { page: [], isDone: true, continueCursor: '' };
     }
 
-    const users = await ctx.db
-      .query('users')
-      .order('desc')
-      .take(args.limit ?? 100);
+    const query = args.role
+      ? ctx.db
+          .query('users')
+          .withIndex('by_role', (q) => q.eq('role', args.role!))
+          .order('desc')
+      : ctx.db.query('users').order('desc');
 
-    // Return user data (some fields excluded for security)
-    return users.map((user) => ({
-      _id: user._id,
-      email: user.email,
-      phone: user.phone,
-      firstName: user.firstName,
-      lastName: user.lastName,
-      role: user.role,
-      isActive: user.isActive,
-      idVerified: user.idVerified,
-      profileImageUrl: user.profileImageUrl,
-      _creationTime: user._creationTime,
-    }));
+    return await query.paginate(args.paginationOpts);
   },
 });
 
@@ -561,8 +553,8 @@ export const getAdminStats = query({
       return null;
     }
 
-    // Count users (scan is unavoidable, but only users table)
-    const allUsers = await ctx.db.query('users').collect();
+    // Count users (scan is unavoidable, but only users table — admin-only query)
+    const allUsers = await ctx.db.query('users').take(50000);
     const totalUsers = allUsers.length;
 
     // Count new users this month
@@ -706,12 +698,15 @@ export const getDashboardStats = query({
         (t) => t.paymentStatus === 'pending' || t.paymentStatus === 'processing'
       ).length;
 
-      // Get unread messages (inquiries)
-      const messages = await ctx.db
-        .query('messages')
-        .withIndex('by_recipient', (q) => q.eq('recipientId', user._id))
-        .collect();
-      const unreadMessages = messages.filter((m) => !m.isRead).length;
+      // Get unread messages (inquiries) using compound index
+      const unreadMessages = (
+        await ctx.db
+          .query('messages')
+          .withIndex('by_recipient_and_isRead', (q) =>
+            q.eq('recipientId', user._id).eq('isRead', false)
+          )
+          .collect()
+      ).length;
 
       return {
         role: 'landlord' as const,
@@ -732,11 +727,14 @@ export const getDashboardStats = query({
       .withIndex('by_user', (q) => q.eq('userId', user._id))
       .collect();
 
-    const messages = await ctx.db
-      .query('messages')
-      .withIndex('by_recipient', (q) => q.eq('recipientId', user._id))
-      .collect();
-    const unreadMessages = messages.filter((m) => !m.isRead).length;
+    const unreadMessages = (
+      await ctx.db
+        .query('messages')
+        .withIndex('by_recipient_and_isRead', (q) =>
+          q.eq('recipientId', user._id).eq('isRead', false)
+        )
+        .collect()
+    ).length;
 
     const transactions = await ctx.db
       .query('transactions')

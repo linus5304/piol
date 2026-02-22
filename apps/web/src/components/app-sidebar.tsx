@@ -1,18 +1,22 @@
 'use client';
 
+import { useCurrentUserRole } from '@/hooks/use-current-user-role';
 import { useSafeUser } from '@/hooks/use-safe-auth';
 import { api } from '@repo/convex/_generated/api';
-import { useQuery } from 'convex/react';
+import { usePaginatedQuery } from 'convex/react';
 import { useTranslations } from 'gt-next';
 import {
   Building2,
+  ClipboardCheck,
   CreditCard,
   Heart,
   HelpCircle,
   Home,
   MessageSquare,
   Settings,
+  ShieldCheck,
   Sparkles,
+  Users,
 } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
@@ -43,10 +47,11 @@ export function AppSidebar({
   ...props
 }: React.ComponentProps<typeof Sidebar>) {
   const { user } = useSafeUser();
+  const { role } = useCurrentUserRole();
   const pathname = usePathname();
   const t = useTranslations();
 
-  const role = (user?.unsafeMetadata?.role as 'renter' | 'landlord') || 'renter';
+  const effectiveRole = role || 'renter';
 
   const renterNavigation = useMemo(
     () => [
@@ -69,6 +74,27 @@ export function AppSidebar({
     [t]
   );
 
+  const adminNavigation = useMemo(
+    () => [
+      { title: t('sidebar.adminDashboard'), url: '/dashboard/admin', icon: ShieldCheck },
+      { title: t('sidebar.users'), url: '/dashboard/admin/users', icon: Users },
+      { title: t('sidebar.verifications'), url: '/dashboard/verify', icon: ClipboardCheck },
+      { title: t('sidebar.properties'), url: '/dashboard/properties', icon: Building2 },
+      { title: t('sidebar.payments'), url: '/dashboard/payments', icon: CreditCard },
+      { title: t('sidebar.messages'), url: '/dashboard/messages', icon: MessageSquare },
+      { title: t('sidebar.settings'), url: '/dashboard/settings', icon: Settings },
+    ],
+    [t]
+  );
+
+  const verifierNavigation = useMemo(
+    () => [
+      { title: t('sidebar.verifications'), url: '/dashboard/verify', icon: ClipboardCheck },
+      { title: t('sidebar.settings'), url: '/dashboard/settings', icon: Settings },
+    ],
+    [t]
+  );
+
   const secondaryNavigation = useMemo(
     () => [
       { title: t('sidebar.support'), url: '/help', icon: HelpCircle },
@@ -77,14 +103,30 @@ export function AppSidebar({
     [t]
   );
 
-  const navItems = role === 'landlord' ? landlordNavigation : renterNavigation;
+  const navItems = (() => {
+    switch (effectiveRole) {
+      case 'admin':
+        return adminNavigation;
+      case 'verifier':
+        return verifierNavigation;
+      case 'landlord':
+        return landlordNavigation;
+      default:
+        return renterNavigation;
+    }
+  })();
 
-  // Fetch real properties for landlords
-  const myProperties = useQuery(api.properties.getMyProperties, role === 'landlord' ? {} : 'skip');
+  // Fetch real properties for landlords and admins
+  const showProperties = effectiveRole === 'landlord' || effectiveRole === 'admin';
+  const { results: myProperties } = usePaginatedQuery(
+    api.properties.getMyProperties,
+    showProperties ? {} : 'skip',
+    { initialNumItems: 3 }
+  );
 
   // Transform to recent properties list (show latest 3)
   const recentProperties = useMemo(() => {
-    if (!myProperties) return null;
+    if (myProperties.length === 0) return null;
     return myProperties.slice(0, 3).map((p) => ({
       title: p.title,
       url: `/dashboard/properties/${p._id}`,
@@ -112,7 +154,7 @@ export function AppSidebar({
         <NavMain items={navItems} />
 
         {/* Recent Properties Section (like Upcoming Events) */}
-        {role === 'landlord' && (
+        {showProperties && (
           <SidebarGroup>
             <SidebarGroupLabel className="text-sidebar-muted text-xs font-medium uppercase tracking-wider">
               {t('sidebar.recentProperties')}

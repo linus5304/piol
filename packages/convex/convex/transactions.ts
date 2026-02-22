@@ -1,3 +1,4 @@
+import { paginationOptsValidator } from 'convex/server';
 import { v } from 'convex/values';
 import { internalMutation, internalQuery, mutation, query } from './_generated/server';
 import { getCurrentUser, getCurrentUserOrNull } from './utils/auth';
@@ -15,9 +16,10 @@ function generateTransactionReference(): string {
   return `TXN-${timestamp}-${uuid}`.toUpperCase();
 }
 
-// Get user's transactions
+// Get user's transactions (paginated)
 export const getMyTransactions = query({
   args: {
+    paginationOpts: paginationOptsValidator,
     role: v.optional(v.union(v.literal('renter'), v.literal('landlord'))),
     status: v.optional(
       v.union(
@@ -28,53 +30,49 @@ export const getMyTransactions = query({
         v.literal('refunded')
       )
     ),
-    limit: v.optional(v.number()),
   },
   returns: v.any(),
   handler: async (ctx, args) => {
     const result = await getCurrentUserOrNull(ctx);
     if (!result) {
-      return [];
+      return { page: [], isDone: true, continueCursor: '' };
     }
 
     const { user } = result;
-    const limit = args.limit ?? 50;
+    const isLandlord = args.role === 'landlord' || (!args.role && user.role === 'landlord');
 
-    // Get transactions based on role
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    let transactions: any[];
-    if (args.role === 'landlord' || (!args.role && user.role === 'landlord')) {
-      transactions = await ctx.db
-        .query('transactions')
-        .withIndex('by_landlord', (q) => q.eq('landlordId', user._id))
-        .collect();
-    } else {
-      transactions = await ctx.db
-        .query('transactions')
-        .withIndex('by_renter', (q) => q.eq('renterId', user._id))
-        .collect();
-    }
+    // Use compound index when status filter is provided
+    const buildQuery = () => {
+      if (args.status && isLandlord) {
+        return ctx.db
+          .query('transactions')
+          .withIndex('by_landlord_and_paymentStatus', (q) =>
+            q.eq('landlordId', user._id).eq('paymentStatus', args.status!)
+          );
+      }
+      if (args.status) {
+        return ctx.db
+          .query('transactions')
+          .withIndex('by_renter_and_paymentStatus', (q) =>
+            q.eq('renterId', user._id).eq('paymentStatus', args.status!)
+          );
+      }
+      if (isLandlord) {
+        return ctx.db
+          .query('transactions')
+          .withIndex('by_landlord', (q) => q.eq('landlordId', user._id));
+      }
+      return ctx.db.query('transactions').withIndex('by_renter', (q) => q.eq('renterId', user._id));
+    };
 
-    // Filter by status if provided
-    if (args.status) {
-      transactions = transactions.filter((t) => t.paymentStatus === args.status);
-    }
+    const paginatedResult = await buildQuery().order('desc').paginate(args.paginationOpts);
 
-    // Sort by creation time (newest first)
-    transactions.sort((a, b) => b._creationTime - a._creationTime);
-
-    // Limit results
-    transactions = transactions.slice(0, limit);
-
-    // Enrich with property info
-    const enrichedTransactions = await Promise.all(
-      transactions.map(async (transaction) => {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const property = (await ctx.db.get(transaction.propertyId)) as any;
-        const otherUserId =
-          user.role === 'landlord' ? transaction.renterId : transaction.landlordId;
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const otherUser = (await ctx.db.get(otherUserId)) as any;
+    // Enrich page with property and other party info
+    const enrichedPage = await Promise.all(
+      paginatedResult.page.map(async (transaction) => {
+        const property = await ctx.db.get(transaction.propertyId);
+        const otherUserId = isLandlord ? transaction.renterId : transaction.landlordId;
+        const otherUser = await ctx.db.get(otherUserId);
 
         return {
           ...transaction,
@@ -96,7 +94,10 @@ export const getMyTransactions = query({
       })
     );
 
-    return enrichedTransactions;
+    return {
+      ...paginatedResult,
+      page: enrichedPage,
+    };
   },
 });
 
@@ -427,7 +428,8 @@ export const getTransactionStats = query({
       return null;
     }
 
-    const allTransactions = await ctx.db.query('transactions').collect();
+    // Safety cap for admin-only stats query
+    const allTransactions = await ctx.db.query('transactions').take(50000);
 
     // Filter by date if provided
     let transactions = allTransactions;
