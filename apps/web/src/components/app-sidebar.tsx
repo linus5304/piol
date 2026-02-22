@@ -3,12 +3,13 @@
 import { useCurrentUserRole } from '@/hooks/use-current-user-role';
 import { useSafeUser } from '@/hooks/use-safe-auth';
 import { api } from '@repo/convex/_generated/api';
-import { usePaginatedQuery } from 'convex/react';
+import { usePaginatedQuery, useQuery } from 'convex/react';
 import { useTranslations } from 'gt-next';
 import {
   Building2,
   ClipboardCheck,
   CreditCard,
+  FileCheck,
   Heart,
   HelpCircle,
   Home,
@@ -53,6 +54,12 @@ export function AppSidebar({
 
   const effectiveRole = role || 'renter';
 
+  // Fetch pending applications count for admin badge
+  const pendingApplicationsCount = useQuery(
+    api.landlordApplications.getPendingApplicationsCount,
+    effectiveRole === 'admin' ? {} : 'skip'
+  );
+
   const renterNavigation = useMemo(
     () => [
       { title: t('sidebar.home'), url: '/dashboard', icon: Home },
@@ -78,13 +85,19 @@ export function AppSidebar({
     () => [
       { title: t('sidebar.adminDashboard'), url: '/dashboard/admin', icon: ShieldCheck },
       { title: t('sidebar.users'), url: '/dashboard/admin/users', icon: Users },
+      {
+        title: t('sidebar.applications'),
+        url: '/dashboard/admin/applications',
+        icon: FileCheck,
+        badge: pendingApplicationsCount ?? 0,
+      },
       { title: t('sidebar.verifications'), url: '/dashboard/verify', icon: ClipboardCheck },
       { title: t('sidebar.properties'), url: '/dashboard/properties', icon: Building2 },
       { title: t('sidebar.payments'), url: '/dashboard/payments', icon: CreditCard },
       { title: t('sidebar.messages'), url: '/dashboard/messages', icon: MessageSquare },
       { title: t('sidebar.settings'), url: '/dashboard/settings', icon: Settings },
     ],
-    [t]
+    [t, pendingApplicationsCount]
   );
 
   const verifierNavigation = useMemo(

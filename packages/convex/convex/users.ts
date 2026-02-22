@@ -379,6 +379,11 @@ export const updateProfile = mutation({
       throw new Error('Last name is required');
     }
 
+    // Block renter→landlord upgrade via profile — must go through application
+    if (args.role === 'landlord' && user.role === 'renter') {
+      throw new Error('To become a landlord, please submit a landlord application.');
+    }
+
     await ctx.db.patch(user._id, {
       ...(args.firstName !== undefined && { firstName: args.firstName.trim() }),
       ...(args.lastName !== undefined && { lastName: args.lastName.trim() }),
@@ -545,6 +550,7 @@ export const getAdminStats = query({
       activeProperties: v.number(),
       pendingVerifications: v.number(),
       totalTransactions: v.number(),
+      pendingApplications: v.number(),
     })
   ),
   handler: async (ctx) => {
@@ -613,14 +619,6 @@ export const getAdminStats = query({
       archivedProperties +
       verifiedProperties;
 
-    // Count pending verifications using verification status index
-    const pendingVerifications = (
-      await ctx.db
-        .query('properties')
-        .withIndex('by_verification_status', (q) => q.eq('verificationStatus', 'pending'))
-        .collect()
-    ).length;
-
     // Count completed transactions using status index
     const completedTransactions = await ctx.db
       .query('transactions')
@@ -629,13 +627,22 @@ export const getAdminStats = query({
 
     const totalTransactions = completedTransactions.reduce((sum, t) => sum + t.amount, 0);
 
+    // Count pending landlord applications
+    const pendingApplications = (
+      await ctx.db
+        .query('landlordApplications')
+        .withIndex('by_status', (q) => q.eq('status', 'pending'))
+        .collect()
+    ).length;
+
     return {
       totalUsers,
       newUsersThisMonth,
       totalProperties,
       activeProperties,
-      pendingVerifications,
+      pendingVerifications: pendingVerificationProperties,
       totalTransactions,
+      pendingApplications,
     };
   },
 });

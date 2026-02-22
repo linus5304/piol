@@ -1,6 +1,16 @@
 'use client';
 
+import { LandlordApplicationForm } from '@/components/landlord-application-form';
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '@/components/ui/dialog';
 import {
   Form,
   FormControl,
@@ -25,8 +35,9 @@ import {
 } from '@/lib/validations';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { api } from '@repo/convex/_generated/api';
-import { useMutation } from 'convex/react';
+import { useMutation, useQuery } from 'convex/react';
 import { useTranslations } from 'gt-next';
+import { AlertTriangle, Building2, CheckCircle, Clock } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
@@ -34,8 +45,12 @@ import { toast } from 'sonner';
 export default function SettingsPage() {
   const { user, isLoaded } = useSafeUser();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [applicationDialogOpen, setApplicationDialogOpen] = useState(false);
   const updateProfile = useMutation(api.users.updateProfile);
   const t = useTranslations();
+
+  const myApplication = useQuery(api.landlordApplications.getMyLandlordApplication);
+  const currentRole = (user?.unsafeMetadata?.role as string) || 'renter';
 
   const schema = useMemo(() => createSettingsSchema(t), [t]);
   const form = useForm<SettingsFormInput, unknown, SettingsFormValues>({
@@ -58,7 +73,6 @@ export default function SettingsPage() {
         lastName: data.lastName,
         unsafeMetadata: {
           ...user.unsafeMetadata,
-          role: data.role,
           onboardingCompleted: true,
         },
       });
@@ -68,7 +82,6 @@ export default function SettingsPage() {
         lastName: data.lastName,
         phone: toStoragePhone(data.phone ?? ''),
         languagePreference: data.language,
-        role: data.role,
       });
 
       if (data.phone?.trim()) {
@@ -171,17 +184,104 @@ export default function SettingsPage() {
           {/* Preferences */}
           <div className="space-y-4">
             <SectionLabel>{t('settings.preferences')}</SectionLabel>
+
+            {/* Account Type / Landlord Application Status */}
             <div className="space-y-2">
               <Label>{t('settings.accountType')}</Label>
-              <OptionSelector
-                options={[
-                  { value: 'renter', label: t('settings.renterAccount') },
-                  { value: 'landlord', label: t('settings.landlordAccount') },
-                ]}
-                value={form.watch('role')}
-                onChange={(v) => form.setValue('role', v as 'renter' | 'landlord')}
-              />
+
+              {currentRole === 'landlord' ? (
+                <Card>
+                  <CardContent className="flex items-center gap-3 py-3 px-4">
+                    <Building2 className="h-5 w-5 text-primary" />
+                    <div className="flex-1">
+                      <p className="text-sm font-medium">{t('settings.landlordAccount')}</p>
+                    </div>
+                    <Badge className="bg-primary/10 text-primary">
+                      {t('settings.accountType')}
+                    </Badge>
+                  </CardContent>
+                </Card>
+              ) : myApplication?.status === 'pending' ? (
+                <Card className="border-warning/50 bg-warning/5">
+                  <CardContent className="flex items-center gap-3 py-3 px-4">
+                    <Clock className="h-5 w-5 text-warning" />
+                    <div className="flex-1">
+                      <p className="text-sm font-medium">
+                        {t('landlordApplication.statusPending')}
+                      </p>
+                      <p className="text-xs text-muted-foreground">
+                        {t('landlordApplication.statusPendingDesc')}
+                      </p>
+                    </div>
+                  </CardContent>
+                </Card>
+              ) : myApplication?.status === 'rejected' ? (
+                <Card className="border-destructive/50 bg-destructive/5">
+                  <CardContent className="py-3 px-4 space-y-3">
+                    <div className="flex items-center gap-3">
+                      <AlertTriangle className="h-5 w-5 text-destructive" />
+                      <div className="flex-1">
+                        <p className="text-sm font-medium">
+                          {t('landlordApplication.statusRejected')}
+                        </p>
+                        {myApplication.rejectionReason && (
+                          <p className="text-xs text-muted-foreground mt-1">
+                            {myApplication.rejectionReason}
+                          </p>
+                        )}
+                      </div>
+                    </div>
+                    <Dialog open={applicationDialogOpen} onOpenChange={setApplicationDialogOpen}>
+                      <DialogTrigger asChild>
+                        <Button variant="outline" size="sm">
+                          {t('landlordApplication.reapply')}
+                        </Button>
+                      </DialogTrigger>
+                      <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
+                        <DialogHeader>
+                          <DialogTitle>{t('landlordApplication.title')}</DialogTitle>
+                        </DialogHeader>
+                        <LandlordApplicationForm
+                          onComplete={() => {
+                            setApplicationDialogOpen(false);
+                            toast.success(t('landlordApplication.successTitle'));
+                          }}
+                        />
+                      </DialogContent>
+                    </Dialog>
+                  </CardContent>
+                </Card>
+              ) : (
+                <div className="space-y-3">
+                  <Card>
+                    <CardContent className="flex items-center gap-3 py-3 px-4">
+                      <CheckCircle className="h-5 w-5 text-muted-foreground" />
+                      <p className="text-sm flex-1">{t('settings.renterAccount')}</p>
+                    </CardContent>
+                  </Card>
+                  <Dialog open={applicationDialogOpen} onOpenChange={setApplicationDialogOpen}>
+                    <DialogTrigger asChild>
+                      <Button variant="outline" className="w-full">
+                        <Building2 className="h-4 w-4 mr-2" />
+                        {t('landlordApplication.applyButton')}
+                      </Button>
+                    </DialogTrigger>
+                    <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
+                      <DialogHeader>
+                        <DialogTitle>{t('landlordApplication.title')}</DialogTitle>
+                      </DialogHeader>
+                      <LandlordApplicationForm
+                        onComplete={() => {
+                          setApplicationDialogOpen(false);
+                          toast.success(t('landlordApplication.successTitle'));
+                        }}
+                      />
+                    </DialogContent>
+                  </Dialog>
+                </div>
+              )}
             </div>
+
             <div className="space-y-2">
               <Label>{t('settings.preferredLanguage')}</Label>
               <OptionSelector

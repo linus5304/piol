@@ -25,7 +25,7 @@ import {
   CheckCircle,
   Clock,
   DollarSign,
-  MoreHorizontal,
+  FileCheck,
   Shield,
   Users,
 } from 'lucide-react';
@@ -70,12 +70,15 @@ function AdminDashboardContent() {
   // Fetch properties pending verification
   const pendingProperties = useQuery(api.properties.getPendingVerification);
 
+  // Fetch pending landlord applications
+  const pendingApplications = useQuery(api.landlordApplications.getPendingApplications);
+
   if (!isLoaded || !isAdmin) {
     return (
       <div className="space-y-6">
         <Skeleton className="h-10 w-64" />
-        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-          {[1, 2, 3, 4].map((i) => (
+        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-5">
+          {[1, 2, 3, 4, 5].map((i) => (
             <Skeleton key={i} className="h-28" />
           ))}
         </div>
@@ -101,7 +104,7 @@ function AdminDashboardContent() {
       </div>
 
       {/* Stats Cards */}
-      <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-6 sm:grid-cols-2 xl:grid-cols-5">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Utilisateurs</CardTitle>
@@ -134,14 +137,27 @@ function AdminDashboardContent() {
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">En attente</CardTitle>
+            <CardTitle className="text-sm font-medium">Candidatures</CardTitle>
+            <FileCheck className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold font-mono tabular-nums text-warning">
+              {adminStats?.pendingApplications ?? '-'}
+            </div>
+            <p className="text-xs text-muted-foreground">En attente de revue</p>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Vérifications</CardTitle>
             <Clock className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold font-mono tabular-nums text-warning">
               {adminStats?.pendingVerifications ?? '-'}
             </div>
-            <p className="text-xs text-muted-foreground">Vérifications à traiter</p>
+            <p className="text-xs text-muted-foreground">Propriétés à vérifier</p>
           </CardContent>
         </Card>
 
@@ -161,7 +177,7 @@ function AdminDashboardContent() {
         </Card>
       </div>
 
-      <div className="grid gap-6 lg:grid-cols-2">
+      <div className="grid gap-6 lg:grid-cols-2 xl:grid-cols-3">
         {/* Recent Users */}
         <Card>
           <CardHeader>
@@ -228,6 +244,65 @@ function AdminDashboardContent() {
           </CardContent>
         </Card>
 
+        {/* Pending Applications */}
+        <Card>
+          <CardHeader>
+            <div className="flex items-center justify-between">
+              <div>
+                <CardTitle>Candidatures récentes</CardTitle>
+                <CardDescription>Demandes de compte bailleur</CardDescription>
+              </div>
+              <Link href="/dashboard/admin/applications">
+                <Button variant="outline" size="sm">
+                  Voir tout
+                </Button>
+              </Link>
+            </div>
+          </CardHeader>
+          <CardContent>
+            {pendingApplications === undefined ? (
+              <div className="space-y-3">
+                {[1, 2, 3].map((i) => (
+                  <Skeleton key={i} className="h-12 w-full" />
+                ))}
+              </div>
+            ) : pendingApplications.length > 0 ? (
+              <div className="space-y-3">
+                {pendingApplications.slice(0, 5).map((app) => (
+                  <div
+                    key={app._id}
+                    className="flex items-center justify-between p-3 rounded-lg bg-muted/50 hover:bg-muted transition-colors"
+                  >
+                    <div className="flex items-center gap-3 flex-1 min-w-0">
+                      <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary font-semibold text-sm">
+                        {app.user?.firstName?.charAt(0) || '?'}
+                      </div>
+                      <div className="min-w-0">
+                        <p className="font-medium truncate">
+                          {app.user?.firstName} {app.user?.lastName}
+                        </p>
+                        <p className="text-xs text-muted-foreground">
+                          {formatAdminDate(app._creationTime, locale)}
+                        </p>
+                      </div>
+                    </div>
+                    <Link href={`/dashboard/admin/applications/${app._id}`}>
+                      <Button variant="ghost" size="sm">
+                        Voir
+                      </Button>
+                    </Link>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-8 text-muted-foreground">
+                <FileCheck className="w-8 h-8 mx-auto mb-2 opacity-50" />
+                <p>Aucune candidature en attente</p>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+
         {/* Pending Verifications */}
         <Card>
           <CardHeader>
@@ -288,13 +363,22 @@ function AdminDashboardContent() {
           <CardDescription>Accès rapide aux fonctionnalités d'administration</CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
             <Link href="/dashboard/admin/users">
               <Button variant="outline" className="w-full justify-start h-auto py-4">
                 <Users className="w-5 h-5 mr-3" />
                 <div className="text-left">
                   <div className="font-medium">Utilisateurs</div>
                   <div className="text-xs text-muted-foreground">Gérer les comptes</div>
+                </div>
+              </Button>
+            </Link>
+            <Link href="/dashboard/admin/applications">
+              <Button variant="outline" className="w-full justify-start h-auto py-4">
+                <FileCheck className="w-5 h-5 mr-3" />
+                <div className="text-left">
+                  <div className="font-medium">Candidatures</div>
+                  <div className="text-xs text-muted-foreground">Revue des demandes</div>
                 </div>
               </Button>
             </Link>
