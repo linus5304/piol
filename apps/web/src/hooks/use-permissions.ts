@@ -12,7 +12,7 @@ import {
   hasPermission,
   isValidRole,
 } from '@/lib/permissions';
-import { useSafeUser } from './use-safe-auth';
+import { useCurrentUserRole } from './use-current-user-role';
 
 interface UsePermissionsReturn {
   /** Current user's role */
@@ -62,11 +62,7 @@ interface UsePermissionsReturn {
  * ```
  */
 export function usePermissions(): UsePermissionsReturn {
-  const { user, isLoaded } = useSafeUser();
-
-  // Use type guard for runtime validation instead of unsafe type assertion
-  const rawRole = user?.unsafeMetadata?.role;
-  const role = isValidRole(rawRole) ? rawRole : undefined;
+  const { role, isLoaded } = useCurrentUserRole();
 
   return {
     role,

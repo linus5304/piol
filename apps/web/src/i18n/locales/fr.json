@@ -718,5 +718,22 @@
     "verify": "Vérification",
     "users": "Utilisateurs",
     "new": "Nouveau"
+  },
+  "notifications": {
+    "title": "Notifications",
+    "markAllRead": "Tout marquer comme lu",
+    "empty": "Aucune notification",
+    "emptyDescription": "Vous êtes à jour ! Nous vous avertirons quand quelque chose se passera.",
+    "types": {
+      "new_message": "Nouveau message",
+      "payment_received": "Paiement reçu",
+      "payment_sent": "Paiement envoyé",
+      "property_verified": "Propriété vérifiée",
+      "property_rejected": "Propriété rejetée",
+      "new_application": "Nouvelle candidature",
+      "application_approved": "Candidature approuvée",
+      "application_rejected": "Candidature rejetée",
+      "new_listing": "Nouvelle annonce"
+    }
   }
 }
