@@ -492,7 +492,16 @@
     "conversationsWillAppear": "Your conversations will appear here",
     "typeMessage": "Type your message...",
     "send": "Send",
-    "viewProperty": "View property"
+    "viewProperty": "View property",
+    "selectConversation": "Select a conversation",
+    "selectConversationDescription": "Choose a conversation from the list to start messaging",
+    "today": "Today",
+    "yesterday": "Yesterday",
+    "noMessages": "No messages yet",
+    "startConversation": "Start the conversation by sending a message below",
+    "aboutProperty": "Conversation about this property",
+    "scrollToBottom": "Scroll to bottom",
+    "newMessages": "{count} new messages"
   },
   "payments": {
     "title": "Payments",
@@ -690,5 +699,41 @@
     "reviewedAt": "Reviewed on",
     "recentApplications": "Recent Applications",
     "viewAllApplications": "View all"
+  },
+  "errors": {
+    "title": "Something went wrong",
+    "description": "We encountered an unexpected error. Please try again.",
+    "tryAgain": "Try again",
+    "goToDashboard": "Go to dashboard",
+    "backToProperties": "Back to properties"
+  },
+  "breadcrumbs": {
+    "dashboard": "Dashboard",
+    "properties": "Properties",
+    "messages": "Messages",
+    "settings": "Settings",
+    "saved": "Saved",
+    "payments": "Payments",
+    "admin": "Admin",
+    "verify": "Verify",
+    "users": "Users",
+    "new": "New"
+  },
+  "notifications": {
+    "title": "Notifications",
+    "markAllRead": "Mark all as read",
+    "empty": "No notifications",
+    "emptyDescription": "You're all caught up! We'll notify you when something happens.",
+    "types": {
+      "new_message": "New message",
+      "payment_received": "Payment received",
+      "payment_sent": "Payment sent",
+      "property_verified": "Property verified",
+      "property_rejected": "Property rejected",
+      "new_application": "New application",
+      "application_approved": "Application approved",
+      "application_rejected": "Application rejected",
+      "new_listing": "New listing"
+    }
   }
 }

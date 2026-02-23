@@ -492,7 +492,16 @@
     "conversationsWillAppear": "Vos conversations apparaîtront ici",
     "typeMessage": "Écrivez votre message...",
     "send": "Envoyer",
-    "viewProperty": "Voir la propriété"
+    "viewProperty": "Voir la propriété",
+    "selectConversation": "Sélectionnez une conversation",
+    "selectConversationDescription": "Choisissez une conversation dans la liste pour commencer à discuter",
+    "today": "Aujourd'hui",
+    "yesterday": "Hier",
+    "noMessages": "Pas encore de messages",
+    "startConversation": "Lancez la conversation en envoyant un message ci-dessous",
+    "aboutProperty": "Conversation à propos de cette propriété",
+    "scrollToBottom": "Défiler vers le bas",
+    "newMessages": "{count} nouveaux messages"
   },
   "payments": {
     "title": "Paiements",
@@ -690,5 +699,24 @@
     "reviewedAt": "Examiné le",
     "recentApplications": "Candidatures récentes",
     "viewAllApplications": "Voir tout"
+  },
+  "errors": {
+    "title": "Une erreur est survenue",
+    "description": "Nous avons rencontré une erreur inattendue. Veuillez réessayer.",
+    "tryAgain": "Réessayer",
+    "goToDashboard": "Aller au tableau de bord",
+    "backToProperties": "Retour aux propriétés"
+  },
+  "breadcrumbs": {
+    "dashboard": "Tableau de bord",
+    "properties": "Propriétés",
+    "messages": "Messages",
+    "settings": "Paramètres",
+    "saved": "Favoris",
+    "payments": "Paiements",
+    "admin": "Administration",
+    "verify": "Vérification",
+    "users": "Utilisateurs",
+    "new": "Nouveau"
   }
 }
