@@ -1,291 +1,42 @@
 # CLAUDE.md
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+Piol — Cameroon housing marketplace (renters, verified properties, mobile money, landlord messaging).
 
-## Project Overview
+## Convex Anti-Patterns (you will get these wrong)
 
-Piol is a Cameroon housing marketplace where renters find verified properties, pay via mobile money (MTN MoMo, Orange Money), and message landlords.
+- NEVER use `.filter()` on Convex query builders. Define an index in `schema.ts` and use `.withIndex()`. JS `Array.filter()` after `.collect()` is fine.
+- ALWAYS include `returns:` validators on all Convex functions. Use `v.null()` for void returns.
+- NEVER omit auth checks. Use `getCurrentUser(ctx)` from `convex/utils/auth.ts` (throws if unauthed). For optional auth: `getCurrentUserOrNull(ctx)`.
+- Authorization helpers live in `convex/utils/authorization.ts`: `assertOwner`, `assertRole`, `assertLandlordOrAdmin`, `assertAdmin`, `assertAdminOrVerifier`.
+- Use `internalQuery`/`internalMutation`/`internalAction` for functions not exposed to the client.
+- Index naming: `by_field1_and_field2` matching the indexed fields.
 
-## Tech Stack
+## UI Anti-Patterns
 
-- **Backend:** Convex (serverless + realtime DB), Clerk auth
-- **Web:** Next.js 16 (App Router, Turbopack), React 19, Tailwind v4, shadcn/ui
-- **Monorepo:** Turborepo + Bun
+- NEVER use hardcoded hex colors. Use design tokens from `globals.css` (`bg-primary` not `#FF385C`).
+- NEVER hardcode user-facing strings. Use i18n.
+- Install shadcn components with: `bunx --bun shadcn@latest add <name>`
 
-## Common Commands
+## React Anti-Patterns
 
-```bash
-bun install                 # Install dependencies
-bun run dev                 # Web + Convex dev servers
-bun run dev:convex          # Convex only
-bun run lint:fix            # Biome auto-fix
-bun run format              # Biome format
-bun run typecheck           # TypeScript check
-bun run test:convex         # Convex tests (vitest)
-bun run test:web            # Web tests (jest)
-bun run seed                # Populate test data
-bun run seed:reset          # Clear and re-seed
-```
+- NEVER use `useMemo` to create blob URLs (`URL.createObjectURL`) with a separate `useEffect` cleanup. React Strict Mode double-fires effects, revoking the cached URLs while `useMemo` returns stale (revoked) references. Use `useState` + `useEffect` instead — the effect creates fresh URLs on each mount and revokes them on cleanup. `'use no memo'` does NOT fix this.
+- NEVER push directly to `main` — it's branch-protected. Always create a feature branch and PR.
 
-### Adding shadcn/ui Components
+## Git
 
-```bash
-bunx --bun shadcn@latest add <component-name>
-```
+- `main` is branch-protected — always push via a feature branch + PR. Branch prefixes: `feat/`, `fix/`, `chore/`, `docs/`.
+- Atomic commits: each commit must be self-contained, pass lint + typecheck, and be safe to deploy on its own.
+- Commit format: `<scope>(<feature-id>): <description>` — scopes: `web`, `convex`, `chore`
+- Before committing: `bun run lint:fix && bun run typecheck`
 
-## Verification Commands
+## Auto-Ship
 
-```bash
-# Type check entire project
-bun run typecheck
+When I say "ship it": lint, typecheck, commit, push, `gh pr create`, `gh pr merge --squash --delete-branch`.
 
-# Type check specific package
-cd apps/web && bunx tsc --noEmit
-cd packages/convex && bunx tsc --noEmit
+## When Something Surprises You
 
-# Run single Convex test
-cd packages/convex && bunx vitest run -t "test name"
+If you encounter something confusing or unexpected in this codebase, tell me about it. I'd rather fix the codebase than add more rules here.
 
-# Run single Convex test file
-cd packages/convex && bunx vitest run __tests__/properties.test.ts
+## Self-Updating Rules
 
-# Run web tests
-cd apps/web && bunx jest
-
-# Lint check (no auto-fix)
-biome check .
-
-# Quick validation before commit
-bun run lint:fix && bun run typecheck
-
-# Verify Convex schema compiles
-cd packages/convex && bunx convex dev --once
-```
-
-## Guardrails
-
-- NEVER commit directly to main - always use feature branches
-- NEVER skip pre-commit hooks (--no-verify)
-- NEVER commit .env files or secrets
-- Always run `bun run typecheck` before creating PRs
-- Always run `bun run lint:fix` before committing
-- Verify Convex schema compiles after schema changes
-
-## Testing
-
-### Convex Backend
-```bash
-bun run test:convex                                    # All tests
-cd packages/convex && bunx vitest run -t "test name"   # Single test
-cd packages/convex && bunx vitest                      # Watch mode
-```
-
-Test files: `packages/convex/__tests__/*.test.ts`
-
-### Web App
-```bash
-bun run test:web                                       # All tests
-cd apps/web && bunx jest path/to/test.tsx              # Single file
-cd apps/web && bunx jest --coverage                    # With coverage
-```
-
-## Monorepo Structure
-
-```
-apps/
-  web/                      # Next.js 16 web app (@repo/web)
-packages/
-  convex/                   # Convex backend functions + schema (@repo/convex)
-  ui/                       # Shared UI components (@repo/ui)
-  types/                    # Shared TypeScript types (@repo/types)
-  config/                   # Shared config (@repo/config)
-```
-
-## Architecture
-
-### Convex Backend (`packages/convex/convex/`)
-
-- **Schema:** `schema.ts` is the source of truth for all data models
-- **Queries:** Read-only, real-time subscriptions
-- **Mutations:** Write ops, always verify auth first with `ctx.auth.getUserIdentity()`
-- **Actions:** External API calls (payments, webhooks)
-- **Patterns:**
-  - Validate inputs with zod
-  - Auth check first in every mutation
-  - Indexes for every query path (no table scans)
-  - Paginate lists (max 100 items)
-
-### Convex Guidelines
-
-- **Always include `returns:` validators** on all Convex functions (`query`, `mutation`, `action`, `internalQuery`, `internalMutation`, `internalAction`). Use `v.null()` for functions that don't return anything.
-- **Never use query `.filter()`** on Convex query builders. Define an index in `schema.ts` and use `.withIndex()` instead. JavaScript `Array.filter()` after `.collect()` is fine for complex in-memory logic.
-- **Use `internalQuery`/`internalMutation`/`internalAction`** for functions not exposed to the client.
-- **Index naming:** `by_field1_and_field2` matching the indexed fields.
-- **Use `v.null()` for void returns**, not omitting the `returns:` field.
-
-### Web App (`apps/web/src/`)
-
-- `app/` - Next.js App Router pages
-- `components/` - React components
-- `hooks/` - Custom React hooks
-- `lib/` - Utilities and helpers
-- `i18n/` - Internationalization
-
-**Frontend patterns:**
-- Server Components by default, Client only when interactive
-- Convex hooks for data (`useQuery`, `useMutation`)
-- Loading skeletons, error boundaries
-- No hardcoded strings (use i18n)
-- No hardcoded colors (use design tokens: `bg-primary` not `#FF385C`)
-
-## Code Style
-
-- **TypeScript everywhere**, avoid `any`
-- **Biome** for formatting (2 spaces, single quotes, semicolons)
-- **Files:** kebab-case, keep under 300 LOC when feasible
-- **Components:** PascalCase
-- **Fonts:** Use Geist fonts only:
-  - `import { GeistSans } from 'geist/font/sans'`
-  - `import { GeistMono } from 'geist/font/mono'`
-
-### Git Workflow
-
-- Never commit to main directly
-- Branch naming: `feat/`, `fix/`, `chore/`, `docs/`
-- Commit format: `<scope>(<feature-id>): <description>`
-  - Scopes: `web`, `convex`, `chore`
-  - Example: `web(mvp-2): wire properties to Convex`
-- Squash merge PRs
-
-### Parallel Development with Git Worktrees
-
-For working on multiple features simultaneously:
-
-```bash
-# Create worktree for new feature
-git worktree add ../piol-feature-x feat/feature-x
-
-# List worktrees
-git worktree list
-
-# Remove when done
-git worktree remove ../piol-feature-x
-```
-
-Each worktree is a separate Claude Code session context.
-
-## Auto-Ship Mode
-
-When user says "auto-ship", "ship it", "commit and deploy", or similar after completing a feature/fix:
-
-**Automatically perform the full deployment pipeline:**
-
-1. **Verify** - Run `bunx biome check --write . && bun run typecheck`
-2. **Branch** - `git checkout -b feat/<feature-name>` or `fix/<fix-name>`
-3. **Commit** - Stage and commit with conventional commit format
-4. **Push** - `git push -u origin <branch>`
-5. **PR** - `gh pr create --title "<title>" --body "<summary>"`
-6. **Merge** - `gh pr merge <pr-number> --squash --delete-branch`
-7. **Deploy** - Convex auto-deploys on merge to main via GitHub Actions
-
-**Trigger phrases:**
-- "ship it" / "auto-ship" / "deploy"
-- "commit, PR, merge" / "full pipeline"
-- "proceed with deployment"
-
-**Commit message format:**
-```
-<type>(<scope>): <description>
-
-<body>
-
-Co-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>
-```
-
-Types: `feat`, `fix`, `chore`, `docs`, `refactor`
-Scopes: `web`, `convex`
-
-### Prompting Patterns for UI Work
-
-**Pattern 1: Task + Constraints + Verification (Recommended)**
-```
-Implement [feature]:
-- [Requirement 1]
-- [Requirement 2]
-
-Constraints:
-- Mobile-first (375px, 768px, 1024px)
-- Use existing shadcn components
-- No hardcoded colors (use tokens)
-- No hardcoded strings (use i18n)
-
-When done:
-1. Run typecheck and lint
-2. List files changed
-3. Note any decisions made
-```
-
-**Pattern 2: Reference-Based Implementation**
-```
-Look at [existing-file.tsx] for the pattern.
-Now create [new-file.tsx] following the same patterns for:
-- Data fetching, loading states, error handling
-Match the existing code style exactly.
-```
-
-**Pattern 3: Iterative with Checkpoints**
-```
-Build [feature]. Work in phases:
-Phase 1: Component shell with props interface
-Phase 2: Add [sub-feature 1]
-Phase 3: Add [sub-feature 2]
-After each phase, show what you built before continuing.
-```
-
-### Daily Development Prompt Template
-
-```
-## Task
-[What you want built]
-
-## Reference
-[Existing file to mimic, or skip if new pattern]
-
-## Constraints
-- Use existing shadcn components (install if needed)
-- Mobile-first (375px, 768px, 1024px)
-- No hardcoded colors (use tokens)
-- No hardcoded strings (use i18n or placeholders)
-
-## Verification
-When complete:
-1. bun run typecheck
-2. bun run lint:fix
-3. List all files changed
-4. Note any decisions you made
-
-## Autonomy Level
-[Pick one]
-- Ask me before major decisions
-- Make reasonable decisions, document them
-- Full auto - only stop if blocked
-```
-
-## Environment Setup
-
-### Convex Environment Variables
-
-Set in **Convex Dashboard > Settings > Environment Variables** (not `.env.local`):
-- `CLERK_JWT_ISSUER_DOMAIN` - Your Clerk domain
-
-### Clerk JWT Template
-
-Create a JWT template named `convex` in Clerk Dashboard with default claims.
-
-## Key Files
-
-- `packages/convex/convex/schema.ts` - Database schema (source of truth)
-- `apps/web/src/app/layout.tsx` - Root layout with providers
-- `turbo.json` - Turborepo task configuration
-- `biome.json` - Linter/formatter configuration
-
+If you notice you are repeatedly making the same mistake or missing the same point — and a rule in this file would have prevented it — update this file directly with the lesson learned. Only add rules that encode a real, recurring pattern; do not add noise. Keep rules concise.
