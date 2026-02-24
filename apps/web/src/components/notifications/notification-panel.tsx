@@ -13,10 +13,13 @@ import {
   CreditCard,
   FileCheck,
   Home,
+  Loader2,
   MessageSquare,
   ShieldCheck,
+  X,
 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
+import { toast } from 'sonner';
 
 const NOTIFICATION_ICONS: Record<string, typeof Bell> = {
   new_message: MessageSquare,
@@ -44,6 +47,16 @@ function formatTimestamp(timestamp: number, locale: string): string {
   return formatDate(timestamp, locale, { month: 'short', day: 'numeric' });
 }
 
+function getDateGroup(timestamp: number): 'today' | 'yesterday' | 'older' {
+  const now = new Date();
+  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  const yesterday = new Date(today.getTime() - 86400000);
+
+  if (timestamp >= today.getTime()) return 'today';
+  if (timestamp >= yesterday.getTime()) return 'yesterday';
+  return 'older';
+}
+
 interface NotificationPanelProps {
   onClose: () => void;
 }
@@ -52,13 +65,14 @@ export function NotificationPanel({ onClose }: NotificationPanelProps) {
   const t = useTranslations();
   const locale = useLocale();
   const router = useRouter();
-  const { results, status } = usePaginatedQuery(
+  const { results, status, loadMore } = usePaginatedQuery(
     api.notifications.getNotifications,
     {},
-    { initialNumItems: 20 }
+    { initialNumItems: 10 }
   );
   const markAsRead = useMutation(api.notifications.markAsRead);
   const markAllAsRead = useMutation(api.notifications.markAllAsRead);
+  const deleteNotification = useMutation(api.notifications.deleteNotification);
 
   const isLoading = status === 'LoadingFirstPage';
   const hasUnread = results.some((n) => !n.isRead);
@@ -75,6 +89,34 @@ export function NotificationPanel({ onClose }: NotificationPanelProps) {
 
   const handleMarkAllAsRead = async () => {
     await markAllAsRead();
+    toast.success(t('notifications.allMarkedRead'));
+  };
+
+  const handleDelete = async (e: React.MouseEvent, notificationId: (typeof results)[0]['_id']) => {
+    e.stopPropagation();
+    await deleteNotification({ notificationId });
+  };
+
+  // Group notifications by date
+  const groupedNotifications: {
+    group: 'today' | 'yesterday' | 'older';
+    items: typeof results;
+  }[] = [];
+  let currentGroup: 'today' | 'yesterday' | 'older' | null = null;
+
+  for (const notification of results) {
+    const group = getDateGroup(notification._creationTime);
+    if (group !== currentGroup) {
+      currentGroup = group;
+      groupedNotifications.push({ group, items: [] });
+    }
+    groupedNotifications[groupedNotifications.length - 1].items.push(notification);
+  }
+
+  const groupLabels: Record<string, string> = {
+    today: t('notifications.today'),
+    yesterday: t('notifications.yesterday'),
+    older: t('notifications.older'),
   };
 
   return (
@@ -93,7 +135,7 @@ export function NotificationPanel({ onClose }: NotificationPanelProps) {
         )}
       </div>
 
-      <ScrollArea className="max-h-80">
+      <ScrollArea className="h-[min(24rem,calc(100vh-8rem))]">
         {isLoading ? (
           <div className="space-y-1 p-2">
             {['skeleton-1', 'skeleton-2', 'skeleton-3'].map((id) => (
@@ -115,49 +157,89 @@ export function NotificationPanel({ onClose }: NotificationPanelProps) {
             </p>
           </div>
         ) : (
-          <div className="divide-y">
-            {results.map((notification) => {
-              const Icon = NOTIFICATION_ICONS[notification.notificationType] || Bell;
-              return (
-                <button
-                  key={notification._id}
-                  type="button"
-                  className="flex w-full items-start gap-3 p-3 text-left transition-colors hover:bg-muted/50"
-                  onClick={() => handleClickNotification(notification)}
-                  data-testid="notification-item"
+          <div>
+            {groupedNotifications.map(({ group, items }) => (
+              <div key={group}>
+                <div className="text-[11px] text-muted-foreground uppercase tracking-wider px-3 py-1.5">
+                  {groupLabels[group]}
+                </div>
+                <div className="divide-y">
+                  {items.map((notification) => {
+                    const Icon = NOTIFICATION_ICONS[notification.notificationType] || Bell;
+                    return (
+                      <button
+                        key={notification._id}
+                        type="button"
+                        className={`group flex w-full items-start gap-3 p-3 text-left transition-colors hover:bg-muted/50 ${
+                          !notification.isRead ? 'bg-primary/5' : ''
+                        }`}
+                        onClick={() => handleClickNotification(notification)}
+                        data-testid="notification-item"
+                      >
+                        <div
+                          className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full ${
+                            notification.isRead ? 'bg-muted' : 'bg-primary/10'
+                          }`}
+                        >
+                          <Icon
+                            className={`h-4 w-4 ${
+                              notification.isRead ? 'text-muted-foreground' : 'text-primary'
+                            }`}
+                          />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p
+                            className={`text-sm leading-tight ${
+                              notification.isRead
+                                ? 'text-muted-foreground'
+                                : 'text-foreground font-semibold'
+                            }`}
+                          >
+                            {notification.title}
+                          </p>
+                          <p className="text-xs text-muted-foreground mt-0.5 line-clamp-2">
+                            {notification.message}
+                          </p>
+                        </div>
+                        <div className="flex shrink-0 items-center gap-1.5">
+                          <span className="text-[11px] text-muted-foreground group-hover:hidden">
+                            {formatTimestamp(notification._creationTime, locale)}
+                          </span>
+                          {!notification.isRead && (
+                            <span className="h-2.5 w-2.5 rounded-full bg-primary group-hover:hidden" />
+                          )}
+                          <button
+                            type="button"
+                            className="hidden group-hover:flex p-1 rounded-sm hover:bg-muted"
+                            onClick={(e) => handleDelete(e, notification._id)}
+                            aria-label={t('notifications.dismiss')}
+                          >
+                            <X className="h-3.5 w-3.5 text-muted-foreground" />
+                          </button>
+                        </div>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            ))}
+            {status === 'CanLoadMore' && (
+              <div className="flex justify-center py-2">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="h-auto px-3 py-1.5 text-xs text-muted-foreground"
+                  onClick={() => loadMore(10)}
                 >
-                  <div
-                    className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full ${
-                      notification.isRead ? 'bg-muted' : 'bg-primary/10'
-                    }`}
-                  >
-                    <Icon
-                      className={`h-4 w-4 ${
-                        notification.isRead ? 'text-muted-foreground' : 'text-primary'
-                      }`}
-                    />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p
-                      className={`text-sm leading-tight ${
-                        notification.isRead ? 'text-muted-foreground' : 'font-medium'
-                      }`}
-                    >
-                      {notification.title}
-                    </p>
-                    <p className="text-xs text-muted-foreground mt-0.5 line-clamp-2">
-                      {notification.message}
-                    </p>
-                  </div>
-                  <div className="flex shrink-0 items-center gap-1.5">
-                    <span className="text-[11px] text-muted-foreground">
-                      {formatTimestamp(notification._creationTime, locale)}
-                    </span>
-                    {!notification.isRead && <span className="h-2 w-2 rounded-full bg-primary" />}
-                  </div>
-                </button>
-              );
-            })}
+                  {t('notifications.loadMore')}
+                </Button>
+              </div>
+            )}
+            {status === 'LoadingMore' && (
+              <div className="flex justify-center py-2">
+                <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
+              </div>
+            )}
           </div>
         )}
       </ScrollArea>

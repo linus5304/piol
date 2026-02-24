@@ -6,11 +6,15 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { api } from '@repo/convex/_generated/api';
 import { useQuery } from 'convex/react';
 import { Bell } from 'lucide-react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 export function NotificationBell() {
   const [open, setOpen] = useState(false);
   const unreadCount = useQuery(api.notifications.getUnreadNotificationCount);
+
+  useEffect(() => {
+    document.title = unreadCount && unreadCount > 0 ? `(${unreadCount}) Piol` : 'Piol';
+  }, [unreadCount]);
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -33,7 +37,7 @@ export function NotificationBell() {
           <span className="sr-only">Notifications</span>
         </Button>
       </PopoverTrigger>
-      <PopoverContent align="end" className="w-80 p-0" data-testid="notification-panel">
+      <PopoverContent align="end" className="w-[22rem] p-0" data-testid="notification-panel">
         <NotificationPanel onClose={() => setOpen(false)} />
       </PopoverContent>
     </Popover>

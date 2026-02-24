@@ -109,6 +109,7 @@ export default function SettingsPage() {
   const t = useTranslations();
 
   const myApplication = useQuery(api.landlordApplications.getMyLandlordApplication);
+  const convexUser = useQuery(api.users.getCurrentUser);
   const currentRole = (user?.unsafeMetadata?.role as string) || 'renter';
 
   const schema = useMemo(() => createSettingsSchema(t), [t]);
@@ -381,28 +382,49 @@ export default function SettingsPage() {
             <div className="divide-y divide-border/50">
               <div className="flex items-center justify-between py-3 first:pt-0">
                 <div>
+                  <p className="text-sm font-medium">{t('settings.inAppNotifications')}</p>
+                  <p className="text-sm text-muted-foreground">
+                    {t('settings.inAppNotificationsDesc')}
+                  </p>
+                </div>
+                <Switch
+                  checked={convexUser?.notificationsEnabled !== false}
+                  onCheckedChange={(checked) => updateProfile({ notificationsEnabled: checked })}
+                />
+              </div>
+              <div className="flex items-center justify-between py-3 opacity-50 pointer-events-none">
+                <div>
                   <p className="text-sm font-medium">{t('settings.emailNotifications')}</p>
                   <p className="text-sm text-muted-foreground">
                     {t('settings.emailNotificationsDesc')}
                   </p>
                 </div>
-                <Switch defaultChecked />
+                <div className="flex items-center gap-2">
+                  <Badge variant="secondary">{t('settings.comingSoon')}</Badge>
+                  <Switch disabled />
+                </div>
               </div>
-              <div className="flex items-center justify-between py-3">
+              <div className="flex items-center justify-between py-3 opacity-50 pointer-events-none">
                 <div>
                   <p className="text-sm font-medium">{t('settings.propertyAlerts')}</p>
                   <p className="text-sm text-muted-foreground">
                     {t('settings.propertyAlertsDesc')}
                   </p>
                 </div>
-                <Switch defaultChecked />
+                <div className="flex items-center gap-2">
+                  <Badge variant="secondary">{t('settings.comingSoon')}</Badge>
+                  <Switch disabled />
+                </div>
               </div>
-              <div className="flex items-center justify-between py-3 last:pb-0">
+              <div className="flex items-center justify-between py-3 last:pb-0 opacity-50 pointer-events-none">
                 <div>
                   <p className="text-sm font-medium">{t('settings.newsletter')}</p>
                   <p className="text-sm text-muted-foreground">{t('settings.newsletterDesc')}</p>
                 </div>
-                <Switch />
+                <div className="flex items-center gap-2">
+                  <Badge variant="secondary">{t('settings.comingSoon')}</Badge>
+                  <Switch disabled />
+                </div>
               </div>
             </div>
           </SettingsSection>

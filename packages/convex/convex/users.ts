@@ -36,6 +36,7 @@ const fullUserValidator = v.object({
   lastLogin: v.optional(v.number()),
   isActive: v.boolean(),
   onboardingCompleted: v.optional(v.boolean()),
+  notificationsEnabled: v.optional(v.boolean()),
 });
 
 const publicProfileValidator = v.object({
@@ -359,6 +360,7 @@ export const updateProfile = mutation({
     languagePreference: v.optional(v.union(v.literal('fr'), v.literal('en'))),
     profileImageId: v.optional(v.id('_storage')),
     role: v.optional(v.union(v.literal('renter'), v.literal('landlord'))),
+    notificationsEnabled: v.optional(v.boolean()),
   },
   returns: v.id('users'),
   handler: async (ctx, args) => {
@@ -391,6 +393,9 @@ export const updateProfile = mutation({
       ...(args.languagePreference !== undefined && { languagePreference: args.languagePreference }),
       ...(args.profileImageId !== undefined && { profileImageId: args.profileImageId }),
       ...(args.role !== undefined && { role: args.role }),
+      ...(args.notificationsEnabled !== undefined && {
+        notificationsEnabled: args.notificationsEnabled,
+      }),
     });
 
     return user._id;
