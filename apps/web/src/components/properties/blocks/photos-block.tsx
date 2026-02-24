@@ -1,9 +1,8 @@
 'use client';
 
-import { Button } from '@/components/ui/button';
 import { useTranslations } from 'gt-next';
 import { ImagePlus, X } from 'lucide-react';
-import { useCallback, useMemo, useRef } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
 function formatFileSize(bytes: number): string {
   if (bytes < 1024) return `${bytes} B`;
@@ -31,8 +30,17 @@ export function PhotosBlock({ images, onAddImages, onRemoveImage }: PhotosBlockP
     [onAddImages]
   );
 
-  // Stable preview URLs — only recreated when images array changes
-  const previews = useMemo(() => images.map((file) => URL.createObjectURL(file)), [images]);
+  // Preview URLs — created/revoked inside useEffect so Strict Mode double-fire
+  // produces fresh (non-revoked) URLs on remount instead of stale cached ones.
+  const [previews, setPreviews] = useState<string[]>([]);
+
+  useEffect(() => {
+    const urls = images.map((file) => URL.createObjectURL(file));
+    setPreviews(urls);
+    return () => {
+      for (const url of urls) URL.revokeObjectURL(url);
+    };
+  }, [images]);
 
   return (
     <div className="space-y-4 p-1">
@@ -67,11 +75,15 @@ export function PhotosBlock({ images, onAddImages, onRemoveImage }: PhotosBlockP
             {images.map((file, index) => (
               <div key={`${file.name}-${file.size}-${index}`} className="relative group">
                 <div className="aspect-square bg-muted rounded-lg overflow-hidden ring-1 ring-border">
-                  <img
-                    src={previews[index]}
-                    alt={`${t('newProperty.blockPhotos')} ${index + 1}`}
-                    className="w-full h-full object-cover"
-                  />
+                  {previews[index] ? (
+                    <img
+                      src={previews[index]}
+                      alt={`${t('newProperty.blockPhotos')} ${index + 1}`}
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <div className="w-full h-full bg-muted animate-pulse" />
+                  )}
                 </div>
                 <button
                   type="button"
