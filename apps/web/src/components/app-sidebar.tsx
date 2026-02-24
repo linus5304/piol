@@ -65,6 +65,8 @@ export function AppSidebar({
       { title: t('sidebar.home'), url: '/dashboard', icon: Home },
       { title: t('sidebar.properties'), url: '/properties', icon: Building2 },
       { title: t('sidebar.favorites'), url: '/dashboard/saved', icon: Heart },
+      { title: t('sidebar.messages'), url: '/dashboard/messages', icon: MessageSquare },
+      { title: t('sidebar.payments'), url: '/dashboard/payments', icon: CreditCard },
       { title: t('sidebar.settings'), url: '/dashboard/settings', icon: Settings },
     ],
     [t]

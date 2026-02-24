@@ -6,7 +6,7 @@ import { AlertTriangle } from 'lucide-react';
 import Link from 'next/link';
 import { useEffect } from 'react';
 
-export default function DashboardError({
+export default function PropertyError({
   error,
   reset,
 }: {
@@ -32,7 +32,7 @@ export default function DashboardError({
       <div className="flex gap-3">
         <Button onClick={reset}>{t('tryAgain')}</Button>
         <Button variant="outline" asChild>
-          <Link href="/dashboard">{t('goToDashboard')}</Link>
+          <Link href="/properties">{t('backToProperties')}</Link>
         </Button>
       </div>
     </div>

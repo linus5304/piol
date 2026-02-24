@@ -26,6 +26,8 @@ export default defineSchema({
     isActive: v.boolean(),
     // Onboarding status
     onboardingCompleted: v.optional(v.boolean()),
+    // Notification preference (defaults to true when undefined)
+    notificationsEnabled: v.optional(v.boolean()),
   })
     .index('by_clerk_id', ['clerkId'])
     .index('by_email', ['email'])

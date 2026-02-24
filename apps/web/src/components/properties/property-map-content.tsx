@@ -1,100 +1,14 @@
 'use client';
 
-import { Badge } from '@/components/ui/badge';
-import { Card, CardContent } from '@/components/ui/card';
 import { parseAppLocale } from '@/i18n/config';
 import { formatCurrencyFCFA } from '@/lib/i18n-format';
+import { MAPBOX_ACCESS_TOKEN, MAPBOX_STYLE } from '@/lib/mapbox';
 import { cn } from '@/lib/utils';
 import { useLocale } from 'gt-next/client';
-import L from 'leaflet';
-import { CheckCircle } from 'lucide-react';
-import Link from 'next/link';
-import { useEffect, useMemo, useRef, useState } from 'react';
-import { MapContainer, Marker, Popup, TileLayer, useMap } from 'react-leaflet';
-import type { Property, PropertyLocation, PropertyMapProps } from './property-map';
+import mapboxgl from 'mapbox-gl';
+import { useEffect, useRef, useState } from 'react';
+import type { Property, PropertyLocation } from './property-map';
 import { DEFAULT_CENTER, DEFAULT_ZOOM, formatCurrency, getConsistentImage } from './property-map';
-
-// Import Leaflet CSS
-import 'leaflet/dist/leaflet.css';
-
-// Fix for default marker icons in webpack/next.js
-// biome-ignore lint/suspicious/noExplicitAny: Leaflet internal fix
-// biome-ignore lint/performance/noDelete: Required for Leaflet marker icon fix
-delete (L.Icon.Default.prototype as any)._getIconUrl;
-L.Icon.Default.mergeOptions({
-  iconRetinaUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png',
-  iconUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
-  shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
-});
-
-// Custom price marker icon
-function createPriceIcon(price: number, isHovered = false, isSelected = false): L.DivIcon {
-  const formattedPrice = formatCurrency(price);
-  const isActive = isHovered || isSelected;
-  return L.divIcon({
-    className: 'price-marker',
-    html: `
-      <div class="price-marker-content ${isActive ? 'hovered' : ''} ${
-        isSelected ? 'selected' : ''
-      }">
-        ${formattedPrice}
-      </div>
-    `,
-    iconSize: [60, 28],
-    iconAnchor: [30, 28],
-    popupAnchor: [0, -28],
-  });
-}
-
-// Component to fit map bounds to markers
-function MapBounds({ properties }: { properties: (Property & { location: PropertyLocation })[] }) {
-  const map = useMap();
-
-  useEffect(() => {
-    if (properties.length === 0) return;
-
-    const bounds = L.latLngBounds(
-      properties.map((p) => [p.location.latitude, p.location.longitude])
-    );
-    map.fitBounds(bounds, { padding: [50, 50], maxZoom: 15 });
-  }, [map, properties]);
-
-  return null;
-}
-
-// Property popup card
-function PropertyPopupCard({ property }: { property: Property }) {
-  const locale = parseAppLocale(useLocale());
-  const imageUrl = property.images?.[0]?.url || getConsistentImage(property._id);
-  const isVerified = property.verificationStatus === 'approved';
-
-  return (
-    <Link href={`/properties/${property._id}`} className="block">
-      <Card className="w-64 overflow-hidden border-0 shadow-lg">
-        <div className="relative h-32">
-          <img src={imageUrl} alt={property.title} className="w-full h-full object-cover" />
-          {isVerified && (
-            <Badge className="absolute top-2 left-2 rounded-full bg-success text-success-foreground border-0 text-xs">
-              <CheckCircle className="w-3 h-3 mr-1" />
-              Vérifié
-            </Badge>
-          )}
-        </div>
-        <CardContent className="p-3">
-          <p className="font-medium text-sm line-clamp-1">{property.title}</p>
-          <p className="text-xs text-muted-foreground">
-            {property.neighborhood ? `${property.neighborhood}, ` : ''}
-            {property.city}
-          </p>
-          <p className="font-semibold text-primary mt-1">
-            {formatCurrencyFCFA(property.rentAmount, locale)}
-            <span className="text-muted-foreground font-normal text-xs"> /mois</span>
-          </p>
-        </CardContent>
-      </Card>
-    </Link>
-  );
-}
 
 interface MapContentProps {
   properties: (Property & { location: PropertyLocation })[];
@@ -104,6 +18,35 @@ interface MapContentProps {
   className?: string;
 }
 
+function createPopupHTML(property: Property, locale: string): string {
+  const imageUrl = property.images?.[0]?.url || getConsistentImage(property._id);
+  const isVerified = property.verificationStatus === 'approved';
+  const verifiedBadge = isVerified
+    ? '<span style="position:absolute;top:8px;left:8px;background:#34d399;color:#0c1222;font-size:11px;font-weight:600;padding:2px 8px;border-radius:9999px;">Verified</span>'
+    : '';
+
+  return `
+    <a href="/properties/${property._id}" style="display:block;text-decoration:none;color:inherit;">
+      <div style="width:256px;overflow:hidden;">
+        <div style="position:relative;height:128px;">
+          <img src="${imageUrl}" alt="${property.title}" style="width:100%;height:100%;object-fit:cover;" />
+          ${verifiedBadge}
+        </div>
+        <div style="padding:12px;">
+          <p style="font-weight:500;font-size:14px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin:0;">${property.title}</p>
+          <p style="font-size:12px;color:var(--muted-foreground);margin:2px 0 0;">
+            ${property.neighborhood ? `${property.neighborhood}, ` : ''}${property.city}
+          </p>
+          <p style="font-weight:600;color:var(--primary);margin:4px 0 0;">
+            ${formatCurrencyFCFA(property.rentAmount, locale)}
+            <span style="color:var(--muted-foreground);font-weight:400;font-size:12px;"> /mois</span>
+          </p>
+        </div>
+      </div>
+    </a>
+  `;
+}
+
 export function PropertyMapContent({
   properties,
   hoveredPropertyId,
@@ -111,56 +54,137 @@ export function PropertyMapContent({
   onPropertyClick,
   className,
 }: MapContentProps) {
+  const locale = parseAppLocale(useLocale());
+  const containerRef = useRef<HTMLDivElement>(null);
+  const mapRef = useRef<mapboxgl.Map | null>(null);
+  const markersRef = useRef<Map<string, { marker: mapboxgl.Marker; el: HTMLDivElement }>>(
+    new Map()
+  );
+  const popupRef = useRef<mapboxgl.Popup | null>(null);
   const [selectedPropertyId, setSelectedPropertyId] = useState<string | null>(null);
 
-  // Calculate initial center from properties
-  const center = useMemo<[number, number]>(() => {
-    if (properties.length === 0) return DEFAULT_CENTER;
-    const avgLat = properties.reduce((sum, p) => sum + p.location.latitude, 0) / properties.length;
-    const avgLng = properties.reduce((sum, p) => sum + p.location.longitude, 0) / properties.length;
-    return [avgLat, avgLng];
-  }, [properties]);
+  // Calculate initial center (stored in ref so map only initializes once)
+  const initialCenter = useRef<[number, number] | null>(null);
+  if (initialCenter.current === null) {
+    if (properties.length === 0) {
+      initialCenter.current = [DEFAULT_CENTER[1], DEFAULT_CENTER[0]]; // [lng, lat]
+    } else {
+      const avgLat =
+        properties.reduce((sum, p) => sum + p.location.latitude, 0) / properties.length;
+      const avgLng =
+        properties.reduce((sum, p) => sum + p.location.longitude, 0) / properties.length;
+      initialCenter.current = [avgLng, avgLat];
+    }
+  }
+
+  // Initialize map
+  useEffect(() => {
+    if (!containerRef.current || !MAPBOX_ACCESS_TOKEN) return;
+
+    mapboxgl.accessToken = MAPBOX_ACCESS_TOKEN;
+
+    const map = new mapboxgl.Map({
+      container: containerRef.current,
+      style: MAPBOX_STYLE,
+      center: initialCenter.current ?? [DEFAULT_CENTER[1], DEFAULT_CENTER[0]],
+      zoom: DEFAULT_ZOOM,
+    });
+
+    map.addControl(new mapboxgl.NavigationControl(), 'top-right');
+    mapRef.current = map;
+
+    return () => {
+      for (const { marker } of markersRef.current.values()) {
+        marker.remove();
+      }
+      markersRef.current.clear();
+      popupRef.current?.remove();
+      map.remove();
+      mapRef.current = null;
+    };
+  }, []);
+
+  // Manage markers when properties change
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map) return;
+
+    const addMarkers = () => {
+      // Remove old markers
+      for (const { marker } of markersRef.current.values()) {
+        marker.remove();
+      }
+      markersRef.current.clear();
+
+      if (properties.length === 0) return;
+
+      const bounds = new mapboxgl.LngLatBounds();
+
+      for (const property of properties) {
+        const lngLat: [number, number] = [property.location.longitude, property.location.latitude];
+        bounds.extend(lngLat);
+
+        const el = document.createElement('div');
+        el.className = 'price-marker';
+        el.textContent = formatCurrency(property.rentAmount);
+
+        el.addEventListener('mouseenter', () => {
+          onPropertyHover?.(property._id);
+        });
+        el.addEventListener('mouseleave', () => {
+          onPropertyHover?.(null);
+        });
+        el.addEventListener('click', () => {
+          setSelectedPropertyId(property._id);
+          onPropertyClick?.(property._id);
+
+          popupRef.current?.remove();
+          const popup = new mapboxgl.Popup({
+            offset: [0, -10],
+            maxWidth: '280px',
+          })
+            .setLngLat(lngLat)
+            .setHTML(createPopupHTML(property, locale))
+            .addTo(map);
+          popupRef.current = popup;
+        });
+
+        const marker = new mapboxgl.Marker({ element: el }).setLngLat(lngLat).addTo(map);
+
+        markersRef.current.set(property._id, { marker, el });
+      }
+
+      map.fitBounds(bounds, { padding: 50, maxZoom: 15 });
+    };
+
+    if (map.loaded()) {
+      addMarkers();
+    } else {
+      map.on('load', addMarkers);
+    }
+  }, [properties, onPropertyHover, onPropertyClick, locale]);
+
+  // Update marker styles on hover/selection changes
+  useEffect(() => {
+    for (const [id, { el }] of markersRef.current.entries()) {
+      const isHovered = hoveredPropertyId === id;
+      const isSelected = selectedPropertyId === id;
+      el.classList.toggle('hovered', isHovered);
+      el.classList.toggle('selected', isSelected);
+    }
+  }, [hoveredPropertyId, selectedPropertyId]);
+
+  if (!MAPBOX_ACCESS_TOKEN) {
+    return (
+      <div className={cn('flex items-center justify-center bg-muted rounded-xl', className)}>
+        <p className="text-muted-foreground text-sm">Map unavailable</p>
+      </div>
+    );
+  }
 
   return (
     <div className={cn('relative rounded-xl overflow-hidden', className)}>
-      <MapContainer
-        center={center}
-        zoom={DEFAULT_ZOOM}
-        className="h-full w-full"
-        style={{ minHeight: '400px' }}
-        zoomControl={true}
-        scrollWheelZoom={true}
-      >
-        <TileLayer
-          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-        />
-        <MapBounds properties={properties} />
-
-        {properties.map((property) => (
-          <Marker
-            key={property._id}
-            position={[property.location.latitude, property.location.longitude]}
-            icon={createPriceIcon(
-              property.rentAmount,
-              hoveredPropertyId === property._id,
-              selectedPropertyId === property._id
-            )}
-            eventHandlers={{
-              click: () => {
-                setSelectedPropertyId(property._id);
-                onPropertyClick?.(property._id);
-              },
-              mouseover: () => onPropertyHover?.(property._id),
-              mouseout: () => onPropertyHover?.(null),
-            }}
-          >
-            <Popup>
-              <PropertyPopupCard property={property} />
-            </Popup>
-          </Marker>
-        ))}
-      </MapContainer>
+      <div ref={containerRef} className="h-full w-full" style={{ minHeight: '400px' }} />
     </div>
   );
 }

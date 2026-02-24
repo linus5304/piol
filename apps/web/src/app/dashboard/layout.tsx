@@ -3,7 +3,6 @@
 import type React from 'react';
 
 import { AppSidebar } from '@/components/app-sidebar';
-import { RenterDashboardLayout } from '@/components/layouts/renter-dashboard-layout';
 import { SiteHeader } from '@/components/site-header';
 import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar';
 import { useEnsureUser } from '@/hooks/use-ensure-user';
@@ -18,7 +17,6 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const { user, isLoaded } = useSafeUser();
   const pathname = usePathname();
   const router = useRouter();
-  const role = (user?.unsafeMetadata?.role as 'renter' | 'landlord') || 'renter';
 
   // Redirect to onboarding if user hasn't completed it
   useEffect(() => {
@@ -41,12 +39,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     );
   }
 
-  // Renter: Tab-based navigation (no sidebar)
-  if (role === 'renter') {
-    return <RenterDashboardLayout>{children}</RenterDashboardLayout>;
-  }
-
-  // Landlord: Sidebar navigation
+  // All roles: Unified sidebar navigation
   return (
     <SidebarProvider
       style={

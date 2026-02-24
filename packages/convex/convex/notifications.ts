@@ -172,10 +172,13 @@ export const createNotification = internalMutation({
     data: v.optional(v.any()),
     actionUrl: v.optional(v.string()),
   },
-  returns: v.id('notifications'),
+  returns: v.union(v.null(), v.id('notifications')),
   handler: async (ctx, args) => {
-    // This is typically called internally by other functions
-    // Could add admin check if exposing publicly
+    // Check if user has notifications disabled
+    const user = await ctx.db.get(args.userId);
+    if (user && user.notificationsEnabled === false) {
+      return null;
+    }
 
     const notificationId = await ctx.db.insert('notifications', {
       userId: args.userId,

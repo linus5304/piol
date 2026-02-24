@@ -1,14 +1,10 @@
 'use client';
 
-import { Badge } from '@/components/ui/badge';
-import { Card, CardContent } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { cn } from '@/lib/utils';
-import { CheckCircle, MapPin } from 'lucide-react';
+import { MapPin } from 'lucide-react';
 import dynamic from 'next/dynamic';
-import Image from 'next/image';
-import Link from 'next/link';
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useMemo } from 'react';
 
 // Types for property data
 interface PropertyLocation {
@@ -64,7 +60,7 @@ function formatCurrency(amount: number): string {
 const DEFAULT_CENTER: [number, number] = [3.848, 11.5021];
 const DEFAULT_ZOOM = 12;
 
-// Map component with Leaflet (loaded dynamically to avoid SSR issues)
+// Map component with Mapbox (loaded dynamically to avoid SSR issues)
 const MapContent = dynamic(
   () => import('./property-map-content').then((mod) => mod.PropertyMapContent),
   {
