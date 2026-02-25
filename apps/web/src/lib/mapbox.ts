@@ -1,6 +1,7 @@
+import { env } from '@/lib/env';
 import type { City } from '@/lib/validations';
 
-export const MAPBOX_ACCESS_TOKEN = process.env.NEXT_PUBLIC_MAPBOX_TOKEN || '';
+export const MAPBOX_ACCESS_TOKEN = env.NEXT_PUBLIC_MAPBOX_TOKEN ?? '';
 export const MAPBOX_STYLE = 'mapbox://styles/mapbox/streets-v12';
 
 export const CITY_CENTERS: Record<City, { lat: number; lng: number; zoom: number }> = {

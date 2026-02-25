@@ -29,7 +29,7 @@ const jetbrainsMono = JetBrains_Mono({
 export const metadata: Metadata = {
   title: `${env.NEXT_PUBLIC_APP_NAME} - Cameroon Housing Marketplace`,
   description:
-    'Find your perfect home in Cameroon. Verified properties, secure payments, and trusted landlords.',
+    'Find your perfect home in Cameroon. Verified properties, trusted landlords, and fast contact.',
   keywords: ['rental', 'housing', 'cameroon', 'douala', 'yaoundé', 'apartment', 'property'],
   authors: [{ name: env.NEXT_PUBLIC_APP_NAME }],
   manifest: '/manifest.json',

@@ -25,12 +25,12 @@ const cspDirectives = [
   "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://*.clerk.accounts.dev https://*.sentry.io https://va.vercel-scripts.com",
   // Styles: unsafe-inline required for shadcn/tailwind runtime styles
   "style-src 'self' 'unsafe-inline'",
-  // Images: self + Convex storage + Clerk avatars + Unsplash + placeholder + data URIs
-  "img-src 'self' blob: data: https://*.convex.cloud https://images.unsplash.com https://via.placeholder.com https://img.clerk.com https://*.clerk.com",
+  // Images: self + Convex storage + Clerk avatars + Unsplash + placeholder + Mapbox + data URIs
+  "img-src 'self' blob: data: https://*.convex.cloud https://images.unsplash.com https://via.placeholder.com https://img.clerk.com https://*.clerk.com https://api.mapbox.com",
   // Fonts: self
   "font-src 'self'",
-  // Connect: self + Convex (REST + WebSocket) + Clerk + Sentry + General Translation
-  "connect-src 'self' https://*.convex.cloud wss://*.convex.cloud https://*.clerk.accounts.dev https://*.clerk.com https://*.sentry.io https://*.ingest.sentry.io https://*.generaltranslation.com https://va.vercel-scripts.com",
+  // Connect: self + Convex (REST + WebSocket) + Clerk + Sentry + General Translation + Mapbox
+  "connect-src 'self' https://*.convex.cloud wss://*.convex.cloud https://*.clerk.accounts.dev https://*.clerk.com https://*.sentry.io https://*.ingest.sentry.io https://*.generaltranslation.com https://va.vercel-scripts.com https://api.mapbox.com https://*.tiles.mapbox.com https://events.mapbox.com",
   // Frames: none (prevent clickjacking)
   "frame-src 'self' https://*.clerk.accounts.dev",
   // Workers: self + blob (for Convex)

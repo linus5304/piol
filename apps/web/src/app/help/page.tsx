@@ -17,8 +17,9 @@ export default function HelpPage() {
       href: '/contact',
     },
     {
-      title: 'Paiements Mobile Money',
-      description: 'Comment payer en toute sécurité via MTN MoMo ou Orange Money.',
+      title: 'Sécurité et vérification',
+      description:
+        'Comment reconnaître une annonce fiable, contacter un propriétaire et préparer une visite.',
       href: '/contact',
     },
     {

@@ -1,4 +1,5 @@
 'use client';
+'use no memo'; // RHF v7 form.watch() is incompatible with React Compiler
 
 import { LocationPicker } from '@/components/properties/location-picker-wrapper';
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
@@ -93,8 +94,8 @@ export function LocationBlock({ form }: LocationBlockProps) {
           longitude={form.watch('longitude')}
           city={form.watch('city')}
           onLocationChange={(lat, lng) => {
-            form.setValue('latitude', lat, { shouldValidate: true });
-            form.setValue('longitude', lng, { shouldValidate: true });
+            form.setValue('latitude', lat);
+            form.setValue('longitude', lng);
           }}
         />
       )}

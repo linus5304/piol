@@ -84,7 +84,7 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
             </div>
             <p className="text-sm leading-relaxed text-white/80">
               &ldquo;I found my apartment in Bonapriso in 2 days. The photos matched, the landlord
-              was real, and I paid with MoMo without any stress.&rdquo;
+              was real, and I contacted them directly the same evening.&rdquo;
             </p>
             <div className="mt-4 flex items-center gap-3">
               <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/20 text-xs font-bold text-primary">

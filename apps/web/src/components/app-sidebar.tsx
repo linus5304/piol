@@ -8,7 +8,6 @@ import { useTranslations } from 'gt-next';
 import {
   Building2,
   ClipboardCheck,
-  CreditCard,
   FileCheck,
   Heart,
   HelpCircle,
@@ -66,7 +65,6 @@ export function AppSidebar({
       { title: t('sidebar.properties'), url: '/properties', icon: Building2 },
       { title: t('sidebar.favorites'), url: '/dashboard/saved', icon: Heart },
       { title: t('sidebar.messages'), url: '/dashboard/messages', icon: MessageSquare },
-      { title: t('sidebar.payments'), url: '/dashboard/payments', icon: CreditCard },
       { title: t('sidebar.settings'), url: '/dashboard/settings', icon: Settings },
     ],
     [t]
@@ -76,7 +74,6 @@ export function AppSidebar({
     () => [
       { title: t('sidebar.home'), url: '/dashboard', icon: Home },
       { title: t('sidebar.properties'), url: '/dashboard/properties', icon: Building2 },
-      { title: t('sidebar.payments'), url: '/dashboard/payments', icon: CreditCard },
       { title: t('sidebar.messages'), url: '/dashboard/messages', icon: MessageSquare },
       { title: t('sidebar.settings'), url: '/dashboard/settings', icon: Settings },
     ],
@@ -95,7 +92,6 @@ export function AppSidebar({
       },
       { title: t('sidebar.verifications'), url: '/dashboard/verify', icon: ClipboardCheck },
       { title: t('sidebar.properties'), url: '/dashboard/properties', icon: Building2 },
-      { title: t('sidebar.payments'), url: '/dashboard/payments', icon: CreditCard },
       { title: t('sidebar.messages'), url: '/dashboard/messages', icon: MessageSquare },
       { title: t('sidebar.settings'), url: '/dashboard/settings', icon: Settings },
     ],

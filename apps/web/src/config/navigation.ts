@@ -1,6 +1,5 @@
 import {
   Building2,
-  CreditCard,
   Heart,
   Home,
   Info,
@@ -115,12 +114,6 @@ export const userNavLandlord: NavItem[] = [
     labelKey: 'nav.myProperties',
     icon: Building2,
   },
-  {
-    href: '/dashboard/payments',
-    label: 'Paiements',
-    labelKey: 'nav.payments',
-    icon: CreditCard,
-  },
 ];
 
 export const userNavAdmin: NavItem[] = [
@@ -130,12 +123,6 @@ export const userNavAdmin: NavItem[] = [
     label: 'Propriétés',
     labelKey: 'nav.properties',
     icon: Building2,
-  },
-  {
-    href: '/dashboard/payments',
-    label: 'Paiements',
-    labelKey: 'nav.payments',
-    icon: CreditCard,
   },
 ];
 
@@ -176,7 +163,6 @@ export const sidebarNavLandlord: NavSection[] = [
       { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
       { href: '/dashboard/properties', label: 'Mes biens', icon: Building2 },
       { href: '/dashboard/messages', label: 'Messages', icon: MessageSquare },
-      { href: '/dashboard/payments', label: 'Paiements', icon: CreditCard },
     ],
   },
   {
@@ -247,9 +233,9 @@ export function getSidebarNav(role: UserRole): NavSection[] {
 export const siteConfig = {
   name: 'Piol',
   description:
-    'Trouvez votre prochain logement au Cameroun. Annonces vérifiées, paiement sécurisé par Mobile Money.',
+    'Trouvez votre prochain logement au Cameroun. Annonces vérifiées, propriétaires vérifiés, contact rapide.',
   descriptionEn:
-    'Find your next home in Cameroon. Verified listings, secure Mobile Money payments.',
+    'Find your next home in Cameroon. Verified listings, verified landlords, and fast contact.',
   url: process.env.NEXT_PUBLIC_APP_URL || 'https://piol.cm',
   ogImage: '/og-image.png',
   links: {
