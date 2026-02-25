@@ -37,7 +37,7 @@ export function Logo({
 
   if (asLink) {
     return (
-      <Link href="/" className="group">
+      <Link href="/" className="group" suppressHydrationWarning>
         {content}
       </Link>
     );

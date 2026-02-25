@@ -1,4 +1,5 @@
 'use client';
+'use no memo'; // RHF v7 form.watch() is incompatible with React Compiler
 
 import { parseAppLocale } from '@/i18n/config';
 import { type PropertyTemplate, generateTitle } from '@/lib/data/property-templates';
@@ -152,17 +153,21 @@ export function usePropertyForm(
   const neighborhood = form.watch('neighborhood');
   const lastGeneratedTitle = useRef<string>('');
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: t and form methods are stable per their API contracts
   useEffect(() => {
     if (!propertyType || !city) return;
     const typeName = t(`propertyTypes.${propertyType}`);
     const generated = generateTitle(typeName, city, neighborhood || undefined);
     const currentTitle = form.getValues('title');
 
-    if (!currentTitle || currentTitle === lastGeneratedTitle.current) {
+    if (
+      generated !== currentTitle &&
+      (!currentTitle || currentTitle === lastGeneratedTitle.current)
+    ) {
       form.setValue('title', generated);
       lastGeneratedTitle.current = generated;
     }
-  }, [propertyType, city, neighborhood, t, form]);
+  }, [propertyType, city, neighborhood]);
 
   // Generate description suggestion
   const watchedFields = form.watch();

@@ -68,9 +68,9 @@ const STEPS = [
   },
   {
     id: '03',
-    label: 'SECURE',
-    title: 'Pay & move in',
-    desc: 'Pay securely with MTN MoMo or Orange Money. Funds held until you confirm move-in. No middlemen.',
+    label: 'CONNECT',
+    title: 'Contact & visit',
+    desc: 'Message verified landlords directly, ask questions quickly, and organize visits without middlemen.',
     icon: Smartphone,
   },
 ];
@@ -78,7 +78,7 @@ const STEPS = [
 const TESTIMONIALS = [
   {
     quote:
-      'I found my apartment in Bonapriso in 2 days. The photos matched, the landlord was real, and I paid with MoMo without any stress.',
+      'I found my apartment in Bonapriso in 2 days. The photos matched and I contacted the landlord directly the same evening.',
     name: 'Amina K.',
     city: 'Douala',
     role: 'Renter',
@@ -92,7 +92,7 @@ const TESTIMONIALS = [
   },
   {
     quote:
-      'I moved from Bamenda to Buea for university and found a verified place near campus in one evening. The escrow payment made me feel safe.',
+      'I moved from Bamenda to Buea for university and found a verified place near campus in one evening. Messaging made organizing visits easy.',
     name: 'Grace N.',
     city: 'Buea',
     role: 'Student',
@@ -112,7 +112,7 @@ const METRICS = [
   { value: '98.2%', label: 'verified on-ground' },
   { value: '4.8', label: 'user rating' },
   { value: '<24h', label: 'response time' },
-  { value: '100%', label: 'secure payments' },
+  { value: '0 CFA', label: 'to start searching' },
 ];
 
 // ---------------------------------------------------------------------------

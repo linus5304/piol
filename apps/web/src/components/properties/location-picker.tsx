@@ -50,6 +50,9 @@ export function LocationPickerContent({
     return [11.5021, 3.848]; // Default: Yaoundé [lng, lat]
   }, [markerPosition, city]);
 
+  const centerRef = useRef(center);
+  centerRef.current = center;
+
   // Stable helper: place or move marker
   const placeMarker = useCallback((map: mapboxgl.Map, lng: number, lat: number) => {
     if (markerRef.current) {
@@ -66,20 +69,33 @@ export function LocationPickerContent({
     }
   }, []);
 
-  // Initialize map when city changes
+  // Initialize map when city changes (center read from ref to avoid recreation on coordinate changes)
   useEffect(() => {
     if (!containerRef.current || !MAPBOX_ACCESS_TOKEN || !city) return;
 
     mapboxgl.accessToken = MAPBOX_ACCESS_TOKEN;
 
-    const map = new mapboxgl.Map({
-      container: containerRef.current,
-      style: MAPBOX_STYLE,
-      center,
-      zoom: 14,
-    });
+    let map: mapboxgl.Map;
+    try {
+      map = new mapboxgl.Map({
+        container: containerRef.current,
+        style: MAPBOX_STYLE,
+        center: centerRef.current,
+        zoom: 14,
+      });
+    } catch (err) {
+      console.error('[LocationPicker] Map init failed:', err);
+      setError('Failed to load map');
+      return;
+    }
 
     map.addControl(new mapboxgl.NavigationControl(), 'top-right');
+
+    map.on('load', () => map.resize());
+
+    map.on('error', (e) => {
+      console.error('[LocationPicker] Mapbox error:', e.error);
+    });
 
     // Click-to-place marker
     map.on('click', (e) => {
@@ -91,12 +107,18 @@ export function LocationPickerContent({
     mapRef.current = map;
 
     return () => {
-      markerRef.current?.remove();
-      markerRef.current = null;
-      map.remove();
-      mapRef.current = null;
+      try {
+        markerRef.current?.remove();
+        markerRef.current = null;
+        map.remove();
+        mapRef.current = null;
+      } catch {
+        // Mapbox cleanup can throw during active teardown — safe to ignore
+        mapRef.current = null;
+        markerRef.current = null;
+      }
     };
-  }, [city, center, placeMarker]);
+  }, [city, placeMarker]);
 
   // Update marker position when coordinates change externally
   useEffect(() => {

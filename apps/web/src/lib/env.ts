@@ -62,6 +62,9 @@ export const env = createEnv({
 
     // General Translation (client-visible project identifier)
     NEXT_PUBLIC_GT_PROJECT_ID: z.string().optional(),
+
+    // Mapbox
+    NEXT_PUBLIC_MAPBOX_TOKEN: z.string().optional(),
   },
 
   /**
@@ -92,6 +95,7 @@ export const env = createEnv({
     NEXT_PUBLIC_APP_NAME: process.env.NEXT_PUBLIC_APP_NAME,
     NEXT_PUBLIC_PAYMENTS_ENABLED: process.env.NEXT_PUBLIC_PAYMENTS_ENABLED,
     NEXT_PUBLIC_GT_PROJECT_ID: process.env.NEXT_PUBLIC_GT_PROJECT_ID,
+    NEXT_PUBLIC_MAPBOX_TOKEN: process.env.NEXT_PUBLIC_MAPBOX_TOKEN,
   },
 
   /**
@@ -128,6 +132,11 @@ export const isConvexConfigured = Boolean(
 export const isSentryConfigured = Boolean(env.NEXT_PUBLIC_SENTRY_DSN);
 
 /**
+ * Helper to check if Mapbox is configured
+ */
+export const isMapboxConfigured = Boolean(env.NEXT_PUBLIC_MAPBOX_TOKEN);
+
+/**
  * Feature flag for payment initiation UX.
  * Transaction history remains available even when this is disabled.
  */
@@ -141,6 +150,7 @@ export function getConfigStatus() {
     clerk: isClerkConfigured,
     convex: isConvexConfigured,
     sentry: isSentryConfigured,
+    mapbox: isMapboxConfigured,
     payments: isPaymentsEnabled,
     environment: env.NODE_ENV,
   };

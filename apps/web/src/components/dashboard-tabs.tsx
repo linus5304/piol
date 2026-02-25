@@ -1,7 +1,7 @@
 'use client';
 
 import { cn } from '@/lib/utils';
-import { CreditCard, Heart, Home, MessageSquare, Settings } from 'lucide-react';
+import { Heart, Home, MessageSquare, Settings } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
@@ -16,7 +16,6 @@ const renterTabs: TabItem[] = [
   { title: 'Accueil', href: '/dashboard', icon: Home },
   { title: 'Favoris', href: '/dashboard/saved', icon: Heart },
   { title: 'Messages', href: '/dashboard/messages', icon: MessageSquare },
-  { title: 'Paiements', href: '/dashboard/payments', icon: CreditCard },
   { title: 'Paramètres', href: '/dashboard/settings', icon: Settings },
 ];
 

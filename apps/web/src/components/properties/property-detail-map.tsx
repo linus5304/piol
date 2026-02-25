@@ -18,12 +18,24 @@ export function PropertyDetailMap({ latitude, longitude }: PropertyDetailMapProp
 
     mapboxgl.accessToken = MAPBOX_ACCESS_TOKEN;
 
-    const map = new mapboxgl.Map({
-      container: containerRef.current,
-      style: MAPBOX_STYLE,
-      center: [longitude, latitude],
-      zoom: 15,
-      scrollZoom: false,
+    let map: mapboxgl.Map;
+    try {
+      map = new mapboxgl.Map({
+        container: containerRef.current,
+        style: MAPBOX_STYLE,
+        center: [longitude, latitude],
+        zoom: 15,
+        scrollZoom: false,
+      });
+    } catch (err) {
+      console.error('[PropertyDetailMap] Map init failed:', err);
+      return;
+    }
+
+    map.on('load', () => map.resize());
+
+    map.on('error', (e) => {
+      console.error('[PropertyDetailMap] Mapbox error:', e.error);
     });
 
     new mapboxgl.Marker().setLngLat([longitude, latitude]).addTo(map);
@@ -33,8 +45,13 @@ export function PropertyDetailMap({ latitude, longitude }: PropertyDetailMapProp
     mapRef.current = map;
 
     return () => {
-      map.remove();
-      mapRef.current = null;
+      try {
+        map.remove();
+        mapRef.current = null;
+      } catch {
+        // Mapbox cleanup can throw during active teardown — safe to ignore
+        mapRef.current = null;
+      }
     };
   }, [latitude, longitude]);
 

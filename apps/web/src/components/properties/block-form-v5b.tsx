@@ -1,4 +1,5 @@
 'use client';
+'use no memo'; // RHF v7 form.watch() is incompatible with React Compiler
 
 import { Button } from '@/components/ui/button';
 import { Form } from '@/components/ui/form';
