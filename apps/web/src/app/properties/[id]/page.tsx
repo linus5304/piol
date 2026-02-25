@@ -2,9 +2,8 @@
 
 import { Header } from '@/components/header';
 import { PropertyDetailSkeleton } from '@/components/properties/property-detail-skeleton';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import type { PropertyData } from '@/components/properties/variations/types';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
 import {
   Carousel,
   type CarouselApi,
@@ -19,7 +18,6 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
-import { Skeleton } from '@/components/ui/skeleton';
 import { Textarea } from '@/components/ui/textarea';
 import { useSafeAuth } from '@/hooks/use-safe-auth';
 import { parseAppLocale } from '@/i18n/config';
@@ -29,57 +27,24 @@ import { api } from '@repo/convex/_generated/api';
 import type { Id } from '@repo/convex/_generated/dataModel';
 import { useMutation, useQuery } from 'convex/react';
 import { useLocale } from 'gt-next/client';
-import {
-  Armchair,
-  BadgeCheck,
-  Camera,
-  Car,
-  ChevronLeft,
-  ChevronRight,
-  Droplet,
-  Heart,
-  ImageOff,
-  Loader2,
-  Lock,
-  MapPin,
-  MessageCircle,
-  Share2,
-  Shield,
-  Star,
-  Sun,
-  TreePine,
-  Wifi,
-  Wind,
-  X,
-  Zap,
-} from 'lucide-react';
+import { ChevronLeft, ChevronRight, ImageOff, Loader2, MessageCircle, X } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { use, useEffect, useState } from 'react';
+import { Suspense, lazy, use, useEffect, useState } from 'react';
 import { toast } from 'sonner';
 
-const amenityConfig: Record<string, { label: string; icon: React.ElementType }> = {
-  wifi: { label: 'WiFi inclus', icon: Wifi },
-  parking: { label: 'Parking privé', icon: Car },
-  ac: { label: 'Climatisation', icon: Wind },
-  security: { label: 'Sécurité 24h/24', icon: Shield },
-  water247: { label: 'Eau disponible 24/7', icon: Droplet },
-  electricity247: { label: 'Électricité stable', icon: Zap },
-  furnished: { label: 'Entièrement meublé', icon: Armchair },
-  balcony: { label: 'Balcon avec vue', icon: Sun },
-  garden: { label: 'Accès jardin', icon: TreePine },
-};
+// Lazy-load property detail variation
+const CostCalcA = lazy(() =>
+  import('@/components/properties/variations/cost-calc-a').then((m) => ({
+    default: m.CostCalcA,
+  }))
+);
 
-const propertyTypeLabels: Record<string, string> = {
-  studio: 'Studio',
-  '1br': '1 Chambre',
-  '2br': '2 Chambres',
-  '3br': '3 Chambres',
-  '4br': '4 Chambres',
-  house: 'Maison',
-  apartment: 'Appartement',
-  villa: 'Villa',
-};
+// Placeholder images when no property images exist
+const placeholderImages = [
+  'https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=1200&h=800&fit=crop',
+  'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=1200&h=800&fit=crop',
+];
 
 function formatCurrency(amount: number, locale: string): string {
   return formatNumber(amount, locale);
@@ -92,55 +57,47 @@ function formatListingDate(timestamp: number, locale: string): string {
   });
 }
 
-// Placeholder images when no property images exist
-const placeholderImages = [
-  'https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=1200&h=800&fit=crop',
-  'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=1200&h=800&fit=crop',
-];
-
 export default function PropertyDetailPage({
   params,
 }: {
   params: Promise<{ id: string }>;
 }) {
-  // Unwrap params promise (Next.js 15+ / React 19)
   const { id } = use(params);
   const locale = parseAppLocale(useLocale());
-
   const router = useRouter();
   const { isSignedIn } = useSafeAuth();
-  const [selectedImage, setSelectedImage] = useState(0);
+
+  // ---------------------------------------------------------------------------
+  // Page state
+  // ---------------------------------------------------------------------------
   const [isSaved, setIsSaved] = useState(false);
+  const [selectedImage, setSelectedImage] = useState(0);
   const [showGallery, setShowGallery] = useState(false);
   const [showContactDialog, setShowContactDialog] = useState(false);
   const [messageText, setMessageText] = useState('');
   const [isSending, setIsSending] = useState(false);
-  const [mobileCarouselApi, setMobileCarouselApi] = useState<CarouselApi>();
   const [galleryCarouselApi, setGalleryCarouselApi] = useState<CarouselApi>();
-  const toggleSaveProperty = useMutation(api.savedProperties.toggleSaveProperty);
 
-  // Sync carousels with selectedImage and listen for scroll events
+  const toggleSaveProperty = useMutation(api.savedProperties.toggleSaveProperty);
+  const sendMessage = useMutation(api.messages.sendMessage);
+
+  // Sync gallery carousel with selectedImage
   useEffect(() => {
-    mobileCarouselApi?.scrollTo(selectedImage);
     galleryCarouselApi?.scrollTo(selectedImage);
-  }, [selectedImage, mobileCarouselApi, galleryCarouselApi]);
+  }, [selectedImage, galleryCarouselApi]);
 
   useEffect(() => {
     const onSelect = () => {
-      const snap =
-        mobileCarouselApi?.selectedScrollSnap() ?? galleryCarouselApi?.selectedScrollSnap();
+      const snap = galleryCarouselApi?.selectedScrollSnap();
       if (snap !== undefined) setSelectedImage(snap);
     };
-    mobileCarouselApi?.on('select', onSelect);
     galleryCarouselApi?.on('select', onSelect);
     return () => {
-      mobileCarouselApi?.off('select', onSelect);
       galleryCarouselApi?.off('select', onSelect);
     };
-  }, [mobileCarouselApi, galleryCarouselApi]);
+  }, [galleryCarouselApi]);
 
-  const sendMessage = useMutation(api.messages.sendMessage);
-
+  // Saved status
   const savedStatus = useQuery(
     api.savedProperties.isPropertySaved,
     id && id.length > 0 ? { propertyId: id as Id<'properties'> } : 'skip'
@@ -152,9 +109,17 @@ export default function PropertyDetailPage({
     }
   }, [savedStatus]);
 
+  // Query property
+  const property = useQuery(
+    api.properties.getProperty,
+    id && id.length > 0 ? { propertyId: id as Id<'properties'> } : 'skip'
+  );
+
+  // ---------------------------------------------------------------------------
+  // Handlers
+  // ---------------------------------------------------------------------------
   const handleSendMessage = async () => {
     if (!messageText.trim() || !property?.landlord?._id) return;
-
     setIsSending(true);
     try {
       await sendMessage({
@@ -162,9 +127,6 @@ export default function PropertyDetailPage({
         propertyId: property._id,
         messageText: messageText.trim(),
       });
-
-      // Generate conversation ID to redirect (same logic as backend)
-      // Since we don't have the current user's ID here, we'll redirect to messages list
       setShowContactDialog(false);
       setMessageText('');
       router.push('/dashboard/messages');
@@ -177,15 +139,12 @@ export default function PropertyDetailPage({
 
   const handleToggleSave = async () => {
     if (!property?._id) return;
-
     if (!isSignedIn) {
       router.push('/sign-in');
       return;
     }
-
     const nextSaved = !isSaved;
     setIsSaved(nextSaved);
-
     try {
       await toggleSaveProperty({ propertyId: property._id });
     } catch (error) {
@@ -195,14 +154,9 @@ export default function PropertyDetailPage({
     }
   };
 
-  // Query property from Convex
-  const property = useQuery(
-    api.properties.getProperty,
-    // Only query if id looks like a valid Convex ID (starts with valid prefix)
-    id && id.length > 0 ? { propertyId: id as Id<'properties'> } : 'skip'
-  );
-
-  // Loading state
+  // ---------------------------------------------------------------------------
+  // Loading / Not Found
+  // ---------------------------------------------------------------------------
   if (property === undefined) {
     return (
       <>
@@ -212,7 +166,6 @@ export default function PropertyDetailPage({
     );
   }
 
-  // Not found state
   if (property === null) {
     return (
       <div className="min-h-screen bg-background">
@@ -223,7 +176,7 @@ export default function PropertyDetailPage({
           </div>
           <h1 className="text-2xl font-semibold text-foreground mb-2">Propriété introuvable</h1>
           <p className="text-muted-foreground mb-8">
-            Cette propriété n'existe pas ou a été supprimée.
+            Cette propriété n&apos;existe pas ou a été supprimée.
           </p>
           <Link href="/properties">
             <Button>Voir toutes les propriétés</Button>
@@ -233,7 +186,9 @@ export default function PropertyDetailPage({
     );
   }
 
-  // Use property images or placeholder
+  // ---------------------------------------------------------------------------
+  // Derived data
+  // ---------------------------------------------------------------------------
   const images =
     property.imageUrls && property.imageUrls.length > 0
       ? property.imageUrls
@@ -249,121 +204,40 @@ export default function PropertyDetailPage({
 
   const totalEntry = property.rentAmount * (property.cautionMonths + property.upfrontMonths);
 
+  const variationProps = {
+    property: property as unknown as PropertyData,
+    images,
+    enabledAmenities,
+    totalEntry,
+    isSaved,
+    isSignedIn: isSignedIn ?? false,
+    locale,
+    onToggleSave: handleToggleSave,
+    onContactClick: () => setShowContactDialog(true),
+    onOpenGallery: (index: number) => {
+      setSelectedImage(index);
+      setShowGallery(true);
+    },
+    formatCurrency,
+    formatListingDate,
+  };
+
+  const headerVariant = 'default' as const;
+
+  // ---------------------------------------------------------------------------
+  // Render
+  // ---------------------------------------------------------------------------
   return (
     <div className="min-h-screen bg-background">
-      <Header />
+      <Header variant={headerVariant} />
 
-      {/* Image Gallery */}
-      <div className="relative">
-        {/* Desktop Grid Gallery */}
-        <div className="hidden md:grid grid-cols-4 grid-rows-2 gap-2 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 h-[480px]">
-          <button
-            type="button"
-            className="col-span-2 row-span-2 relative rounded-l-2xl overflow-hidden cursor-pointer group"
-            onClick={() => {
-              setSelectedImage(0);
-              setShowGallery(true);
-            }}
-          >
-            <img
-              src={images[0]}
-              alt={property.title}
-              className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-            />
-            <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors" />
-          </button>
-          {images.slice(1, 5).map((image: string, index: number) => (
-            <button
-              type="button"
-              key={image}
-              className={cn(
-                'relative cursor-pointer group overflow-hidden',
-                index === 1 && 'rounded-tr-2xl',
-                index === 3 && 'rounded-br-2xl'
-              )}
-              onClick={() => {
-                setSelectedImage(index + 1);
-                setShowGallery(true);
-              }}
-            >
-              <img
-                src={image}
-                alt={`Property view ${index + 2}`}
-                className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-              />
-              <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors" />
-            </button>
-          ))}
+      <Suspense fallback={<PropertyDetailSkeleton />}>
+        <CostCalcA {...variationProps} />
+      </Suspense>
 
-          {images.length > 1 && (
-            <button
-              type="button"
-              onClick={() => setShowGallery(true)}
-              className="absolute bottom-8 right-8 flex items-center gap-2 px-4 py-2 bg-card border border-border rounded-lg shadow-lg hover:scale-105 transition-transform text-sm font-medium"
-            >
-              <Camera className="w-4 h-4" />
-              Voir les {images.length} photos
-            </button>
-          )}
-        </div>
-
-        {/* Mobile Carousel */}
-        <div className="md:hidden relative">
-          <Carousel
-            setApi={setMobileCarouselApi}
-            className="w-full"
-            opts={{ loop: images.length > 1 }}
-          >
-            <CarouselContent className="-ml-0">
-              {images.map((image: string, index: number) => (
-                <CarouselItem key={`mobile-${image}`} className="pl-0">
-                  <div className="relative h-[300px]">
-                    <img
-                      src={image}
-                      alt={`${property.title} - Vue ${index + 1}`}
-                      className="w-full h-full object-cover"
-                    />
-                  </div>
-                </CarouselItem>
-              ))}
-            </CarouselContent>
-          </Carousel>
-          {/* Navigation Controls */}
-          {images.length > 1 && (
-            <>
-              <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex items-center gap-1.5 z-10">
-                {images.map((image: string, index: number) => (
-                  <button
-                    type="button"
-                    key={`dot-${image}`}
-                    onClick={() => setSelectedImage(index)}
-                    className={cn(
-                      'w-2 h-2 rounded-full transition-all',
-                      index === selectedImage ? 'bg-white w-3' : 'bg-white/60'
-                    )}
-                  />
-                ))}
-              </div>
-              <button
-                type="button"
-                onClick={() => mobileCarouselApi?.scrollPrev()}
-                className="absolute left-4 top-1/2 -translate-y-1/2 w-8 h-8 bg-white/90 rounded-full flex items-center justify-center shadow-lg z-10"
-              >
-                <ChevronLeft className="w-5 h-5" />
-              </button>
-              <button
-                type="button"
-                onClick={() => mobileCarouselApi?.scrollNext()}
-                className="absolute right-4 top-1/2 -translate-y-1/2 w-8 h-8 bg-white/90 rounded-full flex items-center justify-center shadow-lg z-10"
-              >
-                <ChevronRight className="w-5 h-5" />
-              </button>
-            </>
-          )}
-        </div>
-      </div>
-
-      {/* Full Screen Gallery Modal */}
+      {/* ------------------------------------------------------------------- */}
+      {/* Full Screen Gallery Modal (shared across all variations)            */}
+      {/* ------------------------------------------------------------------- */}
       {showGallery && (
         <div className="fixed inset-0 z-50 bg-black">
           <div className="absolute top-4 right-4 z-20">
@@ -396,7 +270,6 @@ export default function PropertyDetailPage({
                 ))}
               </CarouselContent>
             </Carousel>
-            {/* Navigation buttons */}
             <button
               type="button"
               onClick={() => galleryCarouselApi?.scrollPrev()}
@@ -431,355 +304,9 @@ export default function PropertyDetailPage({
         </div>
       )}
 
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 pb-24 lg:pb-8">
-        {/* Title Section */}
-        <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4 mb-8">
-          <div>
-            <h1 className="text-2xl md:text-3xl font-semibold text-foreground">{property.title}</h1>
-            <div className="flex flex-wrap items-center gap-x-4 gap-y-2 mt-2 text-muted-foreground">
-              {property.reviews.averageRating && (
-                <span className="flex items-center gap-1">
-                  <Star className="w-4 h-4 fill-primary text-primary" />
-                  <span className="font-medium text-foreground">
-                    {property.reviews.averageRating.toFixed(1)}
-                  </span>
-                  <span>({property.reviews.count} avis)</span>
-                </span>
-              )}
-              <span className="flex items-center gap-1">
-                <MapPin className="w-4 h-4" />
-                {property.neighborhood ? `${property.neighborhood}, ` : ''}
-                {property.city}
-              </span>
-              {property.verificationStatus === 'approved' && (
-                <span className="flex items-center gap-1 text-success">
-                  <BadgeCheck className="w-4 h-4" />
-                  Vérifié
-                </span>
-              )}
-            </div>
-          </div>
-          <div className="flex items-center gap-3">
-            <Button variant="outline" size="sm" className="flex items-center gap-2 border-border">
-              <Share2 className="w-4 h-4" />
-              <span>Partager</span>
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={handleToggleSave}
-              className={cn(
-                'flex items-center gap-2 border-border',
-                isSaved && 'text-primary border-primary'
-              )}
-            >
-              <Heart className={cn('w-4 h-4', isSaved && 'fill-primary')} />
-              <span>{isSaved ? 'Enregistré' : 'Enregistrer'}</span>
-            </Button>
-          </div>
-        </div>
-
-        <div className="grid lg:grid-cols-3 gap-8 lg:gap-12">
-          {/* Main Content */}
-          <div className="lg:col-span-2 space-y-10">
-            {/* Property Stats */}
-            <div className="flex flex-wrap items-center gap-6 pb-6 border-b border-border">
-              <div className="text-center">
-                <div className="text-2xl font-semibold text-foreground">
-                  {propertyTypeLabels[property.propertyType] || property.propertyType}
-                </div>
-                <div className="text-sm text-muted-foreground">Type</div>
-              </div>
-              <div className="w-px h-10 bg-border" />
-              <div className="text-center">
-                <div className="text-2xl font-semibold text-foreground">
-                  {property.cautionMonths}
-                </div>
-                <div className="text-sm text-muted-foreground">Mois de caution</div>
-              </div>
-              <div className="w-px h-10 bg-border" />
-              <div className="text-center">
-                <div className="text-2xl font-semibold text-foreground">
-                  {property.upfrontMonths}
-                </div>
-                <div className="text-sm text-muted-foreground">Mois d'avance</div>
-              </div>
-            </div>
-
-            {/* Landlord Preview */}
-            {property.landlord && (
-              <div className="flex items-center justify-between py-6 border-b border-border">
-                <div className="flex items-center gap-4">
-                  <Avatar className="h-14 w-14 border-2 border-white shadow-md">
-                    <AvatarImage src={property.landlord.profileImageUrl || undefined} />
-                    <AvatarFallback className="bg-gradient-to-br from-primary to-primary-hover text-white text-lg">
-                      {property.landlord.firstName?.[0] || '?'}
-                      {property.landlord.lastName?.[0] || ''}
-                    </AvatarFallback>
-                  </Avatar>
-                  <div>
-                    <div className="flex items-center gap-2">
-                      <span className="font-medium text-foreground">
-                        Proposé par {property.landlord.firstName || 'Propriétaire'}
-                      </span>
-                      {property.landlord.idVerified && (
-                        <BadgeCheck className="w-5 h-5 text-success" />
-                      )}
-                    </div>
-                    <p className="text-sm text-muted-foreground">
-                      Publié le {formatListingDate(property._creationTime, locale)}
-                    </p>
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {/* Description */}
-            {property.description && (
-              <div>
-                <h2 className="text-xl font-semibold text-foreground mb-4">
-                  À propos de ce logement
-                </h2>
-                <div className="prose prose-neutral max-w-none">
-                  {property.description.split('\n\n').map((paragraph: string) => (
-                    <p
-                      key={paragraph.slice(0, 50)}
-                      className="text-muted-foreground mb-4 whitespace-pre-line leading-relaxed"
-                    >
-                      {paragraph}
-                    </p>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {/* Amenities */}
-            {enabledAmenities.length > 0 && (
-              <div className="pt-6 border-t border-border">
-                <h2 className="text-xl font-semibold text-foreground mb-6">
-                  Ce que propose ce logement
-                </h2>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  {enabledAmenities.map((amenityKey) => {
-                    const amenity = amenityConfig[amenityKey];
-                    if (!amenity) return null;
-                    const Icon = amenity.icon;
-                    return (
-                      <div key={amenityKey} className="flex items-center gap-4 py-3">
-                        <div className="w-10 h-10 rounded-lg bg-muted flex items-center justify-center">
-                          <Icon className="w-5 h-5 text-foreground" />
-                        </div>
-                        <span className="text-foreground">{amenity.label}</span>
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
-            )}
-
-            {/* Location */}
-            <div className="pt-6 border-t border-border">
-              <h2 className="text-xl font-semibold text-foreground mb-4">Où vous serez</h2>
-              <p className="text-muted-foreground mb-4">
-                {property.neighborhood ? `${property.neighborhood}, ` : ''}
-                {property.city}
-                {property.addressLine1 && <> — {property.addressLine1}</>}
-              </p>
-              <div className="bg-muted rounded-2xl h-64 flex items-center justify-center">
-                <div className="text-center text-muted-foreground">
-                  <MapPin className="w-12 h-12 mx-auto mb-3 text-muted-foreground" />
-                  <p className="font-medium">Carte interactive</p>
-                  <p className="text-sm">Bientôt disponible</p>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Sidebar */}
-          <div className="lg:col-span-1">
-            <div className="sticky top-20 space-y-6">
-              {/* Pricing Card */}
-              <Card className="shadow-xl border-border rounded-2xl overflow-hidden">
-                <CardContent className="p-6">
-                  <div className="mb-6">
-                    <div className="flex items-baseline gap-1">
-                      <span className="text-3xl font-semibold text-foreground font-mono tabular-nums">
-                        {formatCurrency(property.rentAmount, locale)}
-                      </span>
-                      <span className="text-muted-foreground">{property.currency}</span>
-                    </div>
-                    <span className="text-muted-foreground">/mois</span>
-                  </div>
-
-                  <div className="space-y-3 mb-6">
-                    <div className="flex justify-between text-sm">
-                      <span className="text-muted-foreground">
-                        Caution ({property.cautionMonths} mois)
-                      </span>
-                      <span className="font-medium font-mono tabular-nums">
-                        {formatCurrency(property.rentAmount * property.cautionMonths, locale)}{' '}
-                        {property.currency}
-                      </span>
-                    </div>
-                    <div className="flex justify-between text-sm">
-                      <span className="text-muted-foreground">
-                        Avance ({property.upfrontMonths} mois)
-                      </span>
-                      <span className="font-medium font-mono tabular-nums">
-                        {formatCurrency(property.rentAmount * property.upfrontMonths, locale)}{' '}
-                        {property.currency}
-                      </span>
-                    </div>
-                    <div className="h-px bg-border my-3" />
-                    <div className="flex justify-between font-semibold text-lg">
-                      <span>Total à l'entrée</span>
-                      <span className="font-mono tabular-nums">
-                        {formatCurrency(totalEntry, locale)} {property.currency}
-                      </span>
-                    </div>
-                  </div>
-
-                  {isSignedIn ? (
-                    <div className="space-y-3">
-                      <Button
-                        className="w-full bg-primary hover:bg-primary-hover text-white"
-                        size="lg"
-                        onClick={() => setShowContactDialog(true)}
-                      >
-                        <MessageCircle className="w-4 h-4 mr-2" />
-                        Contacter le propriétaire
-                      </Button>
-                      {/* "Plan a visit" hidden until scheduling feature is ready */}
-                    </div>
-                  ) : (
-                    <Link href="/sign-in" className="block">
-                      <Button
-                        className="w-full bg-primary hover:bg-primary-hover text-white"
-                        size="lg"
-                      >
-                        Se connecter pour contacter
-                      </Button>
-                    </Link>
-                  )}
-
-                  <p className="text-xs text-center text-muted-foreground mt-4 flex items-center justify-center gap-1">
-                    <Lock className="w-3 h-3" />
-                    Vos informations sont protégées
-                  </p>
-                </CardContent>
-              </Card>
-
-              {/* Landlord Card */}
-              {property.landlord && (
-                <Card className="border-border rounded-2xl">
-                  <CardContent className="p-6">
-                    <div className="flex items-center gap-4 mb-4">
-                      <Avatar className="h-16 w-16 border-2 border-white shadow-md">
-                        <AvatarImage src={property.landlord.profileImageUrl || undefined} />
-                        <AvatarFallback className="bg-gradient-to-br from-primary to-primary-hover text-white text-xl">
-                          {property.landlord.firstName?.[0] || '?'}
-                          {property.landlord.lastName?.[0] || ''}
-                        </AvatarFallback>
-                      </Avatar>
-                      <div>
-                        <div className="flex items-center gap-2">
-                          <span className="font-semibold text-lg">
-                            {property.landlord.firstName} {property.landlord.lastName}
-                          </span>
-                          {property.landlord.idVerified && (
-                            <BadgeCheck className="w-5 h-5 text-success" />
-                          )}
-                        </div>
-                        {property.reviews.count > 0 && (
-                          <div className="flex items-center gap-1 text-sm text-muted-foreground">
-                            <Star className="w-4 h-4 fill-primary text-primary" />
-                            <span className="font-medium text-foreground">
-                              {property.reviews.averageRating?.toFixed(1)}
-                            </span>
-                            <span>• {property.reviews.count} avis</span>
-                          </div>
-                        )}
-                      </div>
-                    </div>
-
-                    <div className="mt-4 space-y-2">
-                      {property.landlord.idVerified && (
-                        <div className="flex items-center gap-2 text-sm text-success">
-                          <BadgeCheck className="w-4 h-4" />
-                          <span>Identité vérifiée</span>
-                        </div>
-                      )}
-                    </div>
-                  </CardContent>
-                </Card>
-              )}
-
-              {/* Safety Tips */}
-              <Card className="dusk-info-card rounded-2xl">
-                <CardContent className="p-6">
-                  <div className="flex items-center gap-2 mb-4">
-                    <Shield className="w-5 h-5 text-primary" />
-                    <h4 className="font-semibold">Conseils de sécurité</h4>
-                  </div>
-                  <ul className="space-y-3 text-sm text-muted-foreground">
-                    <li className="flex items-start gap-2">
-                      <span className="text-primary">•</span>
-                      <span>Visitez toujours la propriété avant de payer</span>
-                    </li>
-                    <li className="flex items-start gap-2">
-                      <span className="text-primary">•</span>
-                      <span>Utilisez Piol pour vos paiements sécurisés</span>
-                    </li>
-                    <li className="flex items-start gap-2">
-                      <span className="text-primary">•</span>
-                      <span>Ne partagez jamais vos informations bancaires</span>
-                    </li>
-                  </ul>
-                </CardContent>
-              </Card>
-            </div>
-          </div>
-        </div>
-      </main>
-
-      {/* Mobile Bottom Bar */}
-      <div className="lg:hidden fixed bottom-0 left-0 right-0 bg-background border-t border-border px-4 sm:px-6 pt-4 pb-[max(1rem,env(safe-area-inset-bottom))] z-40">
-        <div className="flex items-center justify-between">
-          <div>
-            <div className="flex items-baseline gap-1">
-              <span className="text-xl font-semibold text-foreground font-mono tabular-nums">
-                {formatCurrency(property.rentAmount, locale)}
-              </span>
-              <span className="text-muted-foreground text-sm">{property.currency}/mois</span>
-            </div>
-            {property.reviews.count > 0 && (
-              <div className="flex items-center gap-1 text-sm text-muted-foreground">
-                <Star className="w-3.5 h-3.5 fill-primary text-primary" />
-                <span>{property.reviews.averageRating?.toFixed(1)}</span>
-                <span>({property.reviews.count})</span>
-              </div>
-            )}
-          </div>
-          {isSignedIn ? (
-            <Button
-              className="bg-primary hover:bg-primary-hover text-white"
-              size="lg"
-              onClick={() => setShowContactDialog(true)}
-            >
-              <MessageCircle className="w-4 h-4 mr-2" />
-              Contacter
-            </Button>
-          ) : (
-            <Link href="/sign-in">
-              <Button className="bg-primary hover:bg-primary-hover text-white" size="lg">
-                Se connecter
-              </Button>
-            </Link>
-          )}
-        </div>
-      </div>
-
-      {/* Contact Dialog */}
+      {/* ------------------------------------------------------------------- */}
+      {/* Contact Dialog (shared across all variations)                       */}
+      {/* ------------------------------------------------------------------- */}
       <Dialog open={showContactDialog} onOpenChange={setShowContactDialog}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
@@ -790,7 +317,6 @@ export default function PropertyDetailPage({
             </DialogDescription>
           </DialogHeader>
 
-          {/* Property Preview */}
           <div className="flex items-center gap-3 p-3 bg-muted rounded-lg">
             <img
               src={images[0]}
