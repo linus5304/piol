@@ -42,6 +42,8 @@ pnpm-debug.log*
 # Testing
 coverage/
 .nyc_output/
+apps/web/playwright-report/
+apps/web/test-results/
 
 # Mobile (React Native / Expo)
 .expo/
@@ -60,6 +62,9 @@ ios/
 *.temp
 .cache/
 
+# Local agent/worktree artifacts
+.claude/worktrees/
+
 # Agent harness (ephemeral session context)
 agent/scratchpad.md
 agent/PROMPT.generated.md
@@ -75,4 +80,3 @@ secrets/
 # package-lock.json
 # yarn.lock
 # pnpm-lock.yaml
-
