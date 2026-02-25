@@ -1,6 +1,6 @@
 import { PageHeader, PageSection, PublicLayout } from '@/components/layouts/public-layout';
 import { Button } from '@/components/ui/button';
-import { CheckCircle2, Shield, Users } from 'lucide-react';
+import { CheckCircle2, MessageSquare, Users } from 'lucide-react';
 import Link from 'next/link';
 
 export default function AboutPage() {
@@ -20,8 +20,9 @@ export default function AboutPage() {
         <h2 className="text-2xl font-bold mb-6">Notre Mission</h2>
         <p className="text-muted-foreground text-lg mb-6 max-w-3xl">
           Le marché locatif camerounais souffre de nombreux problèmes : annonces frauduleuses, frais
-          cachés, manque de transparence et difficultés de paiement. Nous avons créé Piol pour
-          résoudre ces problèmes et offrir une expérience de location moderne et sécurisée.
+          cachés, manque de transparence et difficulté à joindre des propriétaires fiables. Nous
+          avons créé Piol pour résoudre ces problèmes et offrir une expérience de location moderne,
+          simple et digne de confiance.
         </p>
         <div className="grid md:grid-cols-3 gap-8 mt-12">
           <div className="text-center">
@@ -35,11 +36,11 @@ export default function AboutPage() {
           </div>
           <div className="text-center">
             <div className="w-14 h-14 bg-primary/10 rounded-2xl flex items-center justify-center mx-auto mb-4">
-              <Shield className="w-7 h-7 text-primary" />
+              <MessageSquare className="w-7 h-7 text-primary" />
             </div>
-            <h3 className="text-lg font-semibold mb-2">Paiements Sécurisés</h3>
+            <h3 className="text-lg font-semibold mb-2">Contact Direct</h3>
             <p className="text-muted-foreground">
-              Payez en toute sécurité via MTN MoMo ou Orange Money avec notre système d'escrow.
+              Contactez rapidement les propriétaires, posez vos questions et organisez des visites.
             </p>
           </div>
           <div className="text-center">

@@ -1,7 +1,7 @@
 'use client';
 
 import { isClerkConfigured, useSafeClerk } from '@/hooks/use-safe-auth';
-import { CreditCard, LogOut, MoreVertical, User } from 'lucide-react';
+import { LogOut, MoreVertical, User } from 'lucide-react';
 import Link from 'next/link';
 
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -88,12 +88,6 @@ export function NavUser({
                 <Link href="/dashboard/settings" className="cursor-pointer">
                   <User className="mr-2 h-4 w-4" />
                   Profil
-                </Link>
-              </DropdownMenuItem>
-              <DropdownMenuItem asChild>
-                <Link href="/dashboard/payments" className="cursor-pointer">
-                  <CreditCard className="mr-2 h-4 w-4" />
-                  Paiements
                 </Link>
               </DropdownMenuItem>
             </DropdownMenuGroup>

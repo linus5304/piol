@@ -1,4 +1,5 @@
 'use client';
+'use no memo'; // RHF v7 form.watch() is incompatible with React Compiler
 
 import { cn } from '@/lib/utils';
 import type { PropertyFormInput, PropertyType } from '@/lib/validations';

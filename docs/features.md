@@ -2,6 +2,15 @@
 
 Living document cataloging every feature, its status, and key files.
 
+## Product Priority (Current)
+
+Piol is currently operating in a **growth-first** mode:
+- Prioritize renter and landlord adoption (discovery, trust, messaging, verification).
+- Minimize user-facing friction and avoid payment-first UX.
+- Keep payments/escrow infrastructure in place as monetization-ready backend capabilities, but do not treat them as the primary adoption loop.
+
+See `docs/ops/growth-first-monetization-roadmap.md` for phased monetization strategy once usage grows.
+
 ---
 
 ## Core Features
@@ -30,7 +39,7 @@ Living document cataloging every feature, its status, and key files.
 | MTN MoMo | Complete (backend) | `actions/mtnMomo.ts`, `actions/payments.ts` | USSD prompt, status polling, disbursement. Auth-gated public wrappers |
 | Orange Money | Complete (backend) | `actions/orangeMoney.ts`, `actions/payments.ts` | Web redirect payment, status polling, webhook callback |
 | Escrow | Complete (backend) | `transactions.ts`, `actions/payments.ts` | Funds held until move-in confirmed. 5% commission on disbursement |
-| Payment History | Partial | `transactions.ts`, `app/dashboard/payments/page.tsx` | Backend complete; UI shows transaction list but no payment initiation flow |
+| Payment History | Partial (de-emphasized UX) | `transactions.ts`, `app/dashboard/payments/page.tsx` | Backend complete; UI shows transaction list but no payment initiation flow, and payments are not a primary navigation focus in growth-first mode |
 | Webhook Verification | Complete | `http.ts` | Bearer token auth on MTN MoMo and Orange Money webhooks |
 
 ## Property Verification
@@ -61,7 +70,7 @@ Living document cataloging every feature, its status, and key files.
 | Feature | Status | Key Files | Notes |
 |---------|--------|-----------|-------|
 | Admin Dashboard | Partial | `users.ts`, `app/dashboard/admin/page.tsx` | Stats (users, properties, transactions). Basic UI |
-| User Management | Partial | `users.ts`, `app/dashboard/admin/users/page.tsx` | List/filter by role, update role, verify ID, toggle active |
+| User Management | Implemented | `users.ts`, `app/dashboard/admin/users/page.tsx` | List/filter by role, update role, verify ID, toggle active |
 | Verification Queue | Complete | `verifications.ts`, `app/dashboard/verify/page.tsx` | Pending properties, claim, process, complete |
 
 ## Not Yet Implemented
@@ -74,4 +83,4 @@ Living document cataloging every feature, its status, and key files.
 | Reviews UI | Missing | No page to submit/browse reviews (backend is complete) |
 | Notification Center | Missing | No dedicated page (notifications created on backend) |
 | Email/SMS Notifications | Missing | Only in-app notifications exist |
-| Payment Initiation Flow | Missing | No UI to start a payment from property detail page |
+| Payment Initiation Flow | Intentionally deferred | Held for later monetization rollout after adoption milestones |

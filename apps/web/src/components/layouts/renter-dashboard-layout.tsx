@@ -15,7 +15,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { useSafeClerk, useSafeUser } from '@/hooks/use-safe-auth';
 import { cn } from '@/lib/utils';
-import { Bell, CreditCard, LogOut, Settings, User } from 'lucide-react';
+import { Bell, LogOut, Settings, User } from 'lucide-react';
 import Link from 'next/link';
 
 interface RenterDashboardLayoutProps {
@@ -69,12 +69,6 @@ export function RenterDashboardLayout({ children, className }: RenterDashboardLa
                   <Link href="/dashboard/settings" className="cursor-pointer">
                     <User className="mr-2 h-4 w-4" />
                     Profil
-                  </Link>
-                </DropdownMenuItem>
-                <DropdownMenuItem asChild>
-                  <Link href="/dashboard/payments" className="cursor-pointer">
-                    <CreditCard className="mr-2 h-4 w-4" />
-                    Paiements
                   </Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem asChild>

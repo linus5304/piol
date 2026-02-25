@@ -438,12 +438,6 @@ function LandlordDashboard({
             <CardTitle className="text-sm font-semibold">
               {t('dashboard.recentTransactions')}
             </CardTitle>
-            <Link
-              href="/dashboard/payments"
-              className="text-xs text-muted-foreground hover:text-foreground inline-flex items-center gap-1"
-            >
-              {t('dashboard.viewAllArrow')} <ArrowUpRight className="h-3 w-3" />
-            </Link>
           </CardHeader>
           <CardContent className="p-0">
             {txLoading ? (
@@ -644,12 +638,6 @@ function RenterDashboard({
         <Card className="border-border/50">
           <CardHeader className="pb-3 flex flex-row items-center justify-between">
             <CardTitle className="text-sm font-semibold">{t('dashboard.recentActivity')}</CardTitle>
-            <Link
-              href="/dashboard/payments"
-              className="text-xs text-muted-foreground hover:text-foreground inline-flex items-center gap-1"
-            >
-              {t('dashboard.viewAllArrow')} <ArrowUpRight className="h-3 w-3" />
-            </Link>
           </CardHeader>
           <CardContent className="p-0">
             {txLoading ? (
