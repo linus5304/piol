@@ -422,6 +422,30 @@ function PropertiesPageContent() {
           <div className="border-t border-border">
             <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8 py-4">
               <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                {/* City filter - visible on mobile (hidden on sm+ where it's in the search bar) */}
+                <div className="sm:hidden">
+                  <span className="block text-sm font-medium mb-2">{t('search.allCities')}</span>
+                  <Select
+                    value={selectedCity ?? 'all'}
+                    onValueChange={(v) => setSelectedCity(v === 'all' ? undefined : v)}
+                  >
+                    <SelectTrigger
+                      className="rounded-xl border-border"
+                      aria-label={t('search.allCities')}
+                    >
+                      <MapPin className="h-4 w-4 mr-2" />
+                      <SelectValue placeholder={t('search.allCities')} />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">{t('search.allCities')}</SelectItem>
+                      {cities.map((city) => (
+                        <SelectItem key={city} value={city}>
+                          {city}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
                 <div>
                   <span className="block text-sm font-medium mb-2">{t('filters.priceRange')}</span>
                   <Select value={priceRange} onValueChange={setPriceRange}>
@@ -496,7 +520,11 @@ function PropertiesPageContent() {
                 {selectedCity && (
                   <Badge variant="secondary" className="gap-1 rounded-full">
                     {selectedCity}
-                    <button type="button" onClick={() => setSelectedCity(undefined)}>
+                    <button
+                      type="button"
+                      onClick={() => setSelectedCity(undefined)}
+                      aria-label="Remove filter"
+                    >
                       <X className="w-3 h-3" />
                     </button>
                   </Badge>
@@ -506,7 +534,11 @@ function PropertiesPageContent() {
                     {t(
                       propertyCategories.find((c) => c.value === selectedCategory)?.labelKey || ''
                     )}
-                    <button type="button" onClick={() => setSelectedCategory('all')}>
+                    <button
+                      type="button"
+                      onClick={() => setSelectedCategory('all')}
+                      aria-label="Remove filter"
+                    >
                       <X className="w-3 h-3" />
                     </button>
                   </Badge>
@@ -517,6 +549,8 @@ function PropertiesPageContent() {
               <button
                 type="button"
                 onClick={() => setViewMode('grid')}
+                aria-label="Grid view"
+                aria-pressed={viewMode === 'grid'}
                 className={`p-2 transition-colors ${viewMode === 'grid' ? 'bg-accent text-foreground' : 'hover:bg-accent/50 text-muted-foreground'}`}
               >
                 <Grid3X3 className="w-4 h-4" />
@@ -524,6 +558,8 @@ function PropertiesPageContent() {
               <button
                 type="button"
                 onClick={() => setViewMode('map')}
+                aria-label="Map view"
+                aria-pressed={viewMode === 'map'}
                 className={`p-2 transition-colors ${viewMode === 'map' ? 'bg-accent text-foreground' : 'hover:bg-accent/50 text-muted-foreground'}`}
               >
                 <MapIcon className="w-4 h-4" />
@@ -646,7 +682,7 @@ function PropertiesPageContent() {
       </div>
 
       {/* Floating Map Button - Mobile */}
-      <div className="fixed bottom-6 left-1/2 -translate-x-1/2 md:hidden z-50">
+      <div className="fixed bottom-[max(1.5rem,env(safe-area-inset-bottom))] left-1/2 -translate-x-1/2 md:hidden z-50">
         <Button
           onClick={() => setViewMode(viewMode === 'grid' ? 'map' : 'grid')}
           className="shadow-lg rounded-full bg-primary text-primary-foreground hover:bg-primary-hover"

@@ -31,11 +31,7 @@ function ApplicationsListContent() {
   return (
     <div className="space-y-6 pb-8">
       {/* Header */}
-      <PageHeader
-        backHref="/dashboard/admin"
-        title={t('admin.applications')}
-        subtitle={t('admin.applicationsDesc')}
-      />
+      <PageHeader title={t('admin.applications')} subtitle={t('admin.applicationsDesc')} />
 
       {/* Applications Table */}
       <Card>

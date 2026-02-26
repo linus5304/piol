@@ -200,7 +200,7 @@ export function Header({ variant = 'default', navItems }: HeaderProps) {
                   <Menu className="h-5 w-5" />
                 </Button>
               </SheetTrigger>
-              <SheetContent side="right" className="w-80">
+              <SheetContent side="right" className="w-[min(20rem,100vw-1rem)]">
                 <SheetHeader className="text-left pb-6">
                   <SheetTitle>
                     <Logo size="sm" asLink={false} />
@@ -225,7 +225,7 @@ export function Header({ variant = 'default', navItems }: HeaderProps) {
                   </div>
                 )}
 
-                <nav className="flex flex-col gap-1">
+                <nav className="flex-1 flex flex-col gap-1 overflow-y-auto">
                   {activeNavItems.map((item) => {
                     const Icon = item.icon;
                     return (
@@ -272,7 +272,7 @@ export function Header({ variant = 'default', navItems }: HeaderProps) {
                   )}
                 </nav>
 
-                <div className="absolute bottom-8 left-6 right-6">
+                <div className="sticky bottom-0 left-0 right-0 p-6 bg-background border-t">
                   {isSignedIn ? (
                     <Button
                       variant="outline"

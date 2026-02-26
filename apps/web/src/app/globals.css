@@ -14,6 +14,9 @@
   /* Border Radius */
   --radius: 0.5rem;
 
+  /* Layout */
+  --header-height: 3.5rem;
+
   /* Primary - Amber accent (CTAs only) */
   --primary: #e8a838;
   --primary-hover: #d49a2e;

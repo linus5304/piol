@@ -84,7 +84,7 @@ export default async function RootLayout({
           <ConnectionStatus />
           <Providers>{children}</Providers>
         </GTProvider>
-        <Toaster position="top-right" richColors />
+        <Toaster position="top-right" />
         <Analytics />
         <SpeedInsights />
       </body>

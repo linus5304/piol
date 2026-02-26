@@ -20,7 +20,9 @@
     "loadMore": "Voir plus",
     "noConnection": "Pas de connexion internet",
     "connectionRestored": "Connexion rétablie",
-    "slowConnection": "Connexion lente détectée"
+    "slowConnection": "Connexion lente détectée",
+    "saving": "Enregistrement...",
+    "processing": "Traitement..."
   },
   "nav": {
     "home": "Accueil",
@@ -184,7 +186,6 @@
     "last3Months": "3 derniers mois",
     "thisYear": "Cette année",
     "recentTransactions": "Transactions récentes",
-    "viewAllArrow": "Voir tout →",
     "recentActivity": "Activité récente",
     "noTransactions": "Aucune transaction pour le moment",
     "noActivity": "Aucune activité pour le moment",
@@ -483,7 +484,9 @@
     "firstNameRequired": "Le prénom est requis",
     "lastNameRequired": "Le nom est requis",
     "phoneInvalid": "Entrez un numéro camerounais valide (ex. 6XX XXX XXX)",
-    "phonePlaceholder": "6XX XXX XXX"
+    "phonePlaceholder": "6XX XXX XXX",
+    "toastProfileUpdated": "Profil mis à jour avec succès",
+    "toastProfileError": "Erreur lors de la mise à jour du profil. Veuillez réessayer."
   },
   "messages": {
     "title": "Messages",
@@ -700,7 +703,26 @@
     "reviewedBy": "Examiné par",
     "reviewedAt": "Examiné le",
     "recentApplications": "Candidatures récentes",
-    "viewAllApplications": "Voir tout"
+    "viewAllApplications": "Voir tout",
+    "toastApproveError": "Erreur lors de l'approbation de la candidature. Veuillez réessayer.",
+    "toastRejectError": "Erreur lors du rejet de la candidature. Veuillez réessayer.",
+    "toastUserDeactivated": "Utilisateur désactivé",
+    "toastUserActivated": "Utilisateur activé",
+    "toastStatusError": "Erreur lors de la mise à jour du statut",
+    "toastVerificationRemoved": "Vérification retirée",
+    "toastUserVerified": "Utilisateur vérifié",
+    "toastVerificationError": "Erreur lors de la mise à jour de la vérification",
+    "toastUserDeleted": "Utilisateur supprimé (désactivé)",
+    "toastDeleteError": "Erreur lors de la suppression de l'utilisateur",
+    "toastProfileUpdated": "Profil mis à jour avec succès",
+    "toastProfileError": "Erreur lors de la mise à jour du profil"
+  },
+  "verify": {
+    "toastApproved": "Propriété approuvée avec succès",
+    "toastAlreadyAssigned": "Cette propriété est déjà en cours de vérification",
+    "toastApproveError": "Erreur lors de l'approbation de la propriété. Veuillez réessayer.",
+    "toastRejected": "Propriété rejetée",
+    "toastRejectError": "Erreur lors du rejet de la propriété. Veuillez réessayer."
   },
   "errors": {
     "title": "Une erreur est survenue",

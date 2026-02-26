@@ -21,6 +21,7 @@ import {
 import { api } from '@repo/convex/_generated/api';
 import type { Id } from '@repo/convex/_generated/dataModel';
 import { useMutation } from 'convex/react';
+import { useTranslations } from 'gt-next/client';
 import { Loader2 } from 'lucide-react';
 import { useCallback, useEffect, useState } from 'react';
 import { toast } from 'sonner';
@@ -41,6 +42,7 @@ interface EditUserDialogProps {
 }
 
 export function EditUserDialog({ open, onOpenChange, user }: EditUserDialogProps) {
+  const t = useTranslations();
   const [firstName, setFirstName] = useState(user.firstName ?? '');
   const [lastName, setLastName] = useState(user.lastName ?? '');
   const [phone, setPhone] = useState(user.phone ?? '');
@@ -87,10 +89,10 @@ export function EditUserDialog({ open, onOpenChange, user }: EditUserDialogProps
             role: role as 'renter' | 'landlord' | 'verifier',
           });
         }
-        toast.success('Profil mis à jour avec succès');
+        toast.success(t('admin.toastProfileUpdated'));
         onOpenChange(false);
-      } catch (error) {
-        toast.error('Erreur lors de la mise à jour du profil');
+      } catch {
+        toast.error(t('admin.toastProfileError'));
       } finally {
         setIsSubmitting(false);
       }
@@ -105,6 +107,7 @@ export function EditUserDialog({ open, onOpenChange, user }: EditUserDialogProps
       phone,
       role,
       onOpenChange,
+      t,
     ]
   );
 

@@ -21,8 +21,14 @@ export default function PaymentsLoading() {
         ))}
       </div>
 
-      {/* Table skeleton */}
-      <div className="rounded-lg border border-border">
+      {/* Mobile: card layout */}
+      <div className="md:hidden space-y-4">
+        {ROW_KEYS.map((id) => (
+          <Skeleton key={id} className="h-24 w-full rounded-lg" />
+        ))}
+      </div>
+      {/* Desktop: table rows */}
+      <div className="hidden md:block rounded-lg border border-border">
         <div className="flex items-center gap-4 p-4 border-b border-border bg-muted/50">
           <Skeleton className="h-4 w-32" />
           <Skeleton className="h-4 w-28" />

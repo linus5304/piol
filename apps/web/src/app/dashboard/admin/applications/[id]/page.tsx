@@ -24,7 +24,7 @@ import type { Id } from '@repo/convex/_generated/dataModel';
 import { useMutation, useQuery } from 'convex/react';
 import { useTranslations } from 'gt-next';
 import { useLocale } from 'gt-next/client';
-import { AlertCircle, ArrowLeft, CheckCircle, Loader2, XCircle } from 'lucide-react';
+import { AlertCircle, CheckCircle, Loader2, XCircle } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { use, useState } from 'react';
@@ -58,15 +58,22 @@ function ApplicationDetailContent({
 
   const handleApprove = async () => {
     setIsProcessing(true);
+    const promise = reviewApplication({
+      applicationId,
+      decision: 'approved',
+    });
+
+    toast.promise(promise, {
+      loading: t('common.processing'),
+      success: t('admin.applicationApproved'),
+      error: t('admin.toastApproveError'),
+    });
+
     try {
-      await reviewApplication({
-        applicationId,
-        decision: 'approved',
-      });
-      toast.success(t('admin.applicationApproved'));
+      await promise;
       setShowApproveDialog(false);
-    } catch (error) {
-      toast.error('Error approving application');
+    } catch {
+      // error already handled by toast.promise
     } finally {
       setIsProcessing(false);
     }
@@ -75,16 +82,23 @@ function ApplicationDetailContent({
   const handleReject = async () => {
     if (!rejectionReason.trim()) return;
     setIsProcessing(true);
+    const promise = reviewApplication({
+      applicationId,
+      decision: 'rejected',
+      rejectionReason,
+    });
+
+    toast.promise(promise, {
+      loading: t('common.processing'),
+      success: t('admin.applicationRejected'),
+      error: t('admin.toastRejectError'),
+    });
+
     try {
-      await reviewApplication({
-        applicationId,
-        decision: 'rejected',
-        rejectionReason,
-      });
-      toast.success(t('admin.applicationRejected'));
+      await promise;
       setShowRejectDialog(false);
-    } catch (error) {
-      toast.error('Error rejecting application');
+    } catch {
+      // error already handled by toast.promise
     } finally {
       setIsProcessing(false);
     }
@@ -104,9 +118,6 @@ function ApplicationDetailContent({
       <div className="text-center py-12">
         <AlertCircle className="w-12 h-12 text-destructive mx-auto mb-4" />
         <h2 className="text-xl font-semibold mb-2">Application not found</h2>
-        <Link href="/dashboard/admin/applications">
-          <Button variant="outline">Back to applications</Button>
-        </Link>
       </div>
     );
   }
@@ -117,11 +128,6 @@ function ApplicationDetailContent({
     <div className="space-y-6 pb-8">
       {/* Header */}
       <div className="flex items-center gap-4">
-        <Link href="/dashboard/admin/applications">
-          <Button variant="ghost" size="icon">
-            <ArrowLeft className="h-4 w-4" />
-          </Button>
-        </Link>
         <div className="flex-1">
           <h1 className="text-2xl font-bold tracking-tight">{t('admin.applications')}</h1>
           <p className="text-muted-foreground">

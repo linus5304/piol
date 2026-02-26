@@ -200,12 +200,14 @@ function ThreadHeader({
   return (
     <div className="flex items-center gap-3 pb-4 border-b">
       {showBackButton && (
-        <Link href="/dashboard/messages">
-          <Button variant="ghost" size="sm">
-            <ArrowLeft className="h-4 w-4 mr-1" />
-            {t('common.back')}
-          </Button>
-        </Link>
+        <div className="md:hidden">
+          <Link href="/dashboard/messages">
+            <Button variant="ghost" size="sm">
+              <ArrowLeft className="h-4 w-4 mr-1" />
+              {t('common.back')}
+            </Button>
+          </Link>
+        </div>
       )}
       <Avatar className="h-10 w-10">
         <AvatarImage src={otherUser?.imageUrl ?? undefined} />
@@ -218,11 +220,18 @@ function ThreadHeader({
         {property && <p className="text-sm text-muted-foreground truncate">{property.title}</p>}
       </div>
       {propertyId && (
-        <Link href={`/properties/${propertyId}`}>
-          <Button variant="outline" size="sm">
-            {t('messages.viewProperty')}
-          </Button>
-        </Link>
+        <>
+          <Link href={`/properties/${propertyId}`} className="hidden sm:inline-flex">
+            <Button variant="outline" size="sm">
+              {t('messages.viewProperty')}
+            </Button>
+          </Link>
+          <Link href={`/properties/${propertyId}`} className="sm:hidden">
+            <Button variant="outline" size="icon-sm">
+              <Home className="h-4 w-4" />
+            </Button>
+          </Link>
+        </>
       )}
     </div>
   );

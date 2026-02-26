@@ -127,7 +127,7 @@ export default function SettingsPage() {
 
   const onSubmit = async (data: SettingsFormValues) => {
     setIsSubmitting(true);
-    try {
+    const promise = (async () => {
       await user?.update({
         firstName: data.firstName,
         lastName: data.lastName,
@@ -147,11 +147,18 @@ export default function SettingsPage() {
       if (data.phone?.trim()) {
         form.setValue('phone', formatPhoneDisplay(data.phone));
       }
+    })();
 
-      toast.success('Profil mis à jour avec succès!');
-    } catch (error) {
-      console.error('Error updating profile:', error);
-      toast.error('Erreur lors de la mise à jour du profil');
+    toast.promise(promise, {
+      loading: t('common.saving'),
+      success: t('settings.toastProfileUpdated'),
+      error: t('settings.toastProfileError'),
+    });
+
+    try {
+      await promise;
+    } catch {
+      // error already handled by toast.promise
     } finally {
       setIsSubmitting(false);
     }
