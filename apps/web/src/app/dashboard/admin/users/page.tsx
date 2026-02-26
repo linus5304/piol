@@ -48,7 +48,7 @@ import { ROLE_COLORS, ROLE_LABELS, type UserRole } from '@/lib/permissions';
 import { api } from '@repo/convex/_generated/api';
 import type { Id } from '@repo/convex/_generated/dataModel';
 import { useMutation, usePaginatedQuery, useQuery } from 'convex/react';
-import { useLocale } from 'gt-next/client';
+import { useLocale, useTranslations } from 'gt-next/client';
 import {
   AlertCircle,
   CheckCircle,
@@ -77,6 +77,7 @@ function formatUserDate(timestamp: number, locale: string): string {
 
 function UserManagementContent() {
   const locale = parseAppLocale(useLocale());
+  const t = useTranslations();
   const router = useRouter();
   const { isAdmin, isLoaded, canManage } = usePermissions();
 
@@ -133,38 +134,43 @@ function UserManagementContent() {
 
   const handleToggleStatus = useCallback(
     async (userId: Id<'users'>, currentlyActive: boolean) => {
-      try {
-        await toggleUserStatus({ userId, isActive: !currentlyActive });
-        toast.success(currentlyActive ? 'Utilisateur désactivé' : 'Utilisateur activé');
-      } catch (error) {
-        toast.error('Erreur lors de la mise à jour du statut');
-      }
+      const promise = toggleUserStatus({ userId, isActive: !currentlyActive });
+      toast.promise(promise, {
+        loading: t('common.processing'),
+        success: currentlyActive ? t('admin.toastUserDeactivated') : t('admin.toastUserActivated'),
+        error: t('admin.toastStatusError'),
+      });
+      await promise.catch(() => {});
     },
-    [toggleUserStatus]
+    [toggleUserStatus, t]
   );
 
   const handleVerifyUser = useCallback(
     async (userId: Id<'users'>, currentlyVerified: boolean) => {
-      try {
-        await verifyUserId({ userId, verified: !currentlyVerified });
-        toast.success(currentlyVerified ? 'Vérification retirée' : 'Utilisateur vérifié');
-      } catch (error) {
-        toast.error('Erreur lors de la mise à jour de la vérification');
-      }
+      const promise = verifyUserId({ userId, verified: !currentlyVerified });
+      toast.promise(promise, {
+        loading: t('common.processing'),
+        success: currentlyVerified
+          ? t('admin.toastVerificationRemoved')
+          : t('admin.toastUserVerified'),
+        error: t('admin.toastVerificationError'),
+      });
+      await promise.catch(() => {});
     },
-    [verifyUserId]
+    [verifyUserId, t]
   );
 
   const handleDeleteUser = useCallback(
     async (userId: Id<'users'>) => {
-      try {
-        await toggleUserStatus({ userId, isActive: false });
-        toast.success('Utilisateur supprimé (désactivé)');
-      } catch (error) {
-        toast.error("Erreur lors de la suppression de l'utilisateur");
-      }
+      const promise = toggleUserStatus({ userId, isActive: false });
+      toast.promise(promise, {
+        loading: t('common.processing'),
+        success: t('admin.toastUserDeleted'),
+        error: t('admin.toastDeleteError'),
+      });
+      await promise.catch(() => {});
     },
-    [toggleUserStatus]
+    [toggleUserStatus, t]
   );
 
   // Filter users (role filter is server-side, search is client-side)
@@ -191,7 +197,6 @@ function UserManagementContent() {
     <div className="space-y-6 pb-8">
       {/* Header */}
       <PageHeader
-        backHref="/dashboard/admin"
         title="Gestion des utilisateurs"
         subtitle="Gérer les comptes, rôles et permissions des utilisateurs"
       />

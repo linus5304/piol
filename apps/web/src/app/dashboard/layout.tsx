@@ -5,6 +5,7 @@ import type React from 'react';
 import { AppSidebar } from '@/components/app-sidebar';
 import { SiteHeader } from '@/components/site-header';
 import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar';
+import { Spinner } from '@/components/ui/spinner';
 import { useEnsureUser } from '@/hooks/use-ensure-user';
 import { useSafeUser } from '@/hooks/use-safe-auth';
 import { usePathname, useRouter } from 'next/navigation';
@@ -34,7 +35,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   if (!isLoaded) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
-        <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
+        <Spinner className="size-8" />
+        <span className="sr-only">Loading...</span>
       </div>
     );
   }

@@ -19,7 +19,6 @@ import { useQuery } from 'convex/react';
 import { useLocale } from 'gt-next/client';
 import {
   AlertCircle,
-  ArrowRight,
   Building2,
   CheckCircle,
   Clock,
@@ -260,10 +259,7 @@ function VerifyDashboardContent() {
                       <Badge variant="secondary">Non assigné</Badge>
                     )}
                     <Link href={`/dashboard/verify/${property._id}`}>
-                      <Button size="sm" className="gap-1">
-                        Vérifier
-                        <ArrowRight className="h-3 w-3" />
-                      </Button>
+                      <Button size="sm">Vérifier</Button>
                     </Link>
                   </div>
                 </div>

@@ -1,8 +1,8 @@
 'use client';
 
 import { Button } from '@/components/ui/button';
+import { Spinner } from '@/components/ui/spinner';
 import { cn } from '@/lib/utils';
-import { Loader2 } from 'lucide-react';
 
 interface PaginationFooterProps {
   status: 'LoadingFirstPage' | 'CanLoadMore' | 'LoadingMore' | 'Exhausted';
@@ -40,7 +40,10 @@ export function PaginationFooter({
         </>
       )}
       {status === 'LoadingMore' && (
-        <Loader2 className="w-5 h-5 animate-spin text-muted-foreground" />
+        <>
+          <Spinner className="size-5 text-muted-foreground" />
+          <span className="sr-only">Loading...</span>
+        </>
       )}
       {status === 'Exhausted' && (
         <p className="text-sm text-muted-foreground font-mono tabular-nums">

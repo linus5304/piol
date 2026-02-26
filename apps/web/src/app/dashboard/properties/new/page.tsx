@@ -59,8 +59,8 @@ export default function NewPropertyPage() {
   return (
     <div className="max-w-4xl mx-auto space-y-6">
       <div className="flex items-center gap-4">
-        <Link href="/dashboard/properties" className="text-muted-foreground hover:text-foreground">
-          {t('newProperty.back')}
+        <Link href="/dashboard/properties">
+          <Button variant="ghost">{t('common.cancel')}</Button>
         </Link>
         <h1 className="text-2xl font-bold text-foreground">{t('newProperty.title')}</h1>
       </div>

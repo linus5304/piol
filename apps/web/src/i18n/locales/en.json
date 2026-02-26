@@ -20,7 +20,9 @@
     "loadMore": "Load more",
     "noConnection": "No internet connection",
     "connectionRestored": "Connection restored",
-    "slowConnection": "Slow connection detected"
+    "slowConnection": "Slow connection detected",
+    "saving": "Saving...",
+    "processing": "Processing..."
   },
   "nav": {
     "home": "Home",
@@ -184,7 +186,6 @@
     "last3Months": "Last 3 months",
     "thisYear": "This year",
     "recentTransactions": "Recent transactions",
-    "viewAllArrow": "View all →",
     "recentActivity": "Recent activity",
     "noTransactions": "No transactions yet",
     "noActivity": "No activity yet",
@@ -483,7 +484,9 @@
     "firstNameRequired": "First name is required",
     "lastNameRequired": "Last name is required",
     "phoneInvalid": "Enter a valid Cameroon number (e.g. 6XX XXX XXX)",
-    "phonePlaceholder": "6XX XXX XXX"
+    "phonePlaceholder": "6XX XXX XXX",
+    "toastProfileUpdated": "Profile updated successfully",
+    "toastProfileError": "Error updating profile. Please try again."
   },
   "messages": {
     "title": "Messages",
@@ -700,7 +703,26 @@
     "reviewedBy": "Reviewed by",
     "reviewedAt": "Reviewed on",
     "recentApplications": "Recent Applications",
-    "viewAllApplications": "View all"
+    "viewAllApplications": "View all",
+    "toastApproveError": "Error approving application. Please try again.",
+    "toastRejectError": "Error rejecting application. Please try again.",
+    "toastUserDeactivated": "User deactivated",
+    "toastUserActivated": "User activated",
+    "toastStatusError": "Error updating user status",
+    "toastVerificationRemoved": "Verification removed",
+    "toastUserVerified": "User verified",
+    "toastVerificationError": "Error updating verification",
+    "toastUserDeleted": "User deleted (deactivated)",
+    "toastDeleteError": "Error deleting user",
+    "toastProfileUpdated": "Profile updated successfully",
+    "toastProfileError": "Error updating profile"
+  },
+  "verify": {
+    "toastApproved": "Property approved successfully",
+    "toastAlreadyAssigned": "This property is already being verified",
+    "toastApproveError": "Error approving property. Please try again.",
+    "toastRejected": "Property rejected",
+    "toastRejectError": "Error rejecting property. Please try again."
   },
   "errors": {
     "title": "Something went wrong",

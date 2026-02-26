@@ -329,9 +329,6 @@ export default function EditPropertyPage({ params }: { params: Promise<{ id: str
           {t('editProperty.notFound')}
         </h1>
         <p className="text-muted-foreground mb-8">{t('editProperty.notFoundDesc')}</p>
-        <Link href="/dashboard/properties">
-          <Button>{t('editProperty.backToProperties')}</Button>
-        </Link>
       </div>
     );
   }
@@ -353,17 +350,9 @@ export default function EditPropertyPage({ params }: { params: Promise<{ id: str
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <div className="flex items-center gap-4">
-          <Link
-            href="/dashboard/properties"
-            className="text-muted-foreground hover:text-foreground"
-          >
-            {t('editProperty.back')}
-          </Link>
-          <div>
-            <h1 className="text-2xl font-bold text-foreground">{t('editProperty.title')}</h1>
-            <p className="text-muted-foreground">{property.title}</p>
-          </div>
+        <div>
+          <h1 className="text-2xl font-bold text-foreground">{t('editProperty.title')}</h1>
+          <p className="text-muted-foreground">{property.title}</p>
         </div>
         <div className="flex gap-2">
           {property.status === 'active' && (

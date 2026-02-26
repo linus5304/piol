@@ -385,7 +385,7 @@ function LandlordDashboard({
                 href="/dashboard/properties"
                 className="text-xs text-muted-foreground hover:text-foreground inline-flex items-center gap-1"
               >
-                {t('dashboard.viewAllArrow')} <ArrowUpRight className="h-3 w-3" />
+                {t('common.viewAll')} <ArrowUpRight className="h-3 w-3" />
               </Link>
             </div>
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">

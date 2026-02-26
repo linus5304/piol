@@ -167,13 +167,18 @@ export function NotificationPanel({ onClose }: NotificationPanelProps) {
                   {items.map((notification) => {
                     const Icon = NOTIFICATION_ICONS[notification.notificationType] || Bell;
                     return (
-                      <button
+                      <div
                         key={notification._id}
-                        type="button"
-                        className={`group flex w-full items-start gap-3 p-3 text-left transition-colors hover:bg-muted/50 ${
+                        className={`group flex w-full items-start gap-3 p-3 text-left transition-colors hover:bg-muted/50 cursor-pointer ${
                           !notification.isRead ? 'bg-primary/5' : ''
                         }`}
                         onClick={() => handleClickNotification(notification)}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter' || e.key === ' ') {
+                            e.preventDefault();
+                            handleClickNotification(notification);
+                          }
+                        }}
                         data-testid="notification-item"
                       >
                         <div
@@ -202,22 +207,22 @@ export function NotificationPanel({ onClose }: NotificationPanelProps) {
                           </p>
                         </div>
                         <div className="flex shrink-0 items-center gap-1.5">
-                          <span className="text-[11px] text-muted-foreground group-hover:hidden">
+                          <span className="text-[11px] text-muted-foreground">
                             {formatTimestamp(notification._creationTime, locale)}
                           </span>
                           {!notification.isRead && (
-                            <span className="h-2.5 w-2.5 rounded-full bg-primary group-hover:hidden" />
+                            <span className="h-2.5 w-2.5 rounded-full bg-primary" />
                           )}
                           <button
                             type="button"
-                            className="hidden group-hover:flex p-1 rounded-sm hover:bg-muted"
+                            className="p-1 rounded-sm text-muted-foreground/50 hover:text-muted-foreground hover:bg-muted"
                             onClick={(e) => handleDelete(e, notification._id)}
                             aria-label={t('notifications.dismiss')}
                           >
-                            <X className="h-3.5 w-3.5 text-muted-foreground" />
+                            <X className="h-3.5 w-3.5" />
                           </button>
                         </div>
-                      </button>
+                      </div>
                     );
                   })}
                 </div>

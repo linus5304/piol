@@ -1,7 +1,9 @@
 'use client';
 
+import { Button } from '@/components/ui/button';
+import { Spinner } from '@/components/ui/spinner';
 import { cn } from '@/lib/utils';
-import { Loader2, Send } from 'lucide-react';
+import { Send } from 'lucide-react';
 import { type FormEvent, type KeyboardEvent, useCallback, useRef, useState } from 'react';
 
 const MAX_LENGTH = 2000;
@@ -88,19 +90,15 @@ export function MessageComposer({
             aria-label="Message input"
           />
         </div>
-        <button
+        <Button
           type="submit"
+          size="icon-lg"
           disabled={!canSend}
-          className={cn(
-            'inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary text-primary-foreground transition-all',
-            'hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
-            'disabled:pointer-events-none disabled:opacity-50',
-            canSend && 'active:scale-95'
-          )}
+          className={cn('shrink-0 rounded-lg', canSend && 'active:scale-95')}
           aria-label="Send message"
         >
-          {isSending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
-        </button>
+          {isSending ? <Spinner className="size-4" /> : <Send className="h-4 w-4" />}
+        </Button>
       </div>
       {showCharCount && (
         <p

@@ -17,7 +17,6 @@ import { useMutation, useQuery } from 'convex/react';
 import { useLocale, useTranslations } from 'gt-next/client';
 import {
   AlertCircle,
-  ArrowLeft,
   Building2,
   Calendar,
   CheckCircle,
@@ -128,13 +127,13 @@ function VerifyPropertyContent({ propertyId }: { propertyId: string }) {
         notes: notes || 'Propriété vérifiée et approuvée.',
       });
 
-      toast.success('Propriété approuvée avec succès');
+      toast.success(t('verify.toastApproved'));
       router.push('/dashboard/verify');
     } catch (error) {
       if (error instanceof Error && error.message.includes('already assigned')) {
-        toast.error('Cette propriété est déjà en cours de vérification');
+        toast.error(t('verify.toastAlreadyAssigned'));
       } else {
-        toast.error("Erreur lors de l'approbation");
+        toast.error(t('verify.toastApproveError'));
       }
     } finally {
       setIsSubmitting(false);
@@ -163,13 +162,13 @@ function VerifyPropertyContent({ propertyId }: { propertyId: string }) {
         notes,
       });
 
-      toast.success('Propriété rejetée');
+      toast.success(t('verify.toastRejected'));
       router.push('/dashboard/verify');
     } catch (error) {
       if (error instanceof Error && error.message.includes('already assigned')) {
-        toast.error('Cette propriété est déjà en cours de vérification');
+        toast.error(t('verify.toastAlreadyAssigned'));
       } else {
-        toast.error('Erreur lors du rejet');
+        toast.error(t('verify.toastRejectError'));
       }
     } finally {
       setIsSubmitting(false);
@@ -208,9 +207,6 @@ function VerifyPropertyContent({ propertyId }: { propertyId: string }) {
         <p className="text-muted-foreground mb-4">
           Cette propriété n'existe pas ou a été supprimée.
         </p>
-        <Link href="/dashboard/verify">
-          <Button>Retour aux vérifications</Button>
-        </Link>
       </div>
     );
   }
@@ -221,11 +217,6 @@ function VerifyPropertyContent({ propertyId }: { propertyId: string }) {
     <div className="space-y-6 pb-8">
       {/* Header */}
       <div className="flex items-center gap-4">
-        <Link href="/dashboard/verify">
-          <Button variant="ghost" size="icon">
-            <ArrowLeft className="h-4 w-4" />
-          </Button>
-        </Link>
         <div className="flex-1">
           <h1 className="text-2xl font-bold tracking-tight">{property.title}</h1>
           <p className="text-muted-foreground flex items-center gap-1">
