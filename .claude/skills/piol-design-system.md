@@ -5,6 +5,8 @@ description: Piol housing marketplace design system. Use for all UI work, compon
 
 # Piol Design System
 
+> For core UI/design token rules, see `.claude/rules/ui.md` (loaded automatically when editing components).
+
 Piol is a Cameroon housing marketplace. UI should feel modern, trustworthy, and accessible to both urban renters and property owners.
 
 ## Design Philosophy
@@ -25,37 +27,7 @@ Use fonts that feel trustworthy but modern:
 - Body: Readable on mobile screens
 - Never default to system fonts without intention
 
-## Color System (Design Tokens)
-Reference `apps/web/src/app/globals.css`:
-```css
---primary       /* Brand color - main actions */
---secondary     /* Supporting elements */
---destructive   /* Errors, delete, warnings */
---muted         /* Disabled, subtle text */
---accent        /* Highlights, badges */
---background    /* Page backgrounds */
---foreground    /* Primary text */
---card          /* Card backgrounds */
---border        /* Borders, dividers */
-```
-
-**Rules:**
-- NEVER use hex codes directly (`#FF385C`)
-- ALWAYS use tokens: `bg-primary`, `text-muted-foreground`
-- For new colors, add to CSS variables first
-
-## Component Library (shadcn/ui)
-Check existing before creating:
-```bash
-ls apps/web/src/components/ui/
-```
-
-Install new components:
-```bash
-bunx --bun shadcn@latest add <component-name>
-```
-
-### Component Patterns
+## Component Patterns
 | Need | Component | Notes |
 |------|-----------|-------|
 | Primary actions | `<Button>` | default variant |
@@ -68,7 +40,6 @@ bunx --bun shadcn@latest add <component-name>
 | Notifications | `<Toast>` | via sonner |
 
 ## Motion & Interactions
-Add life, don't be flat:
 - Hover states on interactive elements
 - Smooth transitions (150-300ms)
 - Loading skeletons that shimmer
@@ -80,22 +51,6 @@ Add life, don't be flat:
 - Use `bg-muted/50` for section backgrounds
 - Consider subtle gradients for hero sections
 - Property images need proper aspect ratios (4:3 or 16:9)
-
-## Responsive Design
-Mobile-first (most Piol users on phones):
-```
-sm:  640px   /* Larger phones */
-md:  768px   /* Tablets */
-lg:  1024px  /* Laptops */
-xl:  1280px  /* Desktops */
-```
-
-## i18n
-No hardcoded strings - all user-facing text through i18n:
-```typescript
-const { t } = useTranslation();
-<p>{t('property.price')}</p>
-```
 
 ## Checklist Before Committing UI
 - [ ] Used existing shadcn component (or installed new one)

@@ -413,6 +413,13 @@ export const completeOnboarding = mutation({
   handler: async (ctx, args) => {
     const { user } = await getAuthUser(ctx);
 
+    // Validate phone format if provided
+    if (args.phone !== undefined && args.phone !== '' && !CM_PHONE_RE.test(args.phone)) {
+      throw new Error(
+        'Invalid Cameroon phone number. Expected format: +237 6XXXXXXXX or +237 2XXXXXXXX'
+      );
+    }
+
     await ctx.db.patch(user._id, {
       role: args.role,
       phone: args.phone,

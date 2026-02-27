@@ -18,6 +18,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { toStoragePhone } from '@/lib/validations/common';
 import { api } from '@repo/convex/_generated/api';
 import type { Id } from '@repo/convex/_generated/dataModel';
 import { useMutation } from 'convex/react';
@@ -25,8 +26,6 @@ import { useTranslations } from 'gt-next/client';
 import { Loader2 } from 'lucide-react';
 import { useCallback, useEffect, useState } from 'react';
 import { toast } from 'sonner';
-
-const CM_PHONE_RE = /^\+237[62]\d{8}$/;
 
 interface EditUserDialogProps {
   open: boolean;
@@ -68,8 +67,9 @@ export function EditUserDialog({ open, onOpenChange, user }: EditUserDialogProps
     async (e: React.FormEvent) => {
       e.preventDefault();
 
-      // Validate phone
-      if (phone && !CM_PHONE_RE.test(phone)) {
+      // Validate & normalize phone to storage format (+237XXXXXXXXX)
+      const storagePhone = phone ? toStoragePhone(phone) : undefined;
+      if (phone && !storagePhone) {
         setPhoneError('Format attendu: +237 6XXXXXXXX ou +237 2XXXXXXXX');
         return;
       }
@@ -81,7 +81,7 @@ export function EditUserDialog({ open, onOpenChange, user }: EditUserDialogProps
           userId: user._id,
           firstName: firstName.trim() || undefined,
           lastName: lastName.trim() || undefined,
-          phone: phone.trim() || undefined,
+          phone: storagePhone,
         });
         if (role !== user.role && user.role !== 'admin') {
           await updateUserRole({
