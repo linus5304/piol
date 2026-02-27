@@ -1,30 +1,34 @@
+'use client';
+
 import { PageHeader, PageSection, PublicLayout } from '@/components/layouts/public-layout';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { HelpCircle, Mail, MessageSquare, Phone } from 'lucide-react';
+import { useTranslations } from 'gt-next/client';
+import { Mail, MessageSquare } from 'lucide-react';
 import Link from 'next/link';
 
 export default function HelpPage() {
+  const t = useTranslations();
+
   const helpTopics = [
     {
-      title: 'Recherche de logement',
-      description: 'Comment trouver et filtrer les propriétés qui correspondent à vos besoins.',
+      title: t('help.topicSearchTitle'),
+      description: t('help.topicSearchDesc'),
       href: '/properties',
     },
     {
-      title: 'Contacter un propriétaire',
-      description: 'Comment envoyer des messages et organiser des visites.',
+      title: t('help.topicContactTitle'),
+      description: t('help.topicContactDesc'),
       href: '/contact',
     },
     {
-      title: 'Sécurité et vérification',
-      description:
-        'Comment reconnaître une annonce fiable, contacter un propriétaire et préparer une visite.',
+      title: t('help.topicSecurityTitle'),
+      description: t('help.topicSecurityDesc'),
       href: '/contact',
     },
     {
-      title: 'Publier une annonce',
-      description: 'Guide pour les propriétaires souhaitant publier leurs biens.',
+      title: t('help.topicPublishTitle'),
+      description: t('help.topicPublishDesc'),
       href: '/sign-up?role=landlord',
     },
   ];
@@ -32,11 +36,7 @@ export default function HelpPage() {
   return (
     <PublicLayout>
       <PageSection>
-        <PageHeader
-          title="Centre d'aide"
-          description="Trouvez des réponses à vos questions et obtenez l'assistance dont vous avez besoin."
-          centered
-        />
+        <PageHeader title={t('help.title')} description={t('help.description')} centered />
 
         <div className="grid gap-6 md:grid-cols-2 max-w-4xl mx-auto mt-12">
           {helpTopics.map((topic) => (
@@ -48,7 +48,7 @@ export default function HelpPage() {
               <CardContent>
                 <Link href={topic.href}>
                   <Button variant="outline" size="sm">
-                    En savoir plus
+                    {t('help.learnMore')}
                   </Button>
                 </Link>
               </CardContent>
@@ -57,15 +57,15 @@ export default function HelpPage() {
         </div>
 
         <div className="mt-16 text-center">
-          <h2 className="text-2xl font-semibold mb-4">Besoin d'aide supplémentaire?</h2>
+          <h2 className="text-2xl font-semibold mb-4">{t('help.needMoreHelp')}</h2>
           <p className="text-muted-foreground mb-8 max-w-md mx-auto">
-            Notre équipe est là pour vous aider. N'hésitez pas à nous contacter.
+            {t('help.needMoreHelpDesc')}
           </p>
           <div className="flex flex-wrap justify-center gap-4">
             <Link href="/contact">
               <Button className="gap-2">
                 <MessageSquare className="h-4 w-4" />
-                Nous contacter
+                {t('help.contactUs')}
               </Button>
             </Link>
             <a href="mailto:support@piol.cm">

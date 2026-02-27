@@ -142,13 +142,13 @@ export function canManageRole(managerRole: UserRole, targetRole: UserRole): bool
 }
 
 /**
- * Get human-readable role labels
+ * i18n keys for role labels — use with t(ROLE_KEYS[role])
  */
-export const ROLE_LABELS: Record<UserRole, string> = {
-  renter: 'Locataire',
-  landlord: 'Propriétaire',
-  verifier: 'Vérificateur',
-  admin: 'Administrateur',
+export const ROLE_KEYS: Record<UserRole, string> = {
+  renter: 'roles.renter',
+  landlord: 'roles.landlord',
+  verifier: 'roles.verifier',
+  admin: 'roles.admin',
 } as const;
 
 /**

@@ -5,54 +5,53 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Input } from '@/components/ui/input';
 import { isClerkConfigured } from '@/lib/env';
 import { SignUp } from '@clerk/nextjs';
+import { useTranslations } from 'gt-next/client';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 
 // Demo sign-up form when Clerk is not configured
 function DemoSignUpForm() {
+  const t = useTranslations();
   const searchParams = useSearchParams();
   const role = searchParams.get('role');
 
   return (
     <Card className="w-full max-w-md">
       <CardHeader className="text-center">
-        <CardTitle className="text-2xl">Créer un compte</CardTitle>
+        <CardTitle className="text-2xl">{t('auth.signUpTitle')}</CardTitle>
         <CardDescription>
-          {role === 'landlord'
-            ? 'Rejoignez Piol en tant que propriétaire'
-            : 'Trouvez votre prochain logement'}
+          {role === 'landlord' ? t('auth.signUpDescLandlord') : t('auth.signUpDescRenter')}
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
         <div className="bg-warning/10 border border-warning/20 rounded-lg p-4 text-sm text-warning">
-          <strong>Mode Démo:</strong> L'authentification Clerk n'est pas configurée.
+          <strong>{t('auth.demoMode')}:</strong> {t('auth.demoModeDesc')}
           <br />
-          Pour activer l'authentification complète, ajoutez vos clés Clerk dans{' '}
-          <code className="bg-warning/20 px-1 rounded">.env.local</code>
+          {t('auth.demoModeHint')} <code className="bg-warning/20 px-1 rounded">.env.local</code>
         </div>
 
         <div className="space-y-3">
-          <Input placeholder="Email" type="email" disabled />
-          <Input placeholder="Mot de passe" type="password" disabled />
+          <Input placeholder={t('auth.email')} type="email" disabled />
+          <Input placeholder={t('auth.password')} type="password" disabled />
           <Button className="w-full" disabled>
-            S'inscrire (Mode Démo)
+            {t('auth.signUpDemo')}
           </Button>
         </div>
 
         <div className="text-center text-sm text-muted-foreground">
-          Déjà inscrit?{' '}
+          {t('auth.alreadyRegistered')}{' '}
           <Link href="/sign-in" className="text-primary hover:underline">
-            Se connecter
+            {t('auth.signIn')}
           </Link>
         </div>
 
         <div className="pt-4 border-t">
           <p className="text-xs text-muted-foreground text-center">
-            Pour tester l'application, naviguez vers{' '}
+            {t('auth.demoTestHint')}{' '}
             <Link href="/dashboard" className="text-primary hover:underline">
-              le tableau de bord
+              {t('auth.demoTestDashboard')}
             </Link>{' '}
-            directement.
+            {t('auth.demoTestDirectly')}
           </p>
         </div>
       </CardContent>
@@ -61,6 +60,7 @@ function DemoSignUpForm() {
 }
 
 export default function SignUpPage() {
+  const t = useTranslations();
   const searchParams = useSearchParams();
   const role = searchParams.get('role');
 
@@ -76,11 +76,9 @@ export default function SignUpPage() {
   return (
     <div className="flex flex-col items-center">
       <div className="mb-8 text-center">
-        <h1 className="text-3xl font-bold text-foreground mb-2">Créer un compte</h1>
+        <h1 className="text-3xl font-bold text-foreground mb-2">{t('auth.signUpTitle')}</h1>
         <p className="text-muted-foreground">
-          {role === 'landlord'
-            ? 'Rejoignez Piol en tant que propriétaire'
-            : 'Trouvez votre prochain logement'}
+          {role === 'landlord' ? t('auth.signUpDescLandlord') : t('auth.signUpDescRenter')}
         </p>
       </div>
 

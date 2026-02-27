@@ -46,26 +46,26 @@ function formatVerificationCurrency(amount: number, locale: string): string {
   return formatCurrencyFCFA(amount, locale);
 }
 
-const propertyTypeLabels: Record<string, string> = {
-  studio: 'Studio',
-  '1br': '1 Chambre',
-  '2br': '2 Chambres',
-  '3br': '3 Chambres',
-  '4br': '4 Chambres',
-  house: 'Maison',
-  apartment: 'Appartement',
-  villa: 'Villa',
+const propertyTypeKeys: Record<string, string> = {
+  studio: 'property.typeStudio',
+  '1br': 'property.type1br',
+  '2br': 'property.type2br',
+  '3br': 'property.type3br',
+  '4br': 'property.type4br',
+  house: 'property.typeHouse',
+  apartment: 'property.typeApartment',
+  villa: 'property.typeVilla',
 };
 
 // Verification checklist items
 const verificationChecklist = [
-  { id: 'photos', label: 'Photos conformes et récentes', required: true },
-  { id: 'description', label: 'Description exacte et complète', required: true },
-  { id: 'price', label: 'Prix correspondant au marché', required: true },
-  { id: 'address', label: 'Adresse vérifiable', required: true },
-  { id: 'landlord', label: 'Identité du propriétaire vérifiée', required: true },
-  { id: 'amenities', label: 'Équipements confirmés', required: false },
-  { id: 'availability', label: 'Disponibilité confirmée', required: false },
+  { id: 'photos', labelKey: 'verify.checkPhotos', required: true },
+  { id: 'description', labelKey: 'verify.checkDescription', required: true },
+  { id: 'price', labelKey: 'verify.checkPrice', required: true },
+  { id: 'address', labelKey: 'verify.checkAddress', required: true },
+  { id: 'landlord', labelKey: 'verify.checkLandlord', required: true },
+  { id: 'amenities', labelKey: 'verify.checkAmenities', required: false },
+  { id: 'availability', labelKey: 'verify.checkAvailability', required: false },
 ];
 
 function VerifyPropertyContent({ propertyId }: { propertyId: string }) {
@@ -124,7 +124,7 @@ function VerifyPropertyContent({ propertyId }: { propertyId: string }) {
       await completeVerification({
         verificationId,
         status: 'approved',
-        notes: notes || 'Propriété vérifiée et approuvée.',
+        notes: notes || t('verify.defaultApprovalNote'),
       });
 
       toast.success(t('verify.toastApproved'));
@@ -203,10 +203,8 @@ function VerifyPropertyContent({ propertyId }: { propertyId: string }) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[400px] text-center">
         <AlertCircle className="w-12 h-12 text-destructive mb-4" />
-        <h2 className="text-xl font-semibold mb-2">Propriété non trouvée</h2>
-        <p className="text-muted-foreground mb-4">
-          Cette propriété n'existe pas ou a été supprimée.
-        </p>
+        <h2 className="text-xl font-semibold mb-2">{t('verify.propertyNotFound')}</h2>
+        <p className="text-muted-foreground mb-4">{t('verify.propertyNotFoundDesc')}</p>
       </div>
     );
   }
@@ -225,7 +223,7 @@ function VerifyPropertyContent({ propertyId }: { propertyId: string }) {
           </p>
         </div>
         <Badge variant="secondary" className="bg-warning/10 text-warning">
-          En attente de vérification
+          {t('verify.pendingVerificationBadge')}
         </Badge>
       </div>
 
@@ -237,7 +235,7 @@ function VerifyPropertyContent({ propertyId }: { propertyId: string }) {
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <ImageIcon className="h-5 w-5" />
-                Photos ({images.length})
+                {t('verify.photos')} ({images.length})
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -261,7 +259,7 @@ function VerifyPropertyContent({ propertyId }: { propertyId: string }) {
               ) : (
                 <div className="text-center py-8 text-muted-foreground">
                   <ImageIcon className="w-12 h-12 mx-auto mb-2 opacity-50" />
-                  <p>Aucune photo</p>
+                  <p>{t('verify.noPhotos')}</p>
                 </div>
               )}
             </CardContent>
@@ -272,19 +270,21 @@ function VerifyPropertyContent({ propertyId }: { propertyId: string }) {
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Building2 className="h-5 w-5" />
-                Détails de la propriété
+                {t('verify.propertyDetails')}
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <p className="text-sm text-muted-foreground">Type</p>
+                  <p className="text-sm text-muted-foreground">{t('verify.type')}</p>
                   <p className="font-medium">
-                    {propertyTypeLabels[property.propertyType] || property.propertyType}
+                    {propertyTypeKeys[property.propertyType]
+                      ? t(propertyTypeKeys[property.propertyType])
+                      : property.propertyType}
                   </p>
                 </div>
                 <div>
-                  <p className="text-sm text-muted-foreground">Loyer mensuel</p>
+                  <p className="text-sm text-muted-foreground">{t('verify.monthlyRent')}</p>
                   <p className="font-medium font-mono tabular-nums">
                     {formatVerificationCurrency(property.rentAmount, locale)}
                   </p>
@@ -293,13 +293,13 @@ function VerifyPropertyContent({ propertyId }: { propertyId: string }) {
 
               {property.description && (
                 <div>
-                  <p className="text-sm text-muted-foreground mb-1">Description</p>
+                  <p className="text-sm text-muted-foreground mb-1">{t('verify.description')}</p>
                   <p className="text-sm">{property.description}</p>
                 </div>
               )}
 
               <div>
-                <p className="text-sm text-muted-foreground mb-1">Adresse complète</p>
+                <p className="text-sm text-muted-foreground mb-1">{t('verify.fullAddress')}</p>
                 <p className="text-sm">
                   {property.addressLine1}
                   {property.addressLine2 && <>, {property.addressLine2}</>}
@@ -309,7 +309,7 @@ function VerifyPropertyContent({ propertyId }: { propertyId: string }) {
               </div>
 
               <div>
-                <p className="text-sm text-muted-foreground mb-1">Soumis le</p>
+                <p className="text-sm text-muted-foreground mb-1">{t('verify.submittedOnLabel')}</p>
                 <p className="text-sm">{formatVerificationDate(property._creationTime, locale)}</p>
               </div>
             </CardContent>
@@ -320,7 +320,7 @@ function VerifyPropertyContent({ propertyId }: { propertyId: string }) {
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <User className="h-5 w-5" />
-                Informations du propriétaire
+                {t('verify.landlordInfo')}
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -338,17 +338,17 @@ function VerifyPropertyContent({ propertyId }: { propertyId: string }) {
                         {property.landlord.idVerified ? (
                           <Badge variant="secondary" className="bg-success/10 text-success">
                             <CheckCircle className="w-3 h-3 mr-1" />
-                            Identité vérifiée
+                            {t('verify.identityVerified')}
                           </Badge>
                         ) : (
-                          <Badge variant="secondary">Non vérifié</Badge>
+                          <Badge variant="secondary">{t('verify.notVerified')}</Badge>
                         )}
                       </div>
                     </div>
                   </div>
                 </div>
               ) : (
-                <p className="text-muted-foreground">Informations non disponibles</p>
+                <p className="text-muted-foreground">{t('verify.infoUnavailable')}</p>
               )}
             </CardContent>
           </Card>
@@ -361,11 +361,9 @@ function VerifyPropertyContent({ propertyId }: { propertyId: string }) {
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Shield className="h-5 w-5" />
-                Checklist de vérification
+                {t('verify.verificationChecklist')}
               </CardTitle>
-              <CardDescription>
-                Cochez les éléments vérifiés. Les éléments marqués * sont obligatoires.
-              </CardDescription>
+              <CardDescription>{t('verify.checklistDesc')}</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               {verificationChecklist.map((item) => (
@@ -378,7 +376,7 @@ function VerifyPropertyContent({ propertyId }: { propertyId: string }) {
                     }
                   />
                   <Label htmlFor={item.id} className="text-sm leading-none cursor-pointer">
-                    {item.label}
+                    {t(item.labelKey)}
                     {item.required && <span className="text-destructive ml-1">*</span>}
                   </Label>
                 </div>
@@ -389,14 +387,14 @@ function VerifyPropertyContent({ propertyId }: { propertyId: string }) {
           {/* Notes */}
           <Card>
             <CardHeader>
-              <CardTitle>Notes</CardTitle>
-              <CardDescription>Ajoutez des observations ou la raison du rejet</CardDescription>
+              <CardTitle>{t('verify.notes')}</CardTitle>
+              <CardDescription>{t('verify.notesDesc')}</CardDescription>
             </CardHeader>
             <CardContent>
               <Textarea
                 value={notes}
                 onChange={(e) => setNotes(e.target.value)}
-                placeholder="Notes de vérification..."
+                placeholder={t('verify.notesPlaceholder')}
                 rows={4}
               />
             </CardContent>
@@ -415,7 +413,7 @@ function VerifyPropertyContent({ propertyId }: { propertyId: string }) {
                 ) : (
                   <CheckCircle className="h-4 w-4 mr-2" />
                 )}
-                Approuver
+                {t('verify.approve')}
               </Button>
               <Button
                 variant="destructive"
@@ -428,18 +426,32 @@ function VerifyPropertyContent({ propertyId }: { propertyId: string }) {
                 ) : (
                   <XCircle className="h-4 w-4 mr-2" />
                 )}
-                Rejeter
+                {t('verify.reject')}
               </Button>
               <Link href={`/properties/${propertyId}`} target="_blank" className="block">
                 <Button variant="outline" className="w-full">
                   <ExternalLink className="h-4 w-4 mr-2" />
-                  Voir la page publique
+                  {t('verify.viewPublicPage')}
                 </Button>
               </Link>
             </CardContent>
           </Card>
         </div>
       </div>
+    </div>
+  );
+}
+
+function VerifyPropertyAccessDenied() {
+  const t = useTranslations();
+  return (
+    <div className="flex flex-col items-center justify-center min-h-[400px] text-center">
+      <AlertCircle className="w-12 h-12 text-destructive mb-4" />
+      <h2 className="text-xl font-semibold mb-2">{t('common.accessDenied')}</h2>
+      <p className="text-muted-foreground mb-4">{t('common.accessDeniedDesc')}</p>
+      <Link href="/dashboard">
+        <Button>{t('common.backToDashboard')}</Button>
+      </Link>
     </div>
   );
 }
@@ -452,21 +464,7 @@ export default function VerifyPropertyPage({
   const { id } = use(params);
 
   return (
-    <RequireRole
-      roles={['admin', 'verifier']}
-      fallback={
-        <div className="flex flex-col items-center justify-center min-h-[400px] text-center">
-          <AlertCircle className="w-12 h-12 text-destructive mb-4" />
-          <h2 className="text-xl font-semibold mb-2">Accès refusé</h2>
-          <p className="text-muted-foreground mb-4">
-            Vous n'avez pas les permissions nécessaires pour accéder à cette page.
-          </p>
-          <Link href="/dashboard">
-            <Button>Retour au tableau de bord</Button>
-          </Link>
-        </div>
-      }
-    >
+    <RequireRole roles={['admin', 'verifier']} fallback={<VerifyPropertyAccessDenied />}>
       <VerifyPropertyContent propertyId={id} />
     </RequireRole>
   );

@@ -44,7 +44,7 @@ import {
 import { RequireRole, usePermissions } from '@/hooks/use-permissions';
 import { parseAppLocale } from '@/i18n/config';
 import { formatDate } from '@/lib/i18n-format';
-import { ROLE_COLORS, ROLE_LABELS, type UserRole } from '@/lib/permissions';
+import { ROLE_COLORS, ROLE_KEYS, type UserRole } from '@/lib/permissions';
 import { api } from '@repo/convex/_generated/api';
 import type { Id } from '@repo/convex/_generated/dataModel';
 import { useMutation, usePaginatedQuery, useQuery } from 'convex/react';
@@ -196,10 +196,7 @@ function UserManagementContent() {
   return (
     <div className="space-y-6 pb-8">
       {/* Header */}
-      <PageHeader
-        title="Gestion des utilisateurs"
-        subtitle="Gérer les comptes, rôles et permissions des utilisateurs"
-      />
+      <PageHeader title={t('admin.usersTitle')} subtitle={t('admin.usersSubtitle')} />
 
       {/* Filters */}
       <Card>
@@ -208,7 +205,7 @@ function UserManagementContent() {
             <div className="relative flex-1">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input
-                placeholder="Rechercher par nom ou email..."
+                placeholder={t('admin.searchPlaceholder')}
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="pl-10"
@@ -216,14 +213,14 @@ function UserManagementContent() {
             </div>
             <Select value={roleFilter} onValueChange={setRoleFilter}>
               <SelectTrigger className="w-full sm:w-48">
-                <SelectValue placeholder="Filtrer par rôle" />
+                <SelectValue placeholder={t('admin.filterByRole')} />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">Tous les rôles</SelectItem>
-                <SelectItem value="renter">Locataires</SelectItem>
-                <SelectItem value="landlord">Propriétaires</SelectItem>
-                <SelectItem value="verifier">Vérificateurs</SelectItem>
-                <SelectItem value="admin">Administrateurs</SelectItem>
+                <SelectItem value="all">{t('admin.allRoles')}</SelectItem>
+                <SelectItem value="renter">{t('admin.filterRenters')}</SelectItem>
+                <SelectItem value="landlord">{t('admin.filterLandlords')}</SelectItem>
+                <SelectItem value="verifier">{t('admin.filterVerifiers')}</SelectItem>
+                <SelectItem value="admin">{t('admin.filterAdmins')}</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -235,7 +232,7 @@ function UserManagementContent() {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Users className="h-5 w-5" />
-            Utilisateurs
+            {t('admin.statsUsers')}
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -250,11 +247,15 @@ function UserManagementContent() {
               <Table>
                 <TableHeader>
                   <TableRow className="bg-muted/50">
-                    <TableHead>Utilisateur</TableHead>
-                    <TableHead>Rôle</TableHead>
-                    <TableHead className="hidden md:table-cell">Statut</TableHead>
-                    <TableHead className="hidden lg:table-cell">Vérifié</TableHead>
-                    <TableHead className="hidden md:table-cell">Inscrit le</TableHead>
+                    <TableHead>{t('admin.tableUser')}</TableHead>
+                    <TableHead>{t('admin.tableRole')}</TableHead>
+                    <TableHead className="hidden md:table-cell">{t('admin.tableStatus')}</TableHead>
+                    <TableHead className="hidden lg:table-cell">
+                      {t('admin.tableVerified')}
+                    </TableHead>
+                    <TableHead className="hidden md:table-cell">
+                      {t('admin.tableRegisteredOn')}
+                    </TableHead>
                     <TableHead className="w-12" />
                   </TableRow>
                 </TableHeader>
@@ -268,7 +269,7 @@ function UserManagementContent() {
                           </div>
                           <div>
                             <p className="font-medium">
-                              {user.firstName || 'Utilisateur'} {user.lastName || ''}
+                              {user.firstName || t('dashboard.defaultUser')} {user.lastName || ''}
                             </p>
                             <p className="text-sm text-muted-foreground">{user.email}</p>
                           </div>
@@ -279,17 +280,19 @@ function UserManagementContent() {
                           variant="secondary"
                           className={ROLE_COLORS[user.role as UserRole] || ''}
                         >
-                          {ROLE_LABELS[user.role as UserRole] || user.role}
+                          {ROLE_KEYS[user.role as UserRole]
+                            ? t(ROLE_KEYS[user.role as UserRole])
+                            : user.role}
                         </Badge>
                       </TableCell>
                       <TableCell className="hidden md:table-cell">
                         {user.isActive ? (
                           <Badge variant="secondary" className="bg-success/10 text-success">
-                            Actif
+                            {t('admin.statusActive')}
                           </Badge>
                         ) : (
                           <Badge variant="secondary" className="bg-destructive/10 text-destructive">
-                            Inactif
+                            {t('admin.statusInactive')}
                           </Badge>
                         )}
                       </TableCell>
@@ -311,7 +314,7 @@ function UserManagementContent() {
                             </Button>
                           </DropdownMenuTrigger>
                           <DropdownMenuContent align="end">
-                            <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                            <DropdownMenuLabel>{t('common.actions')}</DropdownMenuLabel>
                             <DropdownMenuSeparator />
                             <DropdownMenuItem
                               onClick={() =>
@@ -326,7 +329,7 @@ function UserManagementContent() {
                               }
                             >
                               <Pencil className="h-4 w-4 mr-2" />
-                              Modifier le profil
+                              {t('admin.editProfile')}
                             </DropdownMenuItem>
                             <DropdownMenuItem
                               onClick={() =>
@@ -340,12 +343,12 @@ function UserManagementContent() {
                               {user.idVerified ? (
                                 <>
                                   <ShieldX className="h-4 w-4 mr-2" />
-                                  Retirer vérification
+                                  {t('admin.removeVerification')}
                                 </>
                               ) : (
                                 <>
                                   <ShieldCheck className="h-4 w-4 mr-2" />
-                                  Vérifier identité
+                                  {t('admin.verifyIdentity')}
                                 </>
                               )}
                             </DropdownMenuItem>
@@ -361,12 +364,12 @@ function UserManagementContent() {
                               {user.isActive ? (
                                 <>
                                   <UserX className="h-4 w-4 mr-2" />
-                                  Désactiver
+                                  {t('admin.deactivateUser')}
                                 </>
                               ) : (
                                 <>
                                   <UserCheck className="h-4 w-4 mr-2" />
-                                  Activer
+                                  {t('admin.activateUser')}
                                 </>
                               )}
                             </DropdownMenuItem>
@@ -381,7 +384,7 @@ function UserManagementContent() {
                               }
                             >
                               <Trash2 className="h-4 w-4 mr-2" />
-                              Supprimer
+                              {t('admin.deleteUser')}
                             </DropdownMenuItem>
                           </DropdownMenuContent>
                         </DropdownMenu>
@@ -394,8 +397,8 @@ function UserManagementContent() {
           ) : (
             <div className="text-center py-12 text-muted-foreground">
               <Users className="w-12 h-12 mx-auto mb-4 opacity-50" />
-              <h3 className="text-lg font-medium mb-1">Aucun utilisateur trouvé</h3>
-              <p>Essayez de modifier vos critères de recherche</p>
+              <h3 className="text-lg font-medium mb-1">{t('admin.noUsersFound')}</h3>
+              <p>{t('admin.noUsersFoundDesc')}</p>
             </div>
           )}
           <PaginationFooter
@@ -403,7 +406,7 @@ function UserManagementContent() {
             loadedCount={filteredUsers.length}
             totalCount={adminStats?.totalUsers}
             onLoadMore={() => loadMore(25)}
-            itemLabel="utilisateurs"
+            itemLabel={t('admin.usersLabel')}
           />
         </CardContent>
       </Card>
@@ -417,17 +420,17 @@ function UserManagementContent() {
           <AlertDialogHeader>
             <AlertDialogTitle>
               {pendingStatusToggle?.currentlyActive
-                ? "Désactiver l'utilisateur"
-                : "Activer l'utilisateur"}
+                ? t('admin.deactivateDialogTitle')
+                : t('admin.activateDialogTitle')}
             </AlertDialogTitle>
             <AlertDialogDescription>
               {pendingStatusToggle?.currentlyActive
-                ? `Voulez-vous désactiver le compte de ${pendingStatusToggle?.userName} ? L'utilisateur ne pourra plus se connecter.`
-                : `Voulez-vous réactiver le compte de ${pendingStatusToggle?.userName} ?`}
+                ? t('admin.deactivateDialogDesc', { name: pendingStatusToggle?.userName })
+                : t('admin.activateDialogDesc', { name: pendingStatusToggle?.userName })}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Annuler</AlertDialogCancel>
+            <AlertDialogCancel>{t('common.cancel')}</AlertDialogCancel>
             <AlertDialogAction
               className={
                 pendingStatusToggle?.currentlyActive
@@ -444,7 +447,7 @@ function UserManagementContent() {
                 }
               }}
             >
-              {pendingStatusToggle?.currentlyActive ? 'Désactiver' : 'Activer'}
+              {pendingStatusToggle?.currentlyActive ? t('admin.deactivate') : t('admin.activate')}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
@@ -459,17 +462,17 @@ function UserManagementContent() {
           <AlertDialogHeader>
             <AlertDialogTitle>
               {pendingVerification?.currentlyVerified
-                ? 'Retirer la vérification'
-                : "Vérifier l'identité"}
+                ? t('admin.removeVerifyDialogTitle')
+                : t('admin.verifyDialogTitle')}
             </AlertDialogTitle>
             <AlertDialogDescription>
               {pendingVerification?.currentlyVerified
-                ? `Voulez-vous retirer la vérification d'identité de ${pendingVerification?.userName} ?`
-                : `Voulez-vous vérifier l'identité de ${pendingVerification?.userName} ? Cela ajoutera un badge de confiance à son profil.`}
+                ? t('admin.removeVerifyDialogDesc', { name: pendingVerification?.userName })
+                : t('admin.verifyDialogDesc', { name: pendingVerification?.userName })}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Annuler</AlertDialogCancel>
+            <AlertDialogCancel>{t('common.cancel')}</AlertDialogCancel>
             <AlertDialogAction
               onClick={() => {
                 if (pendingVerification) {
@@ -481,7 +484,7 @@ function UserManagementContent() {
                 }
               }}
             >
-              Confirmer
+              {t('common.confirm')}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
@@ -491,15 +494,13 @@ function UserManagementContent() {
       <AlertDialog open={!!pendingDelete} onOpenChange={(open) => !open && setPendingDelete(null)}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Supprimer l'utilisateur</AlertDialogTitle>
+            <AlertDialogTitle>{t('admin.deleteDialogTitle')}</AlertDialogTitle>
             <AlertDialogDescription>
-              Voulez-vous supprimer le compte de {pendingDelete?.userName} ? Le compte sera
-              désactivé et l'utilisateur ne pourra plus se connecter. Cette action peut être annulée
-              en réactivant le compte.
+              {t('admin.deleteDialogDesc', { name: pendingDelete?.userName })}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Annuler</AlertDialogCancel>
+            <AlertDialogCancel>{t('common.cancel')}</AlertDialogCancel>
             <AlertDialogAction
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
               onClick={() => {
@@ -509,7 +510,7 @@ function UserManagementContent() {
                 }
               }}
             >
-              Supprimer
+              {t('admin.deleteUser')}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
@@ -527,23 +528,23 @@ function UserManagementContent() {
   );
 }
 
+function UsersAccessDeniedFallback() {
+  const t = useTranslations();
+  return (
+    <div className="flex flex-col items-center justify-center min-h-[400px] text-center">
+      <AlertCircle className="w-12 h-12 text-destructive mb-4" />
+      <h2 className="text-xl font-semibold mb-2">{t('common.accessDenied')}</h2>
+      <p className="text-muted-foreground mb-4">{t('common.accessDeniedDesc')}</p>
+      <Link href="/dashboard">
+        <Button>{t('common.backToDashboard')}</Button>
+      </Link>
+    </div>
+  );
+}
+
 export default function UsersManagementPage() {
   return (
-    <RequireRole
-      requiredRole="admin"
-      fallback={
-        <div className="flex flex-col items-center justify-center min-h-[400px] text-center">
-          <AlertCircle className="w-12 h-12 text-destructive mb-4" />
-          <h2 className="text-xl font-semibold mb-2">Accès refusé</h2>
-          <p className="text-muted-foreground mb-4">
-            Vous n'avez pas les permissions nécessaires pour accéder à cette page.
-          </p>
-          <Link href="/dashboard">
-            <Button>Retour au tableau de bord</Button>
-          </Link>
-        </div>
-      }
-    >
+    <RequireRole requiredRole="admin" fallback={<UsersAccessDeniedFallback />}>
       <UserManagementContent />
     </RequireRole>
   );
