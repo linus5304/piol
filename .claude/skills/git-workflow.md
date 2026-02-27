@@ -5,27 +5,7 @@ description: Git workflow patterns for Piol. Use for commits, branches, PRs.
 
 # Piol Git Workflow
 
-## Branch Naming
-- `feat/<ticket>-<description>` - New features
-- `fix/<ticket>-<description>` - Bug fixes
-- `chore/<description>` - Maintenance
-- `docs/<description>` - Documentation
-
-## Commit Messages
-Format: `<scope>(<feature-id>): <description>`
-
-Scopes: `web`, `convex`, `mobile`, `agent`, `chore`
-
-Examples:
-- `web(mvp-2): add property search filters`
-- `convex(mvp-3): implement message pagination`
-- `fix(auth): resolve Clerk token refresh issue`
-
-## Before Committing
-1. Run `bun run lint:fix`
-2. Run `bun run typecheck`
-3. Verify tests pass
-4. Stage specific files (not `git add -A`)
+> For core git rules, see `.claude/rules/git.md` (loaded automatically).
 
 ## Creating PRs
 1. Push branch: `git push -u origin <branch>`
@@ -64,9 +44,3 @@ git worktree remove ../piol-feature-x
 ```
 
 Each worktree is a separate Claude Code session context.
-
-## Dangerous Operations (Avoid)
-- `git push --force` - Use `--force-with-lease` instead
-- `git reset --hard` - Creates data loss risk
-- `git push origin main` - Always use PRs
-- `--no-verify` - Never skip hooks
