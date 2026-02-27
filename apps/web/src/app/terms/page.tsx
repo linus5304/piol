@@ -1,10 +1,13 @@
+'use client';
+
 import { Logo } from '@/components/brand';
 import { parseAppLocale } from '@/i18n/config';
 import { formatDate } from '@/lib/i18n-format';
-import { getLocale } from 'gt-next/server';
+import { useLocale, useTranslations } from 'gt-next/client';
 
-export default async function TermsPage() {
-  const locale = parseAppLocale(await getLocale());
+export default function TermsPage() {
+  const locale = parseAppLocale(useLocale());
+  const t = useTranslations();
 
   return (
     <div className="min-h-screen bg-background">
@@ -16,11 +19,11 @@ export default async function TermsPage() {
       </header>
 
       <main className="max-w-3xl mx-auto px-4 py-16">
-        <h1 className="text-3xl font-bold text-foreground mb-8">Conditions d'utilisation</h1>
+        <h1 className="text-3xl font-bold text-foreground mb-8">{t('terms.title')}</h1>
 
         <div className="prose prose-zinc dark:prose-invert max-w-none">
           <p className="text-muted-foreground mb-6">
-            Dernière mise à jour:{' '}
+            {t('terms.lastUpdated')}{' '}
             {formatDate(new Date(), locale, {
               year: 'numeric',
               month: 'long',
@@ -29,82 +32,60 @@ export default async function TermsPage() {
           </p>
 
           <h2 className="text-xl font-semibold text-foreground mt-8 mb-4">
-            1. Acceptation des conditions
+            {t('terms.section1Title')}
           </h2>
-          <p className="text-muted-foreground mb-4">
-            En accédant à Piol ou en utilisant nos services, vous acceptez d'être lié par ces
-            conditions d'utilisation. Si vous n'acceptez pas ces conditions, veuillez ne pas
-            utiliser notre plateforme.
-          </p>
+          <p className="text-muted-foreground mb-4">{t('terms.section1Text')}</p>
 
           <h2 className="text-xl font-semibold text-foreground mt-8 mb-4">
-            2. Description du service
+            {t('terms.section2Title')}
           </h2>
-          <p className="text-muted-foreground mb-4">
-            Piol est une plateforme de mise en relation entre propriétaires et locataires au
-            Cameroun. Nous facilitons la recherche, la vérification et la location de biens
-            immobiliers.
-          </p>
+          <p className="text-muted-foreground mb-4">{t('terms.section2Text')}</p>
 
           <h2 className="text-xl font-semibold text-foreground mt-8 mb-4">
-            3. Inscription et compte
+            {t('terms.section3Title')}
           </h2>
-          <p className="text-muted-foreground mb-4">
-            Pour utiliser certaines fonctionnalités de Piol, vous devez créer un compte. Vous êtes
-            responsable de maintenir la confidentialité de vos informations de connexion et de
-            toutes les activités sur votre compte.
-          </p>
+          <p className="text-muted-foreground mb-4">{t('terms.section3Text')}</p>
 
           <h2 className="text-xl font-semibold text-foreground mt-8 mb-4">
-            4. Propriétés et annonces
+            {t('terms.section4Title')}
           </h2>
-          <p className="text-muted-foreground mb-4">
-            Les propriétaires sont responsables de l'exactitude des informations publiées sur leurs
-            annonces. Piol vérifie les propriétés mais ne garantit pas l'exactitude de toutes les
-            informations fournies.
-          </p>
-
-          <h2 className="text-xl font-semibold text-foreground mt-8 mb-4">5. Paiements</h2>
-          <p className="text-muted-foreground mb-4">
-            Les paiements effectués via Piol sont sécurisés par notre système d'escrow. Les fonds
-            sont retenus jusqu'à confirmation de la transaction par les deux parties.
-          </p>
+          <p className="text-muted-foreground mb-4">{t('terms.section4Text')}</p>
 
           <h2 className="text-xl font-semibold text-foreground mt-8 mb-4">
-            6. Comportement interdit
+            {t('terms.section5Title')}
           </h2>
-          <p className="text-muted-foreground mb-4">Il est interdit de:</p>
+          <p className="text-muted-foreground mb-4">{t('terms.section5Text')}</p>
+
+          <h2 className="text-xl font-semibold text-foreground mt-8 mb-4">
+            {t('terms.section6Title')}
+          </h2>
+          <p className="text-muted-foreground mb-4">{t('terms.section6Text')}</p>
           <ul className="list-disc list-inside text-muted-foreground mb-4 space-y-2">
-            <li>Publier des informations fausses ou trompeuses</li>
-            <li>Utiliser la plateforme à des fins frauduleuses</li>
-            <li>Harceler d'autres utilisateurs</li>
-            <li>Contourner les systèmes de paiement de Piol</li>
-            <li>Violer les lois camerounaises ou internationales</li>
+            <li>{t('terms.section6Item1')}</li>
+            <li>{t('terms.section6Item2')}</li>
+            <li>{t('terms.section6Item3')}</li>
+            <li>{t('terms.section6Item4')}</li>
+            <li>{t('terms.section6Item5')}</li>
           </ul>
 
           <h2 className="text-xl font-semibold text-foreground mt-8 mb-4">
-            7. Limitation de responsabilité
+            {t('terms.section7Title')}
           </h2>
-          <p className="text-muted-foreground mb-4">
-            Piol ne peut être tenu responsable des litiges entre propriétaires et locataires, des
-            dommages résultant de l'utilisation de la plateforme, ou des problèmes liés aux
-            propriétés listées.
-          </p>
+          <p className="text-muted-foreground mb-4">{t('terms.section7Text')}</p>
 
-          <h2 className="text-xl font-semibold text-foreground mt-8 mb-4">8. Modifications</h2>
-          <p className="text-muted-foreground mb-4">
-            Piol se réserve le droit de modifier ces conditions à tout moment. Les utilisateurs
-            seront informés des modifications importantes par email ou notification.
-          </p>
+          <h2 className="text-xl font-semibold text-foreground mt-8 mb-4">
+            {t('terms.section8Title')}
+          </h2>
+          <p className="text-muted-foreground mb-4">{t('terms.section8Text')}</p>
 
-          <h2 className="text-xl font-semibold text-foreground mt-8 mb-4">9. Contact</h2>
-          <p className="text-muted-foreground mb-4">
-            Pour toute question concernant ces conditions, contactez-nous à:
-          </p>
+          <h2 className="text-xl font-semibold text-foreground mt-8 mb-4">
+            {t('terms.section9Title')}
+          </h2>
+          <p className="text-muted-foreground mb-4">{t('terms.section9Text')}</p>
           <p className="text-muted-foreground">
-            <strong>Email:</strong> legal@piol.cm
+            <strong>{t('terms.contactEmail')}</strong> legal@piol.cm
             <br />
-            <strong>Adresse:</strong> Douala, Cameroun
+            <strong>{t('terms.contactAddress')}</strong> Douala, Cameroun
           </p>
         </div>
       </main>
@@ -112,7 +93,7 @@ export default async function TermsPage() {
       {/* Footer */}
       <footer className="bg-secondary text-muted-foreground py-8 mt-16">
         <div className="max-w-7xl mx-auto px-4 text-center">
-          <p>© {new Date().getFullYear()} Piol. Tous droits réservés.</p>
+          <p>{t('terms.footerRights', { year: new Date().getFullYear() })}</p>
         </div>
       </footer>
     </div>

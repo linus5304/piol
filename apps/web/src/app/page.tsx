@@ -5,114 +5,74 @@ import { Header } from '@/components/header';
 import { homepageNav } from '@/config/navigation';
 import { parseAppLocale } from '@/i18n/config';
 import { formatNumber } from '@/lib/i18n-format';
-import { useLocale } from 'gt-next/client';
-import { ArrowRight, MapPin, Search, Shield, Smartphone } from 'lucide-react';
+import { useLocale, useTranslations } from 'gt-next';
+import { ArrowRight, MapPin, Search, Shield } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { useEffect, useState } from 'react';
 
 // ---------------------------------------------------------------------------
 // Photos
 // ---------------------------------------------------------------------------
 const PHOTOS = [
-  'photo-1522708323590-d24dbb6b0267',
   'photo-1502672260266-1c1ef2d93688',
   'photo-1560448204-e02f11c3d0e2',
-  'photo-1600210492486-724fe5c67fb0',
-  'photo-1600573472591-ee6b68d14c68',
-  'photo-1600585154526-990dced4db0d',
+  'photo-1600596542815-ffad4c1539a9',
+  'photo-1600585154340-be6161a56a0c',
 ];
 const img = (i: number) => `https://images.unsplash.com/${PHOTOS[i % PHOTOS.length]}?w=800&q=80`;
 
 // ---------------------------------------------------------------------------
 // Data
 // ---------------------------------------------------------------------------
-const FEED_ITEMS = [
-  { price: '150,000', location: 'Akwa, Douala', type: '2BR', time: '2h ago' },
-  { price: '85,000', location: 'Bastos, Yaound\u00e9', type: 'Studio', time: '3h ago' },
-  { price: '220,000', location: 'Bonapriso, Douala', type: '3BR', time: '5h ago' },
-  { price: '65,000', location: 'Mvan, Yaound\u00e9', type: '1BR', time: '6h ago' },
-  { price: '180,000', location: 'Bonanjo, Douala', type: '2BR', time: '8h ago' },
-  { price: '120,000', location: 'Nlongkak, Yaound\u00e9', type: '2BR', time: '12h ago' },
-];
-
 const PROPERTIES = [
-  { price: '150,000', location: 'Akwa, Douala', tags: ['2BR', 'furnished', 'parking'] },
-  { price: '85,000', location: 'Bastos, Yaound\u00e9', tags: ['studio', 'wifi', 'security'] },
-  { price: '220,000', location: 'Bonapriso, Douala', tags: ['3BR', 'balcony', 'generator'] },
-  { price: '130,000', location: 'Molyko, Buea', tags: ['2BR', 'furnished', 'wifi'] },
-  { price: '95,000', location: 'Nlongkak, Yaound\u00e9', tags: ['1BR', 'kitchen', 'water'] },
-  { price: '250,000', location: 'Bonanjo, Douala', tags: ['3BR', 'pool', 'parking'] },
+  {
+    price: 150_000,
+    location: 'Akwa, Douala',
+    title: 'Appartement 2 chambres meublé',
+    tags: ['2ch', 'meublé', 'parking'],
+  },
+  {
+    price: 85_000,
+    location: 'Bastos, Yaoundé',
+    title: 'Studio meublé à Bastos',
+    tags: ['studio', 'wifi', 'sécurité'],
+  },
+  {
+    price: 220_000,
+    location: 'Bonapriso, Douala',
+    title: 'Villa 3 chambres avec piscine',
+    tags: ['3ch', 'balcon', 'générateur'],
+  },
+  {
+    price: 130_000,
+    location: 'Molyko, Buea',
+    title: 'Appart 2 chambres à Molyko',
+    tags: ['2ch', 'meublé', 'wifi'],
+  },
 ];
 
 const CITIES = [
-  { name: 'Douala', count: 4821, desc: 'Economic capital' },
-  { name: 'Yaound\u00e9', count: 3912, desc: 'Political capital' },
-  { name: 'Buea', count: 2103, desc: 'University town' },
+  { name: 'cityDouala', sub: 'cityDoualaSub', count: 4821, query: 'Douala' },
+  {
+    name: 'cityYaounde',
+    sub: 'cityYaoundeSub',
+    count: 3912,
+    query: 'Yaoundé',
+  },
+  { name: 'cityBuea', sub: 'cityBueaSub', count: 2103, query: 'Buea' },
 ];
 
 const STEPS = [
-  {
-    id: '01',
-    label: 'SEARCH',
-    title: 'Search',
-    desc: 'Filter by city, neighborhood, budget, and amenities. Every listing shows real photos and GPS coordinates.',
-    icon: Search,
-  },
-  {
-    id: '02',
-    label: 'VERIFY',
-    title: 'Verify',
-    desc: 'Our team visits every property in person. Landlord identity confirmed, photos verified, availability checked.',
-    icon: Shield,
-  },
-  {
-    id: '03',
-    label: 'CONNECT',
-    title: 'Contact & visit',
-    desc: 'Message verified landlords directly, ask questions quickly, and organize visits without middlemen.',
-    icon: Smartphone,
-  },
-];
+  { id: '01', titleKey: 'stepSearchTitle', descKey: 'stepSearchDesc' },
+  { id: '02', titleKey: 'stepVerifyTitle', descKey: 'stepVerifyDesc' },
+  { id: '03', titleKey: 'stepContactTitle', descKey: 'stepContactDesc' },
+] as const;
 
-const TESTIMONIALS = [
-  {
-    quote:
-      'I found my apartment in Bonapriso in 2 days. The photos matched and I contacted the landlord directly the same evening.',
-    name: 'Amina K.',
-    city: 'Douala',
-    role: 'Renter',
-  },
-  {
-    quote:
-      'As a landlord, Piol brought me 3 serious tenants in the first week. No more agents taking huge commissions for doing nothing.',
-    name: 'Jean-Pierre M.',
-    city: 'Yaound\u00e9',
-    role: 'Property owner',
-  },
-  {
-    quote:
-      'I moved from Bamenda to Buea for university and found a verified place near campus in one evening. Messaging made organizing visits easy.',
-    name: 'Grace N.',
-    city: 'Buea',
-    role: 'Student',
-  },
-];
-
-const HERO_SLIDES = [
-  { price: '150,000', location: 'Akwa, Douala', type: '2BR', tag: 'furnished' },
-  { price: '85,000', location: 'Bastos, Yaound\u00e9', type: 'Studio', tag: 'wifi' },
-  { price: '220,000', location: 'Bonapriso, Douala', type: '3BR', tag: 'balcony' },
-  { price: '130,000', location: 'Molyko, Buea', type: '2BR', tag: 'furnished' },
-  { price: '95,000', location: 'Nlongkak, Yaound\u00e9', type: '1BR', tag: 'kitchen' },
-  { price: '250,000', location: 'Bonanjo, Douala', type: '3BR', tag: 'pool' },
-];
-
-const METRICS = [
-  { value: '98.2%', label: 'verified on-ground' },
-  { value: '4.8', label: 'user rating' },
-  { value: '<24h', label: 'response time' },
-  { value: '0 CFA', label: 'to start searching' },
+const HERO_PHOTOS = [
+  { price: 150_000, photo: 0 },
+  { price: 85_000, photo: 1 },
+  { price: 220_000, photo: 2 },
+  { price: 130_000, photo: 3 },
 ];
 
 // ---------------------------------------------------------------------------
@@ -120,182 +80,131 @@ const METRICS = [
 // ---------------------------------------------------------------------------
 export default function HomePage() {
   const locale = parseAppLocale(useLocale());
-  const [activeStep, setActiveStep] = useState(0);
-  const [currentSlide, setCurrentSlide] = useState(0);
-
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setCurrentSlide((prev) => (prev + 1) % PHOTOS.length);
-    }, 8000);
-    return () => clearInterval(timer);
-  }, []);
-
-  const slide = HERO_SLIDES[currentSlide];
+  const t = useTranslations('home');
 
   return (
     <div className="bg-background text-foreground">
       <Header navItems={homepageNav} />
 
       {/* ================================================================= */}
-      {/* HERO — carousel + ken burns + grain + orbs                       */}
+      {/* HERO — navy split layout                                          */}
       {/* ================================================================= */}
-      <section className="relative overflow-hidden" style={{ minHeight: '100svh' }}>
-        <div className="absolute inset-0">
-          {PHOTOS.map((photo, i) => (
-            <div
-              key={photo}
-              className={`hero-slide ${i === currentSlide ? 'hero-slide-active' : ''}`}
-            >
-              <Image
-                src={`https://images.unsplash.com/${photo}?w=1920&q=85`}
-                alt={`Property ${i + 1}`}
-                fill
-                className={`object-cover ${i === currentSlide ? 'hero-ken-burns' : ''}`}
-                sizes="100vw"
-                priority={i === 0}
-              />
-            </div>
-          ))}
-        </div>
+      <section
+        className="relative overflow-hidden bg-[var(--background)]"
+        style={{ minHeight: '100svh' }}
+      >
+        {/* Navy background — uses dark mode tokens */}
+        <div className="absolute inset-0" style={{ backgroundColor: '#0c1222' }} />
 
-        {/* Gradient overlays using CSS background tokens */}
-        <div className="absolute inset-0 pointer-events-none">
-          <div className="absolute inset-0 bg-background/73" />
-          <div className="absolute inset-0 md:hidden bg-gradient-to-b from-background/87 via-background/67 to-background/80" />
-          <div className="absolute inset-0 hidden md:block bg-gradient-to-r from-background/94 via-background/87 to-background/47" />
-          <div
-            className="absolute inset-0 bg-gradient-to-t from-background via-background/87 to-transparent"
-            style={{
-              backgroundSize: '100% 30%',
-              backgroundPosition: 'bottom',
-              backgroundRepeat: 'no-repeat',
-            }}
-          />
-          <div
-            className="absolute inset-0 bg-gradient-to-b from-background/80 to-transparent"
-            style={{ backgroundSize: '100% 18%', backgroundRepeat: 'no-repeat' }}
-          />
-        </div>
+        <div className="relative z-10 mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8 pt-24 pb-16 md:pt-32 md:pb-24">
+          <div className="flex flex-col gap-12 lg:flex-row lg:items-center lg:gap-16">
+            {/* Left column */}
+            <div className="flex-1 max-w-xl">
+              <h1
+                className="font-extrabold tracking-tighter leading-[0.9]"
+                style={{
+                  fontSize: 'clamp(56px, 10vw, 80px)',
+                  color: '#f1f1f1',
+                }}
+              >
+                piol<span style={{ color: '#e8a838' }}>.</span>
+              </h1>
 
-        <div className="hero-grain" />
-
-        {/* Ambient orbs — purely decorative */}
-        <div className="absolute inset-0 pointer-events-none overflow-hidden">
-          <div
-            className="absolute top-[15%] right-[10%] rounded-full blur-[60px] bg-primary/8"
-            style={{
-              width: 'clamp(180px, 35vw, 500px)',
-              height: 'clamp(180px, 35vw, 500px)',
-              animation: 'orbDrift1 18s ease-in-out infinite',
-            }}
-          />
-          <div
-            className="absolute top-[50%] left-[5%] rounded-full blur-[50px] bg-border/13"
-            style={{
-              width: 'clamp(120px, 25vw, 400px)',
-              height: 'clamp(120px, 25vw, 400px)',
-              animation: 'orbDrift2 14s ease-in-out infinite',
-            }}
-          />
-          <div
-            className="absolute bottom-[20%] right-[25%] rounded-full blur-[70px] bg-primary/5"
-            style={{
-              width: 'clamp(150px, 30vw, 450px)',
-              height: 'clamp(150px, 30vw, 450px)',
-              animation: 'orbDrift3 20s ease-in-out infinite',
-            }}
-          />
-        </div>
-
-        <div className="relative z-10 pt-16 pb-24 md:pt-28 md:pb-36">
-          <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8">
-            <h1
-              className="anim-fade-in-up font-extrabold tracking-tighter leading-[0.85]"
-              style={{ fontSize: 'clamp(56px, 14vw, 180px)' }}
-            >
-              piol<span className="text-primary">.</span>
-            </h1>
-
-            <div className="mt-6 max-w-2xl sm:mt-8 md:mt-12">
-              <h2 className="anim-fade-in-up-delay-1 text-xl font-bold tracking-tight sm:text-2xl md:text-4xl lg:text-5xl">
-                Stop renting blind<span className="text-primary">.</span>
+              <h2
+                className="mt-6 font-extrabold tracking-tight leading-[1.1]"
+                style={{
+                  fontSize: 'clamp(28px, 5vw, 48px)',
+                  color: '#f1f1f1',
+                }}
+              >
+                {t('tagline')}
               </h2>
 
-              <p className="anim-fade-in-up-delay-1 mt-3 max-w-xl text-sm leading-relaxed text-foreground/80 sm:text-base md:mt-5 md:text-lg">
-                Every home on Piol is visited and verified by our team. Real photos, real prices,
-                real availability&mdash;pay with mobile money and move in stress&#8209;free.
+              <p
+                className="mt-5 max-w-md text-base leading-relaxed sm:text-lg"
+                style={{ color: '#9ba4b5' }}
+              >
+                {t('subtitle')}
               </p>
 
-              <div className="anim-fade-in-up-delay-2 mt-6 flex flex-col gap-2 rounded-xl border border-border p-2 sm:flex-row sm:items-center sm:gap-3 md:mt-10 bg-card/87 backdrop-blur-xl">
-                <div className="flex flex-1 items-center gap-3 px-3 sm:px-4">
-                  <Search size={18} className="text-muted-foreground" />
+              {/* Search bar */}
+              <div
+                className="mt-8 flex flex-col gap-0 rounded-xl overflow-hidden border sm:flex-row"
+                style={{
+                  backgroundColor: '#141e33',
+                  borderColor: '#1e2a42',
+                }}
+              >
+                <div className="flex flex-1 items-center gap-3 px-4 py-3 sm:py-0">
+                  <Search size={18} style={{ color: '#9ba4b5' }} />
                   <input
                     type="text"
-                    placeholder="Search by city, neighborhood..."
+                    placeholder={t('searchPlaceholder')}
                     className="w-full bg-transparent py-3 text-sm outline-none placeholder:opacity-50 caret-primary"
+                    style={{ color: '#f1f1f1' }}
                   />
                 </div>
                 <Link
                   href="/properties"
-                  className="dusk-btn-amber font-mono text-sm w-full sm:w-auto justify-center"
+                  className="dusk-btn-amber font-mono text-sm justify-center sm:rounded-none"
                 >
-                  Search
+                  {t('searchButton')}
                 </Link>
               </div>
 
-              <div className="font-mono anim-fade-in-up-delay-2 mt-4 flex flex-wrap items-center gap-2 text-xs tracking-wider text-muted-foreground sm:mt-5">
-                <span>12,847 listings</span>
-                <span className="text-border">|</span>
-                <span>5 cities</span>
-                <span className="text-border">|</span>
-                <span>
-                  <span className="text-success">98.2%</span> verified
-                </span>
+              {/* Trust signals */}
+              <div
+                className="mt-5 flex flex-wrap items-center gap-3 font-mono text-xs tracking-wider"
+                style={{ color: '#9ba4b5' }}
+              >
+                <span>{t('statsListings', { count: formatNumber(12847, locale) })}</span>
+                <span style={{ color: '#1e2a42' }}>|</span>
+                <span>{t('statsCities', { count: '5' })}</span>
+                <span style={{ color: '#1e2a42' }}>|</span>
+                <span style={{ color: '#34d399' }}>{t('statsVerified', { percent: '98,2%' })}</span>
               </div>
             </div>
 
-            {/* Floating info card — desktop only */}
-            <div className="pointer-events-none absolute right-8 bottom-36 hidden lg:block xl:right-16">
-              <div className="pointer-events-auto anim-fade-in-up-delay-2 dusk-float-card px-5 py-4">
-                <div className="flex items-center gap-2">
-                  <div className="flex h-5 w-5 items-center justify-center rounded-full bg-success/13">
-                    <Shield size={10} className="text-success" />
+            {/* Right column — 2x2 photo grid */}
+            <div className="hidden lg:grid grid-cols-2 gap-3 w-[560px] flex-shrink-0">
+              {HERO_PHOTOS.map((item, i) => (
+                <div
+                  key={`hero-${PHOTOS[item.photo]}`}
+                  className="relative h-[270px] rounded-xl overflow-hidden"
+                >
+                  <Image
+                    src={img(item.photo)}
+                    alt={`Property ${i + 1}`}
+                    fill
+                    className="object-cover"
+                    sizes="270px"
+                    priority={i === 0}
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent pointer-events-none" />
+                  <div className="absolute bottom-3 left-3 flex flex-col gap-1">
+                    <div
+                      className="flex items-center gap-1 rounded-full px-2 py-0.5 w-fit"
+                      style={{ backgroundColor: 'rgba(52, 211, 153, 0.9)' }}
+                    >
+                      <Shield size={10} style={{ color: '#0c1222' }} />
+                      <span
+                        className="font-mono text-[10px] font-semibold"
+                        style={{ color: '#0c1222' }}
+                      >
+                        Vérifié
+                      </span>
+                    </div>
+                    <span
+                      className="font-mono text-sm font-bold"
+                      style={{
+                        color: '#ffffff',
+                        textShadow: '0 1px 4px rgba(0,0,0,0.5)',
+                      }}
+                    >
+                      {formatNumber(item.price, locale)} F
+                    </span>
                   </div>
-                  <span className="font-mono text-xs font-semibold text-success">Verified</span>
                 </div>
-                <div className="font-mono mt-2 text-lg font-bold text-primary transition-all duration-700">
-                  {slide?.price} F
-                </div>
-                <div className="mt-0.5 flex items-center gap-1 text-xs text-muted-foreground transition-all duration-700">
-                  <MapPin size={10} />
-                  {slide?.location}
-                </div>
-              </div>
-
-              <div className="pointer-events-auto anim-fade-in-up dusk-float-card ml-auto mt-3 w-fit px-3 py-2">
-                <span className="font-mono text-xs font-semibold transition-all duration-700">
-                  {slide?.type}
-                </span>
-                <span className="font-mono ml-1.5 text-xs text-muted-foreground transition-all duration-700">
-                  {slide?.tag}
-                </span>
-              </div>
-            </div>
-
-            {/* Slide dots */}
-            <div className="absolute bottom-8 left-1/2 z-20 flex -translate-x-1/2 items-center gap-2">
-              {PHOTOS.map((_, i) => (
-                <button
-                  key={`dot-${PHOTOS[i]}`}
-                  type="button"
-                  onClick={() => setCurrentSlide(i)}
-                  aria-label={`Go to slide ${i + 1}`}
-                  className={`transition-all duration-500 rounded-full ${
-                    i === currentSlide
-                      ? 'w-6 h-1.5 bg-primary'
-                      : 'w-1.5 h-1.5 bg-muted-foreground/27'
-                  }`}
-                />
               ))}
             </div>
           </div>
@@ -303,108 +212,85 @@ export default function HomePage() {
       </section>
 
       {/* ================================================================= */}
-      {/* HOW IT WORKS                                                      */}
+      {/* HOW IT WORKS — compact strip                                      */}
       {/* ================================================================= */}
-      <section id="how-it-works" className="pb-16 md:pb-32">
+      <section id="how-it-works" className="py-16 md:py-24">
         <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8">
-          <h2 className="mb-8 text-3xl font-extrabold tracking-tight sm:text-4xl md:mb-12 md:text-6xl">
-            How it works<span className="text-primary">.</span>
-          </h2>
+          <p className="font-mono text-xs font-medium uppercase tracking-[0.15em] text-muted-foreground mb-10">
+            {t('howItWorksLabel')}
+          </p>
 
-          <div className="grid gap-4 sm:gap-6 md:grid-cols-3">
-            {STEPS.map((step, i) => {
-              const isActive = i === activeStep;
-              const Icon = step.icon;
-              return (
-                <button
-                  type="button"
-                  key={step.id}
-                  className={`relative cursor-pointer rounded-xl p-5 text-left transition-all sm:p-6 border ${
-                    isActive
-                      ? 'bg-accent border-primary border-l-4'
-                      : 'bg-card border-border hover:border-border/80'
-                  }`}
-                  onClick={() => setActiveStep(i)}
-                >
-                  <div
-                    className={`font-mono mb-4 text-xs font-bold tracking-widest ${
-                      isActive ? 'text-primary' : 'text-muted-foreground'
-                    }`}
-                  >
-                    {step.id}_{step.label}
-                  </div>
-                  <div
-                    className={`mb-3 flex h-10 w-10 items-center justify-center rounded-lg ${
-                      isActive ? 'dusk-accent-badge' : 'bg-border/53'
-                    }`}
-                  >
-                    <Icon
-                      size={20}
-                      className={isActive ? 'text-primary' : 'text-muted-foreground'}
-                    />
-                  </div>
-                  <h3 className="text-lg font-bold">{step.title}</h3>
-                  <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{step.desc}</p>
-                  {i < STEPS.length - 1 && (
-                    <div className="absolute -right-5 top-1/2 hidden -translate-y-1/2 md:block">
-                      <ArrowRight size={18} className="text-border" />
-                    </div>
-                  )}
-                </button>
-              );
-            })}
-          </div>
-
-          <div className="mt-8 text-center sm:mt-12">
-            <Link
-              href="/sign-up"
-              className="inline-flex items-center gap-2 text-sm font-semibold text-primary transition-colors"
-            >
-              Get started &mdash; it&apos;s free
-              <ArrowRight size={16} />
-            </Link>
+          <div className="grid gap-8 md:grid-cols-3 md:gap-0">
+            {STEPS.map((step, i) => (
+              <div
+                key={step.id}
+                className={`flex flex-col gap-3 ${
+                  i > 0 ? 'md:border-l md:border-border md:pl-12' : ''
+                } ${i < STEPS.length - 1 ? 'md:pr-12' : ''}`}
+              >
+                <span className="font-mono text-xs font-medium tracking-[0.1em] text-primary">
+                  {step.id}
+                </span>
+                <h3 className="text-xl font-bold tracking-tight sm:text-2xl">{t(step.titleKey)}</h3>
+                <p className="text-sm leading-relaxed text-muted-foreground">{t(step.descKey)}</p>
+              </div>
+            ))}
           </div>
         </div>
       </section>
 
       {/* ================================================================= */}
-      {/* FEATURED PROPERTIES                                               */}
+      {/* LISTINGS + CITIES                                                 */}
       {/* ================================================================= */}
-      <section className="pb-16 md:pb-32">
+      <section className="pb-16 md:pb-24">
         <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8">
-          <h2 className="mb-8 text-3xl font-extrabold tracking-tight sm:text-4xl md:mb-12 md:text-6xl">
-            Selected<span className="text-primary">.</span>
-          </h2>
+          {/* Header */}
+          <div className="flex items-baseline justify-between mb-8">
+            <h2 className="text-3xl font-bold tracking-tight sm:text-4xl">{t('listingsTitle')}</h2>
+            <Link
+              href="/properties"
+              className="hidden sm:inline-flex items-center gap-1.5 font-mono text-sm font-medium text-primary transition-colors"
+            >
+              {t('viewAll')}
+              <ArrowRight size={14} />
+            </Link>
+          </div>
 
-          <div className="grid gap-4 sm:grid-cols-2 sm:gap-6 lg:grid-cols-3">
+          {/* 4-column property grid */}
+          <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
             {PROPERTIES.map((prop, i) => (
               <Link
-                key={`prop-${prop.location}-${i}`}
+                key={`prop-${prop.location}`}
                 href="/properties"
                 className="dusk-card group block overflow-hidden"
               >
-                <div className="relative h-40 w-full overflow-hidden sm:h-48">
+                <div className="relative h-44 w-full overflow-hidden">
                   <Image
                     src={img(i)}
-                    alt={prop.location}
+                    alt={prop.title}
                     fill
                     className="object-cover transition-transform duration-300 group-hover:scale-105"
-                    sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                    sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent pointer-events-none" />
-                </div>
-                <div className="p-4 sm:p-5">
-                  <div className="font-mono text-lg font-bold text-primary sm:text-xl">
-                    {prop.price}{' '}
-                    <span className="text-xs font-normal text-muted-foreground sm:text-sm">
-                      FCFA/mo
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/25 via-transparent to-transparent pointer-events-none" />
+                  <div className="absolute top-2.5 left-2.5 flex items-center gap-1 rounded-full bg-success/90 px-2 py-0.5">
+                    <Shield size={10} className="text-success-foreground" />
+                    <span className="font-mono text-[10px] font-semibold text-success-foreground">
+                      Vérifié
                     </span>
                   </div>
-                  <div className="mt-2 flex items-center gap-1.5 text-sm">
-                    <MapPin size={14} className="text-muted-foreground" />
+                </div>
+                <div className="p-4">
+                  <div className="font-mono text-base font-bold text-primary">
+                    {formatNumber(prop.price, locale)}{' '}
+                    <span className="text-xs font-normal text-muted-foreground">FCFA/mois</span>
+                  </div>
+                  <div className="mt-1.5 text-sm font-semibold leading-tight">{prop.title}</div>
+                  <div className="mt-1 flex items-center gap-1 text-xs text-muted-foreground">
+                    <MapPin size={12} />
                     {prop.location}
                   </div>
-                  <div className="mt-3 flex flex-wrap gap-1.5 sm:mt-4 sm:gap-2">
+                  <div className="mt-3 flex flex-wrap gap-1.5">
                     {prop.tags.map((tag) => (
                       <span key={tag} className="dusk-tag font-mono text-muted-foreground">
                         {tag}
@@ -416,117 +302,36 @@ export default function HomePage() {
             ))}
           </div>
 
-          <div className="mt-8 text-center sm:mt-12">
+          {/* Mobile "View all" link */}
+          <div className="mt-6 text-center sm:hidden">
             <Link
               href="/properties"
-              className="inline-flex items-center gap-2 text-sm font-semibold text-primary transition-colors"
+              className="inline-flex items-center gap-1.5 font-mono text-sm font-medium text-primary"
             >
-              See all listings
-              <ArrowRight size={16} />
+              {t('viewAll')}
+              <ArrowRight size={14} />
             </Link>
           </div>
-        </div>
-      </section>
 
-      {/* ================================================================= */}
-      {/* LIVE FEED                                                         */}
-      {/* ================================================================= */}
-      <section className="pb-16 md:pb-32">
-        <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="mb-6 flex items-end gap-3 sm:mb-8 sm:gap-4">
-            <h2 className="text-3xl font-extrabold tracking-tight sm:text-4xl md:text-6xl">
-              Latest<span className="text-primary">.</span>
-            </h2>
-            <span className="pulse-dot mb-1.5 inline-block h-2 w-2 rounded-full bg-success sm:mb-2 sm:h-2.5 sm:w-2.5 md:mb-3" />
-          </div>
-
-          <div className="overflow-hidden rounded-xl bg-card border border-border">
-            {FEED_ITEMS.map((item, i) => (
-              <Link
-                key={`feed-${item.location}-${i}`}
-                href="/properties"
-                className="dusk-row flex items-center gap-2.5 px-3 py-3 sm:gap-4 sm:px-5 sm:py-4"
-              >
-                <div className="relative h-8 w-8 shrink-0 overflow-hidden rounded-md sm:h-10 sm:w-10 sm:rounded-lg">
-                  <Image
-                    src={img(i)}
-                    alt={item.location}
-                    fill
-                    className="object-cover"
-                    sizes="40px"
-                  />
-                </div>
-                <span className="font-mono shrink-0 text-xs font-bold text-primary sm:w-28 sm:text-sm">
-                  {item.price} F
-                </span>
-                <span className="min-w-0 flex-1 truncate text-xs sm:text-sm">{item.location}</span>
-                <span className="dusk-tag font-mono hidden text-muted-foreground sm:inline-block">
-                  {item.type}
-                </span>
-                <span className="font-mono shrink-0 text-[10px] text-muted-foreground sm:text-xs">
-                  {item.time}
-                </span>
-                <ArrowRight size={14} className="hidden shrink-0 text-border sm:block" />
-              </Link>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ================================================================= */}
-      {/* TESTIMONIALS                                                      */}
-      {/* ================================================================= */}
-      <section className="pb-16 md:pb-32">
-        <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8">
-          <h2 className="mb-8 text-3xl font-extrabold tracking-tight sm:text-4xl md:mb-12 md:text-6xl">
-            Real people<span className="text-primary">.</span>
-          </h2>
-
-          <div className="grid gap-4 sm:gap-6 md:grid-cols-3">
-            {TESTIMONIALS.map((t) => (
-              <div key={t.name} className="rounded-xl border border-border bg-card p-5 sm:p-6">
-                <p className="text-sm leading-relaxed sm:text-base">&ldquo;{t.quote}&rdquo;</p>
-                <div className="mt-5 flex items-center gap-3 border-t border-border pt-4">
-                  <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-sm font-bold dusk-accent-badge">
-                    {t.name.charAt(0)}
-                  </div>
-                  <div>
-                    <div className="text-sm font-semibold">{t.name}</div>
-                    <div className="font-mono text-xs text-muted-foreground">
-                      {t.role} &middot; {t.city}
-                    </div>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ================================================================= */}
-      {/* BROWSE BY CITY                                                    */}
-      {/* ================================================================= */}
-      <section className="pb-16 md:pb-32">
-        <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8">
-          <h2 className="mb-8 text-3xl font-extrabold tracking-tight sm:text-4xl md:mb-12 md:text-6xl">
-            Browse by city<span className="text-primary">.</span>
-          </h2>
-
-          <div className="grid gap-4 sm:grid-cols-3 sm:gap-6">
+          {/* City cards */}
+          <div className="mt-10 grid gap-4 sm:grid-cols-3">
             {CITIES.map((city) => (
               <Link
-                key={city.name}
-                href={`/properties?city=${city.name}`}
-                className="group flex items-center justify-between rounded-xl border border-border bg-card p-5 transition-all hover:border-primary/40 sm:p-6"
+                key={city.query}
+                href={`/properties?city=${city.query}`}
+                className="group flex items-center justify-between rounded-xl border border-border bg-card p-5 transition-all hover:border-primary/40"
               >
                 <div>
-                  <div className="text-lg font-bold sm:text-xl">{city.name}</div>
+                  <div className="text-lg font-bold">{t(city.name)}</div>
                   <div className="font-mono mt-1 text-xs text-muted-foreground">
-                    {city.desc} &middot; {formatNumber(city.count, locale)} listings
+                    {t(city.sub)} &middot;{' '}
+                    {t('cityListings', {
+                      count: formatNumber(city.count, locale),
+                    })}
                   </div>
                 </div>
                 <ArrowRight
-                  size={20}
+                  size={18}
                   className="shrink-0 text-primary transition-transform group-hover:translate-x-1"
                 />
               </Link>
@@ -536,21 +341,96 @@ export default function HomePage() {
       </section>
 
       {/* ================================================================= */}
-      {/* TRUST METRICS                                                     */}
+      {/* TRUST STRIP — facts + testimonial                                 */}
       {/* ================================================================= */}
-      <section className="bg-primary py-14 md:py-28">
-        <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-2 gap-8 md:grid-cols-4 md:gap-8">
-            {METRICS.map((m) => (
-              <div key={m.label}>
-                <div className="text-4xl font-extrabold tracking-tighter text-primary-foreground sm:text-5xl md:text-7xl">
-                  {m.value}
+      <section style={{ backgroundColor: '#0c1222' }}>
+        <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8 py-16 md:py-20">
+          <div className="flex flex-col gap-12 lg:flex-row lg:items-center lg:gap-16">
+            {/* Trust facts */}
+            <div className="flex flex-wrap gap-10 lg:gap-12 flex-1">
+              <div className="flex flex-col gap-2">
+                <span
+                  className="text-3xl font-extrabold tracking-tight sm:text-4xl"
+                  style={{ color: '#f1f1f1' }}
+                >
+                  98,2%
+                </span>
+                <span
+                  className="font-mono text-[11px] uppercase tracking-[0.08em]"
+                  style={{ color: '#9ba4b5' }}
+                >
+                  {t('trustVerified')}
+                </span>
+              </div>
+              <div
+                className="hidden lg:block w-px self-stretch"
+                style={{ backgroundColor: '#1e2a42' }}
+              />
+              <div className="flex flex-col gap-2">
+                <span
+                  className="text-3xl font-extrabold tracking-tight sm:text-4xl"
+                  style={{ color: '#f1f1f1' }}
+                >
+                  MTN &amp; OM
+                </span>
+                <span
+                  className="font-mono text-[11px] uppercase tracking-[0.08em]"
+                  style={{ color: '#9ba4b5' }}
+                >
+                  {t('trustMobileMoney')}
+                </span>
+              </div>
+              <div
+                className="hidden lg:block w-px self-stretch"
+                style={{ backgroundColor: '#1e2a42' }}
+              />
+              <div className="flex flex-col gap-2">
+                <span
+                  className="text-3xl font-extrabold tracking-tight sm:text-4xl"
+                  style={{ color: '#e8a838' }}
+                >
+                  0 FCFA
+                </span>
+                <span
+                  className="font-mono text-[11px] uppercase tracking-[0.08em]"
+                  style={{ color: '#9ba4b5' }}
+                >
+                  {t('trustFree')}
+                </span>
+              </div>
+            </div>
+
+            {/* Divider */}
+            <div
+              className="hidden lg:block w-px self-stretch"
+              style={{ backgroundColor: '#1e2a42' }}
+            />
+
+            {/* Testimonial */}
+            <div className="flex flex-col gap-4 lg:w-[380px] lg:flex-shrink-0">
+              <p className="text-base leading-relaxed italic" style={{ color: '#f1f1f1' }}>
+                &laquo; {t('testimonialQuote')} &raquo;
+              </p>
+              <div className="flex items-center gap-3">
+                <div
+                  className="flex h-8 w-8 items-center justify-center rounded-full text-sm font-bold"
+                  style={{
+                    backgroundColor: 'rgba(232, 168, 56, 0.12)',
+                    color: '#e8a838',
+                  }}
+                >
+                  A
                 </div>
-                <div className="font-mono mt-2 text-[10px] uppercase tracking-widest text-primary-foreground/70 sm:mt-3 sm:text-xs">
-                  {m.label}
+                <div>
+                  <div className="text-sm font-semibold" style={{ color: '#f1f1f1' }}>
+                    {t('testimonialName')}
+                  </div>
+                  <div className="font-mono text-xs" style={{ color: '#9ba4b5' }}>
+                    {t('testimonialRole')}
+                  </div>
                 </div>
               </div>
-            ))}
+            </div>
           </div>
         </div>
       </section>
@@ -558,20 +438,19 @@ export default function HomePage() {
       {/* ================================================================= */}
       {/* CTA                                                               */}
       {/* ================================================================= */}
-      <section className="py-16 md:py-32 bg-gradient-to-b from-accent/50 via-background to-background">
+      <section className="py-16 md:py-24">
         <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8 text-center">
-          <h2 className="text-3xl font-extrabold tracking-tight sm:text-4xl md:text-6xl">
-            Find home<span className="text-primary">.</span>
+          <h2 className="text-3xl font-extrabold tracking-tight sm:text-4xl md:text-5xl">
+            {t('ctaTitle')}
           </h2>
 
-          <p className="mx-auto mt-4 max-w-lg text-sm leading-relaxed text-muted-foreground sm:mt-6 sm:text-base md:text-lg">
-            Your next home is one search away. Browse verified listings across Cameroon&apos;s
-            biggest cities.
+          <p className="mx-auto mt-4 max-w-lg text-base leading-relaxed text-muted-foreground sm:mt-6 sm:text-lg">
+            {t('ctaSubtitle')}
           </p>
 
           <div className="mt-8 sm:mt-10">
             <Link href="/properties" className="dusk-btn-amber font-mono text-sm">
-              Start searching
+              {t('ctaButton')}
               <ArrowRight size={16} />
             </Link>
           </div>

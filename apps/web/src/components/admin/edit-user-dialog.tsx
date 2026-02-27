@@ -70,7 +70,7 @@ export function EditUserDialog({ open, onOpenChange, user }: EditUserDialogProps
       // Validate & normalize phone to storage format (+237XXXXXXXXX)
       const storagePhone = phone ? toStoragePhone(phone) : undefined;
       if (phone && !storagePhone) {
-        setPhoneError('Format attendu: +237 6XXXXXXXX ou +237 2XXXXXXXX');
+        setPhoneError(t('admin.editPhoneError'));
         return;
       }
       setPhoneError('');
@@ -115,36 +115,36 @@ export function EditUserDialog({ open, onOpenChange, user }: EditUserDialogProps
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Modifier le profil</DialogTitle>
+          <DialogTitle>{t('admin.editDialogTitle')}</DialogTitle>
           <DialogDescription>
-            Modifier les informations de {user.firstName || user.email}
+            {t('admin.editDialogDesc', { name: user.firstName || user.email })}
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="edit-email">Email</Label>
+            <Label htmlFor="edit-email">{t('admin.editEmail')}</Label>
             <Input id="edit-email" value={user.email} disabled className="bg-muted" />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="edit-firstName">Prénom</Label>
+            <Label htmlFor="edit-firstName">{t('admin.editFirstName')}</Label>
             <Input
               id="edit-firstName"
               value={firstName}
               onChange={(e) => setFirstName(e.target.value)}
-              placeholder="Prénom"
+              placeholder={t('admin.editFirstName')}
             />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="edit-lastName">Nom</Label>
+            <Label htmlFor="edit-lastName">{t('admin.editLastName')}</Label>
             <Input
               id="edit-lastName"
               value={lastName}
               onChange={(e) => setLastName(e.target.value)}
-              placeholder="Nom"
+              placeholder={t('admin.editLastName')}
             />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="edit-phone">Téléphone</Label>
+            <Label htmlFor="edit-phone">{t('admin.editPhone')}</Label>
             <Input
               id="edit-phone"
               value={phone}
@@ -157,33 +157,31 @@ export function EditUserDialog({ open, onOpenChange, user }: EditUserDialogProps
             {phoneError && <p className="text-sm text-destructive">{phoneError}</p>}
           </div>
           <div className="space-y-2">
-            <Label htmlFor="edit-role">Rôle</Label>
+            <Label htmlFor="edit-role">{t('admin.editRole')}</Label>
             <Select value={role} onValueChange={setRole} disabled={user.role === 'admin'}>
               <SelectTrigger id="edit-role">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="renter">Locataire</SelectItem>
-                <SelectItem value="landlord">Propriétaire</SelectItem>
-                <SelectItem value="verifier">Vérificateur</SelectItem>
+                <SelectItem value="renter">{t('roles.renter')}</SelectItem>
+                <SelectItem value="landlord">{t('roles.landlord')}</SelectItem>
+                <SelectItem value="verifier">{t('roles.verifier')}</SelectItem>
                 <SelectItem value="admin" disabled>
-                  Administrateur
+                  {t('roles.admin')}
                 </SelectItem>
               </SelectContent>
             </Select>
             {user.role === 'admin' && (
-              <p className="text-xs text-muted-foreground">
-                Le rôle administrateur ne peut être modifié que depuis la base de données
-              </p>
+              <p className="text-xs text-muted-foreground">{t('admin.editRoleAdminNote')}</p>
             )}
           </div>
           <DialogFooter>
             <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
-              Annuler
+              {t('common.cancel')}
             </Button>
             <Button type="submit" disabled={isSubmitting}>
               {isSubmitting && <Loader2 className="h-4 w-4 animate-spin" />}
-              Enregistrer
+              {t('common.save')}
             </Button>
           </DialogFooter>
         </form>

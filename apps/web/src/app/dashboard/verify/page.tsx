@@ -16,7 +16,7 @@ import { parseAppLocale } from '@/i18n/config';
 import { formatCurrencyFCFA, formatDate } from '@/lib/i18n-format';
 import { api } from '@repo/convex/_generated/api';
 import { useQuery } from 'convex/react';
-import { useLocale } from 'gt-next/client';
+import { useLocale, useTranslations } from 'gt-next/client';
 import {
   AlertCircle,
   Building2,
@@ -45,22 +45,22 @@ function formatVerificationCurrency(amount: number, locale: string): string {
 
 const statusConfig = {
   pending: {
-    label: 'En attente',
+    labelKey: 'verify.statusPending',
     icon: Clock,
     color: 'bg-warning/10 text-warning',
   },
   in_progress: {
-    label: 'En cours',
+    labelKey: 'verify.statusInProgress',
     icon: Shield,
     color: 'bg-primary/10 text-primary',
   },
   approved: {
-    label: 'Approuvé',
+    labelKey: 'verify.statusApproved',
     icon: CheckCircle,
     color: 'bg-success/10 text-success',
   },
   rejected: {
-    label: 'Rejeté',
+    labelKey: 'verify.statusRejected',
     icon: XCircle,
     color: 'bg-destructive/10 text-destructive',
   },
@@ -68,6 +68,7 @@ const statusConfig = {
 
 function VerifyDashboardContent() {
   const locale = parseAppLocale(useLocale());
+  const t = useTranslations();
   const router = useRouter();
   const { isVerifier, isLoaded, role } = usePermissions();
   const [cityFilter, setCityFilter] = useState<string>('all');
@@ -112,12 +113,12 @@ function VerifyDashboardContent() {
       {/* Header */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight md:text-3xl">Vérifications</h1>
-          <p className="text-muted-foreground mt-1">Gérer les vérifications de propriétés</p>
+          <h1 className="text-2xl font-bold tracking-tight md:text-3xl">{t('verify.title')}</h1>
+          <p className="text-muted-foreground mt-1">{t('verify.subtitle')}</p>
         </div>
         <Badge className="bg-accent text-accent-foreground w-fit">
           <Shield className="w-3 h-3 mr-1" />
-          Vérificateur
+          {t('verify.verifierBadge')}
         </Badge>
       </div>
 
@@ -126,51 +127,53 @@ function VerifyDashboardContent() {
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">En attente</CardTitle>
+              <CardTitle className="text-sm font-medium">{t('verify.statsPending')}</CardTitle>
               <Clock className="h-4 w-4 text-warning" />
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold font-mono tabular-nums text-warning">
                 {stats.propertiesPendingVerification}
               </div>
-              <p className="text-xs text-muted-foreground">propriétés à vérifier</p>
+              <p className="text-xs text-muted-foreground">{t('verify.statsPropertiesToVerify')}</p>
             </CardContent>
           </Card>
 
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">En cours</CardTitle>
+              <CardTitle className="text-sm font-medium">{t('verify.statsInProgress')}</CardTitle>
               <Shield className="h-4 w-4 text-primary" />
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold font-mono tabular-nums">{stats.inProgress}</div>
-              <p className="text-xs text-muted-foreground">vérifications en cours</p>
+              <p className="text-xs text-muted-foreground">
+                {t('verify.statsVerificationsInProgress')}
+              </p>
             </CardContent>
           </Card>
 
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Approuvées</CardTitle>
+              <CardTitle className="text-sm font-medium">{t('verify.statsApproved')}</CardTitle>
               <CheckCircle className="h-4 w-4 text-success" />
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold font-mono tabular-nums text-success">
                 {stats.approved}
               </div>
-              <p className="text-xs text-muted-foreground">ce mois</p>
+              <p className="text-xs text-muted-foreground">{t('verify.statsThisMonth')}</p>
             </CardContent>
           </Card>
 
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Rejetées</CardTitle>
+              <CardTitle className="text-sm font-medium">{t('verify.statsRejected')}</CardTitle>
               <XCircle className="h-4 w-4 text-destructive" />
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold font-mono tabular-nums text-destructive">
                 {stats.rejected}
               </div>
-              <p className="text-xs text-muted-foreground">ce mois</p>
+              <p className="text-xs text-muted-foreground">{t('verify.statsThisMonth')}</p>
             </CardContent>
           </Card>
         </div>
@@ -183,19 +186,17 @@ function VerifyDashboardContent() {
             <div>
               <CardTitle className="flex items-center gap-2">
                 <Clock className="h-5 w-5 text-warning" />
-                Propriétés en attente de vérification
+                {t('verify.pendingTitle')}
               </CardTitle>
-              <CardDescription>
-                Sélectionnez une propriété pour commencer la vérification
-              </CardDescription>
+              <CardDescription>{t('verify.pendingDesc')}</CardDescription>
             </div>
             <Select value={cityFilter} onValueChange={setCityFilter}>
               <SelectTrigger className="w-full sm:w-48">
                 <MapPin className="h-4 w-4 mr-2" />
-                <SelectValue placeholder="Toutes les villes" />
+                <SelectValue placeholder={t('verify.allCities')} />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">Toutes les villes</SelectItem>
+                <SelectItem value="all">{t('verify.allCities')}</SelectItem>
                 {cities.map((city) => (
                   <SelectItem key={city} value={city}>
                     {city}
@@ -231,7 +232,7 @@ function VerifyDashboardContent() {
                       </span>
                       <span className="flex items-center gap-1">
                         <User className="h-3 w-3" />
-                        {property.landlord?.firstName || 'Inconnu'}{' '}
+                        {property.landlord?.firstName || t('verify.unknownLandlord')}{' '}
                         {property.landlord?.lastName || ''}
                       </span>
                       <span className="font-mono tabular-nums">
@@ -239,7 +240,9 @@ function VerifyDashboardContent() {
                       </span>
                     </div>
                     <p className="text-xs text-muted-foreground mt-1">
-                      Soumis le {formatVerificationDate(property._creationTime, locale)}
+                      {t('verify.submittedOn', {
+                        date: formatVerificationDate(property._creationTime, locale),
+                      })}
                     </p>
                   </div>
                   <div className="flex items-center gap-2">
@@ -253,13 +256,19 @@ function VerifyDashboardContent() {
                       >
                         {statusConfig[
                           property.existingVerification.status as keyof typeof statusConfig
-                        ]?.label || property.existingVerification.status}
+                        ]?.labelKey
+                          ? t(
+                              statusConfig[
+                                property.existingVerification.status as keyof typeof statusConfig
+                              ].labelKey
+                            )
+                          : property.existingVerification.status}
                       </Badge>
                     ) : (
-                      <Badge variant="secondary">Non assigné</Badge>
+                      <Badge variant="secondary">{t('verify.notAssigned')}</Badge>
                     )}
                     <Link href={`/dashboard/verify/${property._id}`}>
-                      <Button size="sm">Vérifier</Button>
+                      <Button size="sm">{t('admin.verify')}</Button>
                     </Link>
                   </div>
                 </div>
@@ -268,8 +277,8 @@ function VerifyDashboardContent() {
           ) : (
             <div className="text-center py-12 text-muted-foreground">
               <CheckCircle className="w-12 h-12 mx-auto mb-4 text-success opacity-50" />
-              <h3 className="text-lg font-medium mb-1">Aucune vérification en attente</h3>
-              <p>Toutes les propriétés ont été traitées</p>
+              <h3 className="text-lg font-medium mb-1">{t('verify.noPendingVerifications')}</h3>
+              <p>{t('verify.allPropertiesProcessed')}</p>
             </div>
           )}
         </CardContent>
@@ -279,8 +288,8 @@ function VerifyDashboardContent() {
       {myVerifications && myVerifications.length > 0 && (
         <Card>
           <CardHeader>
-            <CardTitle>Mes vérifications récentes</CardTitle>
-            <CardDescription>Historique de vos vérifications</CardDescription>
+            <CardTitle>{t('verify.myRecentVerifications')}</CardTitle>
+            <CardDescription>{t('verify.myVerificationsDesc')}</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="space-y-3">
@@ -305,7 +314,7 @@ function VerifyDashboardContent() {
                       </div>
                     </div>
                     <Badge className={config?.color || ''}>
-                      {config?.label || verification.status}
+                      {config?.labelKey ? t(config.labelKey) : verification.status}
                     </Badge>
                   </div>
                 );
@@ -318,23 +327,23 @@ function VerifyDashboardContent() {
   );
 }
 
+function VerifyAccessDeniedFallback() {
+  const t = useTranslations();
+  return (
+    <div className="flex flex-col items-center justify-center min-h-[400px] text-center">
+      <AlertCircle className="w-12 h-12 text-destructive mb-4" />
+      <h2 className="text-xl font-semibold mb-2">{t('common.accessDenied')}</h2>
+      <p className="text-muted-foreground mb-4">{t('common.accessDeniedDesc')}</p>
+      <Link href="/dashboard">
+        <Button>{t('common.backToDashboard')}</Button>
+      </Link>
+    </div>
+  );
+}
+
 export default function VerifyDashboardPage() {
   return (
-    <RequireRole
-      roles={['admin', 'verifier']}
-      fallback={
-        <div className="flex flex-col items-center justify-center min-h-[400px] text-center">
-          <AlertCircle className="w-12 h-12 text-destructive mb-4" />
-          <h2 className="text-xl font-semibold mb-2">Accès refusé</h2>
-          <p className="text-muted-foreground mb-4">
-            Vous n'avez pas les permissions nécessaires pour accéder à cette page.
-          </p>
-          <Link href="/dashboard">
-            <Button>Retour au tableau de bord</Button>
-          </Link>
-        </div>
-      }
-    >
+    <RequireRole roles={['admin', 'verifier']} fallback={<VerifyAccessDeniedFallback />}>
       <VerifyDashboardContent />
     </RequireRole>
   );

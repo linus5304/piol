@@ -83,16 +83,17 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
               <Star size={12} className="fill-primary text-primary" />
             </div>
             <p className="text-sm leading-relaxed text-white/80">
-              &ldquo;I found my apartment in Bonapriso in 2 days. The photos matched, the landlord
-              was real, and I contacted them directly the same evening.&rdquo;
+              &ldquo;{t('testimonial')}&rdquo;
             </p>
             <div className="mt-4 flex items-center gap-3">
               <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/20 text-xs font-bold text-primary">
                 A
               </div>
               <div>
-                <div className="text-sm font-medium text-white">Amina K.</div>
-                <div className="font-mono text-[10px] text-white/40">Renter &middot; Douala</div>
+                <div className="text-sm font-medium text-white">{t('testimonialAuthor')}</div>
+                <div className="font-mono text-[10px] text-white/40">
+                  {t('testimonialRole')} &middot; Douala
+                </div>
               </div>
             </div>
           </div>
@@ -122,13 +123,13 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
 
         {/* Footer */}
         <footer className="p-6 text-center text-sm text-muted-foreground">
-          <p>&copy; {currentYear} Piol. All rights reserved.</p>
+          <p>&copy; {currentYear} Piol.</p>
           <div className="mt-2 flex items-center justify-center gap-4">
             <Link href="/terms" className="transition-colors hover:text-foreground">
-              Terms
+              {t('termsLink')}
             </Link>
             <Link href="/privacy" className="transition-colors hover:text-foreground">
-              Privacy
+              {t('privacyLink')}
             </Link>
           </div>
         </footer>

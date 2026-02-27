@@ -3,7 +3,7 @@
 import {
   type Permission,
   ROLE_HIERARCHY,
-  ROLE_LABELS,
+  ROLE_KEYS,
   type UserRole,
   canManageRole,
   getPermissionsForRole,
@@ -12,6 +12,7 @@ import {
   hasPermission,
   isValidRole,
 } from '@/lib/permissions';
+import { useTranslations } from 'gt-next/client';
 import { useCurrentUserRole } from './use-current-user-role';
 
 interface UsePermissionsReturn {
@@ -63,6 +64,7 @@ interface UsePermissionsReturn {
  */
 export function usePermissions(): UsePermissionsReturn {
   const { role, isLoaded } = useCurrentUserRole();
+  const t = useTranslations();
 
   return {
     role,
@@ -78,7 +80,7 @@ export function usePermissions(): UsePermissionsReturn {
 
     permissions: role ? getPermissionsForRole(role) : [],
 
-    roleLabel: role ? ROLE_LABELS[role] : undefined,
+    roleLabel: role ? t(ROLE_KEYS[role]) : undefined,
 
     hasRole: (checkRole: UserRole) => role === checkRole,
 
