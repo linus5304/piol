@@ -5,6 +5,9 @@
 /** 9-digit Cameroon local number: starts with 6 (mobile) or 2 (landline). */
 export const CM_PHONE_RE = /^[62]\d{8}$/;
 
+/** Storage format: +237 prefix + 9 local digits. */
+export const CM_PHONE_STORAGE_RE = /^\+237[62]\d{8}$/;
+
 /** Full pattern accepting optional +237 prefix, spaces, dashes. */
 const CM_PHONE_FULL_RE = /^(?:\+?237\s*)?([62]\d{8})$/;
 
